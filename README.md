@@ -1,0 +1,62 @@
+# agentic-tdd-linter
+
+`agentic-tdd-linter` is a linter for verifying Python tests in support of [Test-driven development (TDD)](https://martinfowler.com/bliki/TestDrivenDevelopment.html) when coding with agents such as Claude, Codex.
+It helps ensure that tests written by coding agents are clear, focused, meaningful, and suitable for guiding implementation.
+
+## Development Pattern
+
+`agentic-tdd-linter` is designed for an agentic test-driven development (TDD) workflow built around the classic TDD loop:
+`Red -> Green -> Refactor`
+
+Follow this flow
+1. A human asks a coding agent to develop or modify a feature.
+2. Red: test development, **with human review**
+   * The coding agent writes tests for the intended behavior.
+   * `agentic-tdd-linter` reviews the tests to verify that they are understandable, focused, meaningful, and non-redundant.
+   * The coding agent iterates on the tests until they are clear enough for human review.
+   * The human reviews the tests as the primary specification of the intended behavior.
+   * If the tests accurately capture the desired behavior, the human approves the tests.
+3. Green: feature implementation, **without human review**
+   * The coding agent implements the feature until the approved tests pass.
+   * The generated implementation is accepted based on the approved test suite, rather than line-by-line human review.
+4. Refactor: implementation cleanup, **without human review**
+   * The coding agent simplifies the implementation while keeping the approved tests passing.
+   * A typical refactoring prompt is:
+     ```text
+     Simplify the code and remove unnecessary edge-case handling as long as all tests continue to pass.
+     ```
+   * The refactored implementation is accepted based on the approved test suite.
+
+
+The assumption behind this workflow is that generated implementation code may be too large or complex for humans to review line by line. 
+Instead, human review should focus on the tests, because the tests define the intended behavior.
+If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
+
+
+## Why agentic-tdd-linter?
+
+Coding agents can write tests quickly, but those tests are not always good TDD tests.
+
+`agentic-tdd-linter` helps verify that tests are:
+* clear and understandable
+* focused on one behavior or requirement
+* backed by meaningful assertions
+* not redundant with existing tests
+* connected to changed code
+* supported by coverage checks
+
+## How to Use agentic-tdd-linter
+
+### From your coding agent
+
+Paste this prompt into your coding agent, such as Claude or Codex:
+
+```text
+Add the following command as an additional check after the normal test suite:
+
+uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check
+
+Follow the repository’s existing patterns for test scripts. Do not replace existing tests or linters.
+```
+
+The coding agent should add this command to the repository’s standard testing workflow, such as a Makefile, justfile, CI workflow, or test script.
