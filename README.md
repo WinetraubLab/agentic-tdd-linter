@@ -40,19 +40,18 @@ Follow this flow:
 
 The key assumption is that generated implementation code may be too large or complex for humans to review line by line. Instead, human review should focus on the tests, because the tests define the intended behavior. If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
 
-## Why agentic-tdd-linter?
+## What It Checks
 
-Coding agents can write tests quickly, but those tests are not always good TDD tests.
+`agentic-tdd-linter` looks for tests that are:
 
-`agentic-tdd-linter` helps verify that tests are:
-* clear and understandable
-* focused on one behavior or requirement
-* backed by meaningful assertions
-* not redundant with existing tests
-* connected to changed code
-* supported by coverage checks
+- vague or hard to understand
+- too broad for a single behavior
+- missing meaningful assertions
+- redundant with existing tests
+- unrelated to the changed implementation
+- unsupported by coverage information
 
-## How to Use agentic-tdd-linter
+The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
 ### From your coding agent
 
