@@ -10,8 +10,13 @@ Coding agents can generate implementation faster than humans can review it line 
 
 ## Development Pattern
 
-`agentic-tdd-linter` is designed for an agentic test-driven development (TDD) workflow built around the classic TDD loop:
-`Red -> Green -> Refactor`
+`agentic-tdd-linter` is designed for an agentic TDD workflow built around the classic loop:
+
+```text
+Red -> Green -> Refactor
+```
+
+Follow this flow:
 
 Follow this flow
 1. A human asks a coding agent to develop or modify a feature.
