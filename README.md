@@ -43,7 +43,6 @@ The key assumption is that generated implementation code may be too large or com
 ## What It Checks
 
 `agentic-tdd-linter` looks for tests that are:
-
 - vague or hard to understand
 - too broad for a single behavior
 - missing meaningful assertions
