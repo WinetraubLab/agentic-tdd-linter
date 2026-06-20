@@ -18,30 +18,27 @@ Red -> Green -> Refactor
 
 Follow this flow:
 
-Follow this flow
 1. A human asks a coding agent to develop or modify a feature.
-2. Red: test development, **with human review**
-   * The coding agent writes tests for the intended behavior.
-   * `agentic-tdd-linter` reviews the tests to verify that they are understandable, focused, meaningful, and non-redundant.
-   * The coding agent iterates on the tests until they are clear enough for human review.
-   * The human reviews the tests as the primary specification of the intended behavior.
-   * If the tests accurately capture the desired behavior, the human approves the tests.
-3. Green: feature implementation, **without human review**
-   * The coding agent implements the feature until the approved tests pass.
-   * The generated implementation is accepted based on the approved test suite, rather than line-by-line human review.
-4. Refactor: implementation cleanup, **without human review**
-   * The coding agent simplifies the implementation while keeping the approved tests passing.
-   * A typical refactoring prompt is:
+2. Red: test development, **with human review**.
+   - The coding agent writes tests for the intended behavior.
+   - `agentic-tdd-linter` checks whether the tests are understandable, focused, meaningful, connected to the change, and non-redundant.
+   - The coding agent iterates on the tests until they are clear enough for human review.
+   - The human reviews the tests as the primary specification of the intended behavior.
+   - If the tests accurately capture the desired behavior, the human approves them.
+3. Green: feature implementation, **without human review**.
+   - The coding agent implements the feature until the approved tests pass.
+   - The generated implementation is accepted based on the approved test suite, rather than line-by-line human review.
+4. Refactor: implementation cleanup, **without human review**.
+   - The coding agent simplifies the implementation while keeping the approved tests passing.
+   - A typical refactoring prompt is:
+
      ```text
      Simplify the code and remove unnecessary edge-case handling as long as all tests continue to pass.
      ```
-   * The refactored implementation is accepted based on the approved test suite.
 
+   - The refactored implementation is accepted based on the approved test suite.
 
-The assumption behind this workflow is that generated implementation code may be too large or complex for humans to review line by line. 
-Instead, human review should focus on the tests, because the tests define the intended behavior.
-If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
-
+The key assumption is that generated implementation code may be too large or complex for humans to review line by line. Instead, human review should focus on the tests, because the tests define the intended behavior. If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
 
 ## Why agentic-tdd-linter?
 
