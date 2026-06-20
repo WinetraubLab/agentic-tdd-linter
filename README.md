@@ -53,7 +53,7 @@ The key assumption is that generated implementation code may be too large or com
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
-### From your coding agent
+## How to Add It to a Project
 
 Paste this prompt into your coding agent, such as Claude or Codex:
 
@@ -62,7 +62,8 @@ Add the following command as an additional check after the normal test suite:
 
 uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check
 
-Follow the repository’s existing patterns for test scripts. Do not replace existing tests or linters.
+Follow the repository's existing patterns for test scripts. Do not replace existing tests or linters.
 ```
 
-The coding agent should add this command to the repository’s standard testing workflow, such as a Makefile, justfile, CI workflow, or test script.
+The coding agent should add this command to the repository's standard testing workflow.
+The linter should run after the normal test suite, so its findings are evaluated alongside test and coverage results.
