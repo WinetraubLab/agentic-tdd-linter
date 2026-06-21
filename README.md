@@ -68,7 +68,7 @@ Paste this prompt into your coding agent, such as Claude or Codex:
 ```text
 Add the following command as an additional check after the normal test suite:
 
-uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all
+uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 
 Follow the repository's existing patterns for test scripts. Do not replace existing tests or linters.
 ```
