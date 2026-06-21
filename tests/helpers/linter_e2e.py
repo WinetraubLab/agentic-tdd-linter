@@ -57,7 +57,16 @@ def run_linter_with_review(
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
+            exit_code = main(
+                [
+                    "check",
+                    str(test_file),
+                    "--reviewer",
+                    "codex:gpt-5.5",
+                    "--repo-root",
+                    str(repo_root),
+                ]
+            )
 
         return LinterResult(exit_code=exit_code, output=stdout.getvalue())
 
@@ -78,7 +87,16 @@ def run_linter_source_with_review(*, source: str, status: str, note: str) -> Lin
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
+            exit_code = main(
+                [
+                    "check",
+                    str(test_file),
+                    "--reviewer",
+                    "codex:gpt-5.5",
+                    "--repo-root",
+                    str(repo_root),
+                ]
+            )
 
         return LinterResult(exit_code=exit_code, output=stdout.getvalue())
 
