@@ -110,3 +110,24 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertIn("agent_review_not_run", rules)
 
+    def test_reports_stale_signature(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Old source SHA emits stale review proof.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting `stale_agent_review_artifact` is reported for a mismatched SHA.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            artifact = _write_artifact(root, test_file, status="pass", source_hash="0" * 64)
+
+            rules = _issue_rules(lint_agent_review_artifact(test_file, artifact, root))
+
+        self.assertIn("stale_agent_review_artifact", rules)
+
