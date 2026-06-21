@@ -147,5 +147,43 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Run `e2e`; it creates the `.agent.md` file and raises an error
         so the agent can review it before running `e2e` again.
         """
+
+        scenario_name = "test_new_case"
+        _delete_scenario(scenario_name)
+        artifact_path = (
+            TEST_ROOT.parent
+            / "temporary_fixtures"
+            / "agentic_review_artifacts"
+            / f"{scenario_name}.agent.md"
+        )
+
+        # testing exception
+        with self.assertRaisesRegex(
+            RuntimeError,
+            (
+                "did not run, agent should review "
+                "temporary_fixtures/agentic_review_artifacts/test_new_case.agent.md "
+                "and then run test again"
+            ),
+        ):
+            linter_e2e_review(
+                scenario_name=scenario_name,
+                test_source_code="""
+                    def test_new_case() -> None:
+                        \"\"\"Test Path: happy path
+
+                        Requirement Tested:
+                        Addition returns a positive sum.
+
+                        Verification Method: verify public function output
+
+                        Verification Detail:
+                        Result value is positive.
+                        \"\"\"
+
+                        assert 1 + 1 > 0
+                """,
+            )
+
         self.assertTrue(artifact_path.exists())
 
