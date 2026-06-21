@@ -67,7 +67,7 @@ That means teams can use their existing local Claude or Codex session for review
 
 Run `agentic-tdd-linter check --all --reviewer ...` again when:
 - a reviewed test file changes
-- linter source changes
+- the linter version is bumped
 - `README.md`, `pyproject.toml`, or files under `docs` change
 - the manifest format changes
 - the review result changes
