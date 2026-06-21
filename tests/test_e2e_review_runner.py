@@ -187,3 +187,71 @@ class E2EReviewRunnerTests(unittest.TestCase):
 
         self.assertTrue(artifact_path.exists())
 
+    def test_review_returns_true_when_agent_approves_artifact(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Reviewed `e2e` pass scenario returns success.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Return status is true and reason reports no issues.
+        """
+
+        scenario_name = "test_pass_case"
+
+        status, reason = linter_e2e_review(
+            scenario_name=scenario_name,
+            test_source_code="""
+                def test_pass_case() -> None:
+                    \"\"\"Test Path: happy path
+
+                    Requirement Tested:
+                    Addition returns a positive sum.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    Result value is positive.
+                    \"\"\"
+
+                    assert 1 + 1 > 0
+            """,
+        )
+        self.assertIs(True, status)
+
+    def test_review_returns_false_when_agent_rejects_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Reviewed `e2e` fail scenario returns failure.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Return status is false and reason names `provided`.
+        """
+
+        scenario_name = "test_fail_case"
+
+        status, reason = linter_e2e_review(
+            scenario_name=scenario_name,
+            test_source_code="""
+                def test_fail_case() -> None:
+                    \"\"\"Test Path: happy path
+
+                    Requirement Tested:
+                    Output uses provided input.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    Bad generic detail, please fail linter.
+                    \"\"\"
+
+                    assert 1 + 1 > 0
+            """,
+        )
+        self.assertIs(False, status)
+
