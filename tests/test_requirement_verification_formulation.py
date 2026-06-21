@@ -21,7 +21,7 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Output includes too-narrow guidance.
+        Linter report includes too-narrow guidance.
         """
 
         cases = [
