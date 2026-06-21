@@ -49,7 +49,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Linter reports unsupported test path classifications as invalid test paths.
+        Linter emits invalid test path issues for unsupported classifications.
 
         Verification Method: verify private function output
 
@@ -143,7 +143,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Linter reports unsupported verification methods as invalid classifications.
+        Linter emits invalid method issues for unsupported verification methods.
 
         Verification Method: verify private function output
 
