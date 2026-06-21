@@ -15,3 +15,19 @@ agentic-tdd-linter check --all
 The first run writes review artifacts under `tests/agentic_review_artifacts`. These artifacts contain the review prompt, test source, status field, notes, and source SHA. They are intentionally ignored by git.
 
 Review those artifacts with the local Claude or Codex session already being used for development. After review, the agent sets each artifact `Status:` to `pass` or `fail`.
+## Manifest Contents
+
+Each JSONL record proves one reviewed test file:
+
+```json
+{"path": "tests/test_example.py", "source_sha256": "...", "status": "pass", "linter_version": "0.3.0", "review_contract_sha256": "...", "reviewer": "codex:gpt-5"}
+```
+
+The fields mean:
+- `path`: the reviewed test file.
+- `source_sha256`: the exact contents of that test file at review time.
+- `status`: the review result. CI accepts only `pass`.
+- `linter_version`: the linter version that wrote the attestation.
+- `review_contract_sha256`: a hash of the linter source and repository documentation.
+- `reviewer`: the model or agent identity used for review.
+
