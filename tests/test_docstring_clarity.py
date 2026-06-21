@@ -271,5 +271,45 @@ class DocstringClarityTests(unittest.TestCase):
                 self.assertIn(label, result.output)
                 self.assertIn("Sentence Structure Check", result.output)
 
+    def test_verification_five_sentences_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Linter rejects long verification details.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output includes Sentence Checks.
+        """
+
+        verification_detail = (
+            "by checking the sum is positive. "
+            "It uses two numbers. "
+            "It compares a total. "
+            "It confirms normal output. "
+            "It records the calculation result without hidden fallback checks or "
+            "extra branch expectations during review for this ordinary addition "
+            "example case only."
+        )
+
+        result = run_linter_with_review(
+            verification_detail=verification_detail,
+            status="fail",
+            note=(
+                "Sentence Checks: Fail. Verification Detail is too long."
+            ),
+        )
+
+        self.assertEqual(40, _word_count(verification_detail))
+        self.assertEqual(1, result.exit_code)
+        self.assertIn("agent_review_failed", result.output)
+        self.assertIn("Sentence Checks", result.output)
+
+
+def _word_count(text: str) -> int:
+    return len(text.split())
+
+
 if __name__ == "__main__":
     unittest.main()
