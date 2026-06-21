@@ -67,11 +67,12 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         Requirement Tested:
         `e2e` public parameters require keyword names.
+        This will prevent hidden parameters.
 
         Verification Method: verify file structure
 
         Verification Detail:
-        Function signature has keyword-only parameters.
+        Function signature begins with `*`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -80,6 +81,55 @@ class E2EReviewIntegrityTests(unittest.TestCase):
             for node in tree.body
             if isinstance(node, ast.FunctionDef) and "_" not in node.name
         ]
+        self.assertEqual(1, len(public_functions))
+        function = public_functions[0]
+        signature_text = _signature_text(E2E_MODULE, function)
+
+        self.assertTrue(signature_text.lstrip().startswith("*,"), signature_text)
+
+    def test_e2e_public_function_parameter_identities(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `e2e` public parameters use approved names.
+
+        Verification Method: verify file structure
+
+        Verification Detail:
+        Signature names `command` and `passes_on_success`.
+        """
+
+        tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
+        public_functions = [
+            node
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and "_" not in node.name
+        ]
+        self.assertEqual(1, len(public_functions))
+        function = public_functions[0]
+        parameter_names = [argument.arg for argument in function.args.kwonlyargs]
+
+        self.assertEqual(["command", "passes_on_success"], parameter_names)
+
+    def test_e2e_public_function_parameter_types(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `e2e` public parameters use approved types.
+
+        Verification Method: verify file structure
+
+        Verification Detail:
+        Signature types are `str` and `bool`.
+        """
+
+        tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
+        public_functions = [
+            node
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and "_" not in node.name
+        ]
+        self.assertEqual(1, len(public_functions))
         invalid_parameters: list[str] = []
 
         for function in public_functions:
@@ -91,8 +141,28 @@ class E2EReviewIntegrityTests(unittest.TestCase):
                 invalid_parameters.append(f"{function.name}.{function.args.vararg.arg}")
             if function.args.kwarg is not None:
                 invalid_parameters.append(f"{function.name}.{function.args.kwarg.arg}")
+            allowed_parameters = [
+                (argument.arg, _annotation_name(argument.annotation))
+                for argument in function.args.kwonlyargs
+            ]
+            self.assertEqual(
+                [("command", "str"), ("passes_on_success", "bool")],
+                allowed_parameters,
+            )
 
         self.assertEqual([], invalid_parameters)
+
+
+def _annotation_name(annotation: ast.expr | None) -> str:
+    if isinstance(annotation, ast.Name):
+        return annotation.id
+    return ""
+
+
+def _signature_text(path: Path, function: ast.FunctionDef) -> str:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    signature_lines = lines[function.lineno - 1 : function.body[0].lineno - 1]
+    return "\n".join(signature_lines).split("(", 1)[1]
 
 
 if __name__ == "__main__":
