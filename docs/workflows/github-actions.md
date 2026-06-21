@@ -40,3 +40,34 @@ The fields mean:
 - `review_contract_sha256`: a hash of the linter source and repository documentation.
 - `reviewer`: the model or agent identity used for review.
 
+## GitHub Actions Verification
+
+In CI, run the same command:
+
+```bash
+agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+```
+
+GitHub Actions verifies the committed manifest against the committed repository state before falling back to artifact review:
+1. The manifest must include a record for each checked test file.
+2. Each `source_sha256` must match the committed test file contents.
+3. Each record must have `status: pass`.
+4. Each `linter_version` must match the linter version installed by the workflow.
+5. Each `review_contract_sha256` must match the current linter source and documentation.
+
+When those checks pass, CI does not need the full review artifacts. When the manifest is missing or stale, the command creates the full review artifact and fails until the review is completed locally and the refreshed manifest is committed.
+
+## Token Cost
+
+GitHub Actions does not need to call Claude, Codex, or another model. The model work happens locally before commit. CI only verifies cryptographic hashes and manifest fields.
+
+That means teams can use their existing local Claude or Codex session for review and avoid paying for another model pass in CI.
+
+## When To Refresh Proof
+
+Run `agentic-tdd-linter check --all --reviewer ...` again when:
+- a reviewed test file changes
+- linter source changes
+- `README.md`, `pyproject.toml`, or files under `docs` change
+- the manifest format changes
+- the review result changes
