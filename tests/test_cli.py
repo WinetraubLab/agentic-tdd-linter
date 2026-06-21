@@ -42,7 +42,16 @@ class CliTests(unittest.TestCase):
             stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
-                exit_code = main(["check", "--repo-root", str(repo_root), str(test_file)])
+                exit_code = main(
+                    [
+                        "check",
+                        "--reviewer",
+                        "codex:gpt-5.5",
+                        "--repo-root",
+                        str(repo_root),
+                        str(test_file),
+                    ]
+                )
 
         self.assertEqual(1, first_exit_code)
         self.assertEqual(0, exit_code)
