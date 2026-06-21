@@ -147,3 +147,5 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Run `e2e`; it creates the `.agent.md` file and raises an error
         so the agent can review it before running `e2e` again.
         """
+        self.assertTrue(artifact_path.exists())
+
