@@ -9,12 +9,21 @@ The full review artifacts stay local. The committed proof is the compact JSONL m
 Run the linter on the developer machine:
 
 ```bash
-agentic-tdd-linter check --all
+agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 ```
 
 The linter checks `tests/agentic_review_manifest.jsonl` first. If the manifest is missing or stale, it writes review artifacts under `tests/agentic_review_artifacts`. Each artifact includes the agent review prompt, a copy of the test file being reviewed, the review `Status:`, review notes, and the test file SHA. The artifact files are intentionally ignored by git.
 
 Review those artifacts with the local Claude or Codex session already being used for development. After review, the agent sets each artifact `Status:` to `pass` or `fail`.
+
+Then rerun the same command:
+
+```bash
+agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+```
+
+When the reviewed artifacts pass, the rerun writes or updates `tests/agentic_review_manifest.jsonl`. Commit that manifest with the code change.
+
 ## Manifest Contents
 
 Each JSONL record proves one reviewed test file:
