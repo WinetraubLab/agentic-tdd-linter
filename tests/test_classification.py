@@ -14,7 +14,7 @@ from agentic_tdd_linter.docstrings import (
 
 
 class ClassificationTests(unittest.TestCase):
-    def test_r01_accepts_happy_path(self) -> None:
+    def test_accepts_happy_path(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -28,7 +28,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertTrue(_is_allowed_test_path("happy path"))
 
-    def test_r01_accepts_failure_path(self) -> None:
+    def test_accepts_failure_path(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -42,7 +42,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertTrue(_is_allowed_test_path("failure path"))
 
-    def test_r01_rejects_other_path(self) -> None:
+    def test_rejects_other_path(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -56,7 +56,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertFalse(_is_allowed_test_path("edge path"))
 
-    def test_r02_accepts_public_output(self) -> None:
+    def test_accepts_public_output(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -70,7 +70,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertTrue(_is_allowed_verification_method("verify public function output"))
 
-    def test_r02_accepts_private_output(self) -> None:
+    def test_accepts_private_output(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -84,7 +84,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertTrue(_is_allowed_verification_method("verify private function output"))
 
-    def test_r02_accepts_visual_inspection(self) -> None:
+    def test_accepts_visual_inspection(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -98,7 +98,7 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertTrue(_is_allowed_verification_method("visual inspection by user"))
 
-    def test_r02_rejects_other_method(self) -> None:
+    def test_rejects_other_method(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
