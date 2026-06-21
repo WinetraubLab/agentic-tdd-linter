@@ -73,7 +73,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         Requirement Tested:
         `e2e` public parameters require keyword names.
-        This will prevent hidden parameters.
+        Keyword-only arguments prevent hidden parameters.
 
         Verification Method: verify public function output
 
