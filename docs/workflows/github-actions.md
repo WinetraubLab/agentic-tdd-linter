@@ -20,7 +20,7 @@ Review those artifacts with the local Claude or Codex session already being used
 Each JSONL record proves one reviewed test file:
 
 ```json
-{"path": "tests/test_example.py", "source_sha256": "...", "status": "pass", "linter_version": "0.3.0", "review_contract_sha256": "...", "reviewer": "codex:gpt-5"}
+{"path": "tests/test_example.py", "source_sha256": "...", "status": "pass", "linter_version": "0.1.0", "review_contract_sha256": "...", "reviewer": "codex:gpt-5.5"}
 ```
 
 The fields mean:
