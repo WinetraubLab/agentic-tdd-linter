@@ -39,6 +39,7 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertIn("agent_review_artifact", markdown)
         self.assertIn("Focus on What is Being Verified, Not How", markdown)
         self.assertIn("behavior level", markdown)
+        self.assertIn("exact sample assertions", markdown)
         self.assertIn("behavior-level evidence", markdown)
         self.assertIn("Assertion Purpose Check", markdown)
         self.assertIn("Keep Assertions Self-Contained", markdown)
