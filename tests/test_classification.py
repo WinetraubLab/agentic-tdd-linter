@@ -22,12 +22,12 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by linting a generated test file and asserting no invalid path rule is returned.
+        by asserting a test docstring using `happy path` produces no lint issues.
         """
 
         rules = _lint_source(_source_with_classification(test_path="happy path"))
 
-        self.assertNotIn("invalid_test_path", rules)
+        self.assertEqual(set(), rules)
 
     def test_accepts_failure_path(self) -> None:
         """Test Path: happy path
@@ -38,12 +38,12 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by linting a generated test file and asserting no invalid path rule is returned.
+        by asserting a test docstring using `failure path` produces no lint issues.
         """
 
         rules = _lint_source(_source_with_classification(test_path="failure path"))
 
-        self.assertNotIn("invalid_test_path", rules)
+        self.assertEqual(set(), rules)
 
     def test_reports_invalid_test_path(self) -> None:
         """Test Path: failure path
@@ -54,7 +54,7 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `invalid_test_path` is reported for `Test Path: edge path`.
         """
 
         rules = _lint_source(
@@ -86,14 +86,14 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by linting a generated test file and asserting no invalid method rule is returned.
+        by asserting a public-output verification docstring produces no lint issues.
         """
 
         rules = _lint_source(
             _source_with_classification(verification_method="verify public function output")
         )
 
-        self.assertNotIn("invalid_verification_method", rules)
+        self.assertEqual(set(), rules)
 
     def test_accepts_private_output(self) -> None:
         """Test Path: happy path
@@ -104,17 +104,17 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by linting a generated test file and asserting no invalid method rule is returned.
+        by asserting a private-output verification docstring produces no lint issues.
         """
 
         rules = _lint_source(
             _source_with_classification(
                 verification_method="verify private function output",
-                call="_add_values(1, 1)",
+                call="assert _add_values(1, 1) == 2",
             )
         )
 
-        self.assertNotIn("invalid_verification_method", rules)
+        self.assertEqual(set(), rules)
 
     def test_accepts_visual_inspection(self) -> None:
         """Test Path: happy path
@@ -125,7 +125,7 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by linting a generated test file and asserting no invalid method rule is returned.
+        by asserting a visual-inspection verification docstring produces no lint issues.
         """
 
         rules = _lint_source(
@@ -137,7 +137,7 @@ class ClassificationTests(unittest.TestCase):
             )
         )
 
-        self.assertNotIn("invalid_verification_method", rules)
+        self.assertEqual(set(), rules)
 
     def test_reports_invalid_method(self) -> None:
         """Test Path: failure path
@@ -148,7 +148,7 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `invalid_verification_method` is reported for database-state verification.
         """
 
         rules = _lint_source(
