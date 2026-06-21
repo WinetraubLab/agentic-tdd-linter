@@ -55,7 +55,7 @@ class AssertionClarifyTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting the reviewed artifact lets the linter exit successfully.
+        Linter accepts tagged input assertions. Example: positive argument checks use `# Input check`.
         """
 
         test_body = """
@@ -80,12 +80,12 @@ class AssertionClarifyTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic review rejects input assertions without required tags.
+        Missing tags hide validation assertions. Example: positive argument checks need `# Input check`.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting failed review output names missing input tags.
+        Linter report cites missing `# Input check` tags.
         """
 
         test_body = """
