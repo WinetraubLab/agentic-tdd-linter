@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import ast
+import sys
 import unittest
 from pathlib import Path
 
 
-E2E_MODULE = Path(__file__).resolve().parent / "helpers" / "linter_e2e.py"
 TEST_ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(TEST_ROOT))
+
+from helpers.linter_e2e import review
+
+
+E2E_MODULE = TEST_ROOT / "helpers" / "linter_e2e.py"
 
 
 class E2EReviewIntegrityTests(unittest.TestCase):
@@ -96,7 +102,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
         Verification Method: verify file structure
 
         Verification Detail:
-        Signature names `command` and `passes_on_success`.
+        Signature names `command`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -109,7 +115,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
         function = public_functions[0]
         parameter_names = [argument.arg for argument in function.args.kwonlyargs]
 
-        self.assertEqual(["command", "passes_on_success"], parameter_names)
+        self.assertEqual(["command"], parameter_names)
 
     def test_e2e_public_function_parameter_types(self) -> None:
         """Test Path: happy path
@@ -120,7 +126,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
         Verification Method: verify file structure
 
         Verification Detail:
-        Signature types are `str` and `bool`.
+        Signature type is `str`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -146,11 +152,46 @@ class E2EReviewIntegrityTests(unittest.TestCase):
                 for argument in function.args.kwonlyargs
             ]
             self.assertEqual(
-                [("command", "str"), ("passes_on_success", "bool")],
+                [("command", "str")],
                 allowed_parameters,
             )
 
         self.assertEqual([], invalid_parameters)
+
+    def test_e2e_review_returns_pass_with_reason(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `e2e` command result returns pass status.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Return tuple starts with true.
+        """
+
+        passed, reason = review(
+            command="this command passes"
+        )
+
+        self.assertIs(True, passed)
+
+    def test_e2e_review_returns_fail_with_reason(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `e2e` command result returns fail status.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Return reason contains `want`.
+        """
+
+        passed, reason = review(command="this command fails because it wants to")
+
+        self.assertIs(False, passed)
+        self.assertIn("want", reason)
 
 
 def _annotation_name(annotation: ast.expr | None) -> str:
