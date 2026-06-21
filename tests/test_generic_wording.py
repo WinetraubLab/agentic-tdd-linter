@@ -16,12 +16,12 @@ class GenericWordingTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Repeated requirements fail review.
+        Linter identifies repeated requirements when they hide test-specific behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The output reports generic wording.
+        Output includes Generic Requirement.
         """
 
         source = '''
