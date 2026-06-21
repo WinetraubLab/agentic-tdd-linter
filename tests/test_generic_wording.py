@@ -55,6 +55,7 @@ class GenericWordingTests(unittest.TestCase):
         self.assertEqual(1, result.exit_code)
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("Generic Requirement", result.output)
+
     def test_swappable_requirement_fails(self) -> None:
         """Test Path: failure path
 
