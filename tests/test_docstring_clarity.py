@@ -142,5 +142,7 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("Relative Clause Check", result.output)
         self.assertIn("whose SHA no longer matches", result.output)
+    def test_verification_structure_fails(self) -> None:
+        """Test Path: failure path
 if __name__ == "__main__":
     unittest.main()
