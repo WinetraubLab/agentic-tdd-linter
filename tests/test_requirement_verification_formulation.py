@@ -141,3 +141,58 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("behavior context", result.output)
 
+    def test_ambiguous_data_flow_terms_fail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Data-flow terms require named owners.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report includes ambiguous data-flow guidance.
+        """
+
+        cases = [
+            (
+                "input",
+                "The input is normalized before validation.",
+                (
+                    "Convoluted Wording Check: Fail. `input` is ambiguous "
+                    "because the requirement does not name which function owns "
+                    "the value."
+                ),
+            ),
+            (
+                "output",
+                "The output includes the normalized value.",
+                (
+                    "Convoluted Wording Check: Fail. `output` is ambiguous "
+                    "because the requirement does not name which function owns "
+                    "the value."
+                ),
+            ),
+            (
+                "returns",
+                "The parser returns the expected value.",
+                (
+                    "Convoluted Wording Check: Fail. `returns` is ambiguous "
+                    "because the requirement does not name the specific parser "
+                    "function."
+                ),
+            ),
+        ]
+
+        for label, requirement, note in cases:
+            with self.subTest(label=label):
+                result = run_linter_with_review(
+                    requirement=requirement,
+                    status="fail",
+                    note=note,
+                )
+
+                self.assertEqual(1, result.exit_code)
+                self.assertIn("agent_review_failed", result.output)
+                self.assertIn("ambiguous", result.output)
+                self.assertIn(label, result.output)
+
