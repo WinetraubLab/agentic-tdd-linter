@@ -27,7 +27,6 @@ The fields mean:
 - `path`: the reviewed test file.
 - `source_sha256`: the exact contents of that test file at review time.
 - `status`: the review result. CI accepts only `pass`.
-- `linter_version`: the linter version that wrote the attestation.
 - `review_contract_sha256`: a hash of the linter source and repository documentation.
 - `reviewer`: the model or agent identity used for review.
 
