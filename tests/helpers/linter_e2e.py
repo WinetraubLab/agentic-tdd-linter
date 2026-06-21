@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
+import shlex
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -43,19 +46,39 @@ def run_linter_with_review(
             test_body=test_body,
         )
         stdout = io.StringIO()
+        review_command = _write_reviewer_command(repo_root, status=status, note=note)
 
         with contextlib.redirect_stdout(stdout):
             first_exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
 
         artifact_path = _single_review_artifact(repo_root)
-        _complete_review_artifact(artifact_path, status=status, note=note)
+        _assert_pending_review(first_exit_code, stdout.getvalue())
+        _run_reviewer_command(review_command, artifact_path)
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
             exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
 
-        if first_exit_code != 1:
-            raise AssertionError("first linter run should fail until the generated artifact is reviewed")
+        return LinterResult(exit_code=exit_code, output=stdout.getvalue())
+
+
+def run_linter_source_with_review(*, source: str, status: str, note: str) -> LinterResult:
+    with tempfile.TemporaryDirectory() as directory:
+        repo_root = Path(directory)
+        test_file = _write_source_file(repo_root, source)
+        stdout = io.StringIO()
+        review_command = _write_reviewer_command(repo_root, status=status, note=note)
+
+        with contextlib.redirect_stdout(stdout):
+            first_exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
+
+        artifact_path = _single_review_artifact(repo_root)
+        _assert_pending_review(first_exit_code, stdout.getvalue())
+        _run_reviewer_command(review_command, artifact_path)
+        stdout = io.StringIO()
+
+        with contextlib.redirect_stdout(stdout):
+            exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
 
         return LinterResult(exit_code=exit_code, output=stdout.getvalue())
 
@@ -94,6 +117,14 @@ def _write_test_file(
     return test_file
 
 
+def _write_source_file(repo_root: Path, source: str) -> Path:
+    test_directory = repo_root / "tests"
+    test_directory.mkdir()
+    test_file = test_directory / "test_sample.py"
+    test_file.write_text(textwrap.dedent(source).strip() + "\n", encoding="utf-8")
+    return test_file
+
+
 def _indented_body(test_body: str) -> str:
     body = textwrap.dedent(test_body).strip()
     if not body:
@@ -109,9 +140,45 @@ def _single_review_artifact(repo_root: Path) -> Path:
     return artifacts[0]
 
 
-def _complete_review_artifact(artifact_path: Path, *, status: str, note: str) -> Path:
-    text = artifact_path.read_text(encoding="utf-8")
-    text = text.replace("Status: pending", f"Status: {status}", 1)
-    text = text.replace("- Replace this line with the agent review result.", f"- {note}", 1)
-    artifact_path.write_text(text, encoding="utf-8")
-    return artifact_path
+def _assert_pending_review(exit_code: int, output: str) -> None:
+    if exit_code != 1:
+        raise AssertionError("first linter run should fail until the generated artifact is reviewed")
+    if "agent_review_not_run" not in output:
+        raise AssertionError("first linter run should report pending agent review")
+
+
+def _run_reviewer_command(review_command: str, artifact_path: Path) -> None:
+    result = subprocess.run(
+        shlex.split(review_command),
+        env={"AGENTIC_TDD_LINTER_ARTIFACT": str(artifact_path)},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        output = (result.stderr or result.stdout).strip()
+        raise AssertionError(f"review command failed with exit code {result.returncode}: {output}")
+
+
+def _write_reviewer_command(repo_root: Path, *, status: str, note: str) -> str:
+    reviewer = repo_root / "review_agent.py"
+    reviewer.write_text(
+        textwrap.dedent(
+            f"""
+            from pathlib import Path
+            import os
+
+
+            status = {json.dumps(status)}
+            note = {json.dumps(note)}
+            artifact = Path(os.environ["AGENTIC_TDD_LINTER_ARTIFACT"])
+            text = artifact.read_text(encoding="utf-8")
+            text = text.replace("Status: pending", f"Status: {{status}}", 1)
+            text = text.replace("- Replace this line with the agent review result.", f"- {{note}}", 1)
+            artifact.write_text(text, encoding="utf-8")
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return shlex.join([sys.executable, str(reviewer)])
