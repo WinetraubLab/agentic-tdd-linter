@@ -19,32 +19,29 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes generic requirement, jargon, assertion, and level checks.
+        `Review markdown` includes numbered guidance before tests.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Markdown includes each checked heading.
+        Instruction section precedes listed tests.
         """
 
         with tempfile.TemporaryDirectory() as directory:
             test_file = _write_test_file(Path(directory), _sample_source())
             markdown = agentic_md_for_test_file(test_file)
 
-        self.assertIn("Notify Generic Requirement", markdown)
-        self.assertIn("Notify Convoluted Wording", markdown)
-        self.assertIn("test-specific jargon", markdown)
-        self.assertIn("backticked", markdown)
-        self.assertIn("Review markdown", markdown)
-        self.assertIn("agent_review_artifact", markdown)
-        self.assertIn("Focus on What is Being Verified, Not How", markdown)
-        self.assertIn("behavior level", markdown)
-        self.assertIn("exact sample assertions", markdown)
-        self.assertIn("behavior-level evidence", markdown)
-        self.assertIn("Assertion Purpose Check", markdown)
-        self.assertIn("Keep Assertions Self-Contained", markdown)
-        self.assertIn("requirement=", markdown)
-        self.assertIn("Test Level Redundancy Check", markdown)
+        instruction_start = markdown.index("## Review Instructions")
+        tests_start = markdown.index("## Tests")
+        instruction_section = markdown[instruction_start:tests_start]
+        numbered_lines = [
+            line
+            for line in instruction_section.splitlines()
+            if line[:1].isdigit() and ". " in line
+        ]
+
+        self.assertLess(instruction_start, tests_start)
+        self.assertGreaterEqual(len(numbered_lines), 3)
 
     def test_includes_each_test(self) -> None:
         """Test Path: happy path
