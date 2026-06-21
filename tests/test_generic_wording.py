@@ -73,12 +73,12 @@ class GenericWordingTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Swappable requirements fail review.
+        Generic requirements fail when they fit multiple tests.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The output reports generic wording.
+        Linter report includes Generic Requirement.
         """
 
         source = '''
