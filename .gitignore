@@ -9,3 +9,4 @@ build/
 .DS_Store
 # Full review transcripts stay local; commit tests/agentic_review_manifest.jsonl instead.
 tests/agentic_review_artifacts/*.agent.md
+/temporary_fixtures/
