@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import shlex
 import sys
 import tempfile
@@ -17,7 +18,8 @@ from agentic_tdd_linter.agent_review_artifacts import agent_review_artifact_path
 from agentic_tdd_linter.cli import main
 
 
-FISHFOOD_CHECK_ARGS = ["check", "--all"]
+FISHFOOD_CHECK_ARGS = ["check", "--all", "--review-proof", "manifest"]
+LOCAL_REVIEW_CHECK_ARGS = ["check", "--all"]
 
 
 class SelfLintTests(unittest.TestCase):
@@ -25,7 +27,7 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood validates repository tests.
+        Fishfood validates repository tests with committed review attestations.
 
         Verification Method: verify public function output
 
@@ -41,16 +43,16 @@ class SelfLintTests(unittest.TestCase):
         self.assertEqual(0, exit_code)
         self.assertIn("no issues found", stdout.getvalue())
 
-    def test_fishfood_matches_artifact_statuses(self) -> None:
+    def test_fishfood_matches_manifest_statuses(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood returns `1` when any `agent_review_artifact` has fail status. It returns `0` otherwise.
+        Fishfood manifest records pass statuses for reviewed test files.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Parser compares expected code.
+        Parser compares manifest statuses.
         """
 
         stdout = io.StringIO()
@@ -58,18 +60,17 @@ class SelfLintTests(unittest.TestCase):
         with contextlib.redirect_stdout(stdout):
             exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
-        statuses = _agent_review_statuses()
-        expected_exit_code = 1 if "fail" in statuses.values() else 0
+        statuses = _agent_review_manifest_statuses()
 
         self.assertTrue(statuses)
-        self.assertTrue(all(status in {"pass", "fail"} for status in statuses.values()))
-        self.assertEqual(expected_exit_code, exit_code)
+        self.assertTrue(all(status == "pass" for status in statuses.values()))
+        self.assertEqual(0, exit_code)
 
     def test_fishfood_matches_readme(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood uses README arguments.
+        Fishfood uses README CI arguments.
 
         Verification Method: verify public function output
 
@@ -77,13 +78,13 @@ class SelfLintTests(unittest.TestCase):
         Parser compares README arguments.
         """
 
-        self.assertEqual(_readme_check_args(), FISHFOOD_CHECK_ARGS)
+        self.assertEqual(_readme_ci_check_args(), FISHFOOD_CHECK_ARGS)
 
     def test_readme_execution_requires_review(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        README command starts clean dogfood review. Second run passes after review.
+        Local review command starts clean dogfood review. Second run passes after review.
 
         Verification Method: verify public function output
 
@@ -99,7 +100,7 @@ class SelfLintTests(unittest.TestCase):
             _delete_agent_review_artifacts(repo_root)
 
             with contextlib.redirect_stdout(stdout):
-                first_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+                first_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
             artifact_path = agent_review_artifact_path(test_file, repo_root)
             artifact_exists = artifact_path.is_file()
@@ -108,7 +109,7 @@ class SelfLintTests(unittest.TestCase):
             stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
-                second_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+                second_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
             second_output = stdout.getvalue()
 
@@ -120,21 +121,24 @@ class SelfLintTests(unittest.TestCase):
         self.assertIn("no issues found", second_output)
 
 
-def _readme_check_args() -> list[str]:
+def _readme_ci_check_args() -> list[str]:
     for line in (REPO_ROOT / "README.md").read_text(encoding="utf-8").splitlines():
-        if "agentic-tdd-linter check" not in line:
+        if "agentic-tdd-linter check" not in line or "--review-proof manifest" not in line:
             continue
         command_parts = shlex.split(line)
         command_index = command_parts.index("agentic-tdd-linter")
         return command_parts[command_index + 1 :]
-    raise AssertionError("README does not include the agentic-tdd-linter check command")
+    raise AssertionError("README does not include the manifest check command")
 
 
-def _agent_review_statuses() -> dict[Path, str]:
-    artifact_root = REPO_ROOT / "tests" / "agentic_review_artifacts"
+def _agent_review_manifest_statuses() -> dict[Path, str]:
+    manifest_path = REPO_ROOT / "tests" / "agentic_review_manifest.jsonl"
     statuses = {}
-    for artifact_path in sorted(artifact_root.rglob("*.agent.md")):
-        statuses[artifact_path] = _status_value(artifact_path.read_text(encoding="utf-8"))
+    for line in manifest_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        statuses[Path(record["path"])] = record.get("status", "")
     return statuses
 
 
@@ -160,13 +164,6 @@ def _mark_agent_review_artifacts_pass(repo_root: Path) -> None:
             1,
         )
         artifact_path.write_text(artifact_text, encoding="utf-8")
-
-
-def _status_value(text: str) -> str:
-    for line in text.splitlines():
-        if line.startswith("Status:"):
-            return line.removeprefix("Status:").strip().lower()
-    return ""
 
 
 def _write_test_file(repo_root: Path) -> Path:
