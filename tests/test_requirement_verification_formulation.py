@@ -97,7 +97,7 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Output includes behavior-level evidence.
+        Linter report includes behavior-level evidence.
         """
 
         result = run_linter_with_review(
