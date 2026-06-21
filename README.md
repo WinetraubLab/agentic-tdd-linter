@@ -61,7 +61,7 @@ The key assumption is that generated implementation code may be too large or com
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
-## How to Add It to a Project
+## Install It Using Agent
 
 Paste this prompt into your coding agent, such as Claude or Codex:
 
@@ -80,20 +80,6 @@ It also writes missing agent review artifacts under `tests/agentic_review_artifa
 The first run may fail after creating pending review artifacts. Review those artifacts, update each `Status:` to `pass` or `fail`, then rerun the same command.
 
 By default, `agentic-tdd-linter check` scans changed test files. Use `--all` to scan every project test file, or pass specific files or directories for focused work.
-
-## Dogfood This Repository
-
-When this repository runs `agentic-tdd-linter` against its own tests, use a clean two-run cycle:
-
-```bash
-mkdir -p tests/agentic_review_artifacts
-find tests/agentic_review_artifacts -name '*.agent.md' -delete
-agentic-tdd-linter check --all
-# Review the generated artifacts and set each Status to pass or fail.
-agentic-tdd-linter check --all
-```
-
-The first run should fail because it creates pending artifacts. The second run should pass after review.
 
 ## Test Docstring Contract
 

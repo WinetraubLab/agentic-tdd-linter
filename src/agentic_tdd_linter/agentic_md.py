@@ -24,41 +24,28 @@ REVIEW_INSTRUCTIONS = (
     (
         "Notify Generic Requirement",
         (
-            "Review `Requirement Tested`: is it specific to this test, "
-            "or generic enough to fit many tests? If the same requirement "
-            "shows up repeatedly in one file, treat that as a sign that the "
-            "requirement should be made more specific. If a requirement can "
-            "be swapped onto another test and still make sense, treat it as "
-            "too generic for the current test."
+            "Review `Requirement Tested` for specificity. Fail it when it "
+            "could describe several tests, appears repeatedly without narrower "
+            "wording, or can be swapped onto another test with little change."
         ),
     ),
     (
         "Notify Convoluted Wording",
         (
-            "Note double negation, generic wording, and self-referencing "
-            "statements. Avoid test-specific jargon or local project terms "
-            "unless the docstring explains them or marks them as a backticked "
-            "named phrase, such as `agent_review_artifact` or `Review markdown`. "
-            "Flag ambiguous data-flow words such as `input`, `output`, and "
-            "`returns` unless the sentence names the specific function, command, "
-            "or artifact whose value is meant; one callable's output can become "
-            "another callable's input. "
-            "Prefer concrete examples."
+            "Flag double negation, generic wording, self-reference, unexplained "
+            "domain terms, and ambiguous data-flow words. Local terms should be "
+            "defined or backticked. Words such as `input`, `output`, and "
+            "`returns` need an explicit owner. Prefer concrete language."
         ),
     ),
     (
         "Focus on What is Being Verified, Not How",
         (
-            "`Requirement Tested` should describe the desired feature, not "
-            "the verification steps. When testing linter behavior, state the "
-            "rule at the behavior level without naming the exact sample tests. "
-            "Fail requirements that are too narrow because they quote exact "
-            "sample assertions, exact constants, exact tags, or test mechanics "
-            "instead of naming the behavior rule those examples demonstrate. "
-            "`Verification Detail` should describe the behavior-level evidence. "
-            "Fail details that only describe test mechanics, such as running a "
-            "command and asserting success, or bare observations without the "
-            "behavior context, such as `Exit code is zero`."
+            "`Requirement Tested` should state the behavior rule. "
+            "`Verification Detail` should state the evidence that proves it. "
+            "Fail wording that only names mechanics, fixtures, constants, "
+            "assertions, commands, tags, or test names without explaining the "
+            "behavior they prove."
         ),
     ),
     (
@@ -66,18 +53,15 @@ REVIEW_INSTRUCTIONS = (
         (
             "Sentence Structure Check (Pass/Fail): Pass if each sentence follows "
             "Subject -> Verb -> Object. The subject and object must each be no "
-            "longer than two words. Fail if the main verb is also commonly used "
-            "as a noun, even when the sentence is grammatically parseable. "
-            "Examples include `names` and `reports`. If the idea cannot fit, "
-            "write a second sentence with a concrete example.\n"
+            "longer than two words. Fail if the main verb can also read as a "
+            "noun, even when the sentence is grammatically parseable. If the "
+            "idea cannot fit, write a second sentence with a concrete example.\n"
             "Condition Check (Pass/Fail): Pass if all conditions are stated "
             "explicitly using words such as if, when, unless, or only if. "
             "Fail if conditions must be inferred.\n"
             "Relative Clause Check (Pass/Fail): Fail if a sentence ends with "
             "a relative clause that omits referent information or requires the "
-            "reader to infer what a term refers to. Example: `The check command "
-            "regenerates artifacts whose SHA no longer matches.` leaves the "
-            "reader to infer which SHA is meant.\n"
+            "reader to infer what a term refers to.\n"
             "Concept Check (Pass/Fail): Pass if the sentence communicates a "
             "single primary idea, requirement, or decision. Fail if it combines "
             "multiple independent concepts."
@@ -96,22 +80,18 @@ REVIEW_INSTRUCTIONS = (
     (
         "Keep Assertions Self-Contained",
         (
-            "Review whether the requirement, function inputs, and user-defined "
-            "expected value are co-located in the test. Fail assertions whose "
-            "input or expected value comes from a constant, fixture, helper, "
-            "or value defined outside the test body. For linter tests, generated "
-            "docstring inputs such as `requirement=` and `verification_detail=` "
-            "must be literal or constructed in the test body, not returned by "
-            "a helper outside the test."
+            "Review whether the requirement, test inputs, and user-defined "
+            "expected values are defined inside the test body. Fail when any "
+            "of them comes from an external constant, fixture, helper, or "
+            "shared setup."
         ),
     ),
     (
         "Test Level Redundancy Check",
         (
-            "When two tests verify the same behavior at different levels, such "
-            "as a public function and a private helper, each `Requirement Tested` "
-            "must mention the related test by name with `see also test_...` and "
-            "state whether the related test covers the public or private level."
+            "When tests verify overlapping behavior at different levels, each "
+            "`Requirement Tested` must include `see also test_...` and state "
+            "which level each related test covers."
         ),
     ),
 )

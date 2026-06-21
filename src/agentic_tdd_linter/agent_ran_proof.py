@@ -10,7 +10,7 @@ from .docstrings import LintIssue
 from .agent_review_artifacts import agent_review_artifact_path
 
 
-VALID_REVIEW_STATUSES = {"pass", "fail", "pending"}
+COMPLETED_REVIEW_STATUSES = {"pass", "fail"}
 
 
 def source_sha256(path: Path) -> str:
@@ -74,7 +74,7 @@ def lint_agent_review_artifact(
             )
         )
 
-    if status not in VALID_REVIEW_STATUSES or status == "pending":
+    if status not in COMPLETED_REVIEW_STATUSES:
         issues.append(
             _issue(
                 relative_artifact,

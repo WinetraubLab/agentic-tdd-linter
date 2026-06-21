@@ -10,7 +10,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 
 SKIPPED_PATH_PARTS = {
@@ -202,9 +202,12 @@ def changed_test_files(repo_root: Path) -> list[Path]:
     changed_paths: list[Path] = []
     for path_value in changed_values:
         path = (root / path_value).resolve()
-        if path.is_file() and path.is_relative_to(root):
-            if _is_project_test_file(path, root, skip_path_parts=True):
-                changed_paths.append(path)
+        if (
+            path.is_file()
+            and path.is_relative_to(root)
+            and _is_project_test_file(path, root, skip_path_parts=True)
+        ):
+            changed_paths.append(path)
     return sorted(set(changed_paths))
 
 
@@ -509,25 +512,22 @@ def _requirement_default_trouble_matches(requirement: str) -> list[str]:
 
 
 def _calls_leading_underscore_callable(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    for child in ast.walk(node):
-        if not isinstance(child, ast.Call):
-            continue
-        function = child.func
-        if isinstance(function, ast.Name) and function.id.startswith("_"):
-            return True
-        if isinstance(function, ast.Attribute) and function.attr.startswith("_"):
-            return True
-    return False
+    return _calls_matching_name(node, lambda name: name.startswith("_"))
 
 
 def _calls_named_callable(node: ast.FunctionDef | ast.AsyncFunctionDef, name: str) -> bool:
+    return _calls_matching_name(node, lambda call_name: call_name == name)
+
+
+def _calls_matching_name(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    predicate: Callable[[str], bool],
+) -> bool:
     for child in ast.walk(node):
         if not isinstance(child, ast.Call):
             continue
-        function = child.func
-        if isinstance(function, ast.Name) and function.id == name:
-            return True
-        if isinstance(function, ast.Attribute) and function.attr == name:
+        parts = _call_name_parts(child.func)
+        if parts and predicate(parts[-1]):
             return True
     return False
 
@@ -555,9 +555,7 @@ def _has_meaningful_assertion(node: ast.FunctionDef | ast.AsyncFunctionDef) -> b
         if not parts:
             continue
         call_name = parts[-1]
-        if call_name == "raises":
-            return True
-        if call_name.startswith("assert"):
+        if call_name == "raises" or call_name.startswith("assert"):
             return True
     return False
 
