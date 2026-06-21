@@ -61,12 +61,12 @@ class DocstringClarityTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic review rejects double negation in verification detail.
+        Linter rejects double negation in verification details.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting failed review output names double negation.
+        Linter report identifies double negation.
         """
 
         result = run_linter_with_review(
