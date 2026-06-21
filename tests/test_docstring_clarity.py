@@ -226,5 +226,50 @@ class DocstringClarityTests(unittest.TestCase):
 
     def test_verification_structure_fails(self) -> None:
         """Test Path: failure path
+    def test_verification_noun_capable_verbs_fail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Linter rejects noun-capable main verbs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report identifies noun-capable verbs.
+        """
+
+        cases = [
+            (
+                "names",
+                "Output names double negation.",
+                (
+                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
+                    "`names` is ambiguous between a noun and a verb."
+                ),
+            ),
+            (
+                "reports",
+                "A pending artifact reports that agent review has not completed.",
+                (
+                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
+                    "`reports` is commonly used as a noun, even though this "
+                    "sentence is grammatically parseable."
+                ),
+            ),
+        ]
+
+        for label, verification_detail, note in cases:
+            with self.subTest(label=label):
+                result = run_linter_with_review(
+                    verification_detail=verification_detail,
+                    status="fail",
+                    note=note,
+                )
+
+                self.assertEqual(1, result.exit_code)
+                self.assertIn("agent_review_failed", result.output)
+                self.assertIn(label, result.output)
+                self.assertIn("Sentence Structure Check", result.output)
+
 if __name__ == "__main__":
     unittest.main()
