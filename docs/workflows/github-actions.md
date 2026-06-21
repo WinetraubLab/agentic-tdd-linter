@@ -70,4 +70,3 @@ Run `agentic-tdd-linter check --all --reviewer ...` again when:
 - the linter version is bumped
 - `README.md`, `pyproject.toml`, or files under `docs` change
 - the manifest format changes
-- the review result changes
