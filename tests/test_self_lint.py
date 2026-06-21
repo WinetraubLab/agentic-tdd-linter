@@ -83,12 +83,12 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        README command creates `agent_review_artifact` files. Files start pending.
+        README command starts clean dogfood review. Second run passes after review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Output includes `agent_review_not_run`.
+        First report includes `agent_review_not_run`. Second report includes success.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -96,17 +96,28 @@ class SelfLintTests(unittest.TestCase):
             test_file = _write_test_file(repo_root)
             stdout = io.StringIO()
 
+            _delete_agent_review_artifacts(repo_root)
+
             with contextlib.redirect_stdout(stdout):
-                exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+                first_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
 
             artifact_path = agent_review_artifact_path(test_file, repo_root)
             artifact_exists = artifact_path.is_file()
-            output = stdout.getvalue()
+            first_output = stdout.getvalue()
+            _mark_agent_review_artifacts_pass(repo_root)
+            stdout = io.StringIO()
 
-        self.assertEqual(1, exit_code)
+            with contextlib.redirect_stdout(stdout):
+                second_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+
+            second_output = stdout.getvalue()
+
+        self.assertEqual(1, first_exit_code)
         self.assertTrue(artifact_exists)
-        self.assertIn("agent_review_not_run", output)
-        self.assertIn("agentic-tdd-linter check --all", output)
+        self.assertIn("agent_review_not_run", first_output)
+        self.assertIn("agentic-tdd-linter check --all", first_output)
+        self.assertEqual(0, second_exit_code)
+        self.assertIn("no issues found", second_output)
 
 
 def _readme_check_args() -> list[str]:
@@ -125,6 +136,30 @@ def _agent_review_statuses() -> dict[Path, str]:
     for artifact_path in sorted(artifact_root.rglob("*.agent.md")):
         statuses[artifact_path] = _status_value(artifact_path.read_text(encoding="utf-8"))
     return statuses
+
+
+def _delete_agent_review_artifacts(repo_root: Path) -> None:
+    artifact_root = repo_root / "tests" / "agentic_review_artifacts"
+    if not artifact_root.exists():
+        return
+    for artifact_path in artifact_root.glob("*.agent.md"):
+        artifact_path.unlink()
+
+
+def _mark_agent_review_artifacts_pass(repo_root: Path) -> None:
+    artifact_root = repo_root / "tests" / "agentic_review_artifacts"
+    artifacts = sorted(artifact_root.glob("*.agent.md"))
+    if not artifacts:
+        raise AssertionError("expected generated agent review artifacts")
+    for artifact_path in artifacts:
+        artifact_text = artifact_path.read_text(encoding="utf-8")
+        artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
+        artifact_text = artifact_text.replace(
+            "- Replace this line with the agent review result.",
+            "- Clean dogfood review passed.",
+            1,
+        )
+        artifact_path.write_text(artifact_text, encoding="utf-8")
 
 
 def _status_value(text: str) -> str:
