@@ -62,6 +62,38 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         self.assertEqual([], invalid_imports)
 
+    def test_e2e_public_function_requires_keyword_arguments(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `e2e` public parameters require keyword names.
+
+        Verification Method: verify file structure
+
+        Verification Detail:
+        Function signature has keyword-only parameters.
+        """
+
+        tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
+        public_functions = [
+            node
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and "_" not in node.name
+        ]
+        invalid_parameters: list[str] = []
+
+        for function in public_functions:
+            invalid_parameters.extend(
+                f"{function.name}.{argument.arg}"
+                for argument in function.args.posonlyargs + function.args.args
+            )
+            if function.args.vararg is not None:
+                invalid_parameters.append(f"{function.name}.{function.args.vararg.arg}")
+            if function.args.kwarg is not None:
+                invalid_parameters.append(f"{function.name}.{function.args.kwarg.arg}")
+
+        self.assertEqual([], invalid_parameters)
+
 
 if __name__ == "__main__":
     unittest.main()
