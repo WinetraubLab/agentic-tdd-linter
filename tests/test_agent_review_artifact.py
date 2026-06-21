@@ -89,3 +89,24 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertIn("agent_review_not_run", rules)
 
+    def test_reports_unreviewed_generated_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Untouched generated artifact emits incomplete-review issue.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting `agent_review_not_run` is reported for the generated pending artifact.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            write_agentic_md_for_test_file(test_file, root)
+
+            rules = _issue_rules(lint_agent_review_artifact(test_file, repo_root=root))
+
+        self.assertIn("agent_review_not_run", rules)
+
