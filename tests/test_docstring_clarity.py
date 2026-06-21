@@ -21,12 +21,12 @@ class DocstringClarityTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by running the check command with a pass artifact and asserting success.
+        Reviewed artifact permits successful check.
         """
 
         result = run_linter_with_review(
             status="pass",
-            note="Noun Density Check: Pass.",
+            note="Sentence Structure Check: Pass.",
         )
 
         self.assertEqual(0, result.exit_code)
