@@ -116,3 +116,28 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("behavior-level evidence", result.output)
 
+    def test_verification_bare_output_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Verification details connect linter output to behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report includes behavior context.
+        """
+
+        result = run_linter_with_review(
+            verification_detail="Exit code is zero.",
+            status="fail",
+            note=(
+                "Verification Formulation Check: Fail. `Exit code is zero` "
+                "states a bare observation without behavior context."
+            ),
+        )
+
+        self.assertEqual(1, result.exit_code)
+        self.assertIn("agent_review_failed", result.output)
+        self.assertIn("behavior context", result.output)
+
