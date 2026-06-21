@@ -8,7 +8,34 @@ It helps verify that tests written by coding agents are clear for human consumpt
 Coding agents can generate implementation faster than humans can review it line by line. In agentic TDD, tests become the main review boundary: they define the intended behavior and constrain the generated code.
 `agentic-tdd-linter` helps improve those tests before they become the specification. It does not replace human judgment, `pytest`, coverage tools, or code review.
 
-For the testing principles behind these checks, see [Test Philosophy](docs/test-philosophy.md).
+## Test Docstring Contract
+
+```text
+Test naming:
+Up to six words in test names: `test_` plus up to five descriptive words.
+
+Test Path: <exactly one of: happy path | failure path>
+
+Requirement Tested:
+<1-2 sentences describing the behavior under test, up to 30 words.>
+
+Verification Method: <exactly one of: verify public function output | verify private function output | visual inspection by user>
+
+Verification Detail:
+<optional sentence explaining what the test checks; mention any mocking here>
+
+Inspection Instructions:
+<required for visual inspection tests; tell the user exactly what to verify in the image>
+```
+
+Instructions:
+- Use `happy path` when valid or supported inputs produce the expected successful result.
+- Use `failure path` when invalid, unsafe, missing, or unsupported inputs are rejected with the expected error or guard behavior.
+- Use `verify public function output` when the test calls a public function and asserts its returned output.
+- Use `verify private function output` when the test calls a leading-underscore function and asserts its returned output, raised error, or state change.
+- Use `visual inspection by user` when correctness is difficult to assert in code and the test writes a review artifact.
+- Describe the specific behavior under test. Avoid generic wording such as `behaves as expected`.
+- Keep the requirement, function inputs, and expected value close to the test body.
 
 ## Development Pattern
 
