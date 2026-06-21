@@ -31,7 +31,7 @@ class DocstringClarityTests(unittest.TestCase):
 
         self.assertEqual(0, result.exit_code)
 
-    def test_requirement_long_subject_fails(self) -> None:
+    def test_long_subjects_fail(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -43,19 +43,41 @@ class DocstringClarityTests(unittest.TestCase):
         Linter report identifies long subject.
         """
 
-        result = run_linter_with_review(
-            requirement="The current source artifact emits warning.",
-            status="fail",
-            note=(
-                "Sentence Structure Check: Fail. Requirement uses a long "
-                "subject before the main verb."
+        cases = [
+            (
+                "requirement",
+                {"requirement": "The current source artifact emits warning."},
+                (
+                    "Sentence Structure Check: Fail. Requirement uses a long "
+                    "subject before the main verb."
+                ),
             ),
-        )
+            (
+                "verification detail",
+                {
+                    "verification_detail": (
+                        "The captured failure output names double negation."
+                    )
+                },
+                (
+                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
+                    "Verification Detail uses a long subject before the main verb."
+                ),
+            ),
+        ]
 
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Sentence Structure Check", result.output)
-        self.assertIn("long subject", result.output)
+        for label, linter_kwargs, note in cases:
+            with self.subTest(label=label):
+                result = run_linter_with_review(
+                    **linter_kwargs,
+                    status="fail",
+                    note=note,
+                )
+
+                self.assertEqual(1, result.exit_code)
+                self.assertIn("agent_review_failed", result.output)
+                self.assertIn("Sentence Structure Check", result.output)
+                self.assertIn("long subject", result.output)
 
     def test_verification_double_negation_fails(self) -> None:
         """Test Path: failure path
@@ -224,8 +246,55 @@ class DocstringClarityTests(unittest.TestCase):
                 for expected_text in expected_texts:
                     self.assertIn(expected_text, result.output)
 
-    def test_verification_structure_fails(self) -> None:
+    def test_verification_sentence_structure_fails(self) -> None:
         """Test Path: failure path
+
+        Requirement Tested:
+        Verification details require Subject -> Verb -> Object.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report identifies sentence structure failures.
+        """
+
+        cases = [
+            (
+                "unclear structure",
+                "by asserting failed review output names self-contained assertions.",
+                (
+                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
+                    "`by asserting failed review output names self-contained assertions` "
+                    "has no clear Subject -> Verb -> Object structure."
+                ),
+            ),
+            (
+                "missing subject",
+                (
+                    "by changing a reviewed test file and asserting the artifact "
+                    "returns to pending."
+                ),
+                (
+                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
+                    "`by changing a reviewed test file and asserting the artifact "
+                    "returns to pending` has no Subject -> Verb -> Object structure "
+                    "because it has no subject before the main verb."
+                ),
+            ),
+        ]
+
+        for label, verification_detail, note in cases:
+            with self.subTest(label=label):
+                result = run_linter_with_review(
+                    verification_detail=verification_detail,
+                    status="fail",
+                    note=note,
+                )
+
+                self.assertEqual(1, result.exit_code)
+                self.assertIn("agent_review_failed", result.output)
+                self.assertIn("Subject -> Verb -> Object", result.output)
+
     def test_verification_noun_capable_verbs_fail(self) -> None:
         """Test Path: failure path
 
