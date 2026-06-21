@@ -34,8 +34,9 @@ REVIEW_INSTRUCTIONS = (
         (
             "Flag double negation, generic wording, self-reference, unexplained "
             "domain terms, and ambiguous data-flow words. Local terms should be "
-            "defined or backticked. Words such as `input`, `output`, and "
-            "`returns` need an explicit owner. Prefer concrete language."
+            "defined or backticked. Words such as `input`, `output`, "
+            "`provided`, and `returns` need an explicit owner. Prefer "
+            "concrete language."
         ),
     ),
     (

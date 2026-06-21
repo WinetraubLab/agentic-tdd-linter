@@ -206,6 +206,21 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
                 ),
                 "Output",
             ),
+            (
+                "provided activity name",
+                {
+                    "requirement": (
+                        "Add an artifact row from a template using the "
+                        "provided activity name."
+                    )
+                },
+                (
+                    "Convoluted Wording Check: Fail. `provided` is ambiguous "
+                    "because the requirement does not name which caller or "
+                    "fixture supplies the activity name."
+                ),
+                "provided",
+            ),
         ]
 
         for label, linter_kwargs, note, expected_text in cases:
