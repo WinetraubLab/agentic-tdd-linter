@@ -93,16 +93,16 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         self.assertTrue(signature_text.lstrip().startswith("*,"), signature_text)
 
-    def test_e2e_public_function_parameter_identities(self) -> None:
+    def test_review_parameter_names(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
         `e2e` public parameters use approved names.
 
-        Verification Method: verify file structure
+        Verification Method: verify public function output
 
         Verification Detail:
-        Signature names `command`.
+        Signature names `scenario_name` and `test_source_code`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -115,18 +115,18 @@ class E2EReviewIntegrityTests(unittest.TestCase):
         function = public_functions[0]
         parameter_names = [argument.arg for argument in function.args.kwonlyargs]
 
-        self.assertEqual(["command"], parameter_names)
+        self.assertEqual(["scenario_name", "test_source_code"], parameter_names)
 
-    def test_e2e_public_function_parameter_types(self) -> None:
+    def test_review_parameter_types(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
         `e2e` public parameters use approved types.
 
-        Verification Method: verify file structure
+        Verification Method: verify public function output
 
         Verification Detail:
-        Signature type is `str`.
+        Signature types are `str`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -152,7 +152,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
                 for argument in function.args.kwonlyargs
             ]
             self.assertEqual(
-                [("command", "str")],
+                [("scenario_name", "str"), ("test_source_code", "str")],
                 allowed_parameters,
             )
 
