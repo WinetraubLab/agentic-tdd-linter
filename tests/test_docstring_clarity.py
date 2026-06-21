@@ -81,5 +81,33 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertEqual(1, result.exit_code)
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("double negation", result.output)
+    def test_requirement_relative_clause_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Relative clauses reduce clarity. For example `a no longer matches` - matches to what?
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output includes `Relative Clause Check`.
+        """
+
+        result = run_linter_with_review(
+            requirement=(
+                "The check command regenerates artifacts whose SHA no longer matches."
+            ),
+            status="fail",
+            note=(
+                "Relative Clause Check: Fail. `whose SHA no longer matches` "
+                "requires the reader to infer whether SHA refers to artifact "
+                "SHA or source SHA."
+            ),
+        )
+
+        self.assertEqual(1, result.exit_code)
+        self.assertIn("agent_review_failed", result.output)
+        self.assertIn("Relative Clause Check", result.output)
+        self.assertIn("whose SHA no longer matches", result.output)
 if __name__ == "__main__":
     unittest.main()
