@@ -158,7 +158,58 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         self.assertEqual([], invalid_parameters)
 
-    def test_e2e_review_returns_pass_with_reason(self) -> None:
+    def test_review_pending_raises(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        New scenario without `review artifact` raises error.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Remove previous `.agent.md` file when it exists.
+        Run `e2e`; it creates the `.agent.md` file and raises an error
+        so the agent can review it before running `e2e` again.
+        """
+
+        scenario_name = "test_new_case"
+        _delete_scenario(scenario_name)
+        artifact_path = (
+            TEST_ROOT.parent
+            / "temporary_fixtures"
+            / "agentic_review_artifacts"
+            / f"{scenario_name}.agent.md"
+        )
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            (
+                "did not run, agent should review "
+                "temporary_fixtures/agentic_review_artifacts/test_new_case.agent.md "
+                "and then run test again"
+            ),
+        ):
+            review(
+                scenario_name=scenario_name,
+                test_source_code="""
+                    def test_new_case() -> None:
+                        \"\"\"Test Path: happy path
+
+                        Requirement Tested:
+                        Addition returns a positive sum.
+
+                        Verification Method: verify public function output
+
+                        Verification Detail:
+                        Result value is positive.
+                        \"\"\"
+
+                        assert 1 + 1 > 0
+                """,
+            )
+
+        self.assertTrue(artifact_path.exists())
+
         """Test Path: happy path
 
         Requirement Tested:
