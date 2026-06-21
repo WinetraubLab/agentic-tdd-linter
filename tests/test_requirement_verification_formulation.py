@@ -168,37 +168,50 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         cases = [
             (
                 "input",
-                "The input is normalized before validation.",
+                {"requirement": "The input is normalized before validation."},
                 (
                     "Convoluted Wording Check: Fail. `input` is ambiguous "
                     "because the requirement does not name which function owns "
                     "the value."
                 ),
+                "input",
             ),
             (
                 "output",
-                "The output includes the normalized value.",
+                {"requirement": "The output includes the normalized value."},
                 (
                     "Convoluted Wording Check: Fail. `output` is ambiguous "
                     "because the requirement does not name which function owns "
                     "the value."
                 ),
+                "output",
             ),
             (
                 "returns",
-                "The parser returns the expected value.",
+                {"requirement": "The parser returns the expected value."},
                 (
                     "Convoluted Wording Check: Fail. `returns` is ambiguous "
                     "because the requirement does not name the specific parser "
                     "function."
                 ),
+                "returns",
+            ),
+            (
+                "verification output",
+                {"verification_detail": "Output cites missing tags."},
+                (
+                    "Convoluted Wording Check: Fail. `Output` is ambiguous "
+                    "because the verification detail does not name the linter "
+                    "report."
+                ),
+                "Output",
             ),
         ]
 
-        for label, requirement, note in cases:
+        for label, linter_kwargs, note, expected_text in cases:
             with self.subTest(label=label):
                 result = run_linter_with_review(
-                    requirement=requirement,
+                    **linter_kwargs,
                     status="fail",
                     note=note,
                 )
@@ -206,7 +219,7 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
                 self.assertEqual(1, result.exit_code)
                 self.assertIn("agent_review_failed", result.output)
                 self.assertIn("ambiguous", result.output)
-                self.assertIn(label, result.output)
+                self.assertIn(expected_text, result.output)
 
 if __name__ == "__main__":
     unittest.main()
