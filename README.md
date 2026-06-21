@@ -8,6 +8,8 @@ It helps verify that tests written by coding agents are clear for human consumpt
 Coding agents can generate implementation faster than humans can review it line by line. In agentic TDD, tests become the main review boundary: they define the intended behavior and constrain the generated code.
 `agentic-tdd-linter` helps improve those tests before they become the specification. It does not replace human judgment, `pytest`, coverage tools, or code review.
 
+For the testing principles behind these checks, see [Test Philosophy](docs/test-philosophy.md).
+
 ## Development Pattern
 
 `agentic-tdd-linter` is designed for an agentic TDD workflow built around the classic loop:
@@ -33,10 +35,19 @@ Follow this flow:
    - A typical refactoring prompt is:
 
      ```text
-     Simplify the code and remove unnecessary edge-case handling as long as all tests continue to pass.
+     Simplify the implementation while preserving the behavior proven by the approved tests.
+     Remove untested edge-case handling.
      ```
 
    - The refactored implementation is accepted based on the approved test suite.
+
+For refactor-phase agent guidance, see [Refactor Workflow](docs/workflows/refactor.md).
+
+You can also print the refactor prompt from the CLI:
+
+```bash
+agentic-tdd-linter --refactor-instructions
+```
 
 The key assumption is that generated implementation code may be too large or complex for humans to review line by line. Instead, human review should focus on the tests, because the tests define the intended behavior. If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
 
@@ -44,11 +55,11 @@ The key assumption is that generated implementation code may be too large or com
 
 `agentic-tdd-linter` looks for tests that are:
 - vague or hard to understand
-- too broad for a single behavior
 - missing meaningful assertions
-- redundant with existing tests
-- unrelated to the changed implementation
-- unsupported by coverage information
+- missing required structured docstring fields
+- using unsupported test path or verification method classifications
+- mislabeled as private verification without calling a private function
+- missing required visual inspection instructions or artifacts
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
@@ -59,10 +70,15 @@ Paste this prompt into your coding agent, such as Claude or Codex:
 ```text
 Add the following command as an additional check after the normal test suite:
 
-uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check
+uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all
 
 Follow the repository's existing patterns for test scripts. Do not replace existing tests or linters.
 ```
 
 The coding agent should add this command to the repository's standard testing workflow.
 The linter should run after the normal test suite, so its findings are evaluated alongside test and coverage results.
+It also writes missing agent review artifacts under `tests/agentic_review_artifacts`.
+
+The first run may fail after creating pending review artifacts. Review those artifacts, update each `Status:` to `pass` or `fail`, then rerun the same command.
+
+By default, `agentic-tdd-linter check` scans changed test files. Use `--all` to scan every project test file, or pass specific files or directories for focused work.
