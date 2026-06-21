@@ -31,11 +31,11 @@ class DocstringClarityTests(unittest.TestCase):
 
         self.assertEqual(0, result.exit_code)
 
-    def test_dense_requirement_fails_review(self) -> None:
+    def test_requirement_long_subject_fails(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic review rejects dense requirement wording.
+        Linter rejects long subjects.
 
         Verification Method: verify public function output
 
