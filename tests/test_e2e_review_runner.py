@@ -148,15 +148,14 @@ class E2EReviewRunnerTests(unittest.TestCase):
         so the agent can review it before running `e2e` again.
         """
 
-        scenario_name = "test_new_case"
         artifact_path = (
             TEST_ROOT.parent
             / "temporary_fixtures"
             / "agentic_review_artifacts"
-            / f"{scenario_name}.agent.md"
+            / "test_new_case.agent.md"
         )
         for path in [
-            TEST_ROOT.parent / "temporary_fixtures" / f"{scenario_name}.py",
+            TEST_ROOT.parent / "temporary_fixtures" / "test_new_case.py",
             artifact_path,
             TEST_ROOT.parent / "temporary_fixtures" / "agentic_review_manifest.jsonl",
         ]:
@@ -173,7 +172,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
             ),
         ):
             linter_e2e_review(
-                scenario_name=scenario_name,
+                scenario_name="test_new_case",
                 test_source_code="""
                     def test_new_case() -> None:
                         \"\"\"Test Path: happy path
@@ -205,12 +204,10 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Return status is true and reason reports no issues.
         """
 
-        scenario_name = "test_pass_case"
-
         status, reason = linter_e2e_review(
-            scenario_name=scenario_name,
+            scenario_name="test_alpha_case",
             test_source_code="""
-                def test_pass_case() -> None:
+                def test_alpha_case() -> None:
                     \"\"\"Test Path: happy path
 
                     Requirement Tested:
@@ -239,12 +236,10 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Return status is false and reason names `provided`.
         """
 
-        scenario_name = "test_fail_case"
-
         status, reason = linter_e2e_review(
-            scenario_name=scenario_name,
+            scenario_name="test_beta_case",
             test_source_code="""
-                def test_fail_case() -> None:
+                def test_beta_case() -> None:
                     \"\"\"Test Path: happy path
 
                     Requirement Tested:
