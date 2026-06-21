@@ -14,6 +14,9 @@ from pathlib import Path
 
 TEST_ROOT = Path(__file__).resolve().parent
 TESTING_EXCEPTION_TAG = "#" + " testing exception"
+REVIEW_CONTROL_FLOW_NODES = (ast.With, ast.AsyncWith, ast.Try) + (
+    (ast.TryStar,) if hasattr(ast, "TryStar") else ()
+)
 
 
 class E2EReviewUsageTests(unittest.TestCase):
@@ -95,16 +98,16 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
-    def test_linter_e2e_review_with_statement_requires_exception_tag(self) -> None:
+    def test_linter_e2e_review_with_or_try_requires_exception_tag(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `with` statements wrap `linter_e2e_review` only with exception approval.
+        `with` and `try` statements wrap `linter_e2e_review` only with approval.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        AST reports `with` calls without the testing exception tag.
+        AST reports `with` or `try` calls without the testing exception tag.
         Repo contains at most one testing exception tag.
         """
 
@@ -130,19 +133,19 @@ class E2EReviewUsageTests(unittest.TestCase):
                     and node.func.id == "linter_e2e_review"
                 ):
                     continue
-                with_ancestors: list[ast.With | ast.AsyncWith] = []
+                control_flow_ancestors: list[ast.AST] = []
                 parent = parents.get(node)
                 while parent is not None:
-                    if isinstance(parent, (ast.With, ast.AsyncWith)):
-                        with_ancestors.append(parent)
+                    if isinstance(parent, REVIEW_CONTROL_FLOW_NODES):
+                        control_flow_ancestors.append(parent)
                     parent = parents.get(parent)
-                if with_ancestors and not any(
-                    _with_has_testing_exception_tag(with_node, lines)
-                    for with_node in with_ancestors
+                if control_flow_ancestors and not any(
+                    _control_flow_has_testing_exception_tag(control_flow_node, lines)
+                    for control_flow_node in control_flow_ancestors
                 ):
                     invalid_calls.append(
                         f"{test_file}:{node.lineno}: "
-                        "with statement requires testing exception tag"
+                        "with or try statement requires testing exception tag"
                     )
 
         if len(tag_locations) > 1:
@@ -207,14 +210,14 @@ def _assigns_linter_e2e_review(statement: ast.stmt) -> bool:
     )
 
 
-def _with_has_testing_exception_tag(
-    with_node: ast.With | ast.AsyncWith,
+def _control_flow_has_testing_exception_tag(
+    control_flow_node: ast.AST,
     lines: list[str],
 ) -> bool:
-    start_line = max(1, with_node.lineno - 1)
+    start_line = max(1, control_flow_node.lineno - 1)
     return any(
         TESTING_EXCEPTION_TAG in lines[line_number - 1]
-        for line_number in range(start_line, with_node.lineno + 1)
+        for line_number in range(start_line, control_flow_node.lineno + 1)
     )
 
 
