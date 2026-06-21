@@ -149,13 +149,19 @@ class E2EReviewRunnerTests(unittest.TestCase):
         """
 
         scenario_name = "test_new_case"
-        _delete_scenario(scenario_name)
         artifact_path = (
             TEST_ROOT.parent
             / "temporary_fixtures"
             / "agentic_review_artifacts"
             / f"{scenario_name}.agent.md"
         )
+        for path in [
+            TEST_ROOT.parent / "temporary_fixtures" / f"{scenario_name}.py",
+            artifact_path,
+            TEST_ROOT.parent / "temporary_fixtures" / "agentic_review_manifest.jsonl",
+        ]:
+            if path.exists():
+                path.unlink()
 
         # testing exception
         with self.assertRaisesRegex(
@@ -255,3 +261,18 @@ class E2EReviewRunnerTests(unittest.TestCase):
         )
         self.assertIs(False, status)
 
+
+def _annotation_name(annotation: ast.expr | None) -> str:
+    if isinstance(annotation, ast.Name):
+        return annotation.id
+    return ""
+
+
+def _signature_text(path: Path, function: ast.FunctionDef) -> str:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    signature_lines = lines[function.lineno - 1 : function.body[0].lineno - 1]
+    return "\n".join(signature_lines).split("(", 1)[1]
+
+
+if __name__ == "__main__":
+    unittest.main()
