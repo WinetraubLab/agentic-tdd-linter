@@ -72,6 +72,26 @@ class CliTests(unittest.TestCase):
         self.assertEqual(1, exit_code)
         self.assertIn("missing_requirement", stdout.getvalue())
 
+    def test_refactor_instructions_prints_prompt(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The refactor instructions flag prints the refactor workflow without running checks.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by running the flag and asserting the output includes the refactor prompt.
+        """
+
+        stdout = io.StringIO()
+
+        with contextlib.redirect_stdout(stdout):
+            exit_code = main(["--refactor-instructions"])
+
+        self.assertEqual(0, exit_code)
+        self.assertIn("Simplify helper functions in the codebase.", stdout.getvalue())
+
 
 def _copy_fixture(fixture_file: Path, repo_root: Path) -> Path:
     test_file = repo_root / fixture_file.name
