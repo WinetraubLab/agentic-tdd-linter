@@ -42,3 +42,29 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertEqual([], issues)
 
+    def test_accepts_default_artifact(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Linter accepts a pass artifact from `tests/agentic_review_artifacts`.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting the default pass artifact returns an empty issue list.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_artifact(
+                root,
+                test_file,
+                status="pass",
+                artifact_path=agent_review_artifact_path(test_file, root),
+            )
+
+            issues = lint_agent_review_artifact(test_file, repo_root=root)
+
+        self.assertEqual([], issues)
+
