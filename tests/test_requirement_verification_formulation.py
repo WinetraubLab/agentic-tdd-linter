@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_source_with_review, run_linter_with_review
+from helpers.linter_e2e import run_linter_with_review
 
 
 class RequirementVerificationFormulationTests(unittest.TestCase):
@@ -71,6 +71,18 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
                     "Requirement Formulation Check: Fail. Requirement is too narrow "
                     "because it names exact sample tests and the `see also` mechanic "
                     "instead of describing the behavior-level rule."
+                ),
+            ),
+            (
+                "sample swappability",
+                (
+                    "`test_bad_sentence_structure` fails because "
+                    "`test_sentence_has_verb` could use the same requirement."
+                ),
+                (
+                    "Requirement Formulation Check: Fail. Requirement is too narrow "
+                    "because it explains the sample test swap instead of describing "
+                    "the behavior-level rule."
                 ),
             ),
         ]
@@ -196,3 +208,5 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
                 self.assertIn("ambiguous", result.output)
                 self.assertIn(label, result.output)
 
+if __name__ == "__main__":
+    unittest.main()
