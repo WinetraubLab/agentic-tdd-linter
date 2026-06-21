@@ -152,3 +152,106 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertIn("agent_review_failed", rules)
 
+def _write_test_file(root: Path) -> Path:
+    test_file = root / "test_sample.py"
+    test_file.write_text(
+        textwrap.dedent(
+            """
+            def test_adds_values() -> None:
+                assert 1 + 1 == 2
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return test_file
+
+
+def _write_artifact(
+    root: Path,
+    test_file: Path,
+    *,
+    status: str,
+    source_hash: str | None = None,
+    artifact_path: Path | None = None,
+) -> Path:
+    artifact = artifact_path if artifact_path is not None else root / "test_sample.agent.md"
+    artifact.parent.mkdir(parents=True, exist_ok=True)
+    review_hash = source_hash if source_hash is not None else source_sha256(test_file)
+    artifact.write_text(
+        textwrap.dedent(
+            f"""
+            # Agentic Test Docstring Review
+
+            Test file: `test_sample.py`
+            Source SHA256: `{review_hash}`
+
+            ## Agent Review Result
+
+            Status: {status}
+            Notes:
+            - test_adds_values: requirement is specific.
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return artifact
+
+
+def _write_reviewed_project(root: Path) -> Path:
+    test_file = root / "tests" / "test_sample.py"
+    test_file.parent.mkdir()
+    test_file.write_text(
+        textwrap.dedent(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    stdout = io.StringIO()
+    with contextlib.redirect_stdout(stdout):
+        main(["check", "--all", "--repo-root", str(root)])
+    artifact_path = agent_review_artifact_path(test_file, root)
+    artifact_text = artifact_path.read_text(encoding="utf-8")
+    artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
+    artifact_text = artifact_text.replace(
+        "- Replace this line with the agent review result.",
+        "- test_adds_values passes review.",
+        1,
+    )
+    artifact_path.write_text(artifact_text, encoding="utf-8")
+    return test_file
+
+
+def _replace_requirement(test_file: Path, requirement: str) -> None:
+    text = test_file.read_text(encoding="utf-8")
+    text = text.replace(
+        "addition returns the expected sum for two positive integers.",
+        requirement,
+        1,
+    )
+    test_file.write_text(text, encoding="utf-8")
+
+
+def _issue_rules(issues: list[object]) -> set[str]:
+    return {issue.rule for issue in issues}
+
+
+if __name__ == "__main__":
+    unittest.main()
