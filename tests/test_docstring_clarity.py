@@ -81,6 +81,39 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertEqual(1, result.exit_code)
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("double negation", result.output)
+
+    def test_requirement_five_sentences_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Linter rejects long requirements.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output includes Sentence Checks.
+        """
+
+        requirement = (
+            "Parser accepts positive numbers safely. "
+            "It adds paired inputs together. "
+            "It returns a numeric total. "
+            "It preserves sign information for callers. "
+            "It gives successful calculation results without extra side effects "
+            "or hidden fallback behavior in the result during normal use."
+        )
+
+        result = run_linter_with_review(
+            requirement=requirement,
+            status="fail",
+            note="Sentence Checks: Fail. Requirement uses five sentences and forty words.",
+        )
+
+        self.assertEqual(40, _word_count(requirement))
+        self.assertEqual(1, result.exit_code)
+        self.assertIn("agent_review_failed", result.output)
+        self.assertIn("Sentence Checks", result.output)
+
     def test_requirement_relative_clause_fails(self) -> None:
         """Test Path: failure path
 
