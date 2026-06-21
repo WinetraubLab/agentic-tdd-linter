@@ -152,6 +152,38 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertIn("agent_review_failed", rules)
 
+    def test_regenerates_stale_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Check command regenerates artifact after source hash differs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Check command regenerates pending artifact after requirement edit.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_reviewed_project(root)
+            artifact_path = agent_review_artifact_path(test_file, root)
+            _replace_requirement(test_file, "addition returns a positive result.")
+
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(root)])
+            output = stdout.getvalue()
+            artifact_text = artifact_path.read_text(encoding="utf-8")
+
+        self.assertEqual(1, exit_code)
+        self.assertIn("agent_review_not_run", output)
+        self.assertNotIn("stale_agent_review_artifact", output)
+        self.assertIn("Status: pending", artifact_text)
+        self.assertIn("addition returns a positive result.", artifact_text)
+        self.assertNotIn("Status: pass", artifact_text)
+
+
 def _write_test_file(root: Path) -> Path:
     test_file = root / "test_sample.py"
     test_file.write_text(
