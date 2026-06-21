@@ -16,12 +16,12 @@ class AssertionClarifyTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic review rejects assertions beyond a narrow interpretation of the requirement.
+        Extra result assertions fail when they prove behavior outside the requirement.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting failed review output names the assertion purpose check.
+        Output includes Assertion Purpose Check.
         """
 
         test_body = """
