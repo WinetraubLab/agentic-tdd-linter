@@ -17,6 +17,12 @@ TESTING_EXCEPTION_TAG = "#" + " testing exception"
 REVIEW_CONTROL_FLOW_NODES = (ast.With, ast.AsyncWith, ast.Try) + (
     (ast.TryStar,) if hasattr(ast, "TryStar") else ()
 )
+SIMULATED_AGENT_REVIEW_MESSAGE = (
+    "E2E should not simulate the agent reviewing. The expected behavour is "
+    "that linter_e2e_review will fail upon first execution, this will give "
+    "agent a chance to review .agent.md file and then on the second run we "
+    "should pass. Simulating the agent response is not what we want"
+)
 
 
 class E2EReviewUsageTests(unittest.TestCase):
@@ -156,6 +162,42 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
+    def test_tests_do_not_simulate_agent_review(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        E2E tests do not simulate agent review.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        AST reports status replacement, placeholder replacement, and `.agent.md`
+        writes in files that import `linter_e2e_review`.
+        """
+
+        invalid_simulations: list[str] = []
+        for test_file in sorted(TEST_ROOT.glob("test_*.py")):
+            source = test_file.read_text(encoding="utf-8")
+            tree = ast.parse(source)
+            if not _imports_linter_e2e_review(tree):
+                continue
+
+            for node in ast.walk(tree):
+                if _replaces_agent_review_status(node):
+                    invalid_simulations.append(
+                        f"{test_file}:{node.lineno}: {SIMULATED_AGENT_REVIEW_MESSAGE}"
+                    )
+                if _replaces_agent_review_placeholder(node):
+                    invalid_simulations.append(
+                        f"{test_file}:{node.lineno}: {SIMULATED_AGENT_REVIEW_MESSAGE}"
+                    )
+                if _writes_agent_md_path(node):
+                    invalid_simulations.append(
+                        f"{test_file}:{node.lineno}: {SIMULATED_AGENT_REVIEW_MESSAGE}"
+                    )
+
+        self.assertEqual([], invalid_simulations)
+
     def test_linter_e2e_review_status_is_asserted_immediately(self) -> None:
         """Test Path: happy path
 
@@ -208,6 +250,81 @@ def _assigns_linter_e2e_review(statement: ast.stmt) -> bool:
         and isinstance(statement.value.func, ast.Name)
         and statement.value.func.id == "linter_e2e_review"
     )
+
+
+def _imports_linter_e2e_review(tree: ast.AST) -> bool:
+    for node in ast.walk(tree):
+        if not (
+            isinstance(node, ast.ImportFrom)
+            and node.module == "helpers.linter_e2e"
+        ):
+            continue
+        if any(alias.name == "linter_e2e_review" for alias in node.names):
+            return True
+    return False
+
+
+def _replaces_agent_review_status(node: ast.AST) -> bool:
+    if not (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "replace"
+        and len(node.args) >= 2
+    ):
+        return False
+    values = [_string_value(argument) for argument in node.args[:2]]
+    return values[0] == "Status: pending" and values[1] in {
+        "Status: pass",
+        "Status: fail",
+    }
+
+
+def _replaces_agent_review_placeholder(node: ast.AST) -> bool:
+    if not (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "replace"
+        and node.args
+    ):
+        return False
+    return (
+        _string_value(node.args[0])
+        == "- Replace this line with the agent review result."
+    )
+
+
+def _writes_agent_md_path(node: ast.AST) -> bool:
+    if not (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "write_text"
+    ):
+        return False
+    return ".agent.md" in _source_text(node.func.value)
+
+
+def _string_value(node: ast.AST) -> str:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    return ""
+
+
+def _source_text(node: ast.AST) -> str:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.JoinedStr):
+        return "".join(_source_text(value) for value in node.values)
+    if isinstance(node, ast.FormattedValue):
+        return _source_text(node.value)
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return f"{_source_text(node.value)}.{node.attr}"
+    if isinstance(node, ast.BinOp):
+        return f"{_source_text(node.left)} {_source_text(node.right)}"
+    if isinstance(node, ast.Call):
+        return _source_text(node.func)
+    return ""
 
 
 def _control_flow_has_testing_exception_tag(
