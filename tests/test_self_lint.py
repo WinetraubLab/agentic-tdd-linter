@@ -13,23 +13,26 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from agentic_tdd_linter.cli import main
 
 
+FISHFOOD_CHECK_ARGS = ["check", "--all"]
+
+
 class SelfLintTests(unittest.TestCase):
-    def test_linter_accepts_project_tests(self) -> None:
+    def test_fishfood_validates_repository_tests(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts this repository's own test suite.
+        Fishfood validates repository tests.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by running the check command against all project tests and asserting success.
+        Command output includes success.
         """
 
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main(["check", "--repo-root", str(REPO_ROOT), "--all"])
+            exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
         self.assertEqual(0, exit_code)
         self.assertIn("no issues found", stdout.getvalue())
