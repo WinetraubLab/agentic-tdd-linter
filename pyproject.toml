@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-tdd-linter"
+version = "0.1.0"
+description = "A linter for Python tests written during agent-assisted TDD."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+agentic-tdd-linter = "agentic_tdd_linter.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_tdd_linter"]
