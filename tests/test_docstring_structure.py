@@ -22,7 +22,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `missing_docstring` is reported for a test with no docstring.
         """
 
         rules = _lint_source(
@@ -34,6 +34,129 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("missing_docstring", rules)
 
+    def test_reports_missing_test_path(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        A docstring without Test Path is reported as missing required structure.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        by asserting `missing_test_path` is reported when `Test Path` is absent.
+        """
+
+        rules = _lint_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_test_path", rules)
+
+    def test_reports_empty_requirement(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        An empty Requirement Tested field is reported as missing requirement text.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        by asserting `missing_requirement` is reported when `Requirement Tested` is empty.
+        """
+
+        rules = _lint_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_requirement", rules)
+
+    def test_reports_missing_method(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        A docstring without Verification Method is reported as missing required structure.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        by asserting `missing_verification_method` is reported when the method field is absent.
+        """
+
+        rules = _lint_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_verification_method", rules)
+
+    def test_reports_empty_verification_detail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        An empty Verification Detail field is reported as missing detail text.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        by asserting `missing_verification_detail` is reported when the detail field is empty.
+        """
+
+        rules = _lint_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_verification_detail", rules)
+
     def test_reports_long_test_name(self) -> None:
         """Test Path: failure path
 
@@ -43,7 +166,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `test_name_too_long` is reported for a seven-word test name.
         """
 
         rules = _lint_source(
@@ -66,68 +189,6 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("test_name_too_long", rules)
 
-    def test_reports_empty_requirement(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        An empty Requirement Tested field is reported as missing requirement text.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        by linting a generated test file and asserting the returned rule.
-        """
-
-        rules = _lint_source(
-            """
-            def test_adds_values() -> None:
-                \"\"\"Test Path: happy path
-
-                Requirement Tested:
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                by asserting the returned numeric total.
-                \"\"\"
-
-                assert 1 + 1 == 2
-            """
-        )
-
-        self.assertIn("missing_requirement", rules)
-
-    def test_reports_empty_verification_detail(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        An empty Verification Detail field is reported as missing detail text.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        by linting a generated test file and asserting the returned rule.
-        """
-
-        rules = _lint_source(
-            """
-            def test_adds_values() -> None:
-                \"\"\"Test Path: happy path
-
-                Requirement Tested:
-                addition returns the expected sum for two positive integers.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                \"\"\"
-
-                assert 1 + 1 == 2
-            """
-        )
-
-        self.assertIn("missing_verification_detail", rules)
-
     def test_reports_same_line_requirement(self) -> None:
         """Test Path: failure path
 
@@ -137,7 +198,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `invalid_requirement_format` is reported for same-line requirement text.
         """
 
         rules = _lint_source(
@@ -168,7 +229,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        by linting a generated test file and asserting the returned rule.
+        by asserting `invalid_verification_detail_format` is reported for same-line detail text.
         """
 
         rules = _lint_source(
