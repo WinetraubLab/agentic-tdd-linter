@@ -142,6 +142,88 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("Relative Clause Check", result.output)
         self.assertIn("whose SHA no longer matches", result.output)
+
+    def test_requirement_named_phrases(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Named phrases clarify local jargon.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter distinguishes marked and unmarked phrases.
+        """
+
+        cases = [
+            (
+                "prose jargon",
+                (
+                    "Fishfood exit code matches pass or fail status values in "
+                    "agent review artifacts."
+                ),
+                "fail",
+                (
+                    "Convoluted Wording Check: Fail. `agent review artifacts` is "
+                    "unexplained test-specific jargon in prose; use a named phrase "
+                    "such as `agent_review_artifact`."
+                ),
+                ("agent_review_failed", "test-specific jargon"),
+            ),
+            (
+                "unmarked phrase",
+                (
+                    "Review markdown includes generic requirement, jargon, "
+                    "assertion, and level checks."
+                ),
+                "fail",
+                (
+                    "Convoluted Wording Check: Fail. `Review markdown` is a "
+                    "test-specific term, so mark it as a backticked named phrase."
+                ),
+                ("agent_review_failed", "Review markdown", "backticked named phrase"),
+            ),
+            (
+                "backticked phrase",
+                (
+                    "`Review markdown` includes generic requirement, jargon, "
+                    "assertion, and level checks."
+                ),
+                "pass",
+                (
+                    "Convoluted Wording Check: Pass. `Review markdown` is a "
+                    "backticked named phrase."
+                ),
+                (),
+            ),
+            (
+                "defined phrase",
+                (
+                    "Linter exit code matches pass or fail status values in "
+                    "`agent_review_artifact`."
+                ),
+                "pass",
+                (
+                    "Convoluted Wording Check: Pass. `agent_review_artifact` is "
+                    "a named phrase."
+                ),
+                (),
+            ),
+        ]
+
+        for label, requirement, status, note, expected_texts in cases:
+            with self.subTest(label=label):
+                result = run_linter_with_review(
+                    requirement=requirement,
+                    status=status,
+                    note=note,
+                )
+
+                expected_exit_code = 1 if status == "fail" else 0
+                self.assertEqual(expected_exit_code, result.exit_code)
+                for expected_text in expected_texts:
+                    self.assertIn(expected_text, result.output)
+
     def test_verification_structure_fails(self) -> None:
         """Test Path: failure path
 if __name__ == "__main__":
