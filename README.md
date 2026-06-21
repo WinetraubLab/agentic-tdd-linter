@@ -1,7 +1,7 @@
 # agentic-tdd-linter
 
 `agentic-tdd-linter` is a linter for Python tests written during agent-assisted [test-driven development (TDD)](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
-It helps verify that tests written by coding agents are clear for human consumption in guiding implementation.
+It helps verify that tests written by coding agents are clear enough for humans to use when guiding implementation.
 
 ## Design Philosophy
 
@@ -61,7 +61,7 @@ The key assumption is that generated implementation code may be too large or com
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
-## Install It Using Agent
+## Install It Using an Agent
 
 Paste this prompt into your coding agent, such as Claude or Codex:
 
