@@ -17,6 +17,7 @@ from agentic_tdd_linter.cli import main
 
 DEFAULT_REQUIREMENT = "Adding two numbers must yield positive result."
 DEFAULT_VERIFICATION_DETAIL = "by asserting result is positive."
+DEFAULT_TEST_BODY = "assert 1 + 1 > 0"
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ def run_linter_with_review(
     note: str,
     requirement: str = DEFAULT_REQUIREMENT,
     verification_detail: str = DEFAULT_VERIFICATION_DETAIL,
+    test_body: str = DEFAULT_TEST_BODY,
 ) -> LinterResult:
     with tempfile.TemporaryDirectory() as directory:
         repo_root = Path(directory)
@@ -38,6 +40,7 @@ def run_linter_with_review(
             repo_root,
             requirement=requirement,
             verification_detail=verification_detail,
+            test_body=test_body,
         )
         stdout = io.StringIO()
 
@@ -57,7 +60,13 @@ def run_linter_with_review(
         return LinterResult(exit_code=exit_code, output=stdout.getvalue())
 
 
-def _write_test_file(repo_root: Path, *, requirement: str, verification_detail: str) -> Path:
+def _write_test_file(
+    repo_root: Path,
+    *,
+    requirement: str,
+    verification_detail: str,
+    test_body: str,
+) -> Path:
     test_directory = repo_root / "tests"
     test_directory.mkdir()
     test_file = test_directory / "test_sample.py"
@@ -76,13 +85,20 @@ def _write_test_file(repo_root: Path, *, requirement: str, verification_detail: 
                 {verification_detail}
                 """
 
-                assert 1 + 1 > 0
+                {_indented_body(test_body)}
             '''
         ).strip()
         + "\n",
         encoding="utf-8",
     )
     return test_file
+
+
+def _indented_body(test_body: str) -> str:
+    body = textwrap.dedent(test_body).strip()
+    if not body:
+        body = "pass"
+    return textwrap.indent(body, " " * 16).lstrip()
 
 
 def _single_review_artifact(repo_root: Path) -> Path:
