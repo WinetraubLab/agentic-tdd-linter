@@ -131,3 +131,24 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertIn("stale_agent_review_artifact", rules)
 
+    def test_reports_review_issue(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Fail artifact emits agent review issue.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting `agent_review_failed` is reported for failed review status.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            artifact = _write_artifact(root, test_file, status="fail")
+
+            rules = _issue_rules(lint_agent_review_artifact(test_file, artifact, root))
+
+        self.assertIn("agent_review_failed", rules)
+
