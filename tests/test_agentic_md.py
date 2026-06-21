@@ -100,11 +100,11 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         self.assertIn("Sentence Structure Check (Pass/Fail)", markdown)
         self.assertIn("Subject -> Verb -> Object", markdown)
-        self.assertIn("commonly used as a noun", markdown)
-        self.assertIn("reports", markdown)
+        self.assertIn("main verb", markdown)
+        self.assertIn("read as a noun", markdown)
         self.assertIn("Condition Check (Pass/Fail)", markdown)
         self.assertIn("Relative Clause Check (Pass/Fail)", markdown)
-        self.assertIn("whose SHA no longer matches", markdown)
+        self.assertIn("referent information", markdown)
         self.assertIn("Concept Check (Pass/Fail)", markdown)
 
     def test_marks_missing_docstring(self) -> None:
