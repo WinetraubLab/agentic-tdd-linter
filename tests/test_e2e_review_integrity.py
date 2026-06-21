@@ -22,7 +22,7 @@ class E2EReviewIntegrityTests(unittest.TestCase):
         Requirement Tested:
         `e2e` exposes one public function.
 
-        Verification Method: verify file structure
+        Verification Method: verify public function output
 
         Verification Detail:
         AST lists one public function name.
@@ -37,13 +37,13 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         self.assertEqual(["review"], public_functions)
 
-    def test_tests_import_e2e_public_function_only(self) -> None:
+    def test_tests_import_review_only(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
         Test files import `e2e` through its public function.
 
-        Verification Method: verify file structure
+        Verification Method: verify public function output
 
         Verification Detail:
         Import list contains `review` only.
@@ -68,14 +68,14 @@ class E2EReviewIntegrityTests(unittest.TestCase):
 
         self.assertEqual([], invalid_imports)
 
-    def test_e2e_public_function_requires_keyword_arguments(self) -> None:
+    def test_review_requires_keywords(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
         `e2e` public parameters require keyword names.
         This will prevent hidden parameters.
 
-        Verification Method: verify file structure
+        Verification Method: verify public function output
 
         Verification Detail:
         Function signature begins with `*`.
