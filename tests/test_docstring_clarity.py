@@ -16,7 +16,7 @@ class DocstringClarityTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        A clear requirement passes.
+        Sentence structure passes for a simple requirement.
 
         Verification Method: verify public function output
 
