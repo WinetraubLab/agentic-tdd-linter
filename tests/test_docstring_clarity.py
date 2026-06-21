@@ -40,24 +40,22 @@ class DocstringClarityTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting failed review output names the noun density check.
+        Linter report identifies long subject.
         """
 
         result = run_linter_with_review(
-            requirement=(
-                "A pass artifact with the current source SHA is accepted "
-                "as completed agent review."
-            ),
+            requirement="The current source artifact emits warning.",
             status="fail",
             note=(
-                "Noun Density Check: Fail. `current source SHA` stacks more "
-                "than two noun modifiers."
+                "Sentence Structure Check: Fail. Requirement uses a long "
+                "subject before the main verb."
             ),
         )
 
         self.assertEqual(1, result.exit_code)
         self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Noun Density Check", result.output)
+        self.assertIn("Sentence Structure Check", result.output)
+        self.assertIn("long subject", result.output)
 
     def test_verification_double_negation_fails(self) -> None:
         """Test Path: failure path
