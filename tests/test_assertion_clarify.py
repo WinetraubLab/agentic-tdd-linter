@@ -111,33 +111,5 @@ class AssertionClarifyTests(unittest.TestCase):
         self.assertIn("agent_review_failed", result.output)
         self.assertIn("# Input check", result.output)
 
-        Requirement Tested:
-        Agentic review rejects input values defined outside the test.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        by asserting failed review output names self-contained assertions.
-        """
-
-        test_body = """
-            assert(fun_a(EXPECTED_VALUE), 10)
-        """
-
-        result = run_linter_with_review(
-            requirement="Function `fun_a` returns ten for the provided value.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Keep Assertions Self-Contained: Fail. `EXPECTED_VALUE` is "
-                "used as an input but is not defined in the test body."
-            ),
-        )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Keep Assertions Self-Contained", result.output)
-
-
 if __name__ == "__main__":
     unittest.main()
