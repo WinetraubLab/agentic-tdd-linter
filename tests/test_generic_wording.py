@@ -55,19 +55,12 @@ class GenericWordingTests(unittest.TestCase):
                 assert normalize_city("Paris") == "paris"
         '''
 
-        result = run_linter_source_with_review(
-            source=source,
-            status="fail",
-            note=(
-                "Notify Generic Requirement: Fail. The same requirement appears "
-                "in multiple tests, so each requirement should name the specific "
-                "behavior under review."
-            ),
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Generic Requirement", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Generic Requirement", reason)
 
     def test_swappable_requirement_fails(self) -> None:
         """Test Path: failure path
