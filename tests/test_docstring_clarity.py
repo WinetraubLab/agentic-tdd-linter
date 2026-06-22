@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class DocstringClarityTests(unittest.TestCase):
@@ -24,12 +24,11 @@ class DocstringClarityTests(unittest.TestCase):
         Reviewed artifact permits successful check.
         """
 
-        result = run_linter_with_review(
-            status="pass",
-            note="Sentence Structure Check: Pass.",
+        status, reason = linter_e2e_review(
+            scenario_name="test_clarity_simple",
+            test_source_code=_source_with_docstring(),
         )
-
-        self.assertEqual(0, result.exit_code)
+        self.assertIs(True, status)
 
     def test_long_subjects_fail(self) -> None:
         """Test Path: failure path
