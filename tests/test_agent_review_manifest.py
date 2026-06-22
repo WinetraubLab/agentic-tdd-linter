@@ -279,6 +279,40 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         self.assertIn("stale_linter_review_attestation", rules)
 
+    def test_manifest_detects_changed_source(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest rejects stale proof when reviewed source changes.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint reports stale rule after source edit.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_artifact(root, test_file, status="pass")
+            _, count, issues = record_agent_review_attestations(
+                [test_file],
+                root,
+                reviewer="codex:gpt-5",
+            )
+            test_file.write_text(
+                test_file.read_text(encoding="utf-8").replace(
+                    "assert 1 + 1 == 2",
+                    "assert 2 + 2 == 4",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+
+        self.assertEqual(1, count)
+        self.assertEqual([], issues)
         self.assertIn("stale_agent_review_attestation", rules)
 
     def test_manifest_recording_requires_pass_artifact(self) -> None:
