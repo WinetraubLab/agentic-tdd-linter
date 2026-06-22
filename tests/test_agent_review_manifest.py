@@ -390,3 +390,110 @@ class AgentReviewManifestTests(unittest.TestCase):
         self.assertEqual(0, count)
         self.assertFalse(manifest_path.exists())
         self.assertIn("agent_review_not_run", _issue_rules(issues))
+def _write_test_file(root: Path) -> Path:
+    test_directory = root / "tests"
+    test_directory.mkdir()
+    test_file = test_directory / "test_sample.py"
+    test_file.write_text(
+        textwrap.dedent(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Returned total equals the expected sum.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return test_file
+
+
+def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
+    artifact_path = agent_review_artifact_path(test_file, root)
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text(
+        textwrap.dedent(
+            f"""
+            # Agentic Test Docstring Review
+
+            Test file: `tests/test_sample.py`
+            Source SHA256: `{source_sha256(test_file)}`
+
+            ## Agent Review Result
+
+            Status: {status}
+            Notes:
+            - test_adds_values passes review.
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return artifact_path
+
+
+def _write_manifest(
+    root: Path,
+    test_file: Path,
+    *,
+    source_hash: str,
+    status: str,
+    linter_version: str = __version__,
+    review_contract_hash: str | None = None,
+    extra_fields: dict[str, str] | None = None,
+) -> Path:
+    manifest_path = agent_review_manifest_path(root)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    record = _manifest_record(
+        root,
+        path="tests/test_sample.py",
+        source_hash=source_hash,
+        status=status,
+        linter_version=linter_version,
+        review_contract_hash=review_contract_hash,
+    )
+    if extra_fields:
+        record.update(extra_fields)
+    manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    return manifest_path
+
+
+def _manifest_record(
+    root: Path,
+    *,
+    path: str,
+    source_hash: str,
+    status: str,
+    linter_version: str = __version__,
+    review_contract_hash: str | None = None,
+) -> dict[str, str]:
+    return {
+        "path": path,
+        "source_sha256": source_hash,
+        "status": status,
+        "linter_version": linter_version,
+        "review_contract_sha256": (
+            review_contract_hash
+            if review_contract_hash is not None
+            else review_contract_sha256(root)
+        ),
+        "reviewer": REVIEWER,
+    }
+
+
+def _issue_rules(issues: list[object]) -> set[str]:
+    return {issue.rule for issue in issues}
+
+
+if __name__ == "__main__":
+    unittest.main()
