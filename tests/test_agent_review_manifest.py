@@ -315,6 +315,55 @@ class AgentReviewManifestTests(unittest.TestCase):
         self.assertEqual([], issues)
         self.assertIn("stale_agent_review_attestation", rules)
 
+    def test_recording_removes_deleted_records(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Manifest refresh removes records when test files disappear.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest output contains current path after refresh.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            manifest_path = _write_manifest(
+                root,
+                test_file,
+                source_hash=source_sha256(test_file),
+                status="pass",
+            )
+            orphan_record = _manifest_record(
+                root,
+                path="tests/test_deleted.py",
+                source_hash="0" * 64,
+                status="pass",
+            )
+            manifest_path.write_text(
+                manifest_path.read_text(encoding="utf-8")
+                + json.dumps(orphan_record)
+                + "\n",
+                encoding="utf-8",
+            )
+            _write_artifact(root, test_file, status="pass")
+
+            _, count, issues = record_agent_review_attestations(
+                [test_file],
+                root,
+                reviewer=REVIEWER,
+            )
+            records = [
+                json.loads(line)
+                for line in manifest_path.read_text(encoding="utf-8").splitlines()
+            ]
+
+        self.assertEqual(1, count)
+        self.assertEqual([], issues)
+        self.assertEqual(["tests/test_sample.py"], [record["path"] for record in records])
+
     def test_manifest_recording_requires_pass_artifact(self) -> None:
         """Test Path: failure path
 
