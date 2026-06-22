@@ -157,16 +157,29 @@ class DocstringClarityTests(unittest.TestCase):
             "or hidden fallback behavior in the result during normal use."
         )
 
-        result = run_linter_with_review(
-            requirement=requirement,
-            status="fail",
-            note="Sentence Checks: Fail. Requirement uses five sentences and forty words.",
+        # Review reason: requirement has five sentences and combines too many ideas.
+        status, reason = linter_e2e_review(
+            test_source_code=f'''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    {requirement}
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The result is positive.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
         )
 
+        self.assertIs(False, status)
         self.assertEqual(40, _word_count(requirement))
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Sentence Checks", result.output)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Sentence Checks", reason)
 
     def test_requirement_relative_clause_fails(self) -> None:
         """Test Path: failure path
