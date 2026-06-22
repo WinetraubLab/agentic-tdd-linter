@@ -8,7 +8,9 @@ artifact workflow. Repo-wide import usage checks live in
 from __future__ import annotations
 
 import ast
+import hashlib
 import sys
+import textwrap
 import unittest
 from pathlib import Path
 
@@ -78,7 +80,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Signature names `scenario_name` and `test_source_code`.
+        Signature names `test_source_code`.
         """
 
         tree = ast.parse(E2E_MODULE.read_text(encoding="utf-8"))
@@ -91,7 +93,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
         function = public_functions[0]
         parameter_names = [argument.arg for argument in function.args.kwonlyargs]
 
-        self.assertEqual(["scenario_name", "test_source_code"], parameter_names)
+        self.assertEqual(["test_source_code"], parameter_names)
 
     def test_review_parameter_types(self) -> None:
         """Test Path: happy path
@@ -128,7 +130,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
                 for argument in function.args.kwonlyargs
             ]
             self.assertEqual(
-                [("scenario_name", "str"), ("test_source_code", "str")],
+                [("test_source_code", "str")],
                 allowed_parameters,
             )
 
@@ -148,14 +150,32 @@ class E2EReviewRunnerTests(unittest.TestCase):
         so the agent reviews it before running `e2e` again.
         """
 
+        test_source_code = """
+            def test_new_case() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Addition returns a positive sum.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Result value is positive.
+                \"\"\"
+
+                assert 1 + 1 > 0
+        """
+        source_sha256 = hashlib.sha256(
+            (textwrap.dedent(test_source_code).strip() + "\n").encode("utf-8")
+        ).hexdigest()
         artifact_path = (
             TEST_ROOT.parent
             / "temporary_fixtures"
             / "agentic_review_artifacts"
-            / "test_new_case.agent.md"
+            / f"{source_sha256}.agent.md"
         )
         for path in [
-            TEST_ROOT.parent / "temporary_fixtures" / "test_new_case.py",
+            TEST_ROOT.parent / "temporary_fixtures" / f"{source_sha256}.py",
             artifact_path,
             TEST_ROOT.parent / "temporary_fixtures" / "agentic_review_manifest.jsonl",
         ]:
@@ -167,27 +187,13 @@ class E2EReviewRunnerTests(unittest.TestCase):
             RuntimeError,
             (
                 "did not run, agent should review "
-                "temporary_fixtures/agentic_review_artifacts/test_new_case.agent.md "
+                "temporary_fixtures/agentic_review_artifacts/"
+                f"{source_sha256}.agent.md "
                 "and then run test again"
             ),
         ):
             linter_e2e_review(
-                scenario_name="test_new_case",
-                test_source_code="""
-                    def test_new_case() -> None:
-                        \"\"\"Test Path: happy path
-
-                        Requirement Tested:
-                        Addition returns a positive sum.
-
-                        Verification Method: verify public function output
-
-                        Verification Detail:
-                        Result value is positive.
-                        \"\"\"
-
-                        assert 1 + 1 > 0
-                """,
+                test_source_code=test_source_code,
             )
 
         self.assertTrue(artifact_path.exists())
@@ -205,7 +211,6 @@ class E2EReviewRunnerTests(unittest.TestCase):
         """
 
         status, reason = linter_e2e_review(
-            scenario_name="test_alpha_case",
             test_source_code="""
                 def test_alpha_case() -> None:
                     \"\"\"Test Path: happy path
@@ -224,7 +229,6 @@ class E2EReviewRunnerTests(unittest.TestCase):
         )
         self.assertIs(True, status)
 
-    def test_review_returns_false_when_agent_rejects_artifact(self) -> None:
     def test_review_returns_false(self) -> None:
         """Test Path: failure path
 
@@ -238,7 +242,6 @@ class E2EReviewRunnerTests(unittest.TestCase):
         """
 
         status, reason = linter_e2e_review(
-            scenario_name="test_beta_case",
             test_source_code="""
                 def test_beta_case() -> None:
                     \"\"\"Test Path: happy path
