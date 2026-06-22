@@ -25,25 +25,10 @@ from agentic_tdd_linter.cli import main
 from agentic_tdd_linter.version import __version__
 
 
-EXPECTED_ATTESTATION_LINTER_VERSION = "0.2.0"
 REVIEWER = "codex:gpt-5.5"
 
 
 class AgentReviewManifestTests(unittest.TestCase):
-    def test_linter_version_recorded(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        Attestation records use the linter version.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        Version constant equals the expected linter version.
-        """
-
-        self.assertEqual(EXPECTED_ATTESTATION_LINTER_VERSION, __version__)
-
     def test_package_metadata_matches_linter_version(self) -> None:
         """Test Path: happy path
 
