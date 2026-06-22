@@ -84,7 +84,7 @@ class SelfLintTests(unittest.TestCase):
         Parser compares README arguments.
         """
 
-        self.assertEqual(_readme_ci_check_args(), FISHFOOD_CHECK_ARGS)
+        self.assertEqual(_readme_ci_check_args(), DOGFOOD_CHECK_ARGS)
 
     def test_readme_execution_requires_review(self) -> None:
         """Test Path: failure path
