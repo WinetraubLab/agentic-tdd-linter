@@ -193,22 +193,28 @@ class DocstringClarityTests(unittest.TestCase):
         Output includes `Relative Clause Check`.
         """
 
-        result = run_linter_with_review(
-            requirement=(
-                "The check command regenerates artifacts whose SHA no longer matches."
-            ),
-            status="fail",
-            note=(
-                "Relative Clause Check: Fail. `whose SHA no longer matches` "
-                "requires the reader to infer whether SHA refers to artifact "
-                "SHA or source SHA."
-            ),
-        )
+        # Review reason: `whose SHA no longer matches` omits the SHA referent.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
 
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Relative Clause Check", result.output)
-        self.assertIn("whose SHA no longer matches", result.output)
+                    Requirement Tested:
+                    The check command regenerates artifacts whose SHA no longer matches.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The result is positive.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Relative Clause Check", reason)
+        self.assertIn("whose SHA no longer matches", reason)
 
     def test_requirement_named_phrases(self) -> None:
         """Test Path: happy path
