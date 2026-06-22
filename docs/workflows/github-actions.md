@@ -57,12 +57,6 @@ GitHub Actions verifies the committed manifest against the committed repository 
 
 When those checks pass, CI does not need the full review artifacts. When the manifest is missing or stale, the command creates the full review artifact and fails until the review is completed locally and the refreshed manifest is committed.
 
-## Token Cost
-
-GitHub Actions does not need to call Claude, Codex, or another model. The model work happens locally before commit. CI only verifies cryptographic hashes and manifest fields.
-
-That means teams can use their existing local Claude or Codex session for review and avoid paying for another model pass in CI.
-
 ## When To Refresh Proof
 
 Run `agentic-tdd-linter check --all --reviewer ...` again when:
