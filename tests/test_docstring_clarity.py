@@ -413,12 +413,8 @@ class DocstringClarityTests(unittest.TestCase):
             "example case only."
         )
 
-        result = run_linter_with_review(
-            verification_detail=verification_detail,
-            status="fail",
-            note=(
-                "Sentence Checks: Fail. Verification Detail is too long."
-            ),
+        # Review reason: verification detail is too long and combines too many ideas.
+        status, reason = linter_e2e_review(
             test_source_code=f'''
                 def test_adds_numbers() -> None:
                     """Test Path: happy path
@@ -439,6 +435,7 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertIs(False, status)
         self.assertEqual(40, _word_count(verification_detail))
         self.assertIn("agent_review_failed", reason)
+        self.assertIn("Sentence Checks", reason)
 
 
 def _word_count(text: str) -> int:
