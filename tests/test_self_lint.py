@@ -4,6 +4,7 @@ import contextlib
 import io
 import json
 import shlex
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -18,16 +19,17 @@ from agentic_tdd_linter.agent_review_artifacts import agent_review_artifact_path
 from agentic_tdd_linter.cli import main
 
 
-FISHFOOD_CHECK_ARGS = ["check", "--all", "--review-proof", "manifest"]
-LOCAL_REVIEW_CHECK_ARGS = ["check", "--all"]
+REVIEWER = "codex:gpt-5.5"
+DOGFOOD_CHECK_ARGS = ["check", "--all", "--reviewer", REVIEWER]
+LOCAL_REVIEW_CHECK_ARGS = ["check", "--all", "--reviewer", REVIEWER]
 
 
 class SelfLintTests(unittest.TestCase):
-    def test_fishfood_validates_repository_tests(self) -> None:
+    def test_dogfood_validates_repository_tests(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood validates repository tests with committed review attestations.
+        Dogfood validates repository tests with committed review attestations.
 
         Verification Method: verify public function output
 
@@ -38,16 +40,16 @@ class SelfLintTests(unittest.TestCase):
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
+            exit_code = main([*DOGFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
         self.assertEqual(0, exit_code)
         self.assertIn("no issues found", stdout.getvalue())
 
-    def test_fishfood_matches_manifest_statuses(self) -> None:
+    def test_dogfood_matches_manifest_statuses(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood manifest records pass statuses for reviewed test files.
+        Dogfood manifest records pass statuses for reviewed test files.
 
         Verification Method: verify public function output
 
@@ -58,7 +60,7 @@ class SelfLintTests(unittest.TestCase):
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
+            exit_code = main([*DOGFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
         statuses = _agent_review_manifest_statuses()
 
@@ -66,7 +68,7 @@ class SelfLintTests(unittest.TestCase):
         self.assertTrue(all(status == "pass" for status in statuses.values()))
         self.assertEqual(0, exit_code)
 
-    def test_fishfood_matches_readme(self) -> None:
+    def test_review_manifest_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
