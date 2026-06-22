@@ -103,28 +103,34 @@ class AssertionClarifyTests(unittest.TestCase):
         Linter report cites missing `# Input check` tags.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert a > 0
-            assert b > 0
-            assert c > 0
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Assertion Purpose Check: Fail. `assert a > 0` and "
-                "`assert b > 0` need `# Input check` tags."
-            ),
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert a > 0
+                assert b > 0
+                assert c > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            scenario_name="test_assertion_untagged",
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("# Input check", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("# Input check", reason)
 
 if __name__ == "__main__":
     unittest.main()
