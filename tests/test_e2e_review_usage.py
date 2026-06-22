@@ -17,7 +17,6 @@ TESTING_EXCEPTION_TAG = "#" + " testing exception"
 REVIEW_CONTROL_FLOW_NODES = (ast.With, ast.AsyncWith, ast.Try) + (
     (ast.TryStar,) if hasattr(ast, "TryStar") else ()
 )
-SCENARIO_NAME_RESULT_HINTS = ("pass", "fail", "success")
 SIMULATED_AGENT_REVIEW_MESSAGE = (
     "E2E should not simulate the agent reviewing. The expected behavour is "
     "that linter_e2e_review will fail upon first execution, this will give "
@@ -105,42 +104,32 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
-    def test_scenario_name_is_neutral(self) -> None:
+    def test_review_calls_use_source_only(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `scenario_name` gives the agent no result hint.
+        `linter_e2e_review` accepts test source only.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        AST reports `scenario_name` values that are not inline strings.
-        AST reports strings containing `pass`, `fail`, or `success`.
+        Parser compares call keywords.
         """
 
-        invalid_names: list[str] = []
+        invalid_calls: list[str] = []
         for test_file in sorted(TEST_ROOT.glob("test_*.py")):
             tree = ast.parse(test_file.read_text(encoding="utf-8"))
             for node in ast.walk(tree):
                 if not _calls_linter_e2e_review(node):
                     continue
-                scenario_name = _scenario_name_value(node)
-                if scenario_name is None:
-                    invalid_names.append(
+                keyword_names = [keyword.arg for keyword in node.keywords]
+                if node.args or keyword_names != ["test_source_code"]:
+                    invalid_calls.append(
                         f"{test_file}:{node.lineno}: "
-                        "scenario_name must be an inline string literal"
-                    )
-                    continue
-                if any(
-                    result_hint in scenario_name.lower()
-                    for result_hint in SCENARIO_NAME_RESULT_HINTS
-                ):
-                    invalid_names.append(
-                        f"{test_file}:{node.lineno}: "
-                        "scenario_name must not contain pass, fail, or success"
+                        "call linter_e2e_review with test_source_code only"
                     )
 
-        self.assertEqual([], invalid_names)
+        self.assertEqual([], invalid_calls)
 
     def test_wrappers_require_tag(self) -> None:
         """Test Path: happy path
@@ -296,18 +285,6 @@ def _calls_linter_e2e_review(node: ast.AST) -> bool:
         and isinstance(node.func, ast.Name)
         and node.func.id == "linter_e2e_review"
     )
-
-
-def _scenario_name_value(call: ast.Call) -> str | None:
-    for keyword in call.keywords:
-        if keyword.arg != "scenario_name":
-            continue
-        if isinstance(keyword.value, ast.Constant) and isinstance(
-            keyword.value.value, str
-        ):
-            return keyword.value.value
-        return None
-    return None
 
 
 def _imports_linter_e2e_review(tree: ast.AST) -> bool:

@@ -45,7 +45,6 @@ class AssertionClarifyTests(unittest.TestCase):
         '''
 
         status, reason = linter_e2e_review(
-            scenario_name="test_assertion_extra",
             test_source_code=source,
         )
         self.assertIs(False, status)
@@ -86,7 +85,6 @@ class AssertionClarifyTests(unittest.TestCase):
         '''
 
         status, reason = linter_e2e_review(
-            scenario_name="test_assertion_tagged",
             test_source_code=source,
         )
         self.assertIs(True, status)
@@ -125,7 +123,6 @@ class AssertionClarifyTests(unittest.TestCase):
         '''
 
         status, reason = linter_e2e_review(
-            scenario_name="test_assertion_untagged",
             test_source_code=source,
         )
         self.assertIs(False, status)
