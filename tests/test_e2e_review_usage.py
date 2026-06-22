@@ -287,6 +287,32 @@ def _calls_linter_e2e_review(node: ast.AST) -> bool:
     )
 
 
+def _test_source_code_value(call: ast.Call) -> ast.expr | None:
+    for keyword in call.keywords:
+        if keyword.arg == "test_source_code":
+            return keyword.value
+    return None
+
+
+def _statement_lists(statements: list[ast.stmt]) -> list[list[ast.stmt]]:
+    statement_lists = [statements]
+    for statement in statements:
+        for field_name in ("body", "orelse", "finalbody"):
+            child_statements = getattr(statement, field_name, None)
+            if _is_statement_list(child_statements):
+                statement_lists.extend(_statement_lists(child_statements))
+        if isinstance(statement, ast.Try):
+            for handler in statement.handlers:
+                statement_lists.extend(_statement_lists(handler.body))
+    return statement_lists
+
+
+def _is_statement_list(value: object) -> bool:
+    return isinstance(value, list) and all(
+        isinstance(item, ast.stmt) for item in value
+    )
+
+
 def _imports_linter_e2e_review(tree: ast.AST) -> bool:
     for node in ast.walk(tree):
         if not (
