@@ -52,7 +52,7 @@ GitHub Actions verifies the committed manifest against the committed repository 
 1. The manifest must include a record for each checked test file.
 2. Each `source_sha256` must match the committed test file contents.
 3. Each record must have `status: pass`.
-4. Each `linter_version` must match the linter version installed by the workflow.
+4. Each `linter_version` must be at least the linter version installed by the workflow.
 5. Each `review_contract_sha256` must match the current linter source and documentation.
 
 When those checks pass, CI does not need the full review artifacts. When the manifest is missing or stale, the command creates the full review artifact and fails until the review is completed locally and the refreshed manifest is committed.
