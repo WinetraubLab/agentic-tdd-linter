@@ -15,3 +15,5 @@
         )
 
         self.assertEqual(__version__, pyproject["project"]["version"])
+        self.assertIn("stale_agent_review_attestation", rules)
+
