@@ -64,23 +64,32 @@ class AssertionClarifyTests(unittest.TestCase):
         Linter accepts tagged input assertions. Example: positive argument checks use `# Input check`.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert a > 0  # Input check
-            assert b > 0  # Input check
-            assert c > 0
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="pass",
-            note="Assertion Purpose Check: Pass.",
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert a > 0  # Input check
+                assert b > 0  # Input check
+                assert c > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            scenario_name="test_assertion_tagged",
+            test_source_code=source,
         )
-
-        self.assertEqual(0, result.exit_code)
+        self.assertIs(True, status)
 
     def test_untagged_input_assertions_fail(self) -> None:
         """Test Path: failure path
