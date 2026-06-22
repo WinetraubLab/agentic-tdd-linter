@@ -62,6 +62,72 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         self.assertEqual(__version__, pyproject["project"]["version"])
 
+    def test_records_review_attestation(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Attestation recording writes compact proof records.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest record includes path, source hash, status, reviewer, and contract hash.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_artifact(root, test_file, status="pass")
+
+            manifest_path, count, issues = record_agent_review_attestations(
+                [test_file],
+                root,
+                reviewer="codex:gpt-5",
+            )
+
+            record = json.loads(manifest_path.read_text(encoding="utf-8"))
+            expected_hash = source_sha256(test_file)
+            expected_contract_hash = review_contract_sha256(root)
+
+        self.assertEqual(1, count)
+        self.assertEqual([], issues)
+        self.assertEqual("tests/test_sample.py", record["path"])
+        self.assertEqual(expected_hash, record["source_sha256"])
+        self.assertEqual("pass", record["status"])
+        self.assertEqual(__version__, record["linter_version"])
+        self.assertEqual(expected_contract_hash, record["review_contract_sha256"])
+        self.assertEqual("codex:gpt-5", record["reviewer"])
+        self.assertNotIn("reviewed_at", record)
+
+    def test_manifest_accepts_matching_pass_record(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Manifest review proof accepts current pass records.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint returns no issues for a matching source hash.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(root, test_file, source_hash=source_sha256(test_file), status="pass")
+
+            issues = lint_agent_review_manifest([test_file], root)
+
+        self.assertEqual([], issues)
+
+    def test_review_contract_hash_includes_documentation(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Review contract hash changes when documentation changes.
+
+        Verification Method: verify public function output
+
         Verification Detail:
         Contract digest differs after README content changes.
         """
