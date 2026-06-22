@@ -55,19 +55,12 @@ class TestLevelTests(unittest.TestCase):
                 assert _sum_a_b(2, 3) == 5
         '''
 
-        result = run_linter_source_with_review(
-            source=source,
-            status="fail",
-            note=(
-                "Test Level Redundancy Check: Fail. `test_sum_public` and "
-                "`test_sum_private` verify the same behavior at public and "
-                "private levels without `see also` references."
-            ),
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Test Level Redundancy Check", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Test Level Redundancy Check", reason)
 
     def test_level_reference_passes(self) -> None:
         """Test Path: happy path
