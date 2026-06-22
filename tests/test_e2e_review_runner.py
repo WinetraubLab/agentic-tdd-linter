@@ -145,7 +145,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
         Verification Detail:
         Remove previous `.agent.md` file when it exists.
         Run `e2e`; it creates the `.agent.md` file and raises an error
-        so the agent can review it before running `e2e` again.
+        so the agent reviews it before running `e2e` again.
         """
 
         artifact_path = (
@@ -192,7 +192,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
 
         self.assertTrue(artifact_path.exists())
 
-    def test_review_returns_true_when_agent_approves_artifact(self) -> None:
+    def test_review_returns_true(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -225,6 +225,7 @@ class E2EReviewRunnerTests(unittest.TestCase):
         self.assertIs(True, status)
 
     def test_review_returns_false_when_agent_rejects_artifact(self) -> None:
+    def test_review_returns_false(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -248,13 +249,14 @@ class E2EReviewRunnerTests(unittest.TestCase):
                     Verification Method: verify public function output
 
                     Verification Detail:
-                    Bad generic detail, please fail linter.
+                    Result value is returned.
                     \"\"\"
 
                     assert 1 + 1 > 0
             """,
         )
         self.assertIs(False, status)
+        self.assertIn("provided", reason)
 
 
 def _annotation_name(annotation: ast.expr | None) -> str:
