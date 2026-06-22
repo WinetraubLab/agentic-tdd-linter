@@ -296,3 +296,29 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         self.assertIn("stale_agent_review_attestation", rules)
 
+    def test_manifest_recording_requires_pass_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest recording rejects incomplete artifact reviews.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Recorder returns pending-review issues before writing manifest records.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_artifact(root, test_file, status="pending")
+
+            manifest_path, count, issues = record_agent_review_attestations(
+                [test_file],
+                root,
+                reviewer="codex:gpt-5",
+            )
+
+        self.assertEqual(0, count)
+        self.assertFalse(manifest_path.exists())
+        self.assertIn("agent_review_not_run", _issue_rules(issues))
