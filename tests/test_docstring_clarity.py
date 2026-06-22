@@ -114,18 +114,27 @@ class DocstringClarityTests(unittest.TestCase):
         Linter report identifies double negation.
         """
 
-        result = run_linter_with_review(
-            verification_detail="by checking that `no failure` is false.",
-            status="fail",
-            note=(
-                "Convoluted Wording Check: Fail. `no failure` is false uses "
-                "double negation."
-            ),
-        )
+        # Review reason: `no failure` is false uses double negation.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
 
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("double negation", result.output)
+                    Requirement Tested:
+                    Adding two numbers must yield positive result.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    by checking that `no failure` is false.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("double negation", reason)
 
     def test_requirement_five_sentences_fails(self) -> None:
         """Test Path: failure path
