@@ -24,9 +24,23 @@ class DocstringClarityTests(unittest.TestCase):
         Reviewed artifact permits successful check.
         """
 
+        # Review reason: simple requirement and detail satisfy the sentence checks.
         status, reason = linter_e2e_review(
-            scenario_name="test_clarity_simple",
-            test_source_code=_source_with_docstring(),
+            test_source_code='''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Adding two numbers must yield positive result.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The result is positive.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
         )
         self.assertIs(True, status)
 
