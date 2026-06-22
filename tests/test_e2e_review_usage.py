@@ -61,7 +61,7 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_imports)
 
-    def test_linter_e2e_review_calls_stay_in_test_functions(self) -> None:
+    def test_review_calls_are_direct(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -105,7 +105,7 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
-    def test_linter_e2e_review_scenario_name_is_neutral_literal(self) -> None:
+    def test_scenario_name_is_neutral(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -142,7 +142,7 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_names)
 
-    def test_linter_e2e_review_with_or_try_requires_exception_tag(self) -> None:
+    def test_wrappers_require_tag(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -200,7 +200,7 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
-    def test_tests_do_not_simulate_agent_review(self) -> None:
+    def test_tests_do_not_simulate(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -236,7 +236,7 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_simulations)
 
-    def test_linter_e2e_review_status_is_asserted_immediately(self) -> None:
+    def test_status_assertion_follows(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
