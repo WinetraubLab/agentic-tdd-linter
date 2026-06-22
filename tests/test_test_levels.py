@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_source_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class TestLevelTests(unittest.TestCase):
@@ -105,13 +105,10 @@ class TestLevelTests(unittest.TestCase):
                 assert _sum_a_b(2, 3) == 5
         '''
 
-        result = run_linter_source_with_review(
-            source=source,
-            status="pass",
-            note="Test Level Redundancy Check: Pass.",
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(0, result.exit_code)
+        self.assertIs(True, status)
 
 
 if __name__ == "__main__":
