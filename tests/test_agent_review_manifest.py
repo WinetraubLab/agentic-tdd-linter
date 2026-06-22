@@ -1,3 +1,49 @@
+from __future__ import annotations
+
+import contextlib
+import io
+import json
+import sys
+import tempfile
+import textwrap
+import tomllib
+import unittest
+from pathlib import Path
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from agentic_tdd_linter.agent_review_artifacts import agent_review_artifact_path
+from agentic_tdd_linter.agent_review_manifest import (
+    agent_review_manifest_path,
+    lint_agent_review_manifest,
+    record_agent_review_attestations,
+    review_contract_sha256,
+)
+from agentic_tdd_linter.agent_ran_proof import source_sha256
+from agentic_tdd_linter.cli import main
+from agentic_tdd_linter.version import __version__
+
+
+EXPECTED_ATTESTATION_LINTER_VERSION = "0.2.0"
+REVIEWER = "codex:gpt-5.5"
+
+
+class AgentReviewManifestTests(unittest.TestCase):
+    def test_linter_version_recorded(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Attestation records use the linter version.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Version constant equals the expected linter version.
+        """
+
+        self.assertEqual(EXPECTED_ATTESTATION_LINTER_VERSION, __version__)
+
     def test_package_metadata_matches_linter_version(self) -> None:
         """Test Path: happy path
 
