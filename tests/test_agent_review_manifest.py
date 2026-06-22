@@ -186,5 +186,113 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         self.assertIn("stale_agent_review_attestation", rules)
 
+    def test_manifest_accepts_current_linter_version(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Manifest review proof accepts the current linter version.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint returns no issues when record version equals runtime version.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=source_sha256(test_file),
+                status="pass",
+                linter_version=__version__,
+            )
+
+            issues = lint_agent_review_manifest([test_file], root)
+
+        self.assertEqual([], issues)
+
+    def test_manifest_accepts_newer_linter_version(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Manifest review proof accepts a newer linter version.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint returns no issues when record version is higher than runtime version.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=source_sha256(test_file),
+                status="pass",
+                linter_version="999.0.0",
+            )
+
+            issues = lint_agent_review_manifest([test_file], root)
+
+        self.assertEqual([], issues)
+
+    def test_manifest_reports_old_review_contract(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest review proof rejects stale review contracts.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint reports old contract attestation when hashes differ.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=source_sha256(test_file),
+                status="pass",
+                review_contract_hash="0" * 64,
+            )
+
+            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+
+        self.assertIn("stale_review_contract_attestation", rules)
+
+    def test_manifest_reports_old_linter_version(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest review proof rejects stale linter versions.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint reports old linter attestation when versions differ.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=source_sha256(test_file),
+                status="pass",
+                linter_version="0.0.0",
+            )
+
+            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+
+        self.assertIn("stale_linter_review_attestation", rules)
+
         self.assertIn("stale_agent_review_attestation", rules)
 
