@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_source_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class GenericWordingTests(unittest.TestCase):
