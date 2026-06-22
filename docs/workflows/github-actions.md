@@ -42,7 +42,7 @@ The fields mean:
 
 ## GitHub Actions Verification
 
-In CI, run the same command:
+In CI, verify the manifest with the same command:
 
 ```bash
 agentic-tdd-linter check --all --reviewer codex:gpt-5.5
