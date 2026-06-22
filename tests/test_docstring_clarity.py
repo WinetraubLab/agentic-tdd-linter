@@ -56,41 +56,51 @@ class DocstringClarityTests(unittest.TestCase):
         Linter report identifies long subject.
         """
 
-        cases = [
-            (
-                "requirement",
-                {"requirement": "The current source artifact emits warning."},
-                (
-                    "Sentence Structure Check: Fail. Requirement uses a long "
-                    "subject before the main verb."
-                ),
-            ),
-            (
-                "verification detail",
-                {
-                    "verification_detail": (
-                        "The captured failure output names double negation."
-                    )
-                },
-                (
-                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
-                    "Verification Detail uses a long subject before the main verb."
-                ),
-            ),
-        ]
+        # Review reason: requirement uses a long subject before the main verb.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
 
-        for label, linter_kwargs, note in cases:
-            with self.subTest(label=label):
-                result = run_linter_with_review(
-                    **linter_kwargs,
-                    status="fail",
-                    note=note,
-                )
+                    Requirement Tested:
+                    The current source artifact emits warning.
 
-                self.assertEqual(1, result.exit_code)
-                self.assertIn("agent_review_failed", result.output)
-                self.assertIn("Sentence Structure Check", result.output)
-                self.assertIn("long subject", result.output)
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The result is positive.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Sentence Structure Check", reason)
+        self.assertIn("long subject", reason)
+
+        # Review reason: verification detail uses a long subject before the main verb.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Adding two numbers must yield positive result.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The captured failure output names double negation.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Sentence Structure Check", reason)
+        self.assertIn("long subject", reason)
 
     def test_verification_double_negation_fails(self) -> None:
         """Test Path: failure path
