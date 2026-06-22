@@ -419,12 +419,26 @@ class DocstringClarityTests(unittest.TestCase):
             note=(
                 "Sentence Checks: Fail. Verification Detail is too long."
             ),
+            test_source_code=f'''
+                def test_adds_numbers() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Adding two numbers must yield positive result.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    {verification_detail}
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
         )
 
+        self.assertIs(False, status)
         self.assertEqual(40, _word_count(verification_detail))
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Sentence Checks", result.output)
+        self.assertIn("agent_review_failed", reason)
 
 
 def _word_count(text: str) -> int:
