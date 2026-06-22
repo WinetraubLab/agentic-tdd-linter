@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class AssertionClarifyTests(unittest.TestCase):
@@ -24,27 +24,33 @@ class AssertionClarifyTests(unittest.TestCase):
         Output includes Assertion Purpose Check.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert c > 0
-            assert c == a + b
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Assertion Purpose Check: Fail. `assert c == a + b` proves "
-                "exact-sum behavior instead of the positive-result requirement."
-            ),
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert c > 0
+                assert c == a + b
+        '''
+
+        status, reason = linter_e2e_review(
+            scenario_name="test_assertion_extra",
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Assertion Purpose Check", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Assertion Purpose Check", reason)
 
     def test_tagged_input_assertions_pass(self) -> None:
         """Test Path: happy path
