@@ -105,19 +105,15 @@ class GenericWordingTests(unittest.TestCase):
                 assert validate_sentence("Apple catapiller") == "fail"
         '''
 
-        result = run_linter_source_with_review(
-            source=source,
-            status="fail",
-            note=(
-                "Notify Generic Requirement: Fail. `Reject bad sentence "
-                "structure` could be swapped onto `test_sentence_has_verb`, "
-                "so it is not specific to `test_bad_sentence_structure`."
-            ),
+        # Review reason: "Reject bad sentence structure." is way too generic.
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Generic Requirement", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Generic Requirement", reason)
+        self.assertIn("Reject bad sentence structure", reason)
+        self.assertIn("way too generic", reason)
 
 
 if __name__ == "__main__":
