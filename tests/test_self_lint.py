@@ -72,7 +72,11 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood uses README CI arguments.
+    def test_dogfood_matches_readme(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Dogfood uses README CI arguments.
 
         Verification Method: verify public function output
 
