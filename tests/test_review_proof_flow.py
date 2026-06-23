@@ -54,3 +54,13 @@ class ReviewProofFlowTests(unittest.TestCase):
         self.assertFalse(artifact_exists)
         self.assertIn("no issues found", stdout.getvalue())
 
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(root)])
+
+            artifact_exists = artifact_path.is_file()
+
+        self.assertEqual(1, exit_code)
+        self.assertTrue(artifact_exists)
+        self.assertIn("agent_review_not_run", stdout.getvalue())
+
