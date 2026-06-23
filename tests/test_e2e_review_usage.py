@@ -131,6 +131,34 @@ class E2EReviewUsageTests(unittest.TestCase):
 
         self.assertEqual([], invalid_calls)
 
+    def test_review_source_avoids_helper_call(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `linter_e2e_review` source stays visible in test data.
+        Visible `test_source_code` prevents hidden review inputs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        AST reports helper calls passed as `test_source_code`.
+        """
+
+        invalid_calls: list[str] = []
+        for test_file in sorted(TEST_ROOT.glob("test_*.py")):
+            tree = ast.parse(test_file.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not _calls_linter_e2e_review(node):
+                    continue
+                source_value = _test_source_code_value(node)
+                if isinstance(source_value, ast.Call):
+                    invalid_calls.append(
+                        f"{test_file}:{node.lineno}: "
+                        "pass visible test source, not a source-building helper"
+                    )
+
+        self.assertEqual([], invalid_calls)
+
     def test_wrappers_require_tag(self) -> None:
         """Test Path: happy path
 
