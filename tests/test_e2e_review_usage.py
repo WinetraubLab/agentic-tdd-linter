@@ -275,25 +275,26 @@ class E2EReviewUsageTests(unittest.TestCase):
                 if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
                 and node.name.startswith("test_")
             ]:
-                for index, statement in enumerate(function.body):
-                    if not _assigns_linter_e2e_review(statement):
-                        continue
-                    if not _assigns_linter_e2e_review_to_status_reason(statement):
-                        invalid_calls.append(
-                            f"{test_file}:{statement.lineno}: "
-                            "assign linter_e2e_review to status, reason"
+                for statement_list in _statement_lists(function.body):
+                    for index, statement in enumerate(statement_list):
+                        if not _assigns_linter_e2e_review(statement):
+                            continue
+                        if not _assigns_linter_e2e_review_to_status_reason(statement):
+                            invalid_calls.append(
+                                f"{test_file}:{statement.lineno}: "
+                                "assign linter_e2e_review to status, reason"
+                            )
+                            continue
+                        next_statement = (
+                            statement_list[index + 1]
+                            if index + 1 < len(statement_list)
+                            else None
                         )
-                        continue
-                    next_statement = (
-                        function.body[index + 1]
-                        if index + 1 < len(function.body)
-                        else None
-                    )
-                    if not _asserts_status(next_statement):
-                        invalid_calls.append(
-                            f"{test_file}:{statement.lineno}: "
-                            "assert status on the following line"
-                        )
+                        if not _asserts_status(next_statement):
+                            invalid_calls.append(
+                                f"{test_file}:{statement.lineno}: "
+                                "assert status on the following line"
+                            )
 
         self.assertEqual([], invalid_calls)
 
