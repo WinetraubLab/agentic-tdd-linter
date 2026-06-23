@@ -54,6 +54,23 @@ class ReviewProofFlowTests(unittest.TestCase):
         self.assertFalse(artifact_exists)
         self.assertIn("no issues found", stdout.getvalue())
 
+    def test_check_creates_missing_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Missing `review manifest` causes linter to create artifacts.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Run check without a manifest and assert pending artifact is created.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            artifact_path = agent_review_artifact_path(test_file, root)
+            stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
                 exit_code = main(["check", "--all", "--repo-root", str(root)])
