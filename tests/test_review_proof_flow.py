@@ -81,3 +81,18 @@ class ReviewProofFlowTests(unittest.TestCase):
         self.assertTrue(artifact_exists)
         self.assertIn("agent_review_not_run", stdout.getvalue())
 
+                        "--all",
+                        "--reviewer",
+                        REVIEWER,
+                        "--repo-root",
+                        str(root),
+                    ]
+                )
+
+            record = json.loads(agent_review_manifest_path(root).read_text(encoding="utf-8"))
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(expected_hash, record["source_sha256"])
+        self.assertEqual(REVIEWER, record["reviewer"])
+        self.assertIn("recorded 1 review attestations", stdout.getvalue())
+
