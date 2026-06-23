@@ -72,6 +72,25 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
+        Review manifest stays in source control.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Git index includes `tests/agentic_review_manifest.jsonl`.
+        """
+
+        manifest_path = Path("tests") / "agentic_review_manifest.jsonl"
+        result = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", str(manifest_path)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+
     def test_dogfood_matches_readme(self) -> None:
         """Test Path: happy path
 
