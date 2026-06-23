@@ -149,3 +149,101 @@ class ReviewProofFlowTests(unittest.TestCase):
         self.assertEqual(REVIEWER, record["reviewer"])
         self.assertIn("recorded 1 review attestations", stdout.getvalue())
 
+    def test_check_requires_reviewer(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest refresh requires explicit reviewer identity.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Run check without reviewer and assert missing reviewer is reported.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_manifest(root, test_file, source_hash="0" * 64)
+            _write_artifact(root, test_file)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(root)])
+
+            record = json.loads(agent_review_manifest_path(root).read_text(encoding="utf-8"))
+
+        self.assertEqual(1, exit_code)
+        self.assertEqual("0" * 64, record["source_sha256"])
+        self.assertIn("missing_reviewer", stdout.getvalue())
+
+
+def _write_test_file(root: Path) -> Path:
+    test_directory = root / "tests"
+    test_directory.mkdir()
+    test_file = test_directory / "test_sample.py"
+    test_file.write_text(
+        textwrap.dedent(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Returned total equals the expected sum.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return test_file
+
+
+def _write_artifact(root: Path, test_file: Path) -> Path:
+    artifact_path = agent_review_artifact_path(test_file, root)
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text(
+        textwrap.dedent(
+            f"""
+            # Agentic Test Docstring Review
+
+            Test file: `tests/test_sample.py`
+            Source SHA256: `{source_sha256(test_file)}`
+
+            ## Agent Review Result
+
+            Status: pass
+            Notes:
+            - test_adds_values passes review.
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return artifact_path
+
+
+def _write_manifest(root: Path, test_file: Path, *, source_hash: str) -> Path:
+    manifest_path = agent_review_manifest_path(root)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "path": "tests/test_sample.py",
+        "source_sha256": source_hash,
+        "status": "pass",
+        "linter_version": __version__,
+        "review_contract_sha256": review_contract_sha256(root),
+        "reviewer": REVIEWER,
+    }
+    manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    return manifest_path
+
+
+if __name__ == "__main__":
+    unittest.main()
