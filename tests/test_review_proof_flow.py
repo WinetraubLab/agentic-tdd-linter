@@ -81,6 +81,59 @@ class ReviewProofFlowTests(unittest.TestCase):
         self.assertTrue(artifact_exists)
         self.assertIn("agent_review_not_run", stdout.getvalue())
 
+    def test_check_creates_stale_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Stale review manifest causes automatic proof mode to create artifacts.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Run check with an old source hash and assert pending artifact is created.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            expected_hash = source_sha256(test_file)
+            artifact_path = agent_review_artifact_path(test_file, root)
+            _write_manifest(root, test_file, source_hash="0" * 64)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(root)])
+
+            artifact_text = artifact_path.read_text(encoding="utf-8")
+
+        self.assertEqual(1, exit_code)
+        self.assertIn(f"Source SHA256: `{expected_hash}`", artifact_text)
+        self.assertIn("agent_review_not_run", stdout.getvalue())
+
+    def test_check_refreshes_manifest(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Reviewed artifact refreshes stale manifest with explicit reviewer.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Run check with reviewer and assert manifest hash and reviewer are updated.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            expected_hash = source_sha256(test_file)
+            _write_manifest(root, test_file, source_hash="0" * 64)
+            _write_artifact(root, test_file)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "check",
                         "--all",
                         "--reviewer",
                         REVIEWER,
