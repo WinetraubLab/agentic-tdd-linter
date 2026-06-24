@@ -216,16 +216,108 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertIn("Relative Clause Check", reason)
         self.assertIn("whose SHA no longer matches", reason)
 
-    def test_requirement_named_phrases(self) -> None:
-        """Test Path: happy path
+    def test_unmarked_requirement_phrases_fail(self) -> None:
+        """Test Path: failure path
 
         Requirement Tested:
-        Named phrases clarify local jargon.
+        Unmarked phrases trigger review failures.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter distinguishes marked and unmarked phrases.
+        Review reason cites two unmarked phrases.
+        """
+
+        # Previous case: prose jargon.
+        # Problem sentence: "agent review artifacts" is local project jargon,
+        # so the phrase needs code quotes or a concrete definition.
+        agent_review_artifacts_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Dogfood exit code matches pass or fail status values in agent review artifacts.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=agent_review_artifacts_source,
+        )
+        self.assertIs(False, status, "`agent review artifacts` should fail")
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("test-specific jargon", reason)
+
+        # Previous case: unmarked phrase.
+        # Problem sentence: "Review markdown" is a local named phrase,
+        # so the phrase needs code quotes.
+        review_markdown_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Review markdown includes generic requirement, jargon, assertion, and level checks.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=review_markdown_source,
+        )
+        self.assertIs(False, status, "`Review markdown` should fail without code quotes")
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Review markdown", reason)
+        self.assertIn("backticked named phrase", reason)
+
+        # Previous case: defined phrase without its code quotes.
+        # Problem sentence: "agent_review_artifact" is a project named phrase,
+        # so the phrase needs code quotes when it appears in prose.
+        agent_review_artifact_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Linter exit code matches pass or fail status values in agent_review_artifact.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=agent_review_artifact_source,
+        )
+        self.assertIs(False, status, "`agent_review_artifact` should fail without code quotes")
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("agent_review_artifact", reason)
+        self.assertIn("backticked named phrase", reason)
+
+    def test_marked_requirement_phrases_pass(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Code-quoted phrases satisfy phrase rules.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Review reason confirms phrase checks.
         """
 
         cases = [
