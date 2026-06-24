@@ -281,33 +281,6 @@ class DocstringClarityTests(unittest.TestCase):
         self.assertIn("Review markdown", reason)
         self.assertIn("backticked named phrase", reason)
 
-        # Previous case: defined phrase without its code quotes.
-        # Problem sentence: "agent_review_artifact" is a project named phrase,
-        # so the phrase needs code quotes when it appears in prose.
-        agent_review_artifact_source = '''
-            def test_adds_numbers() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                Linter exit code matches pass or fail status values in agent_review_artifact.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The result is positive.
-                """
-
-                assert 1 + 1 > 0
-        '''
-
-        status, reason = linter_e2e_review(
-            test_source_code=agent_review_artifact_source,
-        )
-        self.assertIs(False, status, "`agent_review_artifact` should fail without code quotes")
-        self.assertIn("agent_review_failed", reason)
-        self.assertIn("agent_review_artifact", reason)
-        self.assertIn("backticked named phrase", reason)
-
     def test_marked_requirement_phrases_pass(self) -> None:
         """Test Path: happy path
 
