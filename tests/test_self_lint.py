@@ -73,6 +73,7 @@ class SelfLintTests(unittest.TestCase):
 
         Requirement Tested:
         Review manifest stays in source control.
+        Fresh checkouts need committed proof records for CI verification.
 
         Verification Method: verify public function output
 
