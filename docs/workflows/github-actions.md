@@ -48,7 +48,13 @@ In CI, verify the manifest with the same command:
 agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 ```
 
-GitHub Actions verifies the committed manifest against the committed repository state before falling back to artifact review:
+You can run that command directly as a workflow step, or call it from dogfood tests that are already part of the normal unit suite. This repository uses the dogfood test path, so the unit test workflow only needs:
+
+```bash
+python -m unittest discover -s tests
+```
+
+The linter verifies the committed manifest against the committed repository state before falling back to artifact review:
 1. The manifest must include a record for each checked test file.
 2. Each `source_sha256` must match the committed test file contents.
 3. Each record must have `status: pass`.
