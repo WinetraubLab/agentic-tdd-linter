@@ -343,42 +343,51 @@ class DocstringClarityTests(unittest.TestCase):
         Linter report identifies sentence structure failures.
         """
 
-        cases = [
+        failing_cases = [
             (
-                "unclear structure",
-                "by asserting failed review output names self-contained assertions.",
-                (
-                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
-                    "`by asserting failed review output names self-contained assertions` "
-                    "has no clear Subject -> Verb -> Object structure."
-                ),
+                "verification detail has no clear Subject -> Verb -> Object.",
+                '''
+                    def test_adds_numbers() -> None:
+                        """Test Path: happy path
+
+                        Requirement Tested:
+                        Adding two numbers must yield positive result.
+
+                        Verification Method: verify public function output
+
+                        Verification Detail:
+                        by asserting failed review output names self-contained assertions.
+                        """
+
+                        assert 1 + 1 > 0
+                ''',
             ),
             (
-                "missing subject",
-                (
-                    "by changing a reviewed test file and asserting the artifact "
-                    "returns to pending."
-                ),
-                (
-                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
-                    "`by changing a reviewed test file and asserting the artifact "
-                    "returns to pending` has no Subject -> Verb -> Object structure "
-                    "because it has no subject before the main verb."
-                ),
+                "verification detail starts with mechanics and has no subject.",
+                '''
+                    def test_adds_numbers() -> None:
+                        """Test Path: happy path
+
+                        Requirement Tested:
+                        Adding two numbers must yield positive result.
+
+                        Verification Method: verify public function output
+
+                        Verification Detail:
+                        by changing a reviewed test file and asserting the artifact returns to pending.
+                        """
+
+                        assert 1 + 1 > 0
+                ''',
             ),
         ]
-
-        for label, verification_detail, note in cases:
-            with self.subTest(label=label):
-                result = run_linter_with_review(
-                    verification_detail=verification_detail,
-                    status="fail",
-                    note=note,
-                )
-
-                self.assertEqual(1, result.exit_code)
-                self.assertIn("agent_review_failed", result.output)
-                self.assertIn("Subject -> Verb -> Object", result.output)
+        for review_reason, test_source_code in failing_cases:
+            status, reason = linter_e2e_review(
+                test_source_code=test_source_code,
+            )
+            self.assertIs(False, status, review_reason)
+            self.assertIn("agent_review_failed", reason)
+            self.assertIn("Subject -> Verb -> Object", reason)
 
     def test_verification_noun_capable_verbs_fail(self) -> None:
         """Test Path: failure path
