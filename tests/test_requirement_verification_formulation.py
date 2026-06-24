@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class RequirementVerificationFormulationTests(unittest.TestCase):
@@ -24,81 +24,130 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         Linter report includes too-narrow guidance.
         """
 
-        cases = [
-            (
-                "sample tests",
-                (
-                    "`test_normalizes_name` and `test_normalizes_city` fail until "
-                    "each requirement names specific behavior."
-                ),
-                (
-                    "Requirement Formulation Check: Fail. Requirement is too narrow "
-                    "because it names exact sample tests instead of describing the "
-                    "behavior-level rule."
-                ),
-            ),
-            (
-                "sample assertions",
-                (
-                    "Input assertions pass when `assert a > 0` and `assert b > 0` "
-                    "include `# Input check` tags."
-                ),
-                (
-                    "Requirement Formulation Check: Fail. Requirement is too narrow "
-                    "because it quotes exact sample assertions instead of describing "
-                    "the behavior-level rule."
-                ),
-            ),
-            (
-                "sample constants",
-                (
-                    "`EXPECTED_VALUE` fails when it supplies function input outside "
-                    "the test body."
-                ),
-                (
-                    "Requirement Formulation Check: Fail. Requirement is too narrow "
-                    "because it quotes an exact sample constant instead of describing "
-                    "the behavior-level rule."
-                ),
-            ),
-            (
-                "sample cross references",
-                (
-                    "`test_sum_public` and `test_sum_private` fail without mutual "
-                    "`see also` references."
-                ),
-                (
-                    "Requirement Formulation Check: Fail. Requirement is too narrow "
-                    "because it names exact sample tests and the `see also` mechanic "
-                    "instead of describing the behavior-level rule."
-                ),
-            ),
-            (
-                "sample swappability",
-                (
-                    "`test_bad_sentence_structure` fails because "
-                    "`test_sentence_has_verb` could use the same requirement."
-                ),
-                (
-                    "Requirement Formulation Check: Fail. Requirement is too narrow "
-                    "because it explains the sample test swap instead of describing "
-                    "the behavior-level rule."
-                ),
-            ),
-        ]
+        # Problem sentence: requirement names test functions instead of behavior.
+        test_names_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        for label, requirement, note in cases:
-            with self.subTest(label=label):
-                result = run_linter_with_review(
-                    requirement=requirement,
-                    status="fail",
-                    note=note,
-                )
+                Requirement Tested:
+                `test_normalizes_name` and `test_normalizes_city` fail until each requirement names specific behavior.
 
-                self.assertEqual(1, result.exit_code)
-                self.assertIn("agent_review_failed", result.output)
-                self.assertIn("too narrow", result.output)
-                self.assertIn("behavior-level", result.output)
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=test_names_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("too narrow", reason)
+        self.assertIn("behavior-level", reason)
+
+        # Problem sentence: requirement names assertion mechanics instead of behavior.
+        assertion_mechanics_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Input assertions pass when `assert a > 0` and `assert b > 0` include `# Input check` tags.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=assertion_mechanics_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("too narrow", reason)
+        self.assertIn("behavior-level", reason)
+
+        # Problem sentence: requirement names `EXPECTED_VALUE` instead of behavior.
+        expected_value_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `EXPECTED_VALUE` fails when it supplies function input outside the test body.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=expected_value_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("too narrow", reason)
+        self.assertIn("behavior-level", reason)
+
+        # Problem sentence: requirement names test levels instead of behavior.
+        test_level_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `test_sum_public` and `test_sum_private` fail without mutual `see also` references.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=test_level_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("too narrow", reason)
+        self.assertIn("behavior-level", reason)
+
+        # Problem sentence: requirement names another test instead of behavior.
+        swappable_requirement_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `test_bad_sentence_structure` fails because `test_sentence_has_verb` could use the same requirement.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=swappable_requirement_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("too narrow", reason)
+        self.assertIn("behavior-level", reason)
 
     def test_verification_mechanics_only_fails(self) -> None:
         """Test Path: failure path
