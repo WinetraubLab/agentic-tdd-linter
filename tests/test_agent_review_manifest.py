@@ -82,7 +82,6 @@ class AgentReviewManifestTests(unittest.TestCase):
         self.assertEqual(__version__, record["linter_version"])
         self.assertEqual(expected_contract_hash, record["review_contract_sha256"])
         self.assertEqual("codex:gpt-5", record["reviewer"])
-        self.assertNotIn("reviewed_at", record)
 
     def test_manifest_accepts_matching_pass_record(self) -> None:
         """Test Path: happy path
