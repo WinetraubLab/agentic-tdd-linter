@@ -181,13 +181,14 @@ def lint_test_file(path: Path, repo_root: Path) -> list[LintIssue]:
     return issues
 
 
-def all_test_files(repo_root: Path) -> list[Path]:
-    """Return all project test files under the repository root."""
+def all_test_files(repo_root: Path, test_root: Path | None = None) -> list[Path]:
+    """Return all project test files under the configured test root."""
 
     root = Path(repo_root).resolve()
+    search_root = Path(test_root).resolve() if test_root is not None else root
     return sorted(
         path
-        for path in root.rglob("*.py")
+        for path in search_root.rglob("*.py")
         if _is_project_test_file(path, root, skip_path_parts=True)
     )
 
