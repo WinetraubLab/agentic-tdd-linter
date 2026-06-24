@@ -330,6 +330,39 @@ class DocstringClarityTests(unittest.TestCase):
 
                 Verification Method: verify public function output
 
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=review_markdown_source,
+        )
+        self.assertIs(True, status, "`Review markdown` should pass with code quotes")
+
+        # Previous case: defined phrase.
+        agent_review_artifact_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Linter exit code matches pass or fail status values in `agent_review_artifact`.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=agent_review_artifact_source,
+        )
+        self.assertIs(True, status, "`agent_review_artifact` should pass as a named phrase")
 
     def test_verification_sentence_structure_fails(self) -> None:
         """Test Path: failure path
