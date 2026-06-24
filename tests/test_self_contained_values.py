@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_source_with_review, run_linter_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class SelfContainedValueTests(unittest.TestCase):
@@ -24,24 +24,31 @@ class SelfContainedValueTests(unittest.TestCase):
         Linter report includes Keep Assertions Self-Contained.
         """
 
-        test_body = """
-            expected_value = EXPECTED_VALUE
-            assert(fun_a(10), expected_value)
-        """
+        # Problem statement: `EXPECTED_VALUE` supplies the expected result
+        # from outside the test body.
+        expected_value_source = '''
+            def test_expected_value() -> None:
+                """Test Path: failure path
 
-        result = run_linter_with_review(
-            requirement="Function `fun_a` returns the expected value for ten.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Keep Assertions Self-Contained: Fail. `EXPECTED_VALUE` is "
-                "not defined in the test body."
-            ),
+                Requirement Tested:
+                Function `fun_a` returns the expected value for ten.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Linter report includes Keep Assertions Self-Contained.
+                """
+
+                expected_value = EXPECTED_VALUE
+                assert(fun_a(10), expected_value)
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=expected_value_source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Keep Assertions Self-Contained", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Keep Assertions Self-Contained", reason)
 
     def test_external_argument_value_fails(self) -> None:
         """Test Path: failure path
@@ -55,23 +62,74 @@ class SelfContainedValueTests(unittest.TestCase):
         Linter report includes Keep Assertions Self-Contained.
         """
 
-        test_body = """
-            assert(fun_a(EXPECTED_VALUE), 10)
+        # Problem statement: `EXPECTED_VALUE` supplies the function argument
+        # from outside the test body.
+        argument_value_source = '''
+            def test_argument_value() -> None:
+                """Test Path: failure path
+
+                Requirement Tested:
+                Function `fun_a` returns ten for the provided value.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Linter report includes Keep Assertions Self-Contained.
+                """
+
+                assert(fun_a(EXPECTED_VALUE), 10)
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=argument_value_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Keep Assertions Self-Contained", reason)
+
+    def test_imported_fact_list_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Imported fact names require local definitions.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Review note names `ARTIFACT_BACKED_FACTS` as outside the test body.
         """
 
-        result = run_linter_with_review(
-            requirement="Function `fun_a` returns ten for the provided value.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Keep Assertions Self-Contained: Fail. `EXPECTED_VALUE` is "
-                "used as an argument but is not defined in the test body."
-            ),
-        )
+        # Problem statement: `ARTIFACT_BACKED_FACTS` supplies the loop inputs
+        # from outside the test body.
+        imported_fact_list_source = '''
+            from ice_cream_database import ARTIFACT_BACKED_FACTS
 
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Keep Assertions Self-Contained", result.output)
+
+            def test_artifact_backed_facts_cannot_update_directly() -> None:
+                """Test Path: failure path
+
+                Requirement Tested:
+                Reject direct updates for facts whose source of truth is another database.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Loop checks artifact-backed facts return update rejection errors.
+                """
+
+                for fact_name in ARTIFACT_BACKED_FACTS:
+                    error = direct_fact_update_error(fact_name)
+
+                    self.assertIn("artifact_db_update", error)
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=imported_fact_list_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Keep Assertions Self-Contained", reason)
+        self.assertIn("ARTIFACT_BACKED_FACTS", reason)
 
     def test_external_requirement_value_fails(self) -> None:
         """Test Path: failure path
@@ -85,7 +143,9 @@ class SelfContainedValueTests(unittest.TestCase):
         Linter report includes Keep Assertions Self-Contained.
         """
 
-        source = '''
+        # Problem statement: `_five_sentence_requirement` supplies the reviewed
+        # requirement from outside the test body.
+        requirement_helper_source = '''
             def test_long_requirement_fails() -> None:
                 """Test Path: failure path
 
@@ -99,11 +159,7 @@ class SelfContainedValueTests(unittest.TestCase):
                 """
 
                 requirement = _five_sentence_requirement()
-                result = run_linter_with_review(
-                    requirement=requirement,
-                    status="fail",
-                    note="Sentence Checks: Fail. Requirement is too long.",
-                )
+                result = check_requirement(requirement=requirement)
 
                 assert result.exit_code == 1
 
@@ -112,18 +168,12 @@ class SelfContainedValueTests(unittest.TestCase):
                 return "Parser accepts positive numbers safely."
         '''
 
-        result = run_linter_source_with_review(
-            source=source,
-            status="fail",
-            note=(
-                "Keep Assertions Self-Contained: Fail. `requirement=` comes "
-                "from `_five_sentence_requirement`, which is outside the test body."
-            ),
+        status, reason = linter_e2e_review(
+            test_source_code=requirement_helper_source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("outside the test body", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("outside the test body", reason)
 
 
 if __name__ == "__main__":
