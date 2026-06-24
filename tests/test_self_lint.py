@@ -106,6 +106,58 @@ class SelfLintTests(unittest.TestCase):
 
         self.assertEqual(_readme_ci_check_args(), DOGFOOD_CHECK_ARGS)
 
+    def test_health_workflow_runs_unit_tests(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Health workflow runs repository unit tests.
+        Self-lint tests cover linter health inside that suite.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Workflow runs unit tests and omits redundant direct linter command.
+        """
+
+        workflow = (REPO_ROOT / ".github" / "workflows" / "health.yml").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("python -m unittest discover -s tests", workflow)
+        self.assertNotIn("agentic-tdd-linter check --all --reviewer codex:gpt-5.5", workflow)
+        self.assertIn("pull_request:", workflow)
+        self.assertIn("push:", workflow)
+        self.assertNotIn("branches:", workflow)
+        self.assertNotIn("--review-proof manifest", workflow)
+
+    def test_docs_use_two_run_review(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        README and GitHub Actions docs use the local review command.
+        Documentation tells agents to rerun the same check command.
+        `--reviewer` supplies the manifest reviewer identity when proof refreshes.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Documentation includes reviewer-explicit check and omits standalone attest command.
+        """
+
+        documentation = "\n".join(
+            [
+                (REPO_ROOT / "README.md").read_text(encoding="utf-8"),
+                (REPO_ROOT / "docs" / "workflows" / "github-actions.md").read_text(
+                    encoding="utf-8"
+                ),
+            ]
+        )
+
+        self.assertIn("agentic-tdd-linter check --all --reviewer codex:gpt-5.5", documentation)
+        self.assertIn("Then rerun the same command", documentation)
+        self.assertNotIn("agentic-tdd-linter attest", documentation)
+        self.assertNotIn("--review-proof manifest", documentation)
+
     def test_readme_execution_requires_review(self) -> None:
         """Test Path: failure path
 
@@ -137,6 +189,12 @@ class SelfLintTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 second_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
+            manifest_exists = (repo_root / "tests" / "agentic_review_manifest.jsonl").is_file()
+            manifest_record = json.loads(
+                (repo_root / "tests" / "agentic_review_manifest.jsonl").read_text(
+                    encoding="utf-8"
+                )
+            )
             second_output = stdout.getvalue()
 
         self.assertEqual(1, first_exit_code)
@@ -144,17 +202,20 @@ class SelfLintTests(unittest.TestCase):
         self.assertIn("agent_review_not_run", first_output)
         self.assertIn("agentic-tdd-linter check --all", first_output)
         self.assertEqual(0, second_exit_code)
+        self.assertTrue(manifest_exists)
+        self.assertEqual(REVIEWER, manifest_record["reviewer"])
         self.assertIn("no issues found", second_output)
+        self.assertIn("recorded 1 review attestations", second_output)
 
 
 def _readme_ci_check_args() -> list[str]:
     for line in (REPO_ROOT / "README.md").read_text(encoding="utf-8").splitlines():
-        if "agentic-tdd-linter check" not in line or "--review-proof manifest" not in line:
+        if "agentic-tdd-linter check" not in line or "--reviewer" not in line:
             continue
         command_parts = shlex.split(line)
         command_index = command_parts.index("agentic-tdd-linter")
         return command_parts[command_index + 1 :]
-    raise AssertionError("README does not include the manifest check command")
+    raise AssertionError("README does not include the reviewer-explicit check command")
 
 
 def _agent_review_manifest_statuses() -> dict[Path, str]:
