@@ -92,6 +92,30 @@ class SelfLintTests(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
 
+    def test_e2e_review_manifest_is_tracked(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        E2E review manifest stays in source control.
+        Fresh checkouts need proof records for generated E2E fixtures.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Git index includes `temporary_fixtures/agentic_review_manifest.jsonl`.
+        """
+
+        manifest_path = Path("temporary_fixtures") / "agentic_review_manifest.jsonl"
+        result = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", str(manifest_path)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+
     def test_dogfood_matches_readme(self) -> None:
         """Test Path: happy path
 

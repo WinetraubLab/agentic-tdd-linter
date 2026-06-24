@@ -177,7 +177,6 @@ class E2EReviewRunnerTests(unittest.TestCase):
         for path in [
             TEST_ROOT.parent / "temporary_fixtures" / f"{source_sha256}.py",
             artifact_path,
-            TEST_ROOT.parent / "temporary_fixtures" / "agentic_review_manifest.jsonl",
         ]:
             if path.exists():
                 path.unlink()
@@ -197,6 +196,99 @@ class E2EReviewRunnerTests(unittest.TestCase):
             )
 
         self.assertTrue(artifact_path.exists())
+
+    def test_review_uses_manifest_for_pass(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Committed `e2e` manifest satisfies reviewed pass scenarios.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Deleted local artifact is not required when manifest proof matches.
+        """
+
+        test_source_code = """
+            def test_alpha_case() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Addition returns a positive sum.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Result value is positive.
+                \"\"\"
+
+                assert 1 + 1 > 0
+        """
+        source_sha256 = hashlib.sha256(
+            (textwrap.dedent(test_source_code).strip() + "\n").encode("utf-8")
+        ).hexdigest()
+        artifact_path = (
+            TEST_ROOT.parent
+            / "temporary_fixtures"
+            / "agentic_review_artifacts"
+            / f"{source_sha256}.agent.md"
+        )
+        if artifact_path.exists():
+            artifact_path.unlink()
+
+        status, reason = linter_e2e_review(
+            test_source_code=test_source_code,
+        )
+        self.assertIs(True, status)
+        self.assertIn("no issues found", reason)
+        self.assertFalse(artifact_path.exists())
+
+    def test_review_uses_manifest_for_fail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Committed `e2e` manifest preserves reviewed fail scenarios.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Deleted local artifact is not required when manifest proof matches.
+        """
+
+        test_source_code = """
+            def test_beta_case() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Output uses provided input.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Result value is returned.
+                \"\"\"
+
+                assert 1 + 1 > 0
+        """
+        source_sha256 = hashlib.sha256(
+            (textwrap.dedent(test_source_code).strip() + "\n").encode("utf-8")
+        ).hexdigest()
+        artifact_path = (
+            TEST_ROOT.parent
+            / "temporary_fixtures"
+            / "agentic_review_artifacts"
+            / f"{source_sha256}.agent.md"
+        )
+        if artifact_path.exists():
+            artifact_path.unlink()
+
+        status, reason = linter_e2e_review(
+            test_source_code=test_source_code,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("provided", reason)
+        self.assertFalse(artifact_path.exists())
 
     def test_review_returns_true(self) -> None:
         """Test Path: happy path

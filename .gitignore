@@ -7,6 +7,7 @@ dist/
 build/
 *.egg-info/
 .DS_Store
-# Full review transcripts stay local; commit tests/agentic_review_manifest.jsonl instead.
+# Full review transcripts stay local; commit compact review manifests instead.
 tests/agentic_review_artifacts/*.agent.md
-/temporary_fixtures/
+/temporary_fixtures/*
+!/temporary_fixtures/agentic_review_manifest.jsonl
