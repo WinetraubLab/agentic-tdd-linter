@@ -1,184 +1,230 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
-import shlex
-import subprocess
 import sys
-import tempfile
 import textwrap
-from dataclasses import dataclass
 from pathlib import Path
+
+def linter_e2e_review(
+    *,
+    test_source_code: str,
+) -> tuple[bool, str]:
+    normalized_source = _normalized_source(test_source_code)
+    source_sha256 = _source_sha256(normalized_source)
+    _write_test_source(source_sha256, normalized_source)
+    manifest_record = _current_manifest_record(source_sha256)
+    if manifest_record is not None:
+        return _review_result_from_manifest(manifest_record)
+    artifact_path = _artifact_path(source_sha256)
+    exit_code, output = _run_linter(source_sha256)
+    if "agent_review_not_run" in output:
+        raise RuntimeError(
+            "did not run, agent should review "
+            f"{_display_path(artifact_path)} and then run test again"
+        )
+    _record_artifact_review(source_sha256, artifact_path)
+    return exit_code == 0, output
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+TEST_ROOT = REPO_ROOT / "temporary_fixtures"
+ARTIFACT_ROOT = TEST_ROOT / "agentic_review_artifacts"
+MANIFEST_PATH = TEST_ROOT / "agentic_review_manifest.jsonl"
+REVIEWER = "e2e:review"
+
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
+from agentic_tdd_linter.agent_review_manifest import review_contract_sha256
 from agentic_tdd_linter.cli import main
+from agentic_tdd_linter.version import __version__
 
 
-DEFAULT_REQUIREMENT = "Adding two numbers must yield positive result."
-DEFAULT_VERIFICATION_DETAIL = "by asserting result is positive."
-DEFAULT_TEST_BODY = "assert 1 + 1 > 0"
+def _normalized_source(test_source_code: str) -> str:
+    return textwrap.dedent(test_source_code).strip() + "\n"
 
 
-@dataclass(frozen=True)
-class LinterResult:
-    exit_code: int
-    output: str
+def _source_sha256(source: str) -> str:
+    return hashlib.sha256(source.encode("utf-8")).hexdigest()
 
 
-def run_linter_with_review(
-    *,
-    status: str,
-    note: str,
-    requirement: str = DEFAULT_REQUIREMENT,
-    verification_detail: str = DEFAULT_VERIFICATION_DETAIL,
-    test_body: str = DEFAULT_TEST_BODY,
-) -> LinterResult:
-    with tempfile.TemporaryDirectory() as directory:
-        repo_root = Path(directory)
-        test_file = _write_test_file(
-            repo_root,
-            requirement=requirement,
-            verification_detail=verification_detail,
-            test_body=test_body,
+def _write_test_source(source_sha256: str, normalized_source: str) -> Path:
+    TEST_ROOT.mkdir(parents=True, exist_ok=True)
+    test_file = TEST_ROOT / f"{source_sha256}.py"
+    test_file.write_text(normalized_source, encoding="utf-8")
+    return test_file
+
+
+def _run_linter(source_sha256: str) -> tuple[int, str]:
+    stdout = io.StringIO()
+    with contextlib.redirect_stdout(stdout):
+        exit_code = main(
+            [
+                "check",
+                str(TEST_ROOT / f"{source_sha256}.py"),
+                "--test-root",
+                str(TEST_ROOT),
+                "--review-proof",
+                "artifact",
+                "--manifest",
+                str(MANIFEST_PATH),
+                "--reviewer",
+                REVIEWER,
+            ]
         )
-        stdout = io.StringIO()
-        review_command = _write_reviewer_command(repo_root, status=status, note=note)
-
-        with contextlib.redirect_stdout(stdout):
-            first_exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
-
-        artifact_path = _single_review_artifact(repo_root)
-        _assert_pending_review(first_exit_code, stdout.getvalue())
-        _run_reviewer_command(review_command, artifact_path)
-        stdout = io.StringIO()
-
-        with contextlib.redirect_stdout(stdout):
-            exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
-
-        return LinterResult(exit_code=exit_code, output=stdout.getvalue())
+    return exit_code, stdout.getvalue()
 
 
-def run_linter_source_with_review(*, source: str, status: str, note: str) -> LinterResult:
-    with tempfile.TemporaryDirectory() as directory:
-        repo_root = Path(directory)
-        test_file = _write_source_file(repo_root, source)
-        stdout = io.StringIO()
-        review_command = _write_reviewer_command(repo_root, status=status, note=note)
+def _current_manifest_record(source_sha256: str) -> dict[str, str] | None:
+    if not MANIFEST_PATH.exists():
+        return None
 
-        with contextlib.redirect_stdout(stdout):
-            first_exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
+    for line in MANIFEST_PATH.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            raw_record = json.loads(line)
+        except json.JSONDecodeError:
+            return None
+        record = {str(key): str(value) for key, value in raw_record.items()}
+        if record.get("source_sha256") != source_sha256:
+            continue
+        if record.get("path") != _source_path(source_sha256).as_posix():
+            continue
+        if record.get("review_contract_sha256") != review_contract_sha256(REPO_ROOT):
+            continue
+        if _version_is_older(record.get("linter_version", ""), __version__):
+            continue
+        if record.get("status") not in {"pass", "fail"}:
+            continue
+        return record
+    return None
 
-        artifact_path = _single_review_artifact(repo_root)
-        _assert_pending_review(first_exit_code, stdout.getvalue())
-        _run_reviewer_command(review_command, artifact_path)
-        stdout = io.StringIO()
 
-        with contextlib.redirect_stdout(stdout):
-            exit_code = main(["check", str(test_file), "--repo-root", str(repo_root)])
+def _review_result_from_manifest(record: dict[str, str]) -> tuple[bool, str]:
+    status = record["status"]
+    if status == "pass":
+        return True, "agentic-tdd-linter: no issues found in 1 file\n"
+    reason = record.get("reason", "agent review failed")
+    return (
+        False,
+        (
+            f"FAIL {record['path']}:1 <agent-review>\n"
+            "Rule: agent_review_failed\n"
+            f"{reason}\n"
+        ),
+    )
 
-        return LinterResult(exit_code=exit_code, output=stdout.getvalue())
 
+def _record_artifact_review(source_sha256: str, artifact_path: Path) -> None:
+    artifact_text = artifact_path.read_text(encoding="utf-8")
+    status = _field_value(artifact_text, "Status").lower()
+    if status not in {"pass", "fail"}:
+        return
 
-def _write_test_file(
-    repo_root: Path,
-    *,
-    requirement: str,
-    verification_detail: str,
-    test_body: str,
-) -> Path:
-    test_directory = repo_root / "tests"
-    test_directory.mkdir()
-    test_file = test_directory / "test_sample.py"
-    test_file.write_text(
-        textwrap.dedent(
-            f'''
-            def test_adds_numbers() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                {requirement}
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                {verification_detail}
-                """
-
-                {_indented_body(test_body)}
-            '''
-        ).strip()
-        + "\n",
+    record = {
+        "path": _source_path(source_sha256).as_posix(),
+        "source_sha256": source_sha256,
+        "status": status,
+        "linter_version": __version__,
+        "review_contract_sha256": review_contract_sha256(REPO_ROOT),
+        "reviewer": REVIEWER,
+        "reason": _notes_value(artifact_text),
+    }
+    records = [
+        existing_record
+        for existing_record in _manifest_records()
+        if existing_record.get("source_sha256") != source_sha256
+    ]
+    records.append(record)
+    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    MANIFEST_PATH.write_text(
+        "".join(
+            json.dumps(_ordered_manifest_record(existing_record), separators=(", ", ": "))
+            + "\n"
+            for existing_record in sorted(records, key=lambda value: value["path"])
+        ),
         encoding="utf-8",
     )
-    return test_file
 
 
-def _write_source_file(repo_root: Path, source: str) -> Path:
-    test_directory = repo_root / "tests"
-    test_directory.mkdir()
-    test_file = test_directory / "test_sample.py"
-    test_file.write_text(textwrap.dedent(source).strip() + "\n", encoding="utf-8")
-    return test_file
+def _manifest_records() -> list[dict[str, str]]:
+    if not MANIFEST_PATH.exists():
+        return []
+    records: list[dict[str, str]] = []
+    for line in MANIFEST_PATH.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        records.append({str(key): str(value) for key, value in json.loads(line).items()})
+    return records
 
 
-def _indented_body(test_body: str) -> str:
-    body = textwrap.dedent(test_body).strip()
-    if not body:
-        body = "pass"
-    return textwrap.indent(body, " " * 16).lstrip()
+def _ordered_manifest_record(record: dict[str, str]) -> dict[str, str]:
+    return {
+        "path": record.get("path", ""),
+        "source_sha256": record.get("source_sha256", ""),
+        "status": record.get("status", ""),
+        "linter_version": record.get("linter_version", ""),
+        "review_contract_sha256": record.get("review_contract_sha256", ""),
+        "reviewer": record.get("reviewer", ""),
+        "reason": record.get("reason", ""),
+    }
 
 
-def _single_review_artifact(repo_root: Path) -> Path:
-    artifact_root = repo_root / "tests" / "agentic_review_artifacts"
-    artifacts = sorted(artifact_root.glob("*.agent.md"))
-    if len(artifacts) != 1:
-        raise AssertionError(f"expected one generated review artifact, found {len(artifacts)}")
-    return artifacts[0]
+def _source_path(source_sha256: str) -> Path:
+    return Path("temporary_fixtures") / f"{source_sha256}.py"
 
 
-def _assert_pending_review(exit_code: int, output: str) -> None:
-    if exit_code != 1:
-        raise AssertionError("first linter run should fail until the generated artifact is reviewed")
-    if "agent_review_not_run" not in output:
-        raise AssertionError("first linter run should report pending agent review")
+def _field_value(text: str, field_name: str) -> str:
+    prefix = f"{field_name}:"
+    for line in text.splitlines():
+        if line.startswith(prefix):
+            return line[len(prefix) :].strip()
+    return ""
 
 
-def _run_reviewer_command(review_command: str, artifact_path: Path) -> None:
-    result = subprocess.run(
-        shlex.split(review_command),
-        env={"AGENTIC_TDD_LINTER_ARTIFACT": str(artifact_path)},
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        output = (result.stderr or result.stdout).strip()
-        raise AssertionError(f"review command failed with exit code {result.returncode}: {output}")
+def _notes_value(text: str) -> str:
+    notes_started = False
+    notes: list[str] = []
+    for line in text.splitlines():
+        if line.strip() == "Notes:":
+            notes_started = True
+            continue
+        if not notes_started:
+            continue
+        if line.startswith("- "):
+            notes.append(line[2:].strip())
+        elif notes and line.startswith("  "):
+            notes[-1] = f"{notes[-1]} {line.strip()}"
+    return " ".join(notes).strip()
 
 
-def _write_reviewer_command(repo_root: Path, *, status: str, note: str) -> str:
-    reviewer = repo_root / "review_agent.py"
-    reviewer.write_text(
-        textwrap.dedent(
-            f"""
-            from pathlib import Path
-            import os
+def _version_is_older(recorded_version: str, current_version: str) -> bool:
+    recorded_parts = _version_parts(recorded_version)
+    current_parts = _version_parts(current_version)
+    if recorded_parts is None or current_parts is None:
+        return recorded_version != current_version
+    max_length = max(len(recorded_parts), len(current_parts))
+    recorded_parts = recorded_parts + (0,) * (max_length - len(recorded_parts))
+    current_parts = current_parts + (0,) * (max_length - len(current_parts))
+    return recorded_parts < current_parts
 
 
-            status = {json.dumps(status)}
-            note = {json.dumps(note)}
-            artifact = Path(os.environ["AGENTIC_TDD_LINTER_ARTIFACT"])
-            text = artifact.read_text(encoding="utf-8")
-            text = text.replace("Status: pending", f"Status: {{status}}", 1)
-            text = text.replace("- Replace this line with the agent review result.", f"- {{note}}", 1)
-            artifact.write_text(text, encoding="utf-8")
-            """
-        ).strip()
-        + "\n",
-        encoding="utf-8",
-    )
-    return shlex.join([sys.executable, str(reviewer)])
+def _version_parts(value: str) -> tuple[int, ...] | None:
+    parts = value.split(".")
+    if not parts or any(not part.isdigit() for part in parts):
+        return None
+    return tuple(int(part) for part in parts)
+
+
+def _artifact_path(source_sha256: str) -> Path:
+    return ARTIFACT_ROOT / f"{source_sha256}.agent.md"
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)

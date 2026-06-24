@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import shlex
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -17,15 +19,17 @@ from agentic_tdd_linter.agent_review_artifacts import agent_review_artifact_path
 from agentic_tdd_linter.cli import main
 
 
-FISHFOOD_CHECK_ARGS = ["check", "--all"]
+REVIEWER = "codex:gpt-5.5"
+DOGFOOD_CHECK_ARGS = ["check", "--all", "--reviewer", REVIEWER]
+LOCAL_REVIEW_CHECK_ARGS = ["check", "--all", "--reviewer", REVIEWER]
 
 
 class SelfLintTests(unittest.TestCase):
-    def test_fishfood_validates_repository_tests(self) -> None:
+    def test_dogfood_validates_repository_tests(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood validates repository tests.
+        Dogfood validates repository tests with committed review attestations.
 
         Verification Method: verify public function output
 
@@ -36,40 +40,87 @@ class SelfLintTests(unittest.TestCase):
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
+            exit_code = main([*DOGFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
         self.assertEqual(0, exit_code)
         self.assertIn("no issues found", stdout.getvalue())
 
-    def test_fishfood_matches_artifact_statuses(self) -> None:
+    def test_dogfood_matches_manifest_statuses(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood returns `1` when any `agent_review_artifact` has fail status. It returns `0` otherwise.
+        Dogfood manifest records pass statuses for reviewed test files.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Parser compares expected code.
+        Parser compares manifest statuses.
         """
 
         stdout = io.StringIO()
 
         with contextlib.redirect_stdout(stdout):
-            exit_code = main([*FISHFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
+            exit_code = main([*DOGFOOD_CHECK_ARGS, "--repo-root", str(REPO_ROOT)])
 
-        statuses = _agent_review_statuses()
-        expected_exit_code = 1 if "fail" in statuses.values() else 0
+        statuses = _agent_review_manifest_statuses()
 
         self.assertTrue(statuses)
-        self.assertTrue(all(status in {"pass", "fail"} for status in statuses.values()))
-        self.assertEqual(expected_exit_code, exit_code)
+        self.assertTrue(all(status == "pass" for status in statuses.values()))
+        self.assertEqual(0, exit_code)
 
-    def test_fishfood_matches_readme(self) -> None:
+    def test_review_manifest_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Fishfood uses README arguments.
+        Review manifest stays in source control.
+        Fresh checkouts need committed proof records for CI verification.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Git index includes `tests/agentic_review_manifest.jsonl`.
+        """
+
+        manifest_path = Path("tests") / "agentic_review_manifest.jsonl"
+        result = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", str(manifest_path)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+
+    def test_e2e_review_manifest_is_tracked(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        E2E review manifest stays in source control.
+        Fresh checkouts need proof records for generated E2E fixtures.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Git index includes `temporary_fixtures/agentic_review_manifest.jsonl`.
+        """
+
+        manifest_path = Path("temporary_fixtures") / "agentic_review_manifest.jsonl"
+        result = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", str(manifest_path)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+
+    def test_dogfood_matches_readme(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Dogfood uses README CI arguments.
 
         Verification Method: verify public function output
 
@@ -77,13 +128,65 @@ class SelfLintTests(unittest.TestCase):
         Parser compares README arguments.
         """
 
-        self.assertEqual(_readme_check_args(), FISHFOOD_CHECK_ARGS)
+        self.assertEqual(_readme_ci_check_args(), DOGFOOD_CHECK_ARGS)
+
+    def test_unit_test_workflow_runs_tests(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Unit test workflow runs repository tests.
+        Self-lint tests cover linter health inside that suite.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Workflow runs unit tests and omits redundant direct linter command.
+        """
+
+        workflow = (REPO_ROOT / ".github" / "workflows" / "unit-tests.yml").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("python -m unittest discover -s tests", workflow)
+        self.assertNotIn("agentic-tdd-linter check --all --reviewer codex:gpt-5.5", workflow)
+        self.assertIn("pull_request:", workflow)
+        self.assertIn("push:", workflow)
+        self.assertNotIn("branches:", workflow)
+        self.assertNotIn("--review-proof manifest", workflow)
+
+    def test_docs_use_two_run_review(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        README and GitHub Actions docs use the local review command.
+        Documentation tells agents to rerun the same check command.
+        `--reviewer` supplies the manifest reviewer identity when proof refreshes.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Documentation includes reviewer-explicit check and omits standalone attest command.
+        """
+
+        documentation = "\n".join(
+            [
+                (REPO_ROOT / "README.md").read_text(encoding="utf-8"),
+                (REPO_ROOT / "docs" / "workflows" / "github-actions.md").read_text(
+                    encoding="utf-8"
+                ),
+            ]
+        )
+
+        self.assertIn("agentic-tdd-linter check --all --reviewer codex:gpt-5.5", documentation)
+        self.assertIn("Then rerun the same command", documentation)
+        self.assertNotIn("agentic-tdd-linter attest", documentation)
+        self.assertNotIn("--review-proof manifest", documentation)
 
     def test_readme_execution_requires_review(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        README command starts clean dogfood review. Second run passes after review.
+        Local review command starts clean dogfood review. Second run passes after review.
 
         Verification Method: verify public function output
 
@@ -99,7 +202,7 @@ class SelfLintTests(unittest.TestCase):
             _delete_agent_review_artifacts(repo_root)
 
             with contextlib.redirect_stdout(stdout):
-                first_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+                first_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
             artifact_path = agent_review_artifact_path(test_file, repo_root)
             artifact_exists = artifact_path.is_file()
@@ -108,8 +211,14 @@ class SelfLintTests(unittest.TestCase):
             stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
-                second_exit_code = main([*_readme_check_args(), "--repo-root", str(repo_root)])
+                second_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
+            manifest_exists = (repo_root / "tests" / "agentic_review_manifest.jsonl").is_file()
+            manifest_record = json.loads(
+                (repo_root / "tests" / "agentic_review_manifest.jsonl").read_text(
+                    encoding="utf-8"
+                )
+            )
             second_output = stdout.getvalue()
 
         self.assertEqual(1, first_exit_code)
@@ -117,24 +226,30 @@ class SelfLintTests(unittest.TestCase):
         self.assertIn("agent_review_not_run", first_output)
         self.assertIn("agentic-tdd-linter check --all", first_output)
         self.assertEqual(0, second_exit_code)
+        self.assertTrue(manifest_exists)
+        self.assertEqual(REVIEWER, manifest_record["reviewer"])
         self.assertIn("no issues found", second_output)
+        self.assertIn("recorded 1 review attestations", second_output)
 
 
-def _readme_check_args() -> list[str]:
+def _readme_ci_check_args() -> list[str]:
     for line in (REPO_ROOT / "README.md").read_text(encoding="utf-8").splitlines():
-        if "agentic-tdd-linter check" not in line:
+        if "agentic-tdd-linter check" not in line or "--reviewer" not in line:
             continue
         command_parts = shlex.split(line)
         command_index = command_parts.index("agentic-tdd-linter")
         return command_parts[command_index + 1 :]
-    raise AssertionError("README does not include the agentic-tdd-linter check command")
+    raise AssertionError("README does not include the reviewer-explicit check command")
 
 
-def _agent_review_statuses() -> dict[Path, str]:
-    artifact_root = REPO_ROOT / "tests" / "agentic_review_artifacts"
+def _agent_review_manifest_statuses() -> dict[Path, str]:
+    manifest_path = REPO_ROOT / "tests" / "agentic_review_manifest.jsonl"
     statuses = {}
-    for artifact_path in sorted(artifact_root.rglob("*.agent.md")):
-        statuses[artifact_path] = _status_value(artifact_path.read_text(encoding="utf-8"))
+    for line in manifest_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        statuses[Path(record["path"])] = record.get("status", "")
     return statuses
 
 
@@ -160,13 +275,6 @@ def _mark_agent_review_artifacts_pass(repo_root: Path) -> None:
             1,
         )
         artifact_path.write_text(artifact_text, encoding="utf-8")
-
-
-def _status_value(text: str) -> str:
-    for line in text.splitlines():
-        if line.startswith("Status:"):
-            return line.removeprefix("Status:").strip().lower()
-    return ""
 
 
 def _write_test_file(repo_root: Path) -> Path:

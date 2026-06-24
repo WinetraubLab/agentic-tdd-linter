@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from helpers.linter_e2e import run_linter_with_review
+from helpers.linter_e2e import linter_e2e_review
 
 
 class AssertionClarifyTests(unittest.TestCase):
@@ -24,27 +24,32 @@ class AssertionClarifyTests(unittest.TestCase):
         Output includes Assertion Purpose Check.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert c > 0
-            assert c == a + b
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Assertion Purpose Check: Fail. `assert c == a + b` proves "
-                "exact-sum behavior instead of the positive-result requirement."
-            ),
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert c > 0
+                assert c == a + b
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("Assertion Purpose Check", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("Assertion Purpose Check", reason)
 
     def test_tagged_input_assertions_pass(self) -> None:
         """Test Path: happy path
@@ -58,23 +63,31 @@ class AssertionClarifyTests(unittest.TestCase):
         Linter accepts tagged input assertions. Example: positive argument checks use `# Input check`.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert a > 0  # Input check
-            assert b > 0  # Input check
-            assert c > 0
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="pass",
-            note="Assertion Purpose Check: Pass.",
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert a > 0  # Input check
+                assert b > 0  # Input check
+                assert c > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(0, result.exit_code)
+        self.assertIs(True, status)
 
     def test_untagged_input_assertions_fail(self) -> None:
         """Test Path: failure path
@@ -88,28 +101,33 @@ class AssertionClarifyTests(unittest.TestCase):
         Linter report cites missing `# Input check` tags.
         """
 
-        test_body = """
-            a = 1
-            b = 2
-            c = add_2_positive_numbers(a, b)
-            assert a > 0
-            assert b > 0
-            assert c > 0
-        """
+        source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        result = run_linter_with_review(
-            requirement="Adding positive numbers returns a positive result.",
-            test_body=test_body,
-            status="fail",
-            note=(
-                "Assertion Purpose Check: Fail. `assert a > 0` and "
-                "`assert b > 0` need `# Input check` tags."
-            ),
+                Requirement Tested:
+                Adding positive numbers returns a positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                a = 1
+                b = 2
+                c = add_2_positive_numbers(a, b)
+                assert a > 0
+                assert b > 0
+                assert c > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=source,
         )
-
-        self.assertEqual(1, result.exit_code)
-        self.assertIn("agent_review_failed", result.output)
-        self.assertIn("# Input check", result.output)
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("# Input check", reason)
 
 if __name__ == "__main__":
     unittest.main()

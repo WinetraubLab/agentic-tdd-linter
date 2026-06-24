@@ -42,7 +42,16 @@ class CliTests(unittest.TestCase):
             stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
-                exit_code = main(["check", "--repo-root", str(repo_root), str(test_file)])
+                exit_code = main(
+                    [
+                        "check",
+                        "--reviewer",
+                        "codex:gpt-5.5",
+                        "--repo-root",
+                        str(repo_root),
+                        str(test_file),
+                    ]
+                )
 
         self.assertEqual(1, first_exit_code)
         self.assertEqual(0, exit_code)
@@ -71,6 +80,46 @@ class CliTests(unittest.TestCase):
 
         self.assertEqual(1, exit_code)
         self.assertIn("missing_requirement", stdout.getvalue())
+
+    def test_test_root_sets_artifact(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `--test-root` stores review artifacts under that test root.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Generated artifact appears under selected root.
+        """
+
+        fixture_file = FIXTURES / "pass_test.py"
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_root = repo_root / "temporary_fixtures"
+            test_root.mkdir()
+            test_file = test_root / fixture_file.name
+            test_file.write_text(fixture_file.read_text(encoding="utf-8"), encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "check",
+                        "--repo-root",
+                        str(repo_root),
+                        "--test-root",
+                        str(test_root),
+                        str(test_file),
+                    ]
+                )
+
+            expected_artifact = test_root / "agentic_review_artifacts" / "pass_test.agent.md"
+            artifact_exists = expected_artifact.exists()
+
+        self.assertEqual(1, exit_code)
+        self.assertTrue(artifact_exists)
+        self.assertIn("agent_review_not_run", stdout.getvalue())
 
     def test_refactor_instructions_prints_prompt(self) -> None:
         """Test Path: happy path

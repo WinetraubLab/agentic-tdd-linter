@@ -61,14 +61,14 @@ The key assumption is that generated implementation code may be too large or com
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
-## Install It Using an Agent
+## Add It To Your Project
 
 Paste this prompt into your coding agent, such as Claude or Codex:
 
 ```text
 Add the following command as an additional check after the normal test suite:
 
-uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all
+uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 
 Follow the repository's existing patterns for test scripts. Do not replace existing tests or linters.
 ```
@@ -80,6 +80,36 @@ It also writes missing agent review artifacts under `tests/agentic_review_artifa
 The first run may fail after creating pending review artifacts. Review those artifacts, update each `Status:` to `pass` or `fail`, then rerun the same command.
 
 By default, `agentic-tdd-linter check` scans changed test files. Use `--all` to scan every project test file, or pass specific files or directories for focused work.
+
+## Install It On GitHub Actions On Your Project
+
+Paste this prompt into your coding agent:
+
+````text
+Add `.github/workflows/agentic-tdd-linter.yml` to this project.
+
+Use this workflow:
+
+```yaml
+name: Agentic TDD Linter
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  lint-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+```
+
+Before committing, run the same `uvx` command locally. If it creates `tests/agentic_review_artifacts`, review each generated `.agent.md` file, update each `Status:` to `pass` or `fail`, rerun the same command, and commit `tests/agentic_review_manifest.jsonl`.
+````
+
+Full proof flow: [GitHub Actions Review Proof](docs/workflows/github-actions.md).
 
 ## Test Docstring Contract
 
