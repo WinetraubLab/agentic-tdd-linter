@@ -490,7 +490,6 @@ def _write_manifest(
     status: str,
     linter_version: str = __version__,
     review_contract_hash: str | None = None,
-    extra_fields: dict[str, str] | None = None,
 ) -> Path:
     manifest_path = agent_review_manifest_path(root)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -502,8 +501,6 @@ def _write_manifest(
         linter_version=linter_version,
         review_contract_hash=review_contract_hash,
     )
-    if extra_fields:
-        record.update(extra_fields)
     manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
     return manifest_path
 
