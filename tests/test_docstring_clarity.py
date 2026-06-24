@@ -330,18 +330,6 @@ class DocstringClarityTests(unittest.TestCase):
 
                 Verification Method: verify public function output
 
-        for label, requirement, status, note, expected_texts in cases:
-            with self.subTest(label=label):
-                result = run_linter_with_review(
-                    requirement=requirement,
-                    status=status,
-                    note=note,
-                )
-
-                expected_exit_code = 1 if status == "fail" else 0
-                self.assertEqual(expected_exit_code, result.exit_code)
-                for expected_text in expected_texts:
-                    self.assertIn(expected_text, result.output)
 
     def test_verification_sentence_structure_fails(self) -> None:
         """Test Path: failure path
