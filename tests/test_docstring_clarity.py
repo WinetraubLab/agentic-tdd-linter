@@ -407,38 +407,57 @@ class DocstringClarityTests(unittest.TestCase):
         Linter report identifies noun-capable verbs.
         """
 
-        cases = [
-            (
-                "names",
-                "Output names double negation.",
-                (
-                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
-                    "`names` is ambiguous between a noun and a verb."
-                ),
-            ),
-            (
-                "reports",
-                "A pending artifact reports that agent review has not completed.",
-                (
-                    "Sentence Checks: Fail. Sentence Structure Check: Fail. "
-                    "`reports` is commonly used as a noun, even though this "
-                    "sentence is grammatically parseable."
-                ),
-            ),
-        ]
+        # Problem sentence: "Output names double negation."
+        # The word "names" can read as a noun or a verb.
+        names_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
 
-        for label, verification_detail, note in cases:
-            with self.subTest(label=label):
-                result = run_linter_with_review(
-                    verification_detail=verification_detail,
-                    status="fail",
-                    note=note,
-                )
+                Requirement Tested:
+                Adding two numbers must yield positive result.
 
-                self.assertEqual(1, result.exit_code)
-                self.assertIn("agent_review_failed", result.output)
-                self.assertIn(label, result.output)
-                self.assertIn("Sentence Structure Check", result.output)
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Output names double negation.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=names_source,
+        )
+        self.assertIs(False, status, "`names` can read as a noun or a verb")
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("names", reason)
+        self.assertIn("Sentence Structure Check", reason)
+
+        # Problem sentence: "A pending artifact reports that agent review has not completed."
+        # The word "reports" can read as a noun or a verb.
+        reports_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Adding two numbers must yield positive result.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                A pending artifact reports that agent review has not completed.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=reports_source,
+        )
+        self.assertIs(False, status, "`reports` can read as a noun or a verb")
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("reports", reason)
+        self.assertIn("Sentence Structure Check", reason)
 
     def test_verification_five_sentences_fails(self) -> None:
         """Test Path: failure path
