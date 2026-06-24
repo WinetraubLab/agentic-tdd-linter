@@ -320,61 +320,15 @@ class DocstringClarityTests(unittest.TestCase):
         Review reason confirms phrase checks.
         """
 
-        cases = [
-            (
-                "prose jargon",
-                (
-                    "Fishfood exit code matches pass or fail status values in "
-                    "agent review artifacts."
-                ),
-                "fail",
-                (
-                    "Convoluted Wording Check: Fail. `agent review artifacts` is "
-                    "unexplained test-specific jargon in prose; use a named phrase "
-                    "such as `agent_review_artifact`."
-                ),
-                ("agent_review_failed", "test-specific jargon"),
-            ),
-            (
-                "unmarked phrase",
-                (
-                    "Review markdown includes generic requirement, jargon, "
-                    "assertion, and level checks."
-                ),
-                "fail",
-                (
-                    "Convoluted Wording Check: Fail. `Review markdown` is a "
-                    "test-specific term, so mark it as a backticked named phrase."
-                ),
-                ("agent_review_failed", "Review markdown", "backticked named phrase"),
-            ),
-            (
-                "backticked phrase",
-                (
-                    "`Review markdown` includes generic requirement, jargon, "
-                    "assertion, and level checks."
-                ),
-                "pass",
-                (
-                    "Convoluted Wording Check: Pass. `Review markdown` is a "
-                    "backticked named phrase."
-                ),
-                (),
-            ),
-            (
-                "defined phrase",
-                (
-                    "Linter exit code matches pass or fail status values in "
-                    "`agent_review_artifact`."
-                ),
-                "pass",
-                (
-                    "Convoluted Wording Check: Pass. `agent_review_artifact` is "
-                    "a named phrase."
-                ),
-                (),
-            ),
-        ]
+        # Previous case: backticked phrase.
+        review_markdown_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `Review markdown` includes generic requirement, jargon, assertion, and level checks.
+
+                Verification Method: verify public function output
 
         for label, requirement, status, note, expected_texts in cases:
             with self.subTest(label=label):
