@@ -106,11 +106,11 @@ class SelfLintTests(unittest.TestCase):
 
         self.assertEqual(_readme_ci_check_args(), DOGFOOD_CHECK_ARGS)
 
-    def test_health_workflow_runs_unit_tests(self) -> None:
+    def test_unit_test_workflow_runs_tests(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Health workflow runs repository unit tests.
+        Unit test workflow runs repository tests.
         Self-lint tests cover linter health inside that suite.
 
         Verification Method: verify public function output
@@ -119,7 +119,7 @@ class SelfLintTests(unittest.TestCase):
         Workflow runs unit tests and omits redundant direct linter command.
         """
 
-        workflow = (REPO_ROOT / ".github" / "workflows" / "health.yml").read_text(
+        workflow = (REPO_ROOT / ".github" / "workflows" / "unit-tests.yml").read_text(
             encoding="utf-8"
         )
 
