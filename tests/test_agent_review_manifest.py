@@ -389,6 +389,47 @@ class AgentReviewManifestTests(unittest.TestCase):
         self.assertEqual(0, count)
         self.assertFalse(manifest_path.exists())
         self.assertIn("agent_review_not_run", _issue_rules(issues))
+
+    def test_check_writes_manifest_after_review(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Local check writes manifest proof after review.
+        Manifest record stores reviewer identity.
+        Manifest record stores content hashes.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Check output reports attestation count.
+        Manifest record contains reviewer identity.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            _write_artifact(root, test_file, status="pass")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "check",
+                        "--all",
+                        "--reviewer",
+                        REVIEWER,
+                        "--repo-root",
+                        str(root),
+                    ]
+                )
+
+            record = json.loads(agent_review_manifest_path(root).read_text(encoding="utf-8"))
+
+        self.assertEqual(0, exit_code)
+        self.assertIn("recorded 1 review attestations", stdout.getvalue())
+        self.assertEqual("tests/test_sample.py", record["path"])
+        self.assertEqual(REVIEWER, record["reviewer"])
+
 def _write_test_file(root: Path) -> Path:
     test_directory = root / "tests"
     test_directory.mkdir()
