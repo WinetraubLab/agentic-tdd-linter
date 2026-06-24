@@ -61,7 +61,7 @@ The key assumption is that generated implementation code may be too large or com
 
 The goal is to catch weak, vague, or bloated tests before they guide implementation.
 
-## Install It Using an Agent
+## Add It To Your Project
 
 Paste this prompt into your coding agent, such as Claude or Codex:
 
