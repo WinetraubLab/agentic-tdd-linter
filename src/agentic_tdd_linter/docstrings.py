@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable
 
+from .typescript_tests import is_typescript_test_file, typescript_tests
+
 
 SKIPPED_PATH_PARTS = {
     ".git",
@@ -131,8 +133,10 @@ class TestFunction:
     path: Path
     name: str
     line: int
-    node: ast.FunctionDef | ast.AsyncFunctionDef
+    node: ast.FunctionDef | ast.AsyncFunctionDef | None
     docstring: str
+    source: str = ""
+    language: str = "python"
 
 
 def lint_test_files(paths: Iterable[Path], repo_root: Path) -> list[LintIssue]:
@@ -150,6 +154,13 @@ def lint_test_file(path: Path, repo_root: Path) -> list[LintIssue]:
     absolute_path = Path(path).resolve()
     relative_path = _relative_path(absolute_path, repo_root)
 
+    if is_typescript_test_file(absolute_path):
+        return _lint_typescript_test_file(absolute_path, relative_path)
+
+    return _lint_python_test_file(absolute_path, relative_path)
+
+
+def _lint_python_test_file(absolute_path: Path, relative_path: Path) -> list[LintIssue]:
     try:
         source = absolute_path.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(absolute_path))
@@ -181,6 +192,38 @@ def lint_test_file(path: Path, repo_root: Path) -> list[LintIssue]:
     return issues
 
 
+def _lint_typescript_test_file(absolute_path: Path, relative_path: Path) -> list[LintIssue]:
+    try:
+        source = absolute_path.read_text(encoding="utf-8")
+    except OSError as error:
+        return [
+            LintIssue(
+                path=relative_path,
+                test_name="<module>",
+                line=1,
+                rule="parse_error",
+                message=f"could not parse test file: {error}",
+            )
+        ]
+
+    issues: list[LintIssue] = []
+    for test in typescript_tests(source):
+        issues.extend(
+            _lint_test_function(
+                TestFunction(
+                    path=relative_path,
+                    name=test.name,
+                    line=test.line,
+                    node=None,
+                    docstring=test.docstring,
+                    source=test.source,
+                    language="typescript",
+                )
+            )
+        )
+    return issues
+
+
 def all_test_files(repo_root: Path, test_root: Path | None = None) -> list[Path]:
     """Return all project test files under the configured test root."""
 
@@ -188,7 +231,7 @@ def all_test_files(repo_root: Path, test_root: Path | None = None) -> list[Path]
     search_root = Path(test_root).resolve() if test_root is not None else root
     return sorted(
         path
-        for path in search_root.rglob("*.py")
+        for path in _candidate_test_files(search_root)
         if _is_project_test_file(path, root, skip_path_parts=True)
     )
 
@@ -230,12 +273,12 @@ def requested_test_files(paths: Iterable[str], repo_root: Path) -> list[Path]:
         if path.is_dir():
             requested.extend(
                 child
-                for child in sorted(path.rglob("*.py"))
+                for child in _candidate_test_files(path)
                 if _is_project_test_file(child, root, skip_path_parts=False)
             )
             continue
-        if path.suffix != ".py":
-            raise ValueError(f"path is not a Python file: {path}")
+        if not _is_supported_test_file(path):
+            raise ValueError(f"path is not a supported test file: {path}")
         requested.append(path)
 
     return sorted(set(requested))
@@ -265,7 +308,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
             )
         )
 
-    if test_function.name.count("_") > 5:
+    if test_function.language == "python" and test_function.name.count("_") > 5:
         issues.append(
             _issue(
                 test_function,
@@ -331,7 +374,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
                 )
             )
 
-    if verification == "verify private function output" and not _calls_leading_underscore_callable(test_function.node):
+    if verification == "verify private function output" and not _test_calls_private_function(test_function):
         issues.append(
             _issue(
                 test_function,
@@ -340,7 +383,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
             )
         )
 
-    if verification != "visual inspection by user" and not _has_meaningful_assertion(test_function.node):
+    if verification != "visual inspection by user" and not _test_has_meaningful_assertion(test_function):
         issues.append(
             _issue(
                 test_function,
@@ -376,7 +419,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
                     "Inspection Instructions must put text on the next line",
                 )
             )
-        if not _calls_named_callable(test_function.node, "write_visual_inspection_artifact"):
+        if not _test_calls_named_callable(test_function, "write_visual_inspection_artifact"):
             issues.append(
                 _issue(
                     test_function,
@@ -385,7 +428,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
                 )
             )
 
-    if _uses_mocking(test_function.node):
+    if _test_uses_mocking(test_function):
         detail = _field_value(test_function.docstring, "Verification Detail")
         if "mock" not in detail.lower():
             issues.append(
@@ -431,18 +474,31 @@ def _git_path_values(repo_root: Path, args: list[str]) -> list[str]:
     return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
+def _candidate_test_files(search_root: Path) -> list[Path]:
+    return sorted({
+        *search_root.rglob("*.py"),
+        *search_root.rglob("*.test.ts"),
+    })
+
+
+def _is_supported_test_file(path: Path) -> bool:
+    return path.suffix == ".py" or is_typescript_test_file(path)
+
+
 def _is_project_test_file(path: Path, repo_root: Path, *, skip_path_parts: bool) -> bool:
-    if path.suffix != ".py":
-        return False
     try:
         relative_parts = path.resolve().relative_to(repo_root.resolve()).parts
     except ValueError:
         relative_parts = path.parts
     if skip_path_parts and any(part in SKIPPED_PATH_PARTS for part in relative_parts):
         return False
-    if path.name.startswith("test_") or path.name.endswith("_tests.py"):
-        return True
-    return "tests" in relative_parts
+    if path.suffix == ".py":
+        return (
+            path.name.startswith("test_")
+            or path.name.endswith("_tests.py")
+            or "tests" in relative_parts
+        )
+    return is_typescript_test_file(path) and "tests" in relative_parts
 
 
 def _relative_path(path: Path, repo_root: Path) -> Path:
@@ -510,6 +566,39 @@ def _requirement_default_trouble_matches(requirement: str) -> list[str]:
                 "keep `default` only when the requirement also names the exact value being asserted"
             )
     return matches
+
+
+def _test_calls_private_function(test_function: TestFunction) -> bool:
+    if test_function.node is not None:
+        return _calls_leading_underscore_callable(test_function.node)
+    return bool(re.search(r"(?<![\w$])_[A-Za-z][\w$]*\s*\(", test_function.source))
+
+
+def _test_calls_named_callable(test_function: TestFunction, name: str) -> bool:
+    if test_function.node is not None:
+        return _calls_named_callable(test_function.node, name)
+    return bool(re.search(rf"(?<![\w$]){re.escape(name)}\s*\(", test_function.source))
+
+
+def _test_has_meaningful_assertion(test_function: TestFunction) -> bool:
+    if test_function.node is not None:
+        return _has_meaningful_assertion(test_function.node)
+    return bool(
+        re.search(
+            r"(?<![\w$])(?:assert(?:\.[A-Za-z_$][\w$]*)?|expect)\s*\(",
+            test_function.source,
+        )
+    )
+
+
+def _test_uses_mocking(test_function: TestFunction) -> bool:
+    if test_function.node is not None:
+        return _uses_mocking(test_function.node)
+    mocking_patterns = (
+        r"(?<![\w$])(?:vi|jest|sinon)\.",
+        r"(?<![\w$])(?:mock|spyOn|stub)\s*\(",
+    )
+    return any(re.search(pattern, test_function.source) for pattern in mocking_patterns)
 
 
 def _calls_leading_underscore_callable(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
