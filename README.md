@@ -1,6 +1,6 @@
 # agentic-tdd-linter
 
-`agentic-tdd-linter` is a linter for Python tests written during agent-assisted [test-driven development (TDD)](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
+`agentic-tdd-linter` is a linter for Python and TypeScript tests written during agent-assisted [test-driven development (TDD)](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
 It helps verify that tests written by coding agents are clear enough for humans to use when guiding implementation.
 
 ## Design Philosophy
