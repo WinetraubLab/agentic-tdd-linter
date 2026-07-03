@@ -4,6 +4,7 @@ import contextlib
 import io
 import sys
 import tempfile
+import textwrap
 import unittest
 from pathlib import Path
 
@@ -121,6 +122,70 @@ class CliTests(unittest.TestCase):
         self.assertTrue(artifact_exists)
         self.assertIn("agent_review_not_run", stdout.getvalue())
 
+    def test_all_discovers_python_files(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `check --all` selects Python test files.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output includes `agent_review_not_run`.
+        Output excludes no-test message.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_example.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(_python_test_source(), encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(repo_root)])
+
+            output = stdout.getvalue()
+
+        self.assertEqual(1, exit_code)
+        self.assertIn("agent_review_not_run", output)
+        self.assertNotIn("no test files to lint", output)
+
+    def test_all_discovers_typescript_files(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `check --all` selects TypeScript files.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output includes `agent_review_not_run`.
+        Output excludes no-test message.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = (
+                repo_root
+                / "tests"
+                / "primitives"
+                / "activity-plan-template-steps"
+                / "localArtifactRoundTrip.test.ts"
+            )
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(_typescript_test_source(), encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(repo_root)])
+
+            output = stdout.getvalue()
+
+        self.assertEqual(1, exit_code)
+        self.assertIn("agent_review_not_run", output)
+        self.assertNotIn("no test files to lint", output)
+
     def test_refactor_instructions_prints_prompt(self) -> None:
         """Test Path: happy path
 
@@ -160,6 +225,50 @@ def _mark_single_artifact_pass(repo_root: Path) -> None:
         1,
     )
     artifacts[0].write_text(artifact_text, encoding="utf-8")
+
+
+def _python_test_source() -> str:
+    return textwrap.dedent(
+        """
+        def test_adds_values() -> None:
+            \"\"\"Test Path: happy path
+
+            Requirement Tested:
+            Addition returns the expected sum for two positive integers.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            Returned total equals expected sum.
+            \"\"\"
+
+            assert 1 + 1 == 2
+        """
+    ).strip() + "\n"
+
+
+def _typescript_test_source() -> str:
+    return textwrap.dedent(
+        """
+        import test from "node:test";
+        import assert from "node:assert/strict";
+
+        /**
+         * Test Path: happy path
+         *
+         * Requirement Tested:
+         * Local artifact writes survive a primitive round trip.
+         *
+         * Verification Method: verify public function output
+         *
+         * Verification Detail:
+         * Loaded artifact content equals written artifact content.
+         */
+        test("local artifact round trip", () => {
+          assert.equal(readLocalArtifact(), "saved artifact");
+        });
+        """
+    ).strip() + "\n"
 
 
 if __name__ == "__main__":
