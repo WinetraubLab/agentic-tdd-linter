@@ -10,7 +10,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from agentic_tdd_linter.docstrings import lint_test_files
-from agentic_tdd_linter.typescript_tests import typescript_tests
 
 
 class DocstringStructureTests(unittest.TestCase):

@@ -237,12 +237,6 @@ def _write_test_file(directory: Path, source: str) -> Path:
     return test_file
 
 
-def _write_typescript_test_file(directory: Path, source: str) -> Path:
-    test_file = directory / "localArtifactRoundTrip.test.ts"
-    test_file.write_text(textwrap.dedent(source).strip() + "\n", encoding="utf-8")
-    return test_file
-
-
 def _sample_source() -> str:
     return """
         def helper_function() -> None:

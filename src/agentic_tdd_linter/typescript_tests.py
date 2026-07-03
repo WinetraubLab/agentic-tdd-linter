@@ -49,10 +49,14 @@ def typescript_tests(source: str) -> list[TypeScriptTest]:
 
 
 def _leading_jsdoc(source: str, call_start: int) -> tuple[str, int]:
-    match = re.search(r"/\*\*(.*?)\*/\s*$", source[:call_start], flags=re.DOTALL)
+    prefix = source[:call_start].rstrip()
+    jsdoc_start = prefix.rfind("/**")
+    if jsdoc_start == -1:
+        return "", call_start
+    match = re.fullmatch(r"/\*\*(.*?)\*/", prefix[jsdoc_start:], flags=re.DOTALL)
     if match is None:
         return "", call_start
-    return _clean_jsdoc(match.group(1)), match.start()
+    return _clean_jsdoc(match.group(1)), jsdoc_start
 
 
 def _clean_jsdoc(comment: str) -> str:

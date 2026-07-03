@@ -2,24 +2,11 @@
 
 from __future__ import annotations
 
-import ast
-from dataclasses import dataclass
 from pathlib import Path
 
 from .agent_ran_proof import source_sha256
 from .agent_review_artifacts import agent_review_artifact_path
-from .typescript_tests import is_typescript_test_file, typescript_tests
-
-
-@dataclass(frozen=True)
-class MarkdownTest:
-    """A test function included in the agentic review markdown."""
-
-    name: str
-    line: int
-    docstring: str
-    source: str
-    language: str = "python"
+from .docstrings import test_functions_for_file
 
 
 REVIEW_INSTRUCTIONS = (
@@ -106,7 +93,10 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
     absolute_path = Path(test_file_path).resolve()
     source = absolute_path.read_text(encoding="utf-8")
     display_path = _display_path(absolute_path, repo_root)
-    tests = _test_functions(absolute_path, source)
+    tests = test_functions_for_file(
+        absolute_path,
+        repo_root if repo_root is not None else absolute_path.parent,
+    )
 
     lines = [
         "# Agentic Test Docstring Review",
@@ -179,36 +169,6 @@ def write_agentic_md_for_test_file(
         encoding="utf-8",
     )
     return artifact_path
-
-
-def _test_functions(path: Path, source: str) -> list[MarkdownTest]:
-    if is_typescript_test_file(path):
-        return [
-            MarkdownTest(
-                name=test.name,
-                line=test.line,
-                docstring=test.docstring,
-                source=test.source,
-                language="typescript",
-            )
-            for test in typescript_tests(source)
-        ]
-    tree = ast.parse(source, filename=str(path))
-    tests = []
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        if not node.name.startswith("test_"):
-            continue
-        tests.append(
-            MarkdownTest(
-                name=node.name,
-                line=node.lineno,
-                docstring=ast.get_docstring(node) or "",
-                source=ast.get_source_segment(source, node) or "",
-            )
-        )
-    return sorted(tests, key=lambda test: test.line)
 
 
 def _display_path(path: Path, repo_root: Path | None) -> str:
