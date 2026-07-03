@@ -154,16 +154,8 @@ def lint_test_file(path: Path, repo_root: Path) -> list[LintIssue]:
     absolute_path = Path(path).resolve()
     relative_path = _relative_path(absolute_path, repo_root)
 
-    if is_typescript_test_file(absolute_path):
-        return _lint_typescript_test_file(absolute_path, relative_path)
-
-    return _lint_python_test_file(absolute_path, relative_path)
-
-
-def _lint_python_test_file(absolute_path: Path, relative_path: Path) -> list[LintIssue]:
     try:
-        source = absolute_path.read_text(encoding="utf-8")
-        tree = ast.parse(source, filename=str(absolute_path))
+        tests = test_functions_for_file(absolute_path, repo_root)
     except (OSError, SyntaxError) as error:
         return [
             LintIssue(
@@ -176,52 +168,47 @@ def _lint_python_test_file(absolute_path: Path, relative_path: Path) -> list[Lin
         ]
 
     issues: list[LintIssue] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        if not node.name.startswith("test_"):
-            continue
-        test_function = TestFunction(
+    for test_function in tests:
+        issues.extend(_lint_test_function(test_function))
+    return issues
+
+
+def test_functions_for_file(path: Path, repo_root: Path) -> list[TestFunction]:
+    """Return lintable test functions from a Python or TypeScript test file."""
+
+    absolute_path = Path(path).resolve()
+    relative_path = _relative_path(absolute_path, repo_root)
+    source = absolute_path.read_text(encoding="utf-8")
+
+    if is_typescript_test_file(absolute_path):
+        return [
+            TestFunction(
+                path=relative_path,
+                name=test.name,
+                line=test.line,
+                node=None,
+                docstring=test.docstring,
+                source=test.source,
+                language="typescript",
+            )
+            for test in typescript_tests(source)
+        ]
+
+    tree = ast.parse(source, filename=str(absolute_path))
+    tests = [
+        TestFunction(
             path=relative_path,
             name=node.name,
             line=node.lineno,
             node=node,
             docstring=ast.get_docstring(node) or "",
+            source=ast.get_source_segment(source, node) or "",
         )
-        issues.extend(_lint_test_function(test_function))
-    return issues
-
-
-def _lint_typescript_test_file(absolute_path: Path, relative_path: Path) -> list[LintIssue]:
-    try:
-        source = absolute_path.read_text(encoding="utf-8")
-    except OSError as error:
-        return [
-            LintIssue(
-                path=relative_path,
-                test_name="<module>",
-                line=1,
-                rule="parse_error",
-                message=f"could not parse test file: {error}",
-            )
-        ]
-
-    issues: list[LintIssue] = []
-    for test in typescript_tests(source):
-        issues.extend(
-            _lint_test_function(
-                TestFunction(
-                    path=relative_path,
-                    name=test.name,
-                    line=test.line,
-                    node=None,
-                    docstring=test.docstring,
-                    source=test.source,
-                    language="typescript",
-                )
-            )
-        )
-    return issues
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name.startswith("test_")
+    ]
+    return sorted(tests, key=lambda test: test.line)
 
 
 def all_test_files(repo_root: Path, test_root: Path | None = None) -> list[Path]:
@@ -295,6 +282,15 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
                 "test function must include a structured docstring",
             )
         ]
+
+    if not _field_headers_are_separated(test_function.docstring):
+        issues.append(
+            _issue(
+                test_function,
+                "invalid_field_spacing",
+                "structured docstring fields must be separated by blank lines",
+            )
+        )
 
     test_path = _same_line_field_value(test_function.docstring, "Test Path")
     if not test_path:
@@ -475,10 +471,10 @@ def _git_path_values(repo_root: Path, args: list[str]) -> list[str]:
 
 
 def _candidate_test_files(search_root: Path) -> list[Path]:
-    return sorted({
+    return sorted([
         *search_root.rglob("*.py"),
         *search_root.rglob("*.test.ts"),
-    })
+    ])
 
 
 def _is_supported_test_file(path: Path) -> bool:
@@ -545,6 +541,18 @@ def _field_is_own_line(docstring: str, field_name: str) -> bool:
 
 def _is_field_line(text: str) -> bool:
     return any(text == f"{field}:" or text.startswith(f"{field}:") for field in KNOWN_FIELDS)
+
+
+def _field_headers_are_separated(docstring: str) -> bool:
+    lines = [line.strip() for line in docstring.splitlines()]
+    field_indexes = [
+        index
+        for index, text in enumerate(lines)
+        if _is_field_line(text)
+    ]
+    if not field_indexes:
+        return True
+    return all(index == field_indexes[0] or lines[index - 1] == "" for index in field_indexes)
 
 
 def _docstring_trouble_matches(docstring: str) -> list[str]:

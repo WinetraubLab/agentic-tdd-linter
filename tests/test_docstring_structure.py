@@ -325,6 +325,39 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("invalid_inspection_instructions_format", rules)
 
+    def test_typescript_fields_need_blank_lines(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        A TypeScript JSDoc comment without blank field separators is rejected as invalid structure.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Rule set includes `invalid_field_spacing`.
+        """
+
+        rules = _lint_typescript_source(
+            """
+            import test from "node:test";
+            import assert from "node:assert/strict";
+
+            /**
+             * Test Path: happy path
+             * Requirement Tested:
+             * Local artifact writes survive a primitive round trip.
+             * Verification Method: verify public function output
+             * Verification Detail:
+             * Loaded artifact content equals written artifact content.
+             */
+            test("local artifact round trip", () => {
+              assert.equal(readLocalArtifact(), "saved artifact");
+            });
+            """
+        )
+
+        self.assertIn("invalid_field_spacing", rules)
+
     def test_python_docstring_passes(self) -> None:
         """Test Path: happy path
 
