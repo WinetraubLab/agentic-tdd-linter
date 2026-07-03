@@ -19,7 +19,8 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes numbered guidance before tests.
+        Generated `.agent.md` files for agent review include numbered guidance before tests.
+        Guidance tells agents how to evaluate each test requirement.
 
         Verification Method: verify public function output
 
@@ -47,12 +48,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` contains test names from requested file.
+        Generated `.agent.md` files for agent review contain requested test names.
+        Test names tell agents which requirements need review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting both generated test names appear in the markdown.
+        Generated test names appear in `.agent.md` review file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -67,12 +69,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes test source.
+        Generated `.agent.md` files for agent review include reviewed test source.
+        Source lets agents compare each requirement with assertions.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting a generated assertion appears in the markdown source block.
+        Generated assertion appears in `.agent.md` source block.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -86,12 +89,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes sentence checklist.
+        Generated `.agent.md` files for agent review include sentence checks.
+        Checks tell agents how to inspect requirement wording.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting each sentence check name appears in the markdown.
+        Sentence check names appear in `.agent.md` review file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -111,12 +115,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes missing-docstring marker.
+        Generated `.agent.md` files for agent review show missing-docstring markers.
+        Markers tell agents which tests lack review text.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting the missing-docstring marker appears for an undocumented test.
+        Missing-docstring marker appears for undocumented test.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -135,12 +140,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` stores source SHA at final line.
+        Generated `.agent.md` files for agent review put `Source SHA256` on the final line.
+        Source hash lets the linter detect changed tests after review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting the final line contains the test file SHA.
+        Final line contains test file SHA.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -160,12 +166,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `write_agentic_md_for_test_file` creates pending `agent_review_artifact`.
+        `write_agentic_md_for_test_file` writes pending `.agent.md` files for agent review.
+        Pending status tells agents the file still needs review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Artifact file has pending status.
+        Generated `.agent.md` file has pending status.
         """
 
         with tempfile.TemporaryDirectory() as directory:
