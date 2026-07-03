@@ -325,11 +325,90 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("invalid_inspection_instructions_format", rules)
 
+    def test_python_docstring_passes(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        A Python docstring with required fields is accepted as valid structure.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Rule set is empty for the Python test.
+        """
+
+        rules = _lint_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Returned total equals expected sum.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertEqual(set(), rules)
+
+    def test_typescript_doc_comment_passes(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        A TypeScript JSDoc comment with required fields is accepted as valid structure.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Rule set is empty for the TypeScript test.
+        """
+
+        rules = _lint_typescript_source(
+            """
+            import test from "node:test";
+            import assert from "node:assert/strict";
+
+            /**
+             * Test Path: happy path
+             *
+             * Requirement Tested:
+             * Local artifact writes survive a primitive round trip.
+             *
+             * Verification Method: verify public function output
+             *
+             * Verification Detail:
+             * Loaded artifact content equals written artifact content.
+             */
+            test("local artifact round trip", () => {
+              assert.equal(readLocalArtifact(), "saved artifact");
+            });
+            """
+        )
+
+        self.assertEqual(set(), rules)
+
 
 def _lint_source(source: str) -> set[str]:
     with tempfile.TemporaryDirectory() as directory:
         repo_root = Path(directory)
         test_file = repo_root / "test_sample.py"
+        test_file.write_text(textwrap.dedent(source).strip() + "\n", encoding="utf-8")
+
+        return {issue.rule for issue in lint_test_files([test_file], repo_root)}
+
+
+def _lint_typescript_source(source: str) -> set[str]:
+    with tempfile.TemporaryDirectory() as directory:
+        repo_root = Path(directory)
+        test_directory = repo_root / "tests"
+        test_directory.mkdir()
+        test_file = test_directory / "localArtifactRoundTrip.test.ts"
         test_file.write_text(textwrap.dedent(source).strip() + "\n", encoding="utf-8")
 
         return {issue.rule for issue in lint_test_files([test_file], repo_root)}

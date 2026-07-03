@@ -37,7 +37,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="agentic-tdd-linter",
-        description="Lint Python tests written during agent-assisted TDD.",
+        description="Lint Python and TypeScript tests written during agent-assisted TDD.",
     )
     parser.add_argument(
         "--refactor-instructions",

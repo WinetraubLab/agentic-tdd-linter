@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .agent_ran_proof import source_sha256
 from .agent_review_artifacts import agent_review_artifact_path
+from .typescript_tests import is_typescript_test_file, typescript_tests
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,7 @@ class MarkdownTest:
     line: int
     docstring: str
     source: str
+    language: str = "python"
 
 
 REVIEW_INSTRUCTIONS = (
@@ -103,9 +105,8 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
 
     absolute_path = Path(test_file_path).resolve()
     source = absolute_path.read_text(encoding="utf-8")
-    tree = ast.parse(source, filename=str(absolute_path))
     display_path = _display_path(absolute_path, repo_root)
-    tests = _test_functions(tree, source)
+    tests = _test_functions(absolute_path, source)
 
     lines = [
         "# Agentic Test Docstring Review",
@@ -145,7 +146,7 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
             lines.append("")
             lines.append("- Test Source:")
             lines.append("")
-            lines.append("````python")
+            lines.append(f"````{test.language}")
             lines.append(test.source or "<missing source>")
             lines.append("````")
             lines.append("")
@@ -180,7 +181,19 @@ def write_agentic_md_for_test_file(
     return artifact_path
 
 
-def _test_functions(tree: ast.AST, source: str) -> list[MarkdownTest]:
+def _test_functions(path: Path, source: str) -> list[MarkdownTest]:
+    if is_typescript_test_file(path):
+        return [
+            MarkdownTest(
+                name=test.name,
+                line=test.line,
+                docstring=test.docstring,
+                source=test.source,
+                language="typescript",
+            )
+            for test in typescript_tests(source)
+        ]
+    tree = ast.parse(source, filename=str(path))
     tests = []
     for node in ast.walk(tree):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):

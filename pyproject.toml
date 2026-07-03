@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentic-tdd-linter"
-version = "0.2.0"
-description = "A linter for Python tests written during agent-assisted TDD."
+version = "0.3.0"
+description = "A linter for Python and TypeScript tests written during agent-assisted TDD."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []

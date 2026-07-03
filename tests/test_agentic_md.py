@@ -19,7 +19,8 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes numbered guidance before tests.
+        Generated `.agent.md` files for agent review include numbered guidance before tests.
+        Guidance tells agents how to evaluate each test requirement.
 
         Verification Method: verify public function output
 
@@ -43,16 +44,17 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertLess(instruction_start, tests_start)
         self.assertGreaterEqual(len(numbered_lines), 3)
 
-    def test_includes_each_test(self) -> None:
+    def test_includes_python_test_names(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` contains test names from requested file.
+        Generated `.agent.md` files for agent review contain Python test names.
+        Python test names tell agents which requirements need review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting both generated test names appear in the markdown.
+        Generated test names appear in `.agent.md` review file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -63,16 +65,38 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertIn("`test_strips_value`", markdown)
         self.assertNotIn("helper_function", markdown)
 
-    def test_includes_test_source(self) -> None:
+    def test_includes_typescript_test_names(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes test source.
+        Generated `.agent.md` files for agent review contain TypeScript test names.
+        TypeScript test names tell agents which requirements need review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting a generated assertion appears in the markdown source block.
+        Generated test names appear in `.agent.md` review file.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = Path(directory) / "localArtifactRoundTrip.test.ts"
+            test_file.write_text(_typescript_sample_source(), encoding="utf-8")
+            markdown = agentic_md_for_test_file(test_file)
+
+        self.assertIn("`local artifact round trip`", markdown)
+        self.assertIn("`local artifact trims value`", markdown)
+
+    def test_includes_python_test_source(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files for agent review include Python test source.
+        Python source lets agents compare each requirement with assertions.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Generated assertion appears in `.agent.md` source block.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -80,18 +104,41 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown = agentic_md_for_test_file(test_file)
 
         self.assertIn("- Test Source:", markdown)
+        self.assertIn("````python", markdown)
         self.assertIn("assert 1 + 1 == 2", markdown)
+
+    def test_includes_typescript_test_source(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files for agent review include TypeScript test source.
+        TypeScript source lets agents compare each requirement with assertions.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        TypeScript assertion appears in `.agent.md` source block.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = Path(directory) / "localArtifactRoundTrip.test.ts"
+            test_file.write_text(_typescript_sample_source(), encoding="utf-8")
+            markdown = agentic_md_for_test_file(test_file)
+
+        self.assertIn("````typescript", markdown)
+        self.assertIn("assert.equal(readLocalArtifact(), \"saved artifact\")", markdown)
 
     def test_includes_sentence_checks(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes sentence checklist.
+        Generated `.agent.md` files for agent review include sentence checks.
+        Checks tell agents how to inspect requirement wording.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting each sentence check name appears in the markdown.
+        Sentence check names appear in `.agent.md` review file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -111,12 +158,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` includes missing-docstring marker.
+        Generated `.agent.md` files for agent review show missing-docstring markers.
+        Markers tell agents which tests lack review text.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting the missing-docstring marker appears for an undocumented test.
+        Missing-docstring marker appears for undocumented test.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -135,12 +183,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `Review markdown` stores source SHA at final line.
+        Generated `.agent.md` files for agent review put `Source SHA256` on the final line.
+        Source hash lets the linter detect changed tests after review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        by asserting the final line contains the test file SHA.
+        Final line contains test file SHA.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -160,12 +209,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `write_agentic_md_for_test_file` creates pending `agent_review_artifact`.
+        `write_agentic_md_for_test_file` writes pending `.agent.md` files for agent review.
+        Pending status tells agents the file still needs review.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Artifact file has pending status.
+        Generated `.agent.md` file has pending status.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -222,6 +272,45 @@ def _sample_source() -> str:
 
             assert " value ".strip() == "value"
     """
+
+
+def _typescript_sample_source() -> str:
+    return textwrap.dedent(
+        """
+        import test from "node:test";
+        import assert from "node:assert/strict";
+
+        /**
+         * Test Path: happy path
+         *
+         * Requirement Tested:
+         * Local artifact writes survive a primitive round trip.
+         *
+         * Verification Method: verify public function output
+         *
+         * Verification Detail:
+         * Loaded artifact content equals written artifact content.
+         */
+        test("local artifact round trip", () => {
+          assert.equal(readLocalArtifact(), "saved artifact");
+        });
+
+        /**
+         * Test Path: happy path
+         *
+         * Requirement Tested:
+         * Local artifact trims surrounding whitespace.
+         *
+         * Verification Method: verify public function output
+         *
+         * Verification Detail:
+         * Loaded artifact content equals trimmed artifact content.
+         */
+        test("local artifact trims value", () => {
+          assert.equal(readLocalArtifact().trim(), "saved artifact");
+        });
+        """
+    ).strip() + "\n"
 
 if __name__ == "__main__":
     unittest.main()
