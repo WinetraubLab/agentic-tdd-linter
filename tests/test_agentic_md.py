@@ -44,12 +44,12 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertLess(instruction_start, tests_start)
         self.assertGreaterEqual(len(numbered_lines), 3)
 
-    def test_includes_each_test(self) -> None:
+    def test_includes_python_test_names(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Generated `.agent.md` files for agent review contain requested test names.
-        Test names tell agents which requirements need review.
+        Generated `.agent.md` files for agent review contain Python test names.
+        Python test names tell agents which requirements need review.
 
         Verification Method: verify public function output
 
@@ -65,12 +65,33 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertIn("`test_strips_value`", markdown)
         self.assertNotIn("helper_function", markdown)
 
-    def test_includes_test_source(self) -> None:
+    def test_includes_typescript_test_names(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Generated `.agent.md` files for agent review include reviewed test source.
-        Source lets agents compare each requirement with assertions.
+        Generated `.agent.md` files for agent review contain TypeScript test names.
+        TypeScript test names tell agents which requirements need review.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Generated test names appear in `.agent.md` review file.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = Path(directory) / "localArtifactRoundTrip.test.ts"
+            test_file.write_text(_typescript_sample_source(), encoding="utf-8")
+            markdown = agentic_md_for_test_file(test_file)
+
+        self.assertIn("`local artifact round trip`", markdown)
+        self.assertIn("`local artifact trims value`", markdown)
+
+    def test_includes_python_test_source(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files for agent review include Python test source.
+        Python source lets agents compare each requirement with assertions.
 
         Verification Method: verify public function output
 
@@ -83,7 +104,29 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown = agentic_md_for_test_file(test_file)
 
         self.assertIn("- Test Source:", markdown)
+        self.assertIn("````python", markdown)
         self.assertIn("assert 1 + 1 == 2", markdown)
+
+    def test_includes_typescript_test_source(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files for agent review include TypeScript test source.
+        TypeScript source lets agents compare each requirement with assertions.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        TypeScript assertion appears in `.agent.md` source block.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = Path(directory) / "localArtifactRoundTrip.test.ts"
+            test_file.write_text(_typescript_sample_source(), encoding="utf-8")
+            markdown = agentic_md_for_test_file(test_file)
+
+        self.assertIn("````typescript", markdown)
+        self.assertIn("assert.equal(readLocalArtifact(), \"saved artifact\")", markdown)
 
     def test_includes_sentence_checks(self) -> None:
         """Test Path: happy path
@@ -229,6 +272,45 @@ def _sample_source() -> str:
 
             assert " value ".strip() == "value"
     """
+
+
+def _typescript_sample_source() -> str:
+    return textwrap.dedent(
+        """
+        import test from "node:test";
+        import assert from "node:assert/strict";
+
+        /**
+         * Test Path: happy path
+         *
+         * Requirement Tested:
+         * Local artifact writes survive a primitive round trip.
+         *
+         * Verification Method: verify public function output
+         *
+         * Verification Detail:
+         * Loaded artifact content equals written artifact content.
+         */
+        test("local artifact round trip", () => {
+          assert.equal(readLocalArtifact(), "saved artifact");
+        });
+
+        /**
+         * Test Path: happy path
+         *
+         * Requirement Tested:
+         * Local artifact trims surrounding whitespace.
+         *
+         * Verification Method: verify public function output
+         *
+         * Verification Detail:
+         * Loaded artifact content equals trimmed artifact content.
+         */
+        test("local artifact trims value", () => {
+          assert.equal(readLocalArtifact().trim(), "saved artifact");
+        });
+        """
+    ).strip() + "\n"
 
 if __name__ == "__main__":
     unittest.main()
