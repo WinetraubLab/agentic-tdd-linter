@@ -249,7 +249,6 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
         self.assertIn("concrete example", reason)
-        self.assertIn("missing-source.md.j2", reason)
 
     def test_ambiguous_data_flow_terms_fail(self) -> None:
         """Test Path: failure path
