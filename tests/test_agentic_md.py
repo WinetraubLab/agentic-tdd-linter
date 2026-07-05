@@ -164,7 +164,7 @@ class AgenticMarkdownTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Instruction section names `Requirement Tested`, scenario, and concrete example.
+        Instruction section names `Requirement Tested`, behavior, and concrete example.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -176,11 +176,11 @@ class AgenticMarkdownTests(unittest.TestCase):
         instruction_section = markdown[instruction_start:tests_start]
 
         self.assertIn(
-            "The first `Requirement Tested` row should state the use case or scenario.",
+            "The first `Requirement Tested` row should state the behavior, use case, or scenario.",
             instruction_section,
         )
         self.assertIn(
-            "The second row should give a concrete example.",
+            "The second row should give a concrete example unless the example is obvious to a reader.",
             instruction_section,
         )
 
