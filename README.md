@@ -120,7 +120,8 @@ Up to six words in test names: `test_` plus up to five descriptive words.
 Test Path: <exactly one of: happy path | failure path>
 
 Requirement Tested:
-<1-2 sentences describing the behavior under test, up to 30 words.>
+<use case or scenario under test, up to 30 words.>
+<For example, describe one concrete case this test covers.>
 
 Verification Method: <exactly one of: verify public function output | verify private function output | visual inspection by user>
 
@@ -138,4 +139,5 @@ Instructions:
 - Use `verify private function output` when the test calls a leading-underscore function and asserts its returned output, raised error, or state change.
 - Use `visual inspection by user` when correctness is difficult to assert in code and the test writes a review artifact.
 - Describe the specific behavior under test. Avoid generic wording such as `behaves as expected`.
+- Put a concrete example on the second `Requirement Tested` row.
 - Keep the requirement, function inputs, and expected value close to the test body.
