@@ -120,7 +120,7 @@ Up to six words in test names: `test_` plus up to five descriptive words.
 Test Path: <exactly one of: happy path | failure path>
 
 Requirement Tested:
-<use case or scenario under test, up to 30 words.>
+<behavior, use case, or scenario under test, up to 30 words.>
 <For example, describe one concrete case this test covers.>
 
 Verification Method: <exactly one of: verify public function output | verify private function output | visual inspection by user>
