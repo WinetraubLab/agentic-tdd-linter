@@ -17,6 +17,7 @@ REVIEW_INSTRUCTIONS = (
             "could describe several tests, appears repeatedly without narrower "
             "wording, or can be swapped onto another test with little change. "
             "The first `Requirement Tested` row should state the behavior, use case, or scenario. "
+            "The second row should give a concrete example unless the example is obvious to a reader."
         ),
     ),
     (
