@@ -154,6 +154,36 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertIn("referent information", markdown)
         self.assertIn("Concept Check (Pass/Fail)", markdown)
 
+    def test_includes_requirement_example_instruction(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files tell agents to require a second requirement row.
+        Second-row examples help agents reject generic requirements.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Instruction section names `Requirement Tested`, scenario, and concrete example.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = _write_test_file(Path(directory), _sample_source())
+            markdown = agentic_md_for_test_file(test_file)
+
+        instruction_start = markdown.index("## Review Instructions")
+        tests_start = markdown.index("## Tests")
+        instruction_section = markdown[instruction_start:tests_start]
+
+        self.assertIn(
+            "The first `Requirement Tested` row should state the use case or scenario.",
+            instruction_section,
+        )
+        self.assertIn(
+            "The second row should give a concrete example.",
+            instruction_section,
+        )
+
     def test_marks_missing_docstring(self) -> None:
         """Test Path: happy path
 
