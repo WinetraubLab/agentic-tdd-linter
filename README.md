@@ -139,5 +139,5 @@ Instructions:
 - Use `verify private function output` when the test calls a leading-underscore function and asserts its returned output, raised error, or state change.
 - Use `visual inspection by user` when correctness is difficult to assert in code and the test writes a review artifact.
 - Describe the specific behavior under test. Avoid generic wording such as `behaves as expected`.
-- Put a concrete example on the second `Requirement Tested` row.
+- Put a concrete example on the second `Requirement Tested` row unless the example is obvious to a reader.
 - Keep the requirement, function inputs, and expected value close to the test body.
