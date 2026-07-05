@@ -15,7 +15,8 @@ REVIEW_INSTRUCTIONS = (
         (
             "Review `Requirement Tested` for specificity. Fail it when it "
             "could describe several tests, appears repeatedly without narrower "
-            "wording, or can be swapped onto another test with little change."
+            "wording, or can be swapped onto another test with little change. "
+            "The first `Requirement Tested` row should state the behavior, use case, or scenario. "
         ),
     ),
     (
@@ -31,7 +32,7 @@ REVIEW_INSTRUCTIONS = (
     (
         "Focus on What is Being Verified, Not How",
         (
-            "`Requirement Tested` should state the behavior rule. "
+            "`Requirement Tested` should state the behavior, use case, or scenario. "
             "`Verification Detail` should state the evidence that proves it. "
             "Fail wording that only names mechanics, fixtures, constants, "
             "assertions, commands, tags, or test names without explaining the "
