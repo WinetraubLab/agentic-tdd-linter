@@ -174,9 +174,8 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
     lines.append("Status: pending")
     lines.append("Notes:")
     lines.append(
-        "- Scenario or example: Replace this line with the scenario or example used for judgment."
+        "- Scenario or example: Fill this line with the scenario or example used for judgment."
     )
-    lines.append("- Add one `Scenario or example` line for each reviewed test.")
     lines.append("- Review result: Replace this line with the agent review result.")
     lines.append("")
     lines.append("## Agent Review Proof")
