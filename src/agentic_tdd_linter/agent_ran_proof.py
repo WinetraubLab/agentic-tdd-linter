@@ -11,6 +11,7 @@ from .agent_review_artifacts import agent_review_artifact_path
 
 
 COMPLETED_REVIEW_STATUSES = {"pass", "fail"}
+SCENARIO_NOTE_PREFIX = "Scenario or example:"
 
 
 def source_sha256(path: Path) -> str:
@@ -86,7 +87,22 @@ def lint_agent_review_artifact(
                 ),
             )
         )
-    elif status == "fail":
+    else:
+        missing_scenario_note = _missing_scenario_note_message(artifact_text)
+        if missing_scenario_note:
+            issues.append(
+                _issue(
+                    relative_artifact,
+                    "missing_review_scenario",
+                    (
+                        "agent review notes must include "
+                        "one `Scenario or example: ...` line for each reviewed test; "
+                        f"{missing_scenario_note}"
+                    ),
+                )
+            )
+
+    if status == "fail":
         notes = _notes_value(artifact_text)
         message = "agent review artifact reported at least one review issue"
         if notes:
@@ -127,6 +143,10 @@ def _plain_value(text: str, field_name: str) -> str:
 
 
 def _notes_value(text: str) -> str:
+    return " ".join(_notes_lines(text))
+
+
+def _notes_lines(text: str) -> list[str]:
     lines = text.splitlines()
     notes: list[str] = []
     collecting = False
@@ -139,7 +159,31 @@ def _notes_value(text: str) -> str:
             break
         if collecting and stripped:
             notes.append(stripped.removeprefix("-").strip())
-    return " ".join(notes)
+    return notes
+
+
+def _missing_scenario_note_message(text: str) -> str:
+    expected_count = max(1, len(_reviewed_test_names(text)))
+    actual_count = len(_scenario_notes(text))
+    if actual_count >= expected_count:
+        return ""
+    return f"expected {expected_count}, found {actual_count}"
+
+
+def _reviewed_test_names(text: str) -> list[str]:
+    return re.findall(r"^### `([^`]+)`\s*$", text, re.MULTILINE)
+
+
+def _scenario_notes(text: str) -> list[str]:
+    scenarios: list[str] = []
+    for note in _notes_lines(text):
+        if not note.startswith(SCENARIO_NOTE_PREFIX):
+            continue
+        value = note.removeprefix(SCENARIO_NOTE_PREFIX).strip()
+        if not value or "replace this line" in value.lower():
+            continue
+        scenarios.append(value)
+    return scenarios
 
 
 def _relative_path(path: Path, repo_root: Path) -> Path:
