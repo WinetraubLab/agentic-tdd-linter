@@ -220,8 +220,13 @@ def _mark_single_artifact_pass(repo_root: Path) -> None:
     artifact_text = artifacts[0].read_text(encoding="utf-8")
     artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
     artifact_text = artifact_text.replace(
-        "- Replace this line with the agent review result.",
-        "- fixture passes review.",
+        "- Scenario or example: Fill this line with the scenario or example used for judgment.",
+        "- Scenario or example: fixture source validates CLI artifact recording.",
+        1,
+    )
+    artifact_text = artifact_text.replace(
+        "- Review result: Replace this line with the agent review result.",
+        "- Review result: fixture passes review.",
         1,
     )
     artifacts[0].write_text(artifact_text, encoding="utf-8")
