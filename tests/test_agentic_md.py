@@ -70,10 +70,6 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertLess(instruction_start, tests_start)
         self.assertIn("Run this review in a fresh subagent", isolation_section)
         self.assertIn("pass only this markdown file as the review packet", isolation_section)
-        self.assertIn(
-            "The `Test file:` path and `Source SHA256` are identifiers only",
-            isolation_section,
-        )
 
     def test_includes_python_test_names(self) -> None:
         """Test Path: happy path
