@@ -47,11 +47,11 @@ REVIEW_INSTRUCTIONS = (
     (
         "Focus on What is Being Verified, Not How",
         (
-            "`Requirement Tested` should state the behavior, use case, or scenario. "
-            "`Verification Detail` should state the evidence that proves it. "
-            "Fail wording that only names mechanics, fixtures, constants, "
+            "`Verification Detail` should state the evidence that proves the "
+            "requirement. Fail verification wording that only names mechanics, "
+            "fixtures, constants, "
             "assertions, commands, tags, or test names without explaining the "
-            "behavior they prove."
+            "evidence they provide."
         ),
     ),
     (
