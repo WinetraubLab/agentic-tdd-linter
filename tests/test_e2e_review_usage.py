@@ -377,10 +377,11 @@ def _replaces_agent_review_placeholder(node: ast.AST) -> bool:
         and node.args
     ):
         return False
-    return (
-        _string_value(node.args[0])
-        == "- Replace this line with the agent review result."
-    )
+    return _string_value(node.args[0]) in {
+        "- Replace this line with the agent review result.",
+        "- Scenario or example: Fill this line with the scenario or example used for judgment.",
+        "- Review result: Replace this line with the agent review result.",
+    }
 
 
 def _writes_agent_md_path(node: ast.AST) -> bool:
