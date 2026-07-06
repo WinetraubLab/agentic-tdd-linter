@@ -227,6 +227,35 @@ class AgenticMarkdownTests(unittest.TestCase):
         )
         self.assertIn("could describe several tests", instruction_section)
 
+    def test_includes_scenario_output_instruction(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files require scenario identification.
+        Agents leave scenario field empty when scenario is unclear.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Instruction section names the scenario field and empty-field rule.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = _write_test_file(Path(directory), _sample_source())
+            markdown = agentic_md_for_test_file(test_file)
+
+        instruction_start = markdown.index("## Review Instructions")
+        tests_start = markdown.index("## Tests")
+        instruction_section = markdown[instruction_start:tests_start]
+
+        self.assertIn(
+            "Fill `Scenario or example: ...` only when",
+            instruction_section,
+        )
+        self.assertIn("Leave the field empty", instruction_section)
+        self.assertNotIn("for each reviewed test section", instruction_section)
+        self.assertNotIn("Fail when this markdown packet", instruction_section)
+
     def test_marks_missing_docstring(self) -> None:
         """Test Path: happy path
 
