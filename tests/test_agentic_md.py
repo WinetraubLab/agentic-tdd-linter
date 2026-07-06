@@ -330,7 +330,12 @@ class AgenticMarkdownTests(unittest.TestCase):
 
             self.assertEqual(agent_review_artifact_path(test_file, root), artifact_path)
             self.assertTrue(artifact_path.is_file())
-            self.assertIn("Status: pending", artifact_path.read_text(encoding="utf-8"))
+            artifact_text = artifact_path.read_text(encoding="utf-8")
+
+            self.assertIn("Status: pending", artifact_text)
+            self.assertIn("Scenario or example:", artifact_text)
+            self.assertNotIn("for each reviewed test section", artifact_text)
+            self.assertIn("Review result:", artifact_text)
 
 
 def _write_test_file(directory: Path, source: str) -> Path:
