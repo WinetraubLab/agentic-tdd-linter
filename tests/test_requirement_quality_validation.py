@@ -150,11 +150,97 @@ class RequirementQualityTests(unittest.TestCase):
         self.assertIn("too narrow", reason)
         self.assertIn("behavior-level", reason)
 
-    def test_requirement_scenario_rejects_vague_example(self) -> None:
+    def test_generic_requirement_rejects_phrases(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Requirement scenario checks reject vague requirements.
+        `Generic Requirement` checks reject repeated or swappable phrases.
+        Examples include repeated-parser wording and swappable-sentence wording.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report includes Generic Requirement.
+        """
+
+        generic_requirement_sources = (
+            # Problem sentence: the same requirement appears on two different tests.
+            '''
+                def test_normalizes_name() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Parser returns normalized value.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion compares a lowercase name.
+                    """
+
+                    assert normalize_name("Ada") == "ada"
+
+
+                def test_normalizes_city() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Parser returns normalized value.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion compares a lowercase city.
+                    """
+
+                    assert normalize_city("Paris") == "paris"
+            ''',
+            # Problem sentence: "Reject bad sentence structure." is way too generic.
+            '''
+                def test_sentence_has_verb() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Sentences should have a verb.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion checks a sentence with a verb.
+                    """
+
+                    assert validate_sentence("Apple become a catapiller") == "pass"
+
+
+                def test_bad_sentence_structure() -> None:
+                    """Test Path: failure path
+
+                    Requirement Tested:
+                    Reject bad sentence structure.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion checks a sentence without a verb.
+                    """
+
+                    assert validate_sentence("Apple catapiller") == "fail"
+            ''',
+        )
+        for source in generic_requirement_sources:
+            status, reason = linter_e2e_review(
+                test_source_code=source,
+            )
+            self.assertIs(False, status)
+            self.assertIn("agent_review_failed", reason)
+            self.assertIn("Generic Requirement", reason)
+
+    def test_requirement_scenario_rejects_missing_examples(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Requirement scenario checks reject requirements without examples.
+        Examples include missing-file context and unused-template context.
 
         Verification Method: verify public function output
 
