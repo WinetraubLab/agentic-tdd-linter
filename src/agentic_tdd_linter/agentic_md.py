@@ -11,13 +11,27 @@ from .docstrings import test_functions_for_file
 
 REVIEW_INSTRUCTIONS = (
     (
-        "Notify Generic Requirement",
+        "Requirement Behavior Check",
         (
-            "Review `Requirement Tested` for specificity. Fail it when it "
-            "could describe several tests, appears repeatedly without narrower "
-            "wording, or can be swapped onto another test with little change. "
-            "The first `Requirement Tested` row should state the behavior, use case, or scenario. "
-            "The second row should give a concrete example unless the example is obvious to a reader."
+            "`Requirement Tested` shall describe the behavior needed. Fail wording "
+            "that only names mechanics, fixtures, constants, assertions, "
+            "commands, tags, or test names without explaining the behavior they prove."
+        ),
+    ),
+    (
+        "Requirement Scenario Check",
+        (
+            "`Requirement Tested` shall describe the use case or scenario where "
+            "the behavior applies. Fail when the requirement does not describe "
+            "the scenario or give an example of the scenario. "
+        ),
+    ),
+    (
+        "Generic Requirement Check",
+        (
+            "`Requirement Tested` shall be non-generic. Fail it when it could describe "
+            "several tests, appears repeatedly without narrower wording, or can "
+            "be swapped onto another test with little change."
         ),
     ),
     (
