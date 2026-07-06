@@ -108,6 +108,18 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
         "For each test below, review the structured test docstring and assertions.",
         "Return concrete notes for tests that need clearer wording or assertion scope.",
         "",
+        "## Review Isolation",
+        "",
+        (
+            "Run this review in a fresh subagent and pass only this markdown "
+            "file as the review packet."
+        ),
+        (
+            "Do not inspect repository files, manifests, outer unit tests, prior "
+            "conversation, or expected assertions."
+        ),
+        "If context is missing from this file, fail with notes asking the test to include it.",
+        "",
         "## Review Instructions",
         "",
     ]

@@ -44,6 +44,37 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertLess(instruction_start, tests_start)
         self.assertGreaterEqual(len(numbered_lines), 3)
 
+    def test_includes_review_isolation_instructions(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files isolate review from repository context.
+        Isolation instructions prevent expected-answer leaks from outer tests.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Isolation section forbids repository files, manifests, and outer tests.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = _write_test_file(Path(directory), _sample_source())
+            markdown = agentic_md_for_test_file(test_file)
+
+        isolation_start = markdown.index("## Review Isolation")
+        instruction_start = markdown.index("## Review Instructions")
+        tests_start = markdown.index("## Tests")
+        isolation_section = markdown[isolation_start:instruction_start]
+
+        self.assertLess(isolation_start, instruction_start)
+        self.assertLess(instruction_start, tests_start)
+        self.assertIn("Run this review in a fresh subagent", isolation_section)
+        self.assertIn("pass only this markdown file as the review packet", isolation_section)
+        self.assertIn(
+            "The `Test file:` path and `Source SHA256` are identifiers only",
+            isolation_section,
+        )
+
     def test_includes_python_test_names(self) -> None:
         """Test Path: happy path
 
