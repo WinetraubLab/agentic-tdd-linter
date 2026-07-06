@@ -473,7 +473,8 @@ def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
 
             Status: {status}
             Notes:
-            - test_adds_values passes review.
+            - Scenario or example: adding `1 + 1` should produce `2`.
+            - Review result: Review passed.
             """
         ).strip()
         + "\n",
