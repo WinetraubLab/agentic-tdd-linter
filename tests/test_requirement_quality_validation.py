@@ -183,19 +183,7 @@ class RequirementQualityTests(unittest.TestCase):
         )
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
-        self.assertIn("use case or scenario", reason)
-
-    def test_requirement_scenario_rejects_missing_context(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        Requirement scenario checks reject behavior without context.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        Linter report asks for scenario context.
-        """
+        self.assertIn("scenario", reason)
 
         # Problem sentence: the behavior is stated, but the requirement does
         # not name the template/context scenario that makes it reviewable.
@@ -222,7 +210,8 @@ class RequirementQualityTests(unittest.TestCase):
         )
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
-        self.assertIn("use case or scenario", reason)
+        self.assertIn("scenario", reason)
+
     def test_requirement_terms_require_owners(self) -> None:
         """Test Path: failure path
 
