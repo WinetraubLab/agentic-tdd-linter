@@ -96,7 +96,7 @@ def lint_agent_review_artifact(
                     "missing_review_scenario",
                     (
                         "agent review notes must include "
-                        "one `Scenario or example: ...` line for each reviewed test; "
+                        "one `Scenario or example: ...` line for each reviewed test section; "
                         f"{missing_scenario_note}"
                     ),
                 )
