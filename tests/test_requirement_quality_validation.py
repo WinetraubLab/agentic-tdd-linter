@@ -223,3 +223,119 @@ class RequirementQualityTests(unittest.TestCase):
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
         self.assertIn("use case or scenario", reason)
+    def test_requirement_terms_require_owners(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Requirement wording checks reject ambiguous data-flow terms.
+        Examples fail when `input`, `output`, `returns`, and `provided` lack owners.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report includes ambiguous term guidance.
+        """
+
+        # Problem sentence: "input" has no named owner.
+        input_term_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The input is normalized before validation.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=input_term_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("ambiguous", reason)
+        self.assertIn("input", reason)
+
+        # Problem sentence: "output" has no named owner.
+        output_term_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The output includes the normalized value.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=output_term_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("ambiguous", reason)
+        self.assertIn("output", reason)
+
+        # Problem sentence: "returns" has no named owner.
+        returns_term_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The parser returns the expected value.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=returns_term_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("ambiguous", reason)
+        self.assertIn("returns", reason)
+
+        # Problem sentence: "provided" does not name who provides the activity name.
+        provided_term_source = '''
+            def test_adds_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Add an artifact row from a template using the provided activity name.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The result is positive.
+                """
+
+                assert 1 + 1 > 0
+        '''
+
+        status, reason = linter_e2e_review(
+            test_source_code=provided_term_source,
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("ambiguous", reason)
+        self.assertIn("provided", reason)
+
+
+if __name__ == "__main__":
+    unittest.main()
