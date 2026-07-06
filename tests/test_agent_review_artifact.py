@@ -70,6 +70,34 @@ class AgentReviewArtifactTests(unittest.TestCase):
         self.assertIn("missing_review_scenario", _issue_rules(issues))
         self.assertIn("expected 1, found 0", issues[0].message)
 
+    def test_reports_empty_scenario_field(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Completed artifacts reject empty `Scenario or example:` fields.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter issue reports zero completed `Scenario or example:` fields.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            artifact = _write_artifact(
+                root,
+                test_file,
+                status="pass",
+                include_test_heading=True,
+                scenario_value="",
+            )
+
+            issues = lint_agent_review_artifact(test_file, artifact, root)
+
+        self.assertIn("missing_review_scenario", _issue_rules(issues))
+        self.assertIn("expected 1, found 0", issues[0].message)
+
     def test_accepts_default_artifact(self) -> None:
         """Test Path: happy path
 
@@ -236,12 +264,13 @@ def _write_artifact(
     artifact_path: Path | None = None,
     include_scenario: bool = True,
     include_test_heading: bool = False,
+    scenario_value: str = "adding `1 + 1` should produce `2`.",
 ) -> Path:
     artifact = artifact_path if artifact_path is not None else root / "test_sample.agent.md"
     artifact.parent.mkdir(parents=True, exist_ok=True)
     review_hash = source_hash if source_hash is not None else source_sha256(test_file)
     scenario_note = (
-        "- Scenario or example: adding `1 + 1` should produce `2`.\n"
+        f"- Scenario or example: {scenario_value}\n"
         if include_scenario
         else ""
     )
@@ -308,7 +337,7 @@ def _write_reviewed_project(root: Path) -> Path:
     )
     artifact_text = artifact_text.replace(
         "- Review result: Replace this line with the agent review result.",
-        "- Review result: test_adds_values passes review.",
+        "- Review result: Review passed.",
         1,
     )
     artifact_path.write_text(artifact_text, encoding="utf-8")
