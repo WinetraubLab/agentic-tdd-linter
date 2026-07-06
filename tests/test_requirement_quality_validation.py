@@ -184,3 +184,42 @@ class RequirementQualityTests(unittest.TestCase):
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
         self.assertIn("use case or scenario", reason)
+
+    def test_requirement_scenario_rejects_missing_context(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Requirement scenario checks reject behavior without context.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report asks for scenario context.
+        """
+
+        # Problem sentence: the behavior is stated, but the requirement does
+        # not name the template/context scenario that makes it reviewable.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_rejects_unused_context_variable() -> None:
+                    """Test Path: failure path
+
+                    Requirement Tested:
+                    Jinja manifest rendering rejects context variables unused by the source template.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    Error report names unused context variable.
+                    """
+
+                    source_template = "Hello {{ name }}"
+                    manifest_context = {"name": "Ada", "unused_title": "Dr"}
+                    errors = validate_manifest_render(source_template, manifest_context)
+
+                    assert "unused_title" in errors
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("use case or scenario", reason)
