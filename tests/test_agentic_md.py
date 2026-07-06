@@ -185,13 +185,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Generated `.agent.md` files tell agents to require a second requirement row.
-        Second-row examples help agents reject generic requirements.
+        Generated `.agent.md` files include three `Requirement Tested` checks.
+        A separate instruction exists for each requirement-quality rule.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Instruction section names `Requirement Tested`, behavior, and concrete example.
+        Instruction section shows three requirement-check headings.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -202,14 +202,30 @@ class AgenticMarkdownTests(unittest.TestCase):
         tests_start = markdown.index("## Tests")
         instruction_section = markdown[instruction_start:tests_start]
 
+        self.assertIn("1. Requirement Behavior Check", instruction_section)
+        self.assertIn("2. Requirement Scenario Check", instruction_section)
+        self.assertIn("3. Generic Requirement Check", instruction_section)
         self.assertIn(
-            "The first `Requirement Tested` row should state the behavior, use case, or scenario.",
+            "`Requirement Tested` shall describe the behavior needed.",
             instruction_section,
         )
         self.assertIn(
-            "The second row should give a concrete example unless the example is obvious to a reader.",
+            "Fail wording that only names mechanics, fixtures, constants",
             instruction_section,
         )
+        self.assertIn(
+            "`Requirement Tested` shall describe the use case or scenario where the behavior applies.",
+            instruction_section,
+        )
+        self.assertIn(
+            "Leave the field empty when the scenario or example is unclear.",
+            instruction_section,
+        )
+        self.assertIn(
+            "`Requirement Tested` shall be non-generic.",
+            instruction_section,
+        )
+        self.assertIn("could describe several tests", instruction_section)
 
     def test_marks_missing_docstring(self) -> None:
         """Test Path: happy path
