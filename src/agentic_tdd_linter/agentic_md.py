@@ -22,8 +22,10 @@ REVIEW_INSTRUCTIONS = (
         "Requirement Scenario Check",
         (
             "`Requirement Tested` shall describe the use case or scenario where "
-            "the behavior applies. Fail when the requirement does not describe "
-            "the scenario or give an example of the scenario. "
+            "the behavior applies. Fill `Scenario or example: ...` only when "
+            "this markdown packet lets you identify the scenario or example "
+            "used for judgment. Leave the field empty when the scenario or "
+            "example is unclear."
         ),
     ),
     (
