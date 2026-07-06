@@ -185,13 +185,59 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Generated `.agent.md` files tell agents to require a second requirement row.
-        Second-row examples help agents reject generic requirements.
+        Generated `.agent.md` files include three `Requirement Tested` checks.
+        A separate instruction exists for each requirement-quality rule.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Instruction section names `Requirement Tested`, behavior, and concrete example.
+        Instruction section shows three requirement-check headings.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            test_file = _write_test_file(Path(directory), _sample_source())
+            markdown = agentic_md_for_test_file(test_file)
+
+        instruction_start = markdown.index("## Review Instructions")
+        tests_start = markdown.index("## Tests")
+        instruction_section = markdown[instruction_start:tests_start]
+
+        self.assertIn("1. Requirement Behavior Check", instruction_section)
+        self.assertIn("2. Requirement Scenario Check", instruction_section)
+        self.assertIn("3. Generic Requirement Check", instruction_section)
+        self.assertIn(
+            "`Requirement Tested` shall describe the behavior needed.",
+            instruction_section,
+        )
+        self.assertIn(
+            "Fail wording that only names mechanics, fixtures, constants",
+            instruction_section,
+        )
+        self.assertIn(
+            "`Requirement Tested` shall describe the use case or scenario where the behavior applies.",
+            instruction_section,
+        )
+        self.assertIn(
+            "Leave the field empty when the scenario or example is unclear.",
+            instruction_section,
+        )
+        self.assertIn(
+            "`Requirement Tested` shall be non-generic.",
+            instruction_section,
+        )
+        self.assertIn("could describe several tests", instruction_section)
+
+    def test_includes_scenario_output_instruction(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Generated `.agent.md` files require scenario identification.
+        Agents leave scenario field empty when scenario is unclear.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Instruction section names the scenario field and empty-field rule.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -203,13 +249,12 @@ class AgenticMarkdownTests(unittest.TestCase):
         instruction_section = markdown[instruction_start:tests_start]
 
         self.assertIn(
-            "The first `Requirement Tested` row should state the behavior, use case, or scenario.",
+            "Fill `Scenario or example: ...` only when",
             instruction_section,
         )
-        self.assertIn(
-            "The second row should give a concrete example unless the example is obvious to a reader.",
-            instruction_section,
-        )
+        self.assertIn("Leave the field empty", instruction_section)
+        self.assertNotIn("for each reviewed test section", instruction_section)
+        self.assertNotIn("Fail when this markdown packet", instruction_section)
 
     def test_marks_missing_docstring(self) -> None:
         """Test Path: happy path
@@ -285,7 +330,12 @@ class AgenticMarkdownTests(unittest.TestCase):
 
             self.assertEqual(agent_review_artifact_path(test_file, root), artifact_path)
             self.assertTrue(artifact_path.is_file())
-            self.assertIn("Status: pending", artifact_path.read_text(encoding="utf-8"))
+            artifact_text = artifact_path.read_text(encoding="utf-8")
+
+            self.assertIn("Status: pending", artifact_text)
+            self.assertIn("Scenario or example:", artifact_text)
+            self.assertNotIn("for each reviewed test section", artifact_text)
+            self.assertIn("Review result:", artifact_text)
 
 
 def _write_test_file(directory: Path, source: str) -> Path:

@@ -11,17 +11,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from helpers.linter_e2e import linter_e2e_review
 
 
-class RequirementVerificationFormulationTests(unittest.TestCase):
-    def test_narrow_requirement_examples_fail(self) -> None:
+class RequirementQualityTests(unittest.TestCase):
+    def test_requirement_behavior_rejects_mechanics(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Narrow requirements fail when examples replace behavior.
+        Requirement behavior checks reject mechanics-only requirements.
+        The linter fails when requirements name tests, assertions, constants, or levels instead of behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report includes too-narrow guidance.
+        Linter report includes too-narrow behavior guidance.
         """
 
         # Problem sentence: requirement names test functions instead of behavior.
@@ -149,82 +150,102 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIn("too narrow", reason)
         self.assertIn("behavior-level", reason)
 
-    def test_verification_mechanics_only_fails(self) -> None:
+    def test_generic_requirement_rejects_phrases(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Verification details describe behavior evidence.
+        `Generic Requirement` checks reject repeated or swappable phrases.
+        Examples include repeated-parser wording and swappable-sentence wording.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report includes behavior-level evidence.
+        Linter report includes Generic Requirement.
         """
 
-        status, reason = linter_e2e_review(
-            test_source_code='''
-                def test_adds_numbers() -> None:
+        generic_requirement_sources = (
+            # Problem sentence: the same requirement appears on two different tests.
+            '''
+                def test_normalizes_name() -> None:
                     """Test Path: happy path
 
                     Requirement Tested:
-                    Adding two numbers must yield positive result.
+                    Parser returns normalized value.
 
                     Verification Method: verify public function output
 
                     Verification Detail:
-                    by running the check command with a pass artifact and asserting success.
+                    The assertion compares a lowercase name.
                     """
 
-                    assert 1 + 1 > 0
-            ''',
-        )
-        self.assertIs(False, status)
-        self.assertIn("agent_review_failed", reason)
-        self.assertIn("behavior-level evidence", reason)
+                    assert normalize_name("Ada") == "ada"
 
-    def test_verification_bare_output_fails(self) -> None:
-        """Test Path: failure path
 
-        Requirement Tested:
-        Verification details connect linter output to behavior.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        Linter report includes behavior context.
-        """
-
-        status, reason = linter_e2e_review(
-            test_source_code='''
-                def test_adds_numbers() -> None:
+                def test_normalizes_city() -> None:
                     """Test Path: happy path
 
                     Requirement Tested:
-                    Adding two numbers must yield positive result.
+                    Parser returns normalized value.
 
                     Verification Method: verify public function output
 
                     Verification Detail:
-                    Exit code is zero.
+                    The assertion compares a lowercase city.
                     """
 
-                    assert 1 + 1 > 0
+                    assert normalize_city("Paris") == "paris"
+            ''',
+            # Problem sentence: "Reject bad sentence structure." is way too generic.
+            '''
+                def test_sentence_has_verb() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Sentences should have a verb.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion checks a sentence with a verb.
+                    """
+
+                    assert validate_sentence("Apple become a catapiller") == "pass"
+
+
+                def test_bad_sentence_structure() -> None:
+                    """Test Path: failure path
+
+                    Requirement Tested:
+                    Reject bad sentence structure.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The assertion checks a sentence without a verb.
+                    """
+
+                    assert validate_sentence("Apple catapiller") == "fail"
             ''',
         )
-        self.assertIs(False, status)
-        self.assertIn("agent_review_failed", reason)
-        self.assertIn("behavior context", reason)
+        for source in generic_requirement_sources:
+            status, reason = linter_e2e_review(
+                test_source_code=source,
+            )
+            self.assertIs(False, status)
+            self.assertIn("agent_review_failed", reason)
+            self.assertIn("Generic Requirement", reason)
 
-    def test_vague_requirement_without_example_fails(self) -> None:
+    def test_requirement_scenario_rejects_missing_examples(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Vague requirements fail when examples would identify the scenario.
+        Requirement scenario checks reject requirements without examples.
+        Examples include missing-file context and unused-template context.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report asks for the missing manifest file example.
+        Linter report asks for scenario context.
         """
 
         # Problem sentence: render manifest failure is too vague without a
@@ -248,18 +269,46 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         )
         self.assertIs(False, status)
         self.assertIn("agent_review_failed", reason)
-        self.assertIn("concrete example", reason)
+        self.assertIn("scenario", reason)
 
-    def test_ambiguous_data_flow_terms_fail(self) -> None:
+        # Problem sentence: the behavior is stated, but the requirement does
+        # not name the template/context scenario that makes it reviewable.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_rejects_unused_context_variable() -> None:
+                    """Test Path: failure path
+
+                    Requirement Tested:
+                    Jinja manifest rendering rejects context variables unused by the source template.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    Error report names unused context variable.
+                    """
+
+                    source_template = "Hello {{ name }}"
+                    manifest_context = {"name": "Ada", "unused_title": "Dr"}
+                    errors = validate_manifest_render(source_template, manifest_context)
+
+                    assert "unused_title" in errors
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("scenario", reason)
+
+    def test_requirement_terms_require_owners(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Data-flow terms require named owners.
+        Requirement wording checks reject ambiguous data-flow terms.
+        Examples fail when `input`, `output`, `returns`, and `provided` lack owners.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report includes ambiguous data-flow guidance.
+        Linter report includes ambiguous term guidance.
         """
 
         # Problem sentence: "input" has no named owner.
@@ -336,31 +385,6 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIn("agent_review_failed", reason)
         self.assertIn("ambiguous", reason)
         self.assertIn("returns", reason)
-
-        # Problem sentence: "Output" has no named owner.
-        capital_output_source = '''
-            def test_adds_numbers() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                Adding two numbers must yield positive result.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                Output cites missing tags.
-                """
-
-                assert 1 + 1 > 0
-        '''
-
-        status, reason = linter_e2e_review(
-            test_source_code=capital_output_source,
-        )
-        self.assertIs(False, status)
-        self.assertIn("agent_review_failed", reason)
-        self.assertIn("ambiguous", reason)
-        self.assertIn("Output", reason)
 
         # Problem sentence: "provided" does not name who provides the activity name.
         provided_term_source = '''

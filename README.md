@@ -79,6 +79,8 @@ It also writes missing agent review artifacts under `tests/agentic_review_artifa
 
 The first run may fail after creating pending review artifacts. Review those artifacts, update each `Status:` to `pass` or `fail`, then rerun the same command.
 
+Each generated `.agent.md` file reviews one test file. Inside the packet, each Python `test_...` function or TypeScript `test(...)` call appears as its own `### ...` reviewed test section.
+
 By default, `agentic-tdd-linter check` scans changed test files. Use `--all` to scan every project test file, or pass specific files or directories for focused work.
 
 ## Install It On GitHub Actions On Your Project

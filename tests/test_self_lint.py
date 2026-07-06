@@ -270,8 +270,13 @@ def _mark_agent_review_artifacts_pass(repo_root: Path) -> None:
         artifact_text = artifact_path.read_text(encoding="utf-8")
         artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
         artifact_text = artifact_text.replace(
-            "- Replace this line with the agent review result.",
-            "- Clean dogfood review passed.",
+            "- Scenario or example: Fill this line with the scenario or example used for judgment.",
+            "- Scenario or example: dogfood review checks the sample test suite.",
+            1,
+        )
+        artifact_text = artifact_text.replace(
+            "- Review result: Replace this line with the agent review result.",
+            "- Review result: Clean dogfood review passed.",
             1,
         )
         artifact_path.write_text(artifact_text, encoding="utf-8")

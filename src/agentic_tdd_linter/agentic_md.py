@@ -11,13 +11,29 @@ from .docstrings import test_functions_for_file
 
 REVIEW_INSTRUCTIONS = (
     (
-        "Notify Generic Requirement",
+        "Requirement Behavior Check",
         (
-            "Review `Requirement Tested` for specificity. Fail it when it "
-            "could describe several tests, appears repeatedly without narrower "
-            "wording, or can be swapped onto another test with little change. "
-            "The first `Requirement Tested` row should state the behavior, use case, or scenario. "
-            "The second row should give a concrete example unless the example is obvious to a reader."
+            "`Requirement Tested` shall describe the behavior needed. Fail wording "
+            "that only names mechanics, fixtures, constants, assertions, "
+            "commands, tags, or test names without explaining the behavior they prove."
+        ),
+    ),
+    (
+        "Requirement Scenario Check",
+        (
+            "`Requirement Tested` shall describe the use case or scenario where "
+            "the behavior applies. Fill `Scenario or example: ...` only when "
+            "this markdown packet lets you identify the scenario or example "
+            "used for judgment. Leave the field empty when the scenario or "
+            "example is unclear."
+        ),
+    ),
+    (
+        "Generic Requirement Check",
+        (
+            "`Requirement Tested` shall be non-generic. Fail it when it could describe "
+            "several tests, appears repeatedly without narrower wording, or can "
+            "be swapped onto another test with little change."
         ),
     ),
     (
@@ -33,11 +49,11 @@ REVIEW_INSTRUCTIONS = (
     (
         "Focus on What is Being Verified, Not How",
         (
-            "`Requirement Tested` should state the behavior, use case, or scenario. "
-            "`Verification Detail` should state the evidence that proves it. "
-            "Fail wording that only names mechanics, fixtures, constants, "
+            "`Verification Detail` should state the evidence that proves the "
+            "requirement. Fail verification wording that only names mechanics, "
+            "fixtures, constants, "
             "assertions, commands, tags, or test names without explaining the "
-            "behavior they prove."
+            "evidence they provide."
         ),
     ),
     (
@@ -159,7 +175,10 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
     lines.append("")
     lines.append("Status: pending")
     lines.append("Notes:")
-    lines.append("- Replace this line with the agent review result.")
+    lines.append(
+        "- Scenario or example: Fill this line with the scenario or example used for judgment."
+    )
+    lines.append("- Review result: Replace this line with the agent review result.")
     lines.append("")
     lines.append("## Agent Review Proof")
     lines.append("")
