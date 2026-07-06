@@ -215,6 +215,41 @@ class RequirementVerificationFormulationTests(unittest.TestCase):
         self.assertIn("agent_review_failed", reason)
         self.assertIn("behavior context", reason)
 
+    def test_vague_requirement_without_example_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Vague requirements fail when examples would identify the scenario.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report asks for the missing manifest file example.
+        """
+
+        # Problem sentence: render manifest failure is too vague without a
+        # concrete file example such as `missing-source.md.j2`.
+        status, reason = linter_e2e_review(
+            test_source_code='''
+                def test_reports_manifest_missing_source() -> None:
+                    """Test Path: failure path
+
+                    Requirement Tested:
+                    Jinja render validation reports files named in the render manifest YAML but missing on disk.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    Validation error names missing source files.
+                    """
+
+                    assert 1 + 1 > 0
+            ''',
+        )
+        self.assertIs(False, status)
+        self.assertIn("agent_review_failed", reason)
+        self.assertIn("concrete example", reason)
+
     def test_ambiguous_data_flow_terms_fail(self) -> None:
         """Test Path: failure path
 

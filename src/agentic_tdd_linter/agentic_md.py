@@ -15,7 +15,9 @@ REVIEW_INSTRUCTIONS = (
         (
             "Review `Requirement Tested` for specificity. Fail it when it "
             "could describe several tests, appears repeatedly without narrower "
-            "wording, or can be swapped onto another test with little change."
+            "wording, or can be swapped onto another test with little change. "
+            "The first `Requirement Tested` row should state the behavior, use case, or scenario. "
+            "The second row should give a concrete example unless the example is obvious to a reader."
         ),
     ),
     (
@@ -31,7 +33,7 @@ REVIEW_INSTRUCTIONS = (
     (
         "Focus on What is Being Verified, Not How",
         (
-            "`Requirement Tested` should state the behavior rule. "
+            "`Requirement Tested` should state the behavior, use case, or scenario. "
             "`Verification Detail` should state the evidence that proves it. "
             "Fail wording that only names mechanics, fixtures, constants, "
             "assertions, commands, tags, or test names without explaining the "
@@ -105,6 +107,18 @@ def agentic_md_for_test_file(test_file_path: Path, repo_root: Path | None = None
         "",
         "For each test below, review the structured test docstring and assertions.",
         "Return concrete notes for tests that need clearer wording or assertion scope.",
+        "",
+        "## Review Isolation",
+        "",
+        (
+            "Run this review in a fresh subagent and pass only this markdown "
+            "file as the review packet."
+        ),
+        (
+            "Do not inspect repository files, manifests, outer unit tests, prior "
+            "conversation, or expected assertions."
+        ),
+        "If context is missing from this file, fail with notes asking the test to include it.",
         "",
         "## Review Instructions",
         "",
