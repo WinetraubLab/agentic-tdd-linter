@@ -42,6 +42,34 @@ class AgentReviewArtifactTests(unittest.TestCase):
 
         self.assertEqual([], issues)
 
+    def test_reports_missing_scenario_note(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Completed review artifacts require `Scenario or example:` fields for reviewed sections.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter issue reports zero `Scenario or example:` fields.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            artifact = _write_artifact(
+                root,
+                test_file,
+                status="pass",
+                include_test_heading=True,
+                include_scenario=False,
+            )
+
+            issues = lint_agent_review_artifact(test_file, artifact, root)
+
+        self.assertIn("missing_review_scenario", _issue_rules(issues))
+        self.assertIn("expected 1, found 0", issues[0].message)
+
     def test_accepts_default_artifact(self) -> None:
         """Test Path: happy path
 
@@ -206,10 +234,18 @@ def _write_artifact(
     status: str,
     source_hash: str | None = None,
     artifact_path: Path | None = None,
+    include_scenario: bool = True,
+    include_test_heading: bool = False,
 ) -> Path:
     artifact = artifact_path if artifact_path is not None else root / "test_sample.agent.md"
     artifact.parent.mkdir(parents=True, exist_ok=True)
     review_hash = source_hash if source_hash is not None else source_sha256(test_file)
+    scenario_note = (
+        "- Scenario or example: adding `1 + 1` should produce `2`.\n"
+        if include_scenario
+        else ""
+    )
+    reviewed_test = "### `test_adds_values`\n" if include_test_heading else ""
     artifact.write_text(
         textwrap.dedent(
             f"""
@@ -218,10 +254,13 @@ def _write_artifact(
             Test file: `test_sample.py`
             Source SHA256: `{review_hash}`
 
+            {reviewed_test.rstrip()}
+
             ## Agent Review Result
 
             Status: {status}
             Notes:
+            {scenario_note.rstrip()}
             - test_adds_values: requirement is specific.
             """
         ).strip()
@@ -263,8 +302,13 @@ def _write_reviewed_project(root: Path) -> Path:
     artifact_text = artifact_path.read_text(encoding="utf-8")
     artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
     artifact_text = artifact_text.replace(
-        "- Replace this line with the agent review result.",
-        "- test_adds_values passes review.",
+        "- Scenario or example: Fill this line with the scenario or example used for judgment.",
+        "- Scenario or example: adding `1 + 1` should produce `2`.",
+        1,
+    )
+    artifact_text = artifact_text.replace(
+        "- Review result: Replace this line with the agent review result.",
+        "- Review result: test_adds_values passes review.",
         1,
     )
     artifact_path.write_text(artifact_text, encoding="utf-8")
