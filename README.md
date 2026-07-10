@@ -66,14 +66,15 @@ The goal is to catch weak, vague, or bloated tests before they guide implementat
 Paste this prompt into your coding agent, such as Claude or Codex:
 
 ```text
-Add the following command as an additional check after the normal test suite:
+Add the repo-local Agentic TDD check after the normal test suite.
+For npm projects, wire `npm run check:agentic-tdd` to run this command:
 
-uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+./.venv/bin/agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 
-Persistent repo-local install:
+This uses the repository's persistent `.venv` instead of `uvx`.
+If the project does not already have the linter installed locally, create the persistent install once:
 
 python3 -m venv .venv && .venv/bin/pip install git+https://github.com/WinetraubLab/agentic-tdd-linter
-.venv/bin/agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 
 This avoids a global install, but creates a local `.venv` folder in the repository.
 
@@ -115,7 +116,7 @@ jobs:
       - run: uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 ```
 
-Before committing, run the same `uvx` command locally. If it creates `tests/agentic_review_artifacts`, review each generated `.agent.md` file, update each `Status:` to `pass` or `fail`, rerun the same command, and commit `tests/agentic_review_manifest.jsonl`.
+Before committing, run the repo-local command (`./.venv/bin/agentic-tdd-linter check --all --reviewer codex:gpt-5.5`) locally. If it creates `tests/agentic_review_artifacts`, review each generated `.agent.md` file, update each `Status:` to `pass` or `fail`, rerun the same command, and commit `tests/agentic_review_manifest.jsonl`.
 ````
 
 Full proof flow: [GitHub Actions Review Proof](docs/workflows/github-actions.md).
