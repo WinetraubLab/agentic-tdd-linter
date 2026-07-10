@@ -70,6 +70,13 @@ Add the following command as an additional check after the normal test suite:
 
 uvx --from "git+https://github.com/WinetraubLab/agentic-tdd-linter" agentic-tdd-linter check --all --reviewer codex:gpt-5.5
 
+Persistent repo-local install:
+
+python3 -m venv .venv && .venv/bin/pip install git+https://github.com/WinetraubLab/agentic-tdd-linter
+.venv/bin/agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+
+This avoids a global install, but creates a local `.venv` folder in the repository.
+
 Follow the repository's existing patterns for test scripts. Do not replace existing tests or linters.
 ```
 
