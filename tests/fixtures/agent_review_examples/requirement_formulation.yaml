@@ -50,6 +50,25 @@ assertions_without_behavior:
       fail # The requirement describes assertion tags rather than system behavior.
     51: # Assertions Match the Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
+missing_file_without_scenario:
+  test: |
+    def test_reports_manifest_missing_source() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Jinja render validation reports files named in the render manifest YAML but missing on disk.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation error names missing source files.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      fail # Requirement Tested contains no second sentence describing a concrete missing-file scenario.
+
 unused_context_without_scenario:
   test: |
     def test_rejects_unused_context_variable() -> None:
