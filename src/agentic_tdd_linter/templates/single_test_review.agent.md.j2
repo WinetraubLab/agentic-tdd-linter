@@ -87,6 +87,11 @@ For example, fail "The frobnicator rejects input."; prefer "The `frobnicator` pa
 #### 43. Data-Flow Terms Name an Owner
 Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` shall name an explicit owner.
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
+
+#### 44. Wording Is Concrete
+Review wording shall use concrete terms instead of vague or generic language.
+For example, fail `The parser handles input correctly.` because `correctly` is vague and does not name the expected behavior; prefer `The parser rejects empty input.`
+
 ### 5x. Assertion Quality
 
 #### 51. Assertions Match the Requirement
