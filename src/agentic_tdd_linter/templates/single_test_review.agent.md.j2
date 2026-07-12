@@ -74,6 +74,16 @@ For example, fail `The parser rejects it, which is invalid.`; prefer `The parser
 
 #### 37. Sentence Expresses One Concept
 Each sentence shall communicate one primary idea, requirement, or decision.
+### 4x. Terminology and Reference Clarity
+
+#### 41. Wording Avoids Self-Reference
+Review wording shall not refer to itself, the test, or the assertion instead of naming system behavior.
+For example, fail `This requirement describes parsing.`; prefer `The parser rejects invalid input.`
+
+#### 42. Domain Terms Are Defined
+Every local or domain-specific term shall be defined or backticked.
+For example, fail "The frobnicator rejects input."; prefer "The `frobnicator` parser rejects input."
+
 #### 43. Data-Flow Terms Name an Owner
 Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` shall name an explicit owner.
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
