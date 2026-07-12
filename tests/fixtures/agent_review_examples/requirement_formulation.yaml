@@ -50,6 +50,25 @@ assertions_without_behavior:
       fail # The requirement describes assertion tags rather than system behavior.
     51: # Assertions Match the Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
+ambiguous_provided:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Add an artifact row from a template using the provided activity name.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    43: # Data-Flow Terms Name an Owner
+      fail # Provided does not identify who supplies the activity name.
+
 missing_file_without_scenario:
   test: |
     def test_reports_manifest_missing_source() -> None:
