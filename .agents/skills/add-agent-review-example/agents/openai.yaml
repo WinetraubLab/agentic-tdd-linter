@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Agent Review Example"
+  short_description: "Add tests to agent-review YAML examples"
+  default_prompt: "Use $add-agent-review-example to add this test to the appropriate agent-review YAML example file."
