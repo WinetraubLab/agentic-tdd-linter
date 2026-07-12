@@ -50,6 +50,27 @@ assertions_without_behavior:
       fail # The requirement describes assertion tags rather than system behavior.
     51: # Assertions Match the Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
+ambiguous_returns:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Returns the expected value.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The sentence omits the subject that performs the return operation.
+    43: # Data-Flow Terms Name an Owner
+      fail # Returns does not name the component or operation that owns the returned value.
+
 ambiguous_provided:
   test: |
     def test_adds_numbers() -> None:
