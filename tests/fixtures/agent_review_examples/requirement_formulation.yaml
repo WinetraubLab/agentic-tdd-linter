@@ -50,6 +50,25 @@ assertions_without_behavior:
       fail # The requirement describes assertion tags rather than system behavior.
     51: # Assertions Match the Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
+swappable_requirement:
+  test: |
+    def test_bad_sentence_structure() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Reject bad sentence structure.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The assertion checks a sentence without a verb.
+        """
+
+        assert validate_sentence("Apple catapiller") == "fail"
+  expected_scorecard:
+    13: # Requirement Is Specific
+      fail # Each requirement is generic enough to be swapped onto another sentence-validation test.
+
 ambiguous_input:
   test: |
     def test_adds_numbers() -> None:
