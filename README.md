@@ -87,7 +87,7 @@ It also writes missing agent review artifacts under `tests/agentic_review_artifa
 
 The first run may fail after creating pending review artifacts. Review those artifacts, update each `Status:` to `pass` or `fail`, then rerun the same command.
 
-Each generated `.agent.md` file reviews one test file. Inside the packet, each Python `test_...` function or TypeScript `test(...)` call appears as its own `### ...` reviewed test section.
+Each generated `.agent.md` file reviews one Python `test_...` function or TypeScript `test(...)` call. A source file with multiple tests produces one independent review artifact per test.
 
 By default, `agentic-tdd-linter check` scans changed test files. Use `--all` to scan every project test file, or pass specific files or directories for focused work.
 
@@ -130,8 +130,8 @@ Up to six words in test names: `test_` plus up to five descriptive words.
 Test Path: <exactly one of: happy path | failure path>
 
 Requirement Tested:
-<behavior, use case, or scenario under test, up to 30 words.>
-<For example, describe one concrete case this test covers.>
+<First sentence: state the general behavioral rule.>
+<Second sentence: describe one concrete use case or scenario where the rule applies. Maximum 30 words across both sentences.>
 
 Verification Method: <exactly one of: verify public function output | verify private function output | visual inspection by user>
 
@@ -148,6 +148,7 @@ Instructions:
 - Use `verify public function output` when the test calls a public function and asserts its returned output.
 - Use `verify private function output` when the test calls a leading-underscore function and asserts its returned output, raised error, or state change.
 - Use `visual inspection by user` when correctness is difficult to assert in code and the test writes a review artifact.
-- Describe the specific behavior under test. Avoid generic wording such as `behaves as expected`.
-- Put a concrete example on the second `Requirement Tested` row unless the example is obvious to a reader.
+- Use the first `Requirement Tested` sentence to state what the system must do. Avoid generic wording such as `behaves as expected`.
+- Use the second `Requirement Tested` sentence to state when, where, or for whom the rule applies.
+- Use `Verification Detail` for the exact expected result or evidence.
 - Keep the requirement, function inputs, and expected value close to the test body.
