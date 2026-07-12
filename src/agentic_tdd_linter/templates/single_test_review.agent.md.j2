@@ -17,6 +17,21 @@ Evaluate each criterion in a fresh subagent. Pass only this Markdown file as the
 Do not inspect repository files, manifests, outer unit tests, prior conversation, or expected assertions.
 If context is missing from this file, fail with notes asking the test to include it.
 
+## Review Criteria
+
+### 1x. Requirement Formulation
+
+#### 11. First Sentence Describes Behavior
+The first `Requirement Tested` sentence shall state the general behavioral rule: what the system must do.
+Fail wording that only describes a use case, mechanics, fixtures, constants, assertions, commands, tags, or test names.
+
+#### 12. Second Sentence Describes a Scenario
+The second `Requirement Tested` sentence shall describe one concrete use case where the rule applies: when, where, or for whom.
+Fail if the scenario sentence is missing or does not describe a use case.
+
+#### 13. Requirement Is Specific
+`Requirement Tested` shall be specific to the behavior and scenario under review.
+Fail wording that could describe several tests, appears repeatedly without narrower wording, or can be swapped onto another test with little change.
 ## Test Content
 
 ```
