@@ -2,3 +2,30 @@
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+availability_without_behavior:
+  test: |
+    def test_organization_availability() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        When organization is home, availability includes 09:00–12:00. When organization is Y, availability excludes 13:00–16:00.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Availability contains the expected time ranges.
+        """
+
+        availability = compute_availability(organization="home")
+
+        assert "09:00–12:00" in availability
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      fail # The requirement lists availability examples without stating a general behavior.
+    12: # Second Sentence Describes a Scenario
+      pass # The home and Y organization cases provide concrete applicability scenarios.
+    21: # Expected Results Appear in Verification Detail
+      fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
+    51: # Assertions Match the Requirement
+      fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
