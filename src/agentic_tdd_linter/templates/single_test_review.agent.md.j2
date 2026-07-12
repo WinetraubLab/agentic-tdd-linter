@@ -53,6 +53,7 @@ For example, fail `The parser does not reject no input.`; prefer `The parser acc
 
 #### 32. Sentence Uses Subject-Verb-Object Order
 Each sentence shall follow Subject -> Verb -> Object.
+For example, fail `The parser rejects.` because the sentence omits an object; prefer `The parser rejects empty input.`
 
 #### 33. Subject and Object Are Concise
 Each sentence subject and object shall contain no more than two words.
@@ -72,6 +73,7 @@ A sentence shall not end with a relative clause that omits referent information.
 Each sentence shall communicate one primary idea, requirement, or decision.
 #### 43. Data-Flow Terms Name an Owner
 Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` shall name an explicit owner.
+For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 ### 5x. Assertion Quality
 
 #### 51. Assertions Match the Requirement
