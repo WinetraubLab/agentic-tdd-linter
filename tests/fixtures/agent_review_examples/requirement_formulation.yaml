@@ -1,5 +1,5 @@
 # Test-source examples for agent review.
-# Each example contains `description`, `test`, and `expected_scorecard`.
+# Each example contains only `test` and `expected_scorecard`.
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
