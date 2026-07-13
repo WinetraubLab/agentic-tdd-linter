@@ -10,12 +10,12 @@ from jinja2 import Environment, StrictUndefined, Template
 
 from .agent_ran_proof import source_sha256
 from .agent_review_artifacts import agent_review_artifact_path
-from .docstrings import TestFunction, test_functions_for_file
+from ..conventional_linter.docstrings import TestFunction, test_functions_for_file
 
-TEMPLATE_PATH = "templates/single_test_review.agent.md.j2"
+TEMPLATE_PATH = "agentic_linter/single_test_review.agent.md.j2"
 
 
-def agentic_md_for_test_file(
+def _render_agent_md_files_for_test_file(
     test_file_path: Path,
     repo_root: Path | None = None,
 ) -> list[tuple[TestFunction, str]]:
@@ -27,12 +27,12 @@ def agentic_md_for_test_file(
         repo_root if repo_root is not None else absolute_path.parent,
     )
     return [
-        (test, agentic_md_for_test(absolute_path, test))
+        (test, _render_agent_md(test_file_path=absolute_path, test=test))
         for test in tests
     ]
 
 
-def agentic_md_for_test(
+def _render_agent_md(
     test_file_path: Path,
     test: TestFunction,
 ) -> str:
@@ -58,7 +58,7 @@ def _agentic_review_template() -> Template:
     return environment.from_string(template_source)
 
 
-def write_agentic_md_for_test_file(
+def _write_agent_md_files_for_test_file(
     test_file_path: Path,
     repo_root: Path,
     artifact_root: Path | None = None,
@@ -66,9 +66,11 @@ def write_agentic_md_for_test_file(
     """Write one agent-review artifact for each test in a file."""
 
     artifacts = []
-    for test, markdown in agentic_md_for_test_file(test_file_path, repo_root):
+    for test, markdown in _render_agent_md_files_for_test_file(
+        test_file_path, repo_root
+    ):
         artifacts.append(
-            _write_agentic_md_for_test(
+            _write_agent_md_file(
                 test_file_path,
                 test,
                 markdown,
@@ -79,7 +81,7 @@ def write_agentic_md_for_test_file(
     return artifacts
 
 
-def write_agentic_md_for_test(
+def render_agent_md_file(
     test_file_path: Path,
     test: TestFunction,
     repo_root: Path,
@@ -87,8 +89,8 @@ def write_agentic_md_for_test(
 ) -> Path:
     """Write the agent-review artifact for one test."""
 
-    markdown = agentic_md_for_test(test_file_path, test)
-    return _write_agentic_md_for_test(
+    markdown = _render_agent_md(test_file_path=test_file_path, test=test)
+    return _write_agent_md_file(
         test_file_path,
         test,
         markdown,
@@ -97,7 +99,7 @@ def write_agentic_md_for_test(
     )
 
 
-def _write_agentic_md_for_test(
+def _write_agent_md_file(
     test_file_path: Path,
     test: TestFunction,
     markdown: str,

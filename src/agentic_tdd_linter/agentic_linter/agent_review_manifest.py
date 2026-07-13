@@ -13,6 +13,7 @@ from .agent_review_artifacts import agent_review_artifact_path
 from .agent_ran_proof import lint_agent_review_artifact, source_sha256
 from .docstrings import LintIssue
 from .version import __version__
+from ..conventional_linter.docstrings import LintIssue, test_functions_for_file
 
 
 DEFAULT_AGENT_REVIEW_MANIFEST = Path("tests") / "agentic_review_manifest.jsonl"

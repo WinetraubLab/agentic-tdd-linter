@@ -1,25 +1,22 @@
-"""Agentic TDD linter."""
+"""Agent-review generation and proof handling."""
 
-from .agentic_linter import (
-    agent_review_artifact_path,
+from .agent_review_artifacts import agent_review_artifact_path
+from .agent_ran_proof import lint_agent_review_artifact, source_sha256
+from .agent_review_manifest import (
     agent_review_manifest_path,
-    lint_agent_review_artifact,
     lint_agent_review_manifest,
     record_agent_review_attestations,
-    render_agent_md_file,
     review_contract_sha256,
-    source_sha256,
 )
-from .version import __version__
+from .render_agent_md_file import render_agent_md_file
 
 __all__ = [
-    "__version__",
     "agent_review_artifact_path",
     "agent_review_manifest_path",
     "lint_agent_review_artifact",
     "lint_agent_review_manifest",
     "record_agent_review_attestations",
-    "render_agent_md_file",
     "review_contract_sha256",
     "source_sha256",
+    "render_agent_md_file",
 ]

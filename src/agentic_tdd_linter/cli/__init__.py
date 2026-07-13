@@ -9,11 +9,23 @@ from importlib import resources
 from pathlib import Path
 from typing import Sequence
 
-from .agent_review_artifacts import agent_review_artifact_path
-from .agent_ran_proof import agent_review_artifact_is_stale, lint_agent_review_artifact
-from .agent_review_manifest import lint_agent_review_manifest, record_agent_review_attestations
-from .agentic_md import write_agentic_md_for_test_file
-from .docstrings import all_test_files, changed_test_files, lint_test_files, requested_test_files
+from ..agentic_linter.agent_review_artifacts import agent_review_artifact_path
+from ..agentic_linter.agent_ran_proof import (
+    agent_review_artifact_is_stale,
+    lint_agent_review_artifact,
+)
+from ..agentic_linter.agent_review_manifest import (
+    lint_agent_review_manifest,
+    record_agent_review_attestations,
+)
+from ..agentic_linter.render_agent_md_file import render_agent_md_file
+from ..conventional_linter.docstrings import (
+    all_test_files,
+    changed_test_files,
+    lint_test_files,
+    requested_test_files,
+    test_functions_for_file,
+)
 from .report import format_json, format_text
 
 
@@ -111,16 +123,17 @@ def _run_check(args: argparse.Namespace) -> int:
         return 2
 
     issues = lint_test_files(files, repo_root)
+    review_files = _reviewable_test_files(files, repo_root)
     recorded_manifest_path: Path | None = None
     recorded_count = 0
-    if args.review_proof == "manifest":
-        issues.extend(lint_agent_review_manifest(files, repo_root, args.manifest))
-    elif args.review_proof == "artifact":
-        _write_missing_or_stale_agent_review_artifacts(files, repo_root, artifact_root)
-        issues.extend(_lint_agent_review_artifacts(files, repo_root, artifact_root))
+    if review_files and args.review_proof == "manifest":
+        issues.extend(lint_agent_review_manifest(review_files, repo_root, args.manifest))
+    elif review_files and args.review_proof == "artifact":
+        _write_missing_or_stale_agent_review_artifacts(review_files, repo_root, artifact_root)
+        issues.extend(_lint_agent_review_artifacts(review_files, repo_root, artifact_root))
         if not issues:
             manifest_path, count, manifest_issues = record_agent_review_attestations(
-                files,
+                review_files,
                 repo_root,
                 reviewer=args.reviewer or "",
                 manifest_path=args.manifest,
@@ -130,14 +143,16 @@ def _run_check(args: argparse.Namespace) -> int:
             if not manifest_issues:
                 recorded_manifest_path = manifest_path
                 recorded_count = count
-    else:
-        manifest_issues = lint_agent_review_manifest(files, repo_root, args.manifest)
+    elif review_files:
+        manifest_issues = lint_agent_review_manifest(review_files, repo_root, args.manifest)
         if manifest_issues:
-            _write_missing_or_stale_agent_review_artifacts(files, repo_root, artifact_root)
-            issues.extend(_lint_agent_review_artifacts(files, repo_root, artifact_root))
+            _write_missing_or_stale_agent_review_artifacts(
+                review_files, repo_root, artifact_root
+            )
+            issues.extend(_lint_agent_review_artifacts(review_files, repo_root, artifact_root))
             if not issues:
                 manifest_path, count, refresh_issues = record_agent_review_attestations(
-                    files,
+                    review_files,
                     repo_root,
                     reviewer=args.reviewer or "",
                     manifest_path=args.manifest,
@@ -159,6 +174,18 @@ def _run_check(args: argparse.Namespace) -> int:
                 f"recorded {recorded_count} review attestations in {relative_manifest}"
             )
     return 1 if issues else 0
+
+
+def _reviewable_test_files(files: Sequence[Path], repo_root: Path) -> list[Path]:
+    review_files = []
+    for test_file in files:
+        try:
+            tests = test_functions_for_file(test_file, repo_root)
+        except (OSError, SyntaxError):
+            continue
+        if tests:
+            review_files.append(test_file)
+    return review_files
 
 
 def _selected_test_files(args: argparse.Namespace, repo_root: Path, test_root: Path) -> list[Path]:
@@ -188,26 +215,41 @@ def _write_missing_or_stale_agent_review_artifacts(
     artifact_root: Path,
 ) -> None:
     for test_file in files:
-        artifact_path = agent_review_artifact_path(test_file, repo_root, artifact_root)
-        if not artifact_path.exists() or agent_review_artifact_is_stale(test_file, artifact_path):
-            write_agentic_md_for_test_file(test_file, repo_root, artifact_root)
+        for test in test_functions_for_file(test_file, repo_root):
+            artifact_path = agent_review_artifact_path(
+                test_file,
+                repo_root,
+                artifact_root,
+                test.name,
+            )
+            if not artifact_path.exists() or agent_review_artifact_is_stale(
+                test_file, artifact_path
+            ):
+                render_agent_md_file(
+                    test_file,
+                    test,
+                    repo_root,
+                    artifact_root,
+                )
 
 
 def _lint_agent_review_artifacts(files: Sequence[Path], repo_root: Path, artifact_root: Path):
     issues = []
     for test_file in files:
-        issues.extend(
-            lint_agent_review_artifact(
-                test_file,
-                repo_root=repo_root,
-                artifact_root=artifact_root,
+        for test in test_functions_for_file(test_file, repo_root):
+            issues.extend(
+                lint_agent_review_artifact(
+                    test_file,
+                    repo_root=repo_root,
+                    artifact_root=artifact_root,
+                    test_name=test.name,
+                )
             )
-        )
     return issues
 
 
 def _refactor_instructions_text() -> str:
-    return resources.files("agentic_tdd_linter").joinpath("refactor_instructions.md").read_text(
+    return resources.files("agentic_tdd_linter").joinpath("cli/refactor_instructions.md").read_text(
         encoding="utf-8"
     )
 

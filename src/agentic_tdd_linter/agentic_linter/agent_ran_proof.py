@@ -6,7 +6,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from .docstrings import LintIssue
+from ..conventional_linter.docstrings import LintIssue
 from .agent_review_artifacts import agent_review_artifact_path
 
 

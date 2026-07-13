@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Sequence
 
-from .docstrings import LintIssue
+from ..conventional_linter.docstrings import LintIssue
 
 
 def format_text(issues: Sequence[LintIssue], files: Sequence[Path]) -> str:

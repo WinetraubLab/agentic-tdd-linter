@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 
 
-TEST_ROOT = Path(__file__).resolve().parent
+TEST_ROOT = Path(__file__).resolve().parents[1]
 TESTING_EXCEPTION_TAG = "#" + " testing exception"
 REVIEW_CONTROL_FLOW_NODES = (ast.With, ast.AsyncWith, ast.Try) + (
     (ast.TryStar,) if hasattr(ast, "TryStar") else ()

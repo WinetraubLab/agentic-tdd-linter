@@ -18,8 +18,8 @@ def linter_e2e_review(
     manifest_record = _current_manifest_record(source_sha256)
     if manifest_record is not None:
         return _review_result_from_manifest(manifest_record)
-    artifact_path = _artifact_path(source_sha256)
     exit_code, output = _run_linter(source_sha256)
+    artifact_paths = _artifact_paths(source_sha256)
     if "agent_review_not_run" in output:
         raise RuntimeError(
             "did not run, agent should review "

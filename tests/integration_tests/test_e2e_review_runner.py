@@ -15,8 +15,8 @@ import unittest
 from pathlib import Path
 
 
-TEST_ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(TEST_ROOT))
+INTEGRATION_ROOT = Path(__file__).resolve().parent
+TEST_ROOT = INTEGRATION_ROOT.parent
 
 from helpers.linter_e2e import linter_e2e_review
 
