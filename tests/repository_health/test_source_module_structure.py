@@ -21,11 +21,16 @@ class SourceModuleStructureTests(unittest.TestCase):
         `_missing_test_paths` produces `[]`.
         """
 
-        missing_tests = [
-            str(_matching_test_path(source).relative_to(REPO_ROOT))
-            for source in _implementation_modules()
-            if not _matching_test_path(source).is_file()
-        ]
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        test_root = repo_root / "tests"
+        self.assertEqual(
+            [],
+            _missing_test_paths(
+                package_root=package_root,
+                test_root=test_root,
+            ),
+        )
 
         self.assertEqual([], missing_tests)
 
