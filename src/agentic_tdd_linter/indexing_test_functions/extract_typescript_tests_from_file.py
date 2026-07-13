@@ -5,18 +5,21 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .individual_test_data import TestFunction
+from .extracted_test_record import ExtractedTestRecord
 
 
 _TEST_CALL_PATTERN = re.compile(r"(?m)(?<![\w$.])test\s*\(")
 
 
-def extract_typescript_tests(
-    source: str,
+def extract_typescript_tests_from_file(
     path: Path,
-) -> list[TestFunction]:
-    """Return TypeScript tests extracted from source in file order."""
+    repo_root: Path,
+) -> list[ExtractedTestRecord]:
+    """Return TypeScript tests extracted in source order."""
 
+    absolute_path = Path(path).resolve()
+    relative_path = _relative_path(absolute_path, repo_root)
+    source = absolute_path.read_text(encoding="utf-8")
     matches = list(_TEST_CALL_PATTERN.finditer(source))
     tests = []
     for index, match in enumerate(matches):
@@ -26,8 +29,8 @@ def extract_typescript_tests(
         if index + 1 < len(matches):
             _, source_end = _leading_jsdoc(source, matches[index + 1].start())
         tests.append(
-            TestFunction(
-                path=path,
+            ExtractedTestRecord(
+                path=relative_path,
                 name=_test_name(source[call_start:]),
                 line=source.count("\n", 0, call_start) + 1,
                 node=None,
@@ -37,6 +40,13 @@ def extract_typescript_tests(
             )
         )
     return tests
+
+
+def _relative_path(path: Path, repo_root: Path) -> Path:
+    try:
+        return Path(path).resolve().relative_to(Path(repo_root).resolve())
+    except ValueError:
+        return Path(path)
 
 
 def _leading_jsdoc(source: str, call_start: int) -> tuple[str, int]:
