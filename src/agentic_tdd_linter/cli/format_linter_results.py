@@ -1,4 +1,4 @@
-"""Report formatting for linter findings."""
+"""Format collected linter results as text or JSON."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Sequence
 
-from ..conventional_linter.docstrings import LintIssue
+from ..conventional_linter.run_conventional_linter import LintIssue
 
 
 def format_text(issues: Sequence[LintIssue], files: Sequence[Path]) -> str:
