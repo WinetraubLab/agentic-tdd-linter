@@ -41,7 +41,7 @@ class ReviewProofFlowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             test_file = _write_test_file(root)
-            artifact_path = agent_review_artifact_path(test_file, root)
+            artifact_path = agent_review_artifact_path(test_file, root, test_name="test_adds_values")
             _write_manifest(root, test_file, source_hash=source_sha256(test_file))
             stdout = io.StringIO()
 
@@ -69,7 +69,7 @@ class ReviewProofFlowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             test_file = _write_test_file(root)
-            artifact_path = agent_review_artifact_path(test_file, root)
+            artifact_path = agent_review_artifact_path(test_file, root, test_name="test_adds_values")
             stdout = io.StringIO()
 
             with contextlib.redirect_stdout(stdout):
@@ -97,7 +97,7 @@ class ReviewProofFlowTests(unittest.TestCase):
             root = Path(directory)
             test_file = _write_test_file(root)
             expected_hash = source_sha256(test_file)
-            artifact_path = agent_review_artifact_path(test_file, root)
+            artifact_path = agent_review_artifact_path(test_file, root, test_name="test_adds_values")
             _write_manifest(root, test_file, source_hash="0" * 64)
             stdout = io.StringIO()
 
@@ -207,7 +207,7 @@ def _write_test_file(root: Path) -> Path:
 
 
 def _write_artifact(root: Path, test_file: Path) -> Path:
-    artifact_path = agent_review_artifact_path(test_file, root)
+    artifact_path = agent_review_artifact_path(test_file, root, test_name="test_adds_values")
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     artifact_path.write_text(
         textwrap.dedent(
@@ -216,6 +216,8 @@ def _write_artifact(root: Path, test_file: Path) -> Path:
 
             Test file: `tests/test_sample.py`
             Source SHA256: `{source_sha256(test_file)}`
+
+            ### `test_adds_values`
 
             ## Agent Review Result
 
@@ -236,6 +238,7 @@ def _write_manifest(root: Path, test_file: Path, *, source_hash: str) -> Path:
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "path": "tests/test_sample.py",
+        "test": "test_adds_values",
         "source_sha256": source_hash,
         "status": "pass",
         "linter_version": __version__,
