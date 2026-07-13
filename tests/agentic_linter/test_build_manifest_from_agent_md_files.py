@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import contextlib
 import io
 import json
@@ -13,22 +14,53 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from agentic_tdd_linter.agent_review_artifacts import agent_review_artifact_path
-from agentic_tdd_linter.agent_review_manifest import (
-    agent_review_manifest_path,
-    lint_agent_review_manifest,
-    record_agent_review_attestations,
-    review_contract_sha256,
+from agentic_tdd_linter.agentic_linter.map_test_function_to_agent_md_file import (
+    map_test_function_to_agent_md_file,
 )
-from agentic_tdd_linter.agent_ran_proof import source_sha256
+from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import (
+    _agent_review_manifest_path,
+    _lint_agent_review_manifest,
+    _review_contract_sha256,
+    build_manifest_from_agent_md_files,
+)
+from agentic_tdd_linter.agentic_linter.determine_agent_md_status import _source_sha256
 from agentic_tdd_linter.cli import main
 from agentic_tdd_linter.version import __version__
 
 
 REVIEWER = "codex:gpt-5.5"
+MANIFEST_MODULE = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "agentic_tdd_linter"
+    / "agentic_linter"
+    / "build_manifest_from_agent_md_files.py"
+)
 
 
 class AgentReviewManifestTests(unittest.TestCase):
+    def test_exposes_one_public_function(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The manifest module exposes one public function.
+        This function builds a manifest from reviewed `.agent.md` files.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        AST lists only `build_manifest_from_agent_md_files`.
+        """
+
+        tree = ast.parse(MANIFEST_MODULE.read_text(encoding="utf-8"))
+        public_functions = [
+            node.name
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        ]
+
+        self.assertEqual([build_manifest_from_agent_md_files.__name__], public_functions)
+
     def test_package_metadata_matches_linter_version(self) -> None:
         """Test Path: happy path
 
@@ -42,7 +74,7 @@ class AgentReviewManifestTests(unittest.TestCase):
         """
 
         pyproject = tomllib.loads(
-            (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+            (Path(__file__).resolve().parents[2] / "pyproject.toml").read_text(encoding="utf-8")
         )
 
         self.assertEqual(__version__, pyproject["project"]["version"])
@@ -64,19 +96,20 @@ class AgentReviewManifestTests(unittest.TestCase):
             test_file = _write_test_file(root)
             _write_artifact(root, test_file, status="pass")
 
-            manifest_path, count, issues = record_agent_review_attestations(
+            manifest_path, count, issues = build_manifest_from_agent_md_files(
                 [test_file],
                 root,
                 reviewer="codex:gpt-5",
             )
 
             record = json.loads(manifest_path.read_text(encoding="utf-8"))
-            expected_hash = source_sha256(test_file)
-            expected_contract_hash = review_contract_sha256(root)
+            expected_hash = _source_sha256(test_file)
+            expected_contract_hash = _review_contract_sha256(root)
 
         self.assertEqual(1, count)
         self.assertEqual([], issues)
         self.assertEqual("tests/test_sample.py", record["path"])
+        self.assertEqual("test_adds_values", record["test"])
         self.assertEqual(expected_hash, record["source_sha256"])
         self.assertEqual("pass", record["status"])
         self.assertEqual(__version__, record["linter_version"])
@@ -98,11 +131,45 @@ class AgentReviewManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             test_file = _write_test_file(root)
-            _write_manifest(root, test_file, source_hash=source_sha256(test_file), status="pass")
+            _write_manifest(root, test_file, source_hash=_source_sha256(test_file), status="pass")
 
-            issues = lint_agent_review_manifest([test_file], root)
+            issues = _lint_agent_review_manifest([test_file], root)
 
         self.assertEqual([], issues)
+
+    def test_reports_one_missing_attestation(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Manifest review proof requires one attestation per test.
+        This applies when one source file defines multiple tests.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Manifest lint reports the second test when only the first test has a record.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = _write_test_file(root)
+            test_file.write_text(
+                test_file.read_text(encoding="utf-8")
+                + "\ndef test_subtracts_values() -> None:\n    assert 2 - 1 == 1\n",
+                encoding="utf-8",
+            )
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=_source_sha256(test_file),
+                status="pass",
+            )
+
+            issues = _lint_agent_review_manifest([test_file], root)
+
+        self.assertEqual(1, len(issues))
+        self.assertEqual("missing_agent_review_attestation", issues[0].rule)
+        self.assertIn("test_subtracts_values", issues[0].message)
 
     def test_review_contract_hash_includes_documentation(self) -> None:
         """Test Path: happy path
@@ -120,9 +187,9 @@ class AgentReviewManifestTests(unittest.TestCase):
             root = Path(directory)
             readme = root / "README.md"
             readme.write_text("first contract\n", encoding="utf-8")
-            first_hash = review_contract_sha256(root)
+            first_hash = _review_contract_sha256(root)
             readme.write_text("second contract\n", encoding="utf-8")
-            second_hash = review_contract_sha256(root)
+            second_hash = _review_contract_sha256(root)
 
         self.assertNotEqual(first_hash, second_hash)
 
@@ -143,9 +210,9 @@ class AgentReviewManifestTests(unittest.TestCase):
             docs = root / "docs" / "workflow.md"
             docs.parent.mkdir()
             docs.write_text("first contract\n", encoding="utf-8")
-            first_hash = review_contract_sha256(root)
+            first_hash = _review_contract_sha256(root)
             docs.write_text("second contract\n", encoding="utf-8")
-            second_hash = review_contract_sha256(root)
+            second_hash = _review_contract_sha256(root)
 
         self.assertNotEqual(first_hash, second_hash)
 
@@ -166,7 +233,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             test_file = _write_test_file(root)
             _write_manifest(root, test_file, source_hash="0" * 64, status="pass")
 
-            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+            rules = _issue_rules(_lint_agent_review_manifest([test_file], root))
 
         self.assertIn("stale_agent_review_attestation", rules)
 
@@ -188,12 +255,12 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=source_sha256(test_file),
+                source_hash=_source_sha256(test_file),
                 status="pass",
                 linter_version=__version__,
             )
 
-            issues = lint_agent_review_manifest([test_file], root)
+            issues = _lint_agent_review_manifest([test_file], root)
 
         self.assertEqual([], issues)
 
@@ -215,12 +282,12 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=source_sha256(test_file),
+                source_hash=_source_sha256(test_file),
                 status="pass",
                 linter_version="999.0.0",
             )
 
-            issues = lint_agent_review_manifest([test_file], root)
+            issues = _lint_agent_review_manifest([test_file], root)
 
         self.assertEqual([], issues)
 
@@ -242,12 +309,12 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=source_sha256(test_file),
+                source_hash=_source_sha256(test_file),
                 status="pass",
                 review_contract_hash="0" * 64,
             )
 
-            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+            rules = _issue_rules(_lint_agent_review_manifest([test_file], root))
 
         self.assertIn("stale_review_contract_attestation", rules)
 
@@ -269,12 +336,12 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=source_sha256(test_file),
+                source_hash=_source_sha256(test_file),
                 status="pass",
                 linter_version="0.0.0",
             )
 
-            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+            rules = _issue_rules(_lint_agent_review_manifest([test_file], root))
 
         self.assertIn("stale_linter_review_attestation", rules)
 
@@ -294,7 +361,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             root = Path(directory)
             test_file = _write_test_file(root)
             _write_artifact(root, test_file, status="pass")
-            _, count, issues = record_agent_review_attestations(
+            _, count, issues = build_manifest_from_agent_md_files(
                 [test_file],
                 root,
                 reviewer="codex:gpt-5",
@@ -308,7 +375,7 @@ class AgentReviewManifestTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            rules = _issue_rules(lint_agent_review_manifest([test_file], root))
+            rules = _issue_rules(_lint_agent_review_manifest([test_file], root))
 
         self.assertEqual(1, count)
         self.assertEqual([], issues)
@@ -332,7 +399,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             manifest_path = _write_manifest(
                 root,
                 test_file,
-                source_hash=source_sha256(test_file),
+                source_hash=_source_sha256(test_file),
                 status="pass",
             )
             orphan_record = _manifest_record(
@@ -349,7 +416,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             )
             _write_artifact(root, test_file, status="pass")
 
-            _, count, issues = record_agent_review_attestations(
+            _, count, issues = build_manifest_from_agent_md_files(
                 [test_file],
                 root,
                 reviewer=REVIEWER,
@@ -380,7 +447,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             test_file = _write_test_file(root)
             _write_artifact(root, test_file, status="pending")
 
-            manifest_path, count, issues = record_agent_review_attestations(
+            manifest_path, count, issues = build_manifest_from_agent_md_files(
                 [test_file],
                 root,
                 reviewer="codex:gpt-5",
@@ -423,11 +490,12 @@ class AgentReviewManifestTests(unittest.TestCase):
                     ]
                 )
 
-            record = json.loads(agent_review_manifest_path(root).read_text(encoding="utf-8"))
+            record = json.loads(_agent_review_manifest_path(root).read_text(encoding="utf-8"))
 
         self.assertEqual(0, exit_code)
         self.assertIn("recorded 1 review attestations", stdout.getvalue())
         self.assertEqual("tests/test_sample.py", record["path"])
+        self.assertEqual("test_adds_values", record["test"])
         self.assertEqual(REVIEWER, record["reviewer"])
 
 def _write_test_file(root: Path) -> Path:
@@ -458,8 +526,14 @@ def _write_test_file(root: Path) -> Path:
     return test_file
 
 
-def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
-    artifact_path = agent_review_artifact_path(test_file, root)
+def _write_artifact(
+    root: Path,
+    test_file: Path,
+    *,
+    status: str,
+    test_name: str = "test_adds_values",
+) -> Path:
+    artifact_path = map_test_function_to_agent_md_file(test_file, root, test_name=test_name)
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     artifact_path.write_text(
         textwrap.dedent(
@@ -467,7 +541,9 @@ def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
             # Agentic Test Docstring Review
 
             Test file: `tests/test_sample.py`
-            Source SHA256: `{source_sha256(test_file)}`
+            Source SHA256: `{_source_sha256(test_file)}`
+
+            ### `{test_name}`
 
             ## Agent Review Result
 
@@ -492,7 +568,7 @@ def _write_manifest(
     linter_version: str = __version__,
     review_contract_hash: str | None = None,
 ) -> Path:
-    manifest_path = agent_review_manifest_path(root)
+    manifest_path = _agent_review_manifest_path(root)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     record = _manifest_record(
         root,
@@ -517,13 +593,14 @@ def _manifest_record(
 ) -> dict[str, str]:
     return {
         "path": path,
+        "test": "test_adds_values",
         "source_sha256": source_hash,
         "status": status,
         "linter_version": linter_version,
         "review_contract_sha256": (
             review_contract_hash
             if review_contract_hash is not None
-            else review_contract_sha256(root)
+            else _review_contract_sha256(root)
         ),
         "reviewer": REVIEWER,
     }
