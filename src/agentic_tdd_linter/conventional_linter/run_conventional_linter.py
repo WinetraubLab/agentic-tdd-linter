@@ -1,4 +1,4 @@
-"""Structured test-docstring checks.
+"""Run deterministic conventional checks for one extracted test record.
 
 The full test philosophy and docstring contract live in docs/test-philosophy.md.
 """
@@ -7,25 +7,12 @@ from __future__ import annotations
 
 import ast
 import re
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable
 
-from .typescript_tests import is_typescript_test_file, typescript_tests
+from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
 
-
-SKIPPED_PATH_PARTS = {
-    ".git",
-    ".venv",
-    "__pycache__",
-    ".claude",
-    ".codex",
-    "node_modules",
-    "fixtures",
-    "helpers",
-    "cli_fixtures",
-}
 
 ALLOWED_VERIFICATION_METHODS = (
     "verify public function output",
@@ -126,152 +113,9 @@ class LintIssue:
     severity: str = "FAIL"
 
 
-@dataclass(frozen=True)
-class TestFunction:
-    """A parsed test function and its structured docstring."""
+def run_conventional_linter(test_function: ExtractedTestRecord) -> list[LintIssue]:
+    """Return conventional-linter issues for one extracted test record."""
 
-    path: Path
-    name: str
-    line: int
-    node: ast.FunctionDef | ast.AsyncFunctionDef | None
-    docstring: str
-    source: str = ""
-    language: str = "python"
-
-
-def lint_test_files(paths: Iterable[Path], repo_root: Path) -> list[LintIssue]:
-    """Return issues for the provided test files."""
-
-    issues: list[LintIssue] = []
-    for path in sorted({Path(path).resolve() for path in paths}):
-        issues.extend(lint_test_file(path, repo_root))
-    return issues
-
-
-def lint_test_file(path: Path, repo_root: Path) -> list[LintIssue]:
-    """Return issues for a single test file."""
-
-    absolute_path = Path(path).resolve()
-    relative_path = _relative_path(absolute_path, repo_root)
-
-    try:
-        tests = test_functions_for_file(absolute_path, repo_root)
-    except (OSError, SyntaxError) as error:
-        return [
-            LintIssue(
-                path=relative_path,
-                test_name="<module>",
-                line=1,
-                rule="parse_error",
-                message=f"could not parse test file: {error}",
-            )
-        ]
-
-    issues: list[LintIssue] = []
-    for test_function in tests:
-        issues.extend(_lint_test_function(test_function))
-    return issues
-
-
-def test_functions_for_file(path: Path, repo_root: Path) -> list[TestFunction]:
-    """Return lintable test functions from a Python or TypeScript test file."""
-
-    absolute_path = Path(path).resolve()
-    relative_path = _relative_path(absolute_path, repo_root)
-    source = absolute_path.read_text(encoding="utf-8")
-
-    if is_typescript_test_file(absolute_path):
-        return [
-            TestFunction(
-                path=relative_path,
-                name=test.name,
-                line=test.line,
-                node=None,
-                docstring=test.docstring,
-                source=test.source,
-                language="typescript",
-            )
-            for test in typescript_tests(source)
-        ]
-
-    tree = ast.parse(source, filename=str(absolute_path))
-    tests = [
-        TestFunction(
-            path=relative_path,
-            name=node.name,
-            line=node.lineno,
-            node=node,
-            docstring=ast.get_docstring(node) or "",
-            source=ast.get_source_segment(source, node) or "",
-        )
-        for node in ast.walk(tree)
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name.startswith("test_")
-    ]
-    return sorted(tests, key=lambda test: test.line)
-
-
-def all_test_files(repo_root: Path, test_root: Path | None = None) -> list[Path]:
-    """Return all project test files under the configured test root."""
-
-    root = Path(repo_root).resolve()
-    search_root = Path(test_root).resolve() if test_root is not None else root
-    return sorted(
-        path
-        for path in _candidate_test_files(search_root)
-        if _is_project_test_file(path, root, skip_path_parts=True)
-    )
-
-
-def changed_test_files(repo_root: Path) -> list[Path]:
-    """Return changed project test files under the repository root."""
-
-    root = Path(repo_root).resolve()
-    changed_values = _git_path_values(root, ["diff", "--name-only", "--diff-filter=ACMRTUXB", "HEAD"])
-    changed_values.extend(_git_path_values(root, ["ls-files", "--others", "--exclude-standard"]))
-
-    changed_paths: list[Path] = []
-    for path_value in changed_values:
-        path = (root / path_value).resolve()
-        if (
-            path.is_file()
-            and path.is_relative_to(root)
-            and _is_project_test_file(path, root, skip_path_parts=True)
-        ):
-            changed_paths.append(path)
-    return sorted(set(changed_paths))
-
-
-def requested_test_files(paths: Iterable[str], repo_root: Path) -> list[Path]:
-    """Resolve explicitly requested test files or directories."""
-
-    root = Path(repo_root).resolve()
-    requested: list[Path] = []
-    for path_value in paths:
-        path = Path(path_value)
-        if not path.is_absolute():
-            path = root / path
-        path = path.resolve()
-
-        if not path.exists():
-            raise ValueError(f"path does not exist: {path}")
-        if not path.is_relative_to(root):
-            raise ValueError(f"path is outside repository: {path}")
-        if path.is_dir():
-            requested.extend(
-                child
-                for child in _candidate_test_files(path)
-                if _is_project_test_file(child, root, skip_path_parts=False)
-            )
-            continue
-        if not _is_supported_test_file(path):
-            raise ValueError(f"path is not a supported test file: {path}")
-        requested.append(path)
-
-    return sorted(set(requested))
-
-
-def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
     issues: list[LintIssue] = []
 
     if not test_function.docstring:
@@ -447,7 +291,7 @@ def _lint_test_function(test_function: TestFunction) -> list[LintIssue]:
     return issues
 
 
-def _issue(test_function: TestFunction, rule: str, message: str) -> LintIssue:
+def _issue(test_function: ExtractedTestRecord, rule: str, message: str) -> LintIssue:
     return LintIssue(
         path=test_function.path,
         test_name=test_function.name,
@@ -455,53 +299,6 @@ def _issue(test_function: TestFunction, rule: str, message: str) -> LintIssue:
         rule=rule,
         message=message,
     )
-
-
-def _git_path_values(repo_root: Path, args: list[str]) -> list[str]:
-    result = subprocess.run(
-        ["git", *args],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        return []
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
-
-
-def _candidate_test_files(search_root: Path) -> list[Path]:
-    return sorted([
-        *search_root.rglob("*.py"),
-        *search_root.rglob("*.test.ts"),
-    ])
-
-
-def _is_supported_test_file(path: Path) -> bool:
-    return path.suffix == ".py" or is_typescript_test_file(path)
-
-
-def _is_project_test_file(path: Path, repo_root: Path, *, skip_path_parts: bool) -> bool:
-    try:
-        relative_parts = path.resolve().relative_to(repo_root.resolve()).parts
-    except ValueError:
-        relative_parts = path.parts
-    if skip_path_parts and any(part in SKIPPED_PATH_PARTS for part in relative_parts):
-        return False
-    if path.suffix == ".py":
-        return (
-            path.name.startswith("test_")
-            or path.name.endswith("_tests.py")
-            or "tests" in relative_parts
-        )
-    return is_typescript_test_file(path) and "tests" in relative_parts
-
-
-def _relative_path(path: Path, repo_root: Path) -> Path:
-    try:
-        return path.resolve().relative_to(Path(repo_root).resolve())
-    except ValueError:
-        return path
 
 
 def _field_value(docstring: str, field_name: str) -> str:
@@ -576,19 +373,19 @@ def _requirement_default_trouble_matches(requirement: str) -> list[str]:
     return matches
 
 
-def _test_calls_private_function(test_function: TestFunction) -> bool:
+def _test_calls_private_function(test_function: ExtractedTestRecord) -> bool:
     if test_function.node is not None:
         return _calls_leading_underscore_callable(test_function.node)
     return bool(re.search(r"(?<![\w$])_[A-Za-z][\w$]*\s*\(", test_function.source))
 
 
-def _test_calls_named_callable(test_function: TestFunction, name: str) -> bool:
+def _test_calls_named_callable(test_function: ExtractedTestRecord, name: str) -> bool:
     if test_function.node is not None:
         return _calls_named_callable(test_function.node, name)
     return bool(re.search(rf"(?<![\w$]){re.escape(name)}\s*\(", test_function.source))
 
 
-def _test_has_meaningful_assertion(test_function: TestFunction) -> bool:
+def _test_has_meaningful_assertion(test_function: ExtractedTestRecord) -> bool:
     if test_function.node is not None:
         return _has_meaningful_assertion(test_function.node)
     return bool(
@@ -599,7 +396,7 @@ def _test_has_meaningful_assertion(test_function: TestFunction) -> bool:
     )
 
 
-def _test_uses_mocking(test_function: TestFunction) -> bool:
+def _test_uses_mocking(test_function: ExtractedTestRecord) -> bool:
     if test_function.node is not None:
         return _uses_mocking(test_function.node)
     mocking_patterns = (

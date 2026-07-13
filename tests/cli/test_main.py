@@ -14,10 +14,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from agentic_tdd_linter.cli import main
 
 
-FIXTURES = Path(__file__).resolve().parent / "cli_fixtures"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 class CliTests(unittest.TestCase):
+    def test_reports_test_parse_error(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI reports parse errors.
+        This rule applies when indexing rejects invalid Python syntax.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Command output contains the `parse_error` rule.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_invalid.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text("def test_invalid(\n", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    ["check", "--repo-root", str(repo_root), str(test_file)]
+                )
+
+        self.assertEqual(1, exit_code)
+        self.assertIn("Rule: parse_error", stdout.getvalue())
+
     def test_valid_fixture_exits_zero(self) -> None:
         """Test Path: happy path
 
@@ -210,7 +238,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(0, exit_code)
         self.assertIn("Simplify helper functions in the codebase.", stdout.getvalue())
 
-    def test_all_skips_review_artifacts_for_files_without_tests(self) -> None:
+    def test_skips_artifacts_without_tests(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
