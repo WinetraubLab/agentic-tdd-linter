@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import sys
 import tempfile
 import textwrap
@@ -9,10 +10,43 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from agentic_tdd_linter.docstrings import all_test_files, requested_test_files
+from agentic_tdd_linter.indexing_test_functions.discover_test_files import (
+    discover_test_files,
+)
+
+
+DISCOVERY_MODULE = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "agentic_tdd_linter"
+    / "indexing_test_functions"
+    / "discover_test_files.py"
+)
 
 
 class TestFileDiscoveryTests(unittest.TestCase):
+    def test_exposes_one_public_function(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The discovery module exposes one public function.
+        This rule applies when callers select test files.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        AST lists only `discover_test_files`.
+        """
+
+        tree = ast.parse(DISCOVERY_MODULE.read_text(encoding="utf-8"))
+        public_functions = [
+            node.name
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        ]
+
+        self.assertEqual([discover_test_files.__name__], public_functions)
+
     def test_discovers_python_and_typescript(self) -> None:
         """Test Path: happy path
 
@@ -44,8 +78,14 @@ class TestFileDiscoveryTests(unittest.TestCase):
             typescript_test.write_text(_typescript_test_source(), encoding="utf-8")
             ignored_typescript.write_text("export const helper = true;\n", encoding="utf-8")
 
-            all_paths = _relative_paths(all_test_files(repo_root, tests_root), repo_root)
-            requested_paths = _relative_paths(requested_test_files(["tests"], repo_root), repo_root)
+            all_paths = _relative_paths(
+                discover_test_files(repo_root, mode="all", test_root=tests_root),
+                repo_root,
+            )
+            requested_paths = _relative_paths(
+                discover_test_files(repo_root, mode="requested", paths=["tests"]),
+                repo_root,
+            )
 
         expected_paths = [
             Path("tests/primitives/activity-plan-template-steps/localArtifactRoundTrip.test.ts"),

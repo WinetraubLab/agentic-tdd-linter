@@ -1,35 +1,23 @@
-"""Extract Node-style TypeScript tests from `.test.ts` files."""
+"""Extract Node-style TypeScript tests."""
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 from pathlib import Path
 
-
-TEST_CALL_PATTERN = re.compile(r"(?m)(?<![\w$.])test\s*\(")
-
-
-@dataclass(frozen=True)
-class TypeScriptTest:
-    """A TypeScript test call with its nearest leading JSDoc comment."""
-
-    name: str
-    line: int
-    docstring: str
-    source: str
+from .individual_test_data import TestFunction
 
 
-def is_typescript_test_file(path: Path) -> bool:
-    """Return whether a path is a Node-style TypeScript test file."""
-
-    return path.name.endswith(".test.ts")
+_TEST_CALL_PATTERN = re.compile(r"(?m)(?<![\w$.])test\s*\(")
 
 
-def typescript_tests(source: str) -> list[TypeScriptTest]:
-    """Return TypeScript test calls from source in file order."""
+def extract_typescript_tests(
+    source: str,
+    path: Path,
+) -> list[TestFunction]:
+    """Return TypeScript tests extracted from source in file order."""
 
-    matches = list(TEST_CALL_PATTERN.finditer(source))
+    matches = list(_TEST_CALL_PATTERN.finditer(source))
     tests = []
     for index, match in enumerate(matches):
         call_start = match.start()
@@ -38,11 +26,14 @@ def typescript_tests(source: str) -> list[TypeScriptTest]:
         if index + 1 < len(matches):
             _, source_end = _leading_jsdoc(source, matches[index + 1].start())
         tests.append(
-            TypeScriptTest(
+            TestFunction(
+                path=path,
                 name=_test_name(source[call_start:]),
                 line=source.count("\n", 0, call_start) + 1,
+                node=None,
                 docstring=docstring,
                 source=source[source_start:source_end].strip(),
+                language="typescript",
             )
         )
     return tests
