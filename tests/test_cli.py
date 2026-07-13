@@ -115,7 +115,11 @@ class CliTests(unittest.TestCase):
                     ]
                 )
 
-            expected_artifact = test_root / "agentic_review_artifacts" / "pass_test.agent.md"
+            expected_artifact = (
+                test_root
+                / "agentic_review_artifacts"
+                / "pass_test__test_adds_positive_numbers.agent.md"
+            )
             artifact_exists = expected_artifact.exists()
 
         self.assertEqual(1, exit_code)
@@ -206,6 +210,38 @@ class CliTests(unittest.TestCase):
         self.assertEqual(0, exit_code)
         self.assertIn("Simplify helper functions in the codebase.", stdout.getvalue())
 
+    def test_all_skips_review_artifacts_for_files_without_tests(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        CLI review skips files without test functions.
+        This applies when discovery finds a test-named helper module.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        CLI exits successfully and leaves the artifact directory absent.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_helpers.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def helper_function() -> None:\n    return None\n",
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(["check", "--all", "--repo-root", str(repo_root)])
+
+            artifact_root = repo_root / "tests" / "agentic_review_artifacts"
+            artifact_exists = artifact_root.exists()
+
+        self.assertEqual(0, exit_code)
+        self.assertFalse(artifact_exists)
+
 
 def _copy_fixture(fixture_file: Path, repo_root: Path) -> Path:
     test_file = repo_root / fixture_file.name
@@ -218,7 +254,7 @@ def _mark_single_artifact_pass(repo_root: Path) -> None:
     if len(artifacts) != 1:
         raise AssertionError(f"expected one generated review artifact, found {len(artifacts)}")
     artifact_text = artifacts[0].read_text(encoding="utf-8")
-    artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
+    artifact_text = artifact_text.replace("| pending |", "| pass |")
     artifact_text = artifact_text.replace(
         "- Scenario or example: Fill this line with the scenario or example used for judgment.",
         "- Scenario or example: fixture source validates CLI artifact recording.",
