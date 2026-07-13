@@ -68,3 +68,24 @@ imported_fact_list:
     53: # Assertions Are Self-Contained
       fail # Loop inputs come from the imported `ARTIFACT_BACKED_FACTS` list.
 
+external_requirement_helper:
+  test: |
+    def test_long_requirement_fails() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Linter rejects long requirements.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Linter report includes Sentence Checks.
+        """
+
+        requirement = _five_sentence_requirement()
+        result = check_requirement(requirement=requirement)
+
+        assert result.exit_code == 1
+  expected_scorecard:
+    53: # Assertions Are Self-Contained
+      fail # The reviewed requirement value comes from a helper outside the test body.
