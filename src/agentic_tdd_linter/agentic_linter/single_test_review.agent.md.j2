@@ -45,6 +45,10 @@ Exact expected results shall appear in `Verification Detail`, not in `Requiremen
 #### 22. Verification Detail Describes Evidence
 `Verification Detail` shall state the evidence that proves the requirement rather than only naming mechanics, fixtures, constants, assertions, commands, tags, or test names.
 
+#### 23. Verification Method Matches Exercised Interface
+`Verification Method` shall identify the interface whose result the test body directly obtains and asserts.
+Fail `verify public function output` when the asserted result comes only from a private helper or private function.
+
 ### 3x. Sentence Structure and Logic
 
 #### 31. Sentence Avoids Double Negation
@@ -122,6 +126,7 @@ The requirement, test inputs, and user-defined expected values shall be defined 
 | 14 | Requirement Is Atomic | pending | Replace with review evidence. |
 | 21 | Expected Results Appear in Verification Detail | pending | Replace with review evidence. |
 | 22 | Verification Detail Describes Evidence | pending | Replace with review evidence. |
+| 23 | Verification Method Matches Exercised Interface | pending | Replace with review evidence. |
 | 31 | Sentence Avoids Double Negation | pending | Replace with review evidence. |
 | 32 | Sentence Uses Subject-Verb-Object Order | pending | Replace with review evidence. |
 | 33 | Subject and Object Are Concise | pending | Replace with review evidence. |
