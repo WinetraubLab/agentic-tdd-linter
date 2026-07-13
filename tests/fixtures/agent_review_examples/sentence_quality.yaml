@@ -288,3 +288,31 @@ verification_expresses_many_concepts:
   expected_scorecard:
     37: # Sentence Expresses One Concept
       fail # The verification detail combines several independent evidence claims.
+
+vague_reference_is_not_passive_voice:
+  test: |
+    def test_review_manifest_is_tracked(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            Review manifests stay in source control.
+            This applies to the repository test manifest.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            Git reports the manifest as tracked.
+            """
+
+            result = _tracked_result(Path("tests") / "agentic_review_manifest.jsonl")
+
+            self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+  expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      fail # The sentence limits the rule to one manifest but does not describe a concrete situation where the rule applies.
+    34: # Main Verb Is Unambiguous
+      fail # `reports` can read as either a noun or a verb.
+    38: # Behavior Uses Active Voice
+      pass # `stay` and `applies` are active verb forms rather than passive `be` plus a past participle.
+    44: # Wording Is Concrete
+      fail # `This` does not identify the rule or behavior that applies to the repository test manifest.
