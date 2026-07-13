@@ -6,12 +6,16 @@ import hashlib
 import re
 from pathlib import Path
 
-from ..conventional_linter.docstrings import LintIssue
-from .agent_review_artifacts import agent_review_artifact_path
+from ..conventional_linter.run_conventional_linter import LintIssue
+from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
 
 
 COMPLETED_REVIEW_STATUSES = {"pass", "fail"}
 SCENARIO_NOTE_PREFIX = "Scenario or example:"
+SCORECARD_ROW_PATTERN = re.compile(
+    r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|$",
+    re.MULTILINE,
+)
 
 
 def _source_sha256(path: Path) -> str:
@@ -20,7 +24,7 @@ def _source_sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def agent_review_artifact_is_stale(test_file_path: Path, artifact_path: Path) -> bool:
+def _agent_md_file_is_stale(test_file_path: Path, artifact_path: Path) -> bool:
     """Return whether an artifact was generated for an old test file."""
 
     try:
@@ -28,16 +32,31 @@ def agent_review_artifact_is_stale(test_file_path: Path, artifact_path: Path) ->
     except OSError:
         return False
     review_hash = _backtick_value(artifact_text, "Source SHA256")
-    return not review_hash or review_hash != source_sha256(test_file_path)
+    return not review_hash or review_hash != _source_sha256(test_file_path)
 
 
-def lint_agent_review_artifact(
+def determine_agent_md_status(artifact_text: str) -> str:
+    """Return the overall status derived from one review scorecard."""
+
+    rows = _scorecard_rows(artifact_text)
+    if not rows:
+        return _plain_value(artifact_text, "Status").lower()
+    results = [row[2].lower() for row in rows]
+    if any(result not in COMPLETED_REVIEW_STATUSES for result in results):
+        return "pending"
+    if any(result == "fail" for result in results):
+        return "fail"
+    return "pass"
+
+
+def _lint_agent_md_file(
     test_file_path: Path,
     artifact_path: Path | None = None,
     repo_root: Path | None = None,
     artifact_root: Path | None = None,
+    test_name: str | None = None,
 ) -> list[LintIssue]:
-    """Return issues when an agentic review artifact is missing or stale."""
+    """Return issues when one test's review artifact is missing or stale."""
 
     if repo_root is None:
         raise ValueError("repo_root is required")
@@ -46,7 +65,7 @@ def lint_agent_review_artifact(
     artifact = (
         Path(artifact_path)
         if artifact_path is not None
-        else agent_review_artifact_path(test_file, repo_root, artifact_root)
+        else map_test_function_to_agent_md_file(test_file, repo_root, artifact_root, test_name)
     ).resolve()
     relative_artifact = _relative_path(artifact, repo_root)
 
@@ -62,9 +81,10 @@ def lint_agent_review_artifact(
         ]
 
     issues: list[LintIssue] = []
-    expected_hash = source_sha256(test_file)
+    expected_hash = _source_sha256(test_file)
     review_hash = _backtick_value(artifact_text, "Source SHA256")
-    status = _plain_value(artifact_text, "Status").lower()
+    scorecard_rows = _scorecard_rows(artifact_text)
+    status = determine_agent_md_status(artifact_text)
 
     if not review_hash or review_hash != expected_hash:
         issues.append(
@@ -75,19 +95,29 @@ def lint_agent_review_artifact(
             )
         )
 
+    scorecard_issue = _scorecard_issue_message(artifact_text, scorecard_rows)
+    if scorecard_issue:
+        issues.append(
+            _issue(
+                relative_artifact,
+                "invalid_review_scorecard",
+                scorecard_issue,
+            )
+        )
+
     if status not in COMPLETED_REVIEW_STATUSES:
         issues.append(
             _issue(
                 relative_artifact,
                 "agent_review_not_run",
                 (
-                    "agent review artifact must have Status: pass or Status: fail; "
-                    "review the artifact, update the status, then rerun "
+                    "every scorecard row must contain exactly one pass or fail result; "
+                    "complete the scorecard, then rerun "
                     "`agentic-tdd-linter check --all`"
                 ),
             )
         )
-    else:
+    elif not scorecard_rows:
         missing_scenario_note = _missing_scenario_note_message(artifact_text)
         if missing_scenario_note:
             issues.append(
@@ -96,14 +126,14 @@ def lint_agent_review_artifact(
                     "missing_review_scenario",
                     (
                         "agent review notes must include "
-                        "one `Scenario or example: ...` line for each reviewed test section; "
+                        "one `Scenario or example: ...` line for the reviewed test; "
                         f"{missing_scenario_note}"
                     ),
                 )
             )
 
     if status == "fail":
-        notes = _notes_value(artifact_text)
+        notes = _failed_scorecard_notes(scorecard_rows) or _notes_value(artifact_text)
         message = "agent review artifact reported at least one review issue"
         if notes:
             message = f"{message}: {notes}"
@@ -142,6 +172,74 @@ def _plain_value(text: str, field_name: str) -> str:
     return match.group(1).strip()
 
 
+def _scorecard_rows(text: str) -> list[tuple[int, str, str, str]]:
+    scorecard = _markdown_section(text, "Review Scorecard")
+    return [
+        (
+            int(match.group(1)),
+            match.group(2).strip(),
+            match.group(3).strip(),
+            match.group(4).strip(),
+        )
+        for match in SCORECARD_ROW_PATTERN.finditer(scorecard)
+    ]
+
+
+def _scorecard_issue_message(
+    text: str,
+    rows: list[tuple[int, str, str, str]],
+) -> str:
+    if not rows:
+        return ""
+    criteria_text = _markdown_section(text, "Review Criteria")
+    criteria = [
+        (int(number), name.strip())
+        for number, name in re.findall(
+            r"^(?:####\s+)?(\d+)\.\s+(.+?)\s*$",
+            criteria_text,
+            re.MULTILINE,
+        )
+    ]
+    row_criteria = [(number, name) for number, name, _, _ in rows]
+    if criteria != row_criteria:
+        return "scorecard must contain exactly one row for each review criterion"
+    invalid_results = [
+        name
+        for _, name, result, _ in rows
+        if result.lower() not in COMPLETED_REVIEW_STATUSES and result.lower() != "pending"
+    ]
+    if invalid_results:
+        return "scorecard results must be exactly pass or fail"
+    missing_notes = [
+        name
+        for _, name, result, notes in rows
+        if result.lower() == "fail"
+        and (not notes or "replace with review evidence" in notes.lower())
+    ]
+    if missing_notes:
+        return "failed scorecard rows require concrete notes"
+    return ""
+
+
+def _failed_scorecard_notes(rows: list[tuple[int, str, str, str]]) -> str:
+    return "; ".join(
+        f"{name}: {notes}"
+        for _, name, result, notes in rows
+        if result.lower() == "fail" and notes
+    )
+
+
+def _markdown_section(text: str, heading: str) -> str:
+    match = re.search(rf"^## {re.escape(heading)}\s*$", text, re.MULTILINE)
+    if match is None:
+        return ""
+    section = text[match.end() :]
+    next_heading = re.search(r"^##\s+", section, re.MULTILINE)
+    if next_heading is not None:
+        section = section[: next_heading.start()]
+    return section
+
+
 def _notes_value(text: str) -> str:
     return " ".join(_notes_lines(text))
 
@@ -155,7 +253,7 @@ def _notes_lines(text: str) -> list[str]:
         if stripped == "Notes:":
             collecting = True
             continue
-        if collecting and stripped.startswith("## "):
+        if collecting and stripped.startswith("#"):
             break
         if collecting and stripped:
             notes.append(stripped.removeprefix("-").strip())
@@ -163,15 +261,11 @@ def _notes_lines(text: str) -> list[str]:
 
 
 def _missing_scenario_note_message(text: str) -> str:
-    expected_count = max(1, len(_reviewed_test_names(text)))
+    expected_count = 1
     actual_count = len(_scenario_notes(text))
     if actual_count >= expected_count:
         return ""
     return f"expected {expected_count}, found {actual_count}"
-
-
-def _reviewed_test_names(text: str) -> list[str]:
-    return re.findall(r"^### `([^`]+)`\s*$", text, re.MULTILINE)
 
 
 def _scenario_notes(text: str) -> list[str]:
