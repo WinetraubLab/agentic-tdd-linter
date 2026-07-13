@@ -1,4 +1,4 @@
-"""Compact proof records for completed agent reviews."""
+"""Build a compact review manifest from completed ``.agent.md`` files."""
 
 from __future__ import annotations
 
