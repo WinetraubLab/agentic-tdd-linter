@@ -1,0 +1,290 @@
+# Test-source examples for agent review.
+# Each example contains only `test` and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+simple_sentence_structure:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    37: # Sentence Expresses One Concept
+      pass # The requirement and verification detail each express one idea.
+
+long_requirement_subject:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The current source artifact emits warning.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    33: # Subject and Object Are Concise
+      fail # The requirement uses `The current source artifact` as a long subject.
+
+long_verification_subject:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The captured failure output names double negation.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    33: # Subject and Object Are Concise
+      fail # The verification detail uses `The captured failure output` as a long subject.
+
+verification_double_negation:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by checking that `no failure` is false.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    31: # Sentence Avoids Double Negation
+      fail # `no failure` combined with `false` expresses double negation.
+
+requirement_expresses_many_concepts:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Parser accepts positive numbers safely. It adds paired inputs together. It returns a numeric total. It preserves sign information for callers. It gives successful calculation results without extra side effects or hidden fallback behavior in the result during normal use.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    37: # Sentence Expresses One Concept
+      fail # The requirement combines acceptance, addition, return, sign, and side-effect concepts.
+
+requirement_relative_clause_omits_referent:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The check command regenerates artifacts whose SHA no longer matches.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    36: # Relative Clauses Name Their Referents
+      fail # `whose SHA no longer matches` does not say what the SHA should match.
+
+unmarked_agent_review_artifacts_term:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Dogfood exit code matches pass or fail status values in agent review artifacts.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      fail # `Dogfood` and `agent review artifacts` are unmarked local terms.
+
+unmarked_review_markdown_term:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Review markdown includes generic requirement, jargon, assertion, and level checks.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      fail # `Review markdown` is an unmarked local term.
+
+backticked_review_markdown_term:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `Review markdown` includes generic requirement, jargon, assertion, and level checks.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      pass # The local term `Review markdown` is backticked.
+
+backticked_agent_review_artifact_term:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Linter exit code matches pass or fail status values in `agent_review_artifact`.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      pass # The local term `agent_review_artifact` is backticked.
+
+verification_omits_subject:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting failed review output names self-contained assertions.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The verification detail begins with mechanics and has no grammatical subject.
+
+verification_mechanics_omit_subject:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by changing a reviewed test file and asserting the artifact returns to pending.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The verification detail starts with mechanics and omits a subject.
+
+verification_uses_names_as_verb:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output names double negation.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    34: # Main Verb Is Unambiguous
+      fail # `names` can read as either a noun or a verb.
+
+verification_uses_reports_as_verb:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        A pending artifact reports that agent review has not completed.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    34: # Main Verb Is Unambiguous
+      fail # `reports` can read as either a noun or a verb.
+
+verification_expresses_many_concepts:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by checking the sum is positive. It uses two numbers. It compares a total. It confirms normal output. It records the calculation result without hidden fallback checks or extra branch expectations during review for this ordinary addition example case only.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    37: # Sentence Expresses One Concept
+      fail # The verification detail combines several independent evidence claims.
