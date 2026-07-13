@@ -1,0 +1,62 @@
+# Test-source examples for agent review.
+# Each example contains only `test` and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+verification_names_mechanics_only:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by running the check command with a pass artifact and asserting success.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    22: # Verification Detail Describes Evidence
+      fail # The detail names command and assertion mechanics without behavior evidence.
+
+verification_uses_bare_exit_code:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Exit code is zero.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    22: # Verification Detail Describes Evidence
+      fail # A bare exit code does not explain the behavior it proves.
+
+verification_output_has_no_owner:
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding two numbers must yield positive result.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output cites missing tags.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    43: # Data-Flow Terms Name an Owner
+      fail # `Output` does not name the component or operation that produces it.
