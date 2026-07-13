@@ -8,9 +8,10 @@ from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined, Template
 
-from .agent_ran_proof import source_sha256
-from .agent_review_artifacts import agent_review_artifact_path
-from ..conventional_linter.docstrings import TestFunction, test_functions_for_file
+from .determine_agent_md_status import _source_sha256
+from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
+from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
+from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
 
 TEMPLATE_PATH = "agentic_linter/single_test_review.agent.md.j2"
 
@@ -18,11 +19,11 @@ TEMPLATE_PATH = "agentic_linter/single_test_review.agent.md.j2"
 def _render_agent_md_files_for_test_file(
     test_file_path: Path,
     repo_root: Path | None = None,
-) -> list[tuple[TestFunction, str]]:
+) -> list[tuple[ExtractedTestRecord, str]]:
     """Return one agent-review prompt for each test in a file."""
 
     absolute_path = Path(test_file_path).resolve()
-    tests = test_functions_for_file(
+    tests = extract_tests_from_file(
         absolute_path,
         repo_root if repo_root is not None else absolute_path.parent,
     )
@@ -34,13 +35,13 @@ def _render_agent_md_files_for_test_file(
 
 def _render_agent_md(
     test_file_path: Path,
-    test: TestFunction,
+    test: ExtractedTestRecord,
 ) -> str:
     """Return an agent-review prompt for one test."""
 
     absolute_path = Path(test_file_path).resolve()
     return _agentic_review_template().render(
-        source_sha256=source_sha256(absolute_path),
+        source_sha256=_source_sha256(absolute_path),
         test=test.source or "<missing test source>",
     ).rstrip() + "\n"
 
@@ -83,7 +84,7 @@ def _write_agent_md_files_for_test_file(
 
 def render_agent_md_file(
     test_file_path: Path,
-    test: TestFunction,
+    test: ExtractedTestRecord,
     repo_root: Path,
     artifact_root: Path | None = None,
 ) -> Path:
@@ -101,12 +102,12 @@ def render_agent_md_file(
 
 def _write_agent_md_file(
     test_file_path: Path,
-    test: TestFunction,
+    test: ExtractedTestRecord,
     markdown: str,
     repo_root: Path,
     artifact_root: Path | None,
 ) -> Path:
-    artifact_path = agent_review_artifact_path(
+    artifact_path = map_test_function_to_agent_md_file(
         test_file_path,
         repo_root,
         artifact_root,
