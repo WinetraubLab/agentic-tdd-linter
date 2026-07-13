@@ -1,0 +1,26 @@
+# Test-source examples for agent review.
+# Each example contains only `test` and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+public_verification_uses_private_helper:
+  test: |
+    def test_accepts_happy_path(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            Linter accepts happy path as a valid test path classification.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            by asserting a test docstring using `happy path` produces no lint issues.
+            """
+
+            rules = _lint_classification_source(_source_with_classification(test_path="happy path"))
+
+            self.assertEqual(set(), rules)
+  expected_scorecard:
+    23: # Verification Method Matches Exercised Interface
+      fail # The test declares public output but obtains the asserted result only from private helper `_lint_classification_source`.
