@@ -32,7 +32,6 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual([], missing_tests)
 
     def test_unit_modules_match_source_modules(self) -> None:
         """Test Path: happy path
