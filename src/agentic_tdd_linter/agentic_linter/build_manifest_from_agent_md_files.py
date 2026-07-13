@@ -7,19 +7,25 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Mapping, Sequence
 
-from .agent_review_artifacts import agent_review_artifact_path
-from .agent_ran_proof import lint_agent_review_artifact, source_sha256
-from .docstrings import LintIssue
-from .version import __version__
-from ..conventional_linter.docstrings import LintIssue, test_functions_for_file
+from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
+from .determine_agent_md_status import (
+    _lint_agent_md_file,
+    _source_sha256,
+    determine_agent_md_status,
+)
+from ..conventional_linter.run_conventional_linter import LintIssue
+from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
+from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
+from ..version import __version__
 
 
 DEFAULT_AGENT_REVIEW_MANIFEST = Path("tests") / "agentic_review_manifest.jsonl"
 CONTRACT_DOCUMENT_PATHS = ("README.md", "pyproject.toml")
 REQUIRED_FIELDS = (
     "path",
+    "test",
     "source_sha256",
     "status",
     "linter_version",
@@ -36,7 +42,7 @@ class ManifestRecord:
     values: dict[str, str]
 
 
-def agent_review_manifest_path(repo_root: Path, manifest_path: Path | None = None) -> Path:
+def _agent_review_manifest_path(repo_root: Path, manifest_path: Path | None = None) -> Path:
     """Return the default persisted review manifest path."""
 
     root = Path(repo_root).resolve()
@@ -47,7 +53,7 @@ def agent_review_manifest_path(repo_root: Path, manifest_path: Path | None = Non
     return path
 
 
-def review_contract_sha256(repo_root: Path | None = None) -> str:
+def _review_contract_sha256(repo_root: Path | None = None) -> str:
     """Return a digest for the linter behavior and documentation contract."""
 
     digest = hashlib.sha256()
@@ -59,17 +65,18 @@ def review_contract_sha256(repo_root: Path | None = None) -> str:
     return digest.hexdigest()
 
 
-def record_agent_review_attestations(
+def build_manifest_from_agent_md_files(
     files: Iterable[Path],
     repo_root: Path,
     reviewer: str,
     manifest_path: Path | None = None,
     artifact_root: Path | None = None,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
 ) -> tuple[Path, int, list[LintIssue]]:
-    """Write compact pass records for reviewed local artifacts."""
+    """Build compact pass records from reviewed ``.agent.md`` files."""
 
     root = Path(repo_root).resolve()
-    manifest = agent_review_manifest_path(root, manifest_path)
+    manifest = _agent_review_manifest_path(root, manifest_path)
     reviewer = reviewer.strip()
     if not reviewer:
         return (
@@ -86,35 +93,44 @@ def record_agent_review_attestations(
             ],
         )
 
-    contract_hash = review_contract_sha256(root)
+    contract_hash = _review_contract_sha256(root)
     selected_files = sorted({Path(file).resolve() for file in files})
+    selected_paths = {
+        _relative_path(test_file, root).as_posix() for test_file in selected_files
+    }
     records: list[dict[str, str]] = []
     issues: list[LintIssue] = []
 
     for test_file in selected_files:
-        artifact_issues = lint_agent_review_artifact(
-            test_file,
-            repo_root=root,
-            artifact_root=artifact_root,
-        )
-        if artifact_issues:
-            issues.extend(artifact_issues)
-            continue
+        for test in _tests_for_file(test_file, root, tests_by_file):
+            artifact_issues = _lint_agent_md_file(
+                test_file,
+                repo_root=root,
+                artifact_root=artifact_root,
+                test_name=test.name,
+            )
+            if artifact_issues:
+                issues.extend(artifact_issues)
+                continue
 
-        artifact_text = agent_review_artifact_path(test_file, root, artifact_root).read_text(
-            encoding="utf-8"
-        )
-        status = _plain_value(artifact_text, "Status").lower()
-        records.append(
-            {
-                "path": _relative_path(test_file, root).as_posix(),
-                "source_sha256": source_sha256(test_file),
-                "status": status,
-                "linter_version": __version__,
-                "review_contract_sha256": contract_hash,
-                "reviewer": reviewer,
-            }
-        )
+            artifact_text = map_test_function_to_agent_md_file(
+                test_file,
+                root,
+                artifact_root,
+                test.name,
+            ).read_text(encoding="utf-8")
+            status = determine_agent_md_status(artifact_text)
+            records.append(
+                {
+                    "path": _relative_path(test_file, root).as_posix(),
+                    "test": test.name,
+                    "source_sha256": _source_sha256(test_file),
+                    "status": status,
+                    "linter_version": __version__,
+                    "review_contract_sha256": contract_hash,
+                    "reviewer": reviewer,
+                }
+            )
 
     if issues:
         return manifest, 0, issues
@@ -123,9 +139,10 @@ def record_agent_review_attestations(
     if parse_issues:
         return manifest, 0, parse_issues
 
-    records_by_path: dict[str, dict[str, str]] = {}
+    records_by_test: dict[tuple[str, str], dict[str, str]] = {}
     for record in existing_records:
         path = record.values.get("path", "")
+        test_name = record.values.get("test", "")
         if not path:
             return (
                 manifest,
@@ -142,38 +159,45 @@ def record_agent_review_attestations(
             )
         if not (root / path).exists():
             continue
-        records_by_path[path] = record.values
+        if path in selected_paths:
+            continue
+        if not test_name:
+            continue
+        records_by_test[(path, test_name)] = record.values
     for record in records:
-        records_by_path[record["path"]] = record
+        records_by_test[(record["path"], record["test"])] = record
 
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.write_text(
         "".join(
-            json.dumps(_ordered_record(records_by_path[path]), separators=(", ", ": ")) + "\n"
-            for path in sorted(records_by_path)
+            json.dumps(_ordered_record(records_by_test[key]), separators=(", ", ": ")) + "\n"
+            for key in sorted(records_by_test)
         ),
         encoding="utf-8",
     )
     return manifest, len(records), []
 
 
-def lint_agent_review_manifest(
+def _lint_agent_review_manifest(
     files: Iterable[Path],
     repo_root: Path,
     manifest_path: Path | None = None,
+    *,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
 ) -> list[LintIssue]:
     """Return issues when compact review attestations are missing or stale."""
-
     root = Path(repo_root).resolve()
-    manifest = agent_review_manifest_path(root, manifest_path)
+    manifest = _agent_review_manifest_path(root, manifest_path)
     records, issues = _read_manifest_records(manifest, root, missing_is_issue=True)
     if issues:
         return issues
 
-    records_by_path: dict[str, ManifestRecord] = {}
-    current_contract_hash = review_contract_sha256(root)
+    records_by_test: dict[tuple[str, str], ManifestRecord] = {}
+    current_contract_hash = _review_contract_sha256(root)
     for record in records:
         path = record.values.get("path", "")
+        test_name = record.values.get("test", "")
+        identity = f"{path}::{test_name}" if test_name else path
         for field in record.values:
             if field not in REQUIRED_FIELDS:
                 issues.append(
@@ -203,7 +227,7 @@ def lint_agent_review_manifest(
                     root,
                     record.line,
                     "agent_review_not_approved",
-                    f"review attestation for {path or '<missing path>'} must have status pass",
+                    f"review attestation for {identity or '<missing test>'} must have status pass",
                 )
             )
         linter_version = record.values.get("linter_version", "")
@@ -215,7 +239,7 @@ def lint_agent_review_manifest(
                     record.line,
                     "stale_linter_review_attestation",
                     (
-                        f"review attestation for {path or '<missing path>'} was "
+                        f"review attestation for {identity or '<missing test>'} was "
                         f"recorded by linter version {linter_version}; expected at least {__version__}"
                     ),
                 )
@@ -229,7 +253,7 @@ def lint_agent_review_manifest(
                     record.line,
                     "stale_review_contract_attestation",
                     (
-                        f"review attestation for {path or '<missing path>'} was "
+                        f"review attestation for {identity or '<missing test>'} was "
                         "recorded with an old review contract SHA256"
                     ),
                 )
@@ -244,48 +268,79 @@ def lint_agent_review_manifest(
                     f"review attestation points to missing file {path}",
                 )
             )
-        if path in records_by_path:
+        key = (path, test_name)
+        if key in records_by_test:
             issues.append(
                 _manifest_issue(
                     manifest,
                     root,
                     record.line,
                     "duplicate_agent_review_attestation",
-                    f"duplicate review attestation for {path}",
+                    f"duplicate review attestation for {identity}",
                 )
             )
             continue
-        records_by_path[path] = record
+        records_by_test[key] = record
 
+    selected_paths: set[str] = set()
+    expected_keys: set[tuple[str, str]] = set()
     for test_file in sorted({Path(file).resolve() for file in files}):
         relative_path = _relative_path(test_file, root).as_posix()
-        record = records_by_path.get(relative_path)
-        if record is None:
-            issues.append(
-                _manifest_issue(
-                    manifest,
-                    root,
-                    1,
-                    "missing_agent_review_attestation",
-                    f"missing review attestation for {relative_path}",
+        selected_paths.add(relative_path)
+        for test in _tests_for_file(test_file, root, tests_by_file):
+            identity = f"{relative_path}::{test.name}"
+            key = (relative_path, test.name)
+            expected_keys.add(key)
+            record = records_by_test.get(key)
+            if record is None:
+                issues.append(
+                    _manifest_issue(
+                        manifest,
+                        root,
+                        1,
+                        "missing_agent_review_attestation",
+                        f"missing review attestation for {identity}",
+                    )
                 )
-            )
-            continue
+                continue
 
-        values = record.values
-        expected_hash = source_sha256(test_file)
-        if values.get("source_sha256") != expected_hash:
-            issues.append(
-                _manifest_issue(
-                    manifest,
-                    root,
-                    record.line,
-                    "stale_agent_review_attestation",
-                    f"review attestation for {relative_path} must match the current test file SHA256",
+            values = record.values
+            expected_hash = _source_sha256(test_file)
+            if values.get("source_sha256") != expected_hash:
+                issues.append(
+                    _manifest_issue(
+                        manifest,
+                        root,
+                        record.line,
+                        "stale_agent_review_attestation",
+                        f"review attestation for {identity} must match the current test file SHA256",
+                    )
                 )
+
+    for key, record in records_by_test.items():
+        if key[0] not in selected_paths or key in expected_keys:
+            continue
+        issues.append(
+            _manifest_issue(
+                manifest,
+                root,
+                record.line,
+                "orphaned_agent_review_attestation",
+                f"review attestation points to missing test {key[0]}::{key[1]}",
             )
+        )
 
     return issues
+
+
+def _tests_for_file(
+    test_file: Path,
+    repo_root: Path,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None,
+) -> Sequence[ExtractedTestRecord]:
+    if tests_by_file is not None:
+        return tests_by_file[test_file.resolve()]
+    return extract_tests_from_file(test_file, repo_root)
 
 
 def _read_manifest_records(
@@ -354,8 +409,13 @@ def _ordered_record(record: dict[str, str]) -> dict[str, str]:
 
 def _review_contract_files(repo_root: Path | None) -> list[tuple[str, Path]]:
     files: dict[str, Path] = {}
-    package_root = Path(__file__).resolve().parent
-    for path in sorted(package_root.rglob("*.py")):
+    package_root = Path(__file__).resolve().parents[1]
+    contract_paths = (
+        path
+        for path in package_root.rglob("*")
+        if path.suffix in {".py", ".j2"}
+    )
+    for path in sorted(contract_paths):
         files[f"package/{path.relative_to(package_root).as_posix()}"] = path
 
     if repo_root is not None:
