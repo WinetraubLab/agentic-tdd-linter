@@ -1,0 +1,73 @@
+{#
+THIS FILE IS NOT YET INTEGRATED TO THE TEST SUIT
+
+Instructions for reviewing relationships among tests.
+
+Inputs:
+- test_file_paths: Paths to the `test_*.py` files in the cross-test review scope.
+-#}
+# Agentic Cross-Test Review
+
+## Instructions
+
+The goal of this review is to evaluate every test in `## Test Files` against the other listed tests.
+Review the files one at a time. For each test in each file, evaluate every criterion under `## Review Criteria`.
+Create one `## Review Scorecard` for each test, and update every row for the test under review.
+Set each result to exactly one of `pass` or `fail`.
+For every failure, provide concrete notes naming the relevant tests.
+
+Evaluate each criterion in a fresh subagent.
+Do not inspect manifests, non-test repository files, prior conversation, or unlisted tests.
+If a listed file is unavailable, fail with notes identifying the missing file.
+
+## Review Criteria
+
+### 1x. Requirement Distinctiveness
+
+#### 11. Requirements Are Distinct
+Extract `Requirement Tested` from every test docstring and compare the requirements.
+Each requirement shall describe behavior and a scenario that distinguish it from requirements at the same test level.
+Fail requirements that overlap because their wording is too generic, and recommend more specific wording.
+Do not fail intentional cross-level overlap under this criterion; evaluate that overlap under criteria 21 through 23.
+
+### 2x. Cross-Level Relationships
+
+#### 21. Cross-Level Pairs Are Identified
+Identify every test pair that verifies the same or a substantially similar requirement at different levels.
+Examples include a private-function test paired with a public-function test, or a unit test paired with an integration test.
+If no cross-level pair exists, pass and state that no pair was found.
+
+#### 22. Cross-Level Pairs Reference Each Other
+Every test in a cross-level pair shall reference the other test in `Verification Detail`.
+In `Verification Detail`, name both tests and state the level covered by each test.
+Use wording equivalent to: `This is a <X>-level test; see also <test_name>, which tests the same requirement at the <Y> level.`
+Fail if either test omits the reciprocal reference or does not state both test levels.
+If no cross-level pair exists, pass as not applicable.
+
+#### 23. Lower-Level Tests Are Justified
+The lower-level test in every cross-level pair shall justify why it is required in `Verification Detail`.
+The justification shall use one of these reasons:
+
+- A. Shared foundation: The lower-level service supports multiple high-level use cases and therefore requires direct testing.
+- B. Deeper coverage: The high-level tests cover only part of the requirement, while the lower-level test covers it more deeply.
+- C. Diagnostic completeness: The lower-level test is not required for behavior coverage but is retained for completeness or clearer fault diagnosis.
+
+Fail a lower-level test that omits the justification or does not explain how the selected reason applies.
+If no cross-level pair exists, pass as not applicable.
+
+## Test Files
+
+{% for test_file_path in test_file_paths %}
+- `{{ test_file_path }}`
+{% endfor %}
+
+## Review Scorecard
+
+Test: `<replace with file path and test name>`
+
+| # | Criterion | Result | Notes |
+|---:|---|---|---|
+| 11 | Requirements Are Distinct | pending | Replace with review evidence. |
+| 21 | Cross-Level Pairs Are Identified | pending | Replace with review evidence. |
+| 22 | Cross-Level Pairs Reference Each Other | pending | Replace with review evidence. |
+| 23 | Lower-Level Tests Are Justified | pending | Replace with review evidence. |
