@@ -21,11 +21,12 @@ def linter_e2e_review(
     exit_code, output = _run_linter(source_sha256)
     artifact_paths = _artifact_paths(source_sha256)
     if "agent_review_not_run" in output:
+        review_paths = ", ".join(_display_path(path) for path in artifact_paths)
         raise RuntimeError(
             "did not run, agent should review "
-            f"{_display_path(artifact_path)} and then run test again"
+            f"{review_paths} and then run test again"
         )
-    _record_artifact_review(source_sha256, artifact_path)
+    _record_artifact_review(source_sha256, artifact_paths)
     return exit_code == 0, output
 
 
@@ -37,8 +38,10 @@ REVIEWER = "e2e:review"
 
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from agentic_tdd_linter.agent_review_manifest import review_contract_sha256
-from agentic_tdd_linter.cli import main
+from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import (
+    _review_contract_sha256,
+)
+from agentic_tdd_linter.cli.main import main
 from agentic_tdd_linter.version import __version__
 
 
@@ -60,14 +63,22 @@ def _write_test_source(source_sha256: str, normalized_source: str) -> Path:
 def _run_linter(source_sha256: str) -> tuple[int, str]:
     stdout = io.StringIO()
     with contextlib.redirect_stdout(stdout):
-        exit_code = main(
+        main(
             [
-                "check",
+                "create-agent-md",
                 str(TEST_ROOT / f"{source_sha256}.py"),
                 "--test-root",
                 str(TEST_ROOT),
-                "--review-proof",
-                "artifact",
+                "--manifest",
+                str(MANIFEST_PATH),
+            ]
+        )
+        exit_code = main(
+            [
+                "lint",
+                str(TEST_ROOT / f"{source_sha256}.py"),
+                "--test-root",
+                str(TEST_ROOT),
                 "--manifest",
                 str(MANIFEST_PATH),
                 "--reviewer",
@@ -93,7 +104,7 @@ def _current_manifest_record(source_sha256: str) -> dict[str, str] | None:
             continue
         if record.get("path") != _source_path(source_sha256).as_posix():
             continue
-        if record.get("review_contract_sha256") != review_contract_sha256(REPO_ROOT):
+        if record.get("review_contract_sha256") != _review_contract_sha256(REPO_ROOT):
             continue
         if _version_is_older(record.get("linter_version", ""), __version__):
             continue
@@ -118,20 +129,23 @@ def _review_result_from_manifest(record: dict[str, str]) -> tuple[bool, str]:
     )
 
 
-def _record_artifact_review(source_sha256: str, artifact_path: Path) -> None:
-    artifact_text = artifact_path.read_text(encoding="utf-8")
-    status = _field_value(artifact_text, "Status").lower()
-    if status not in {"pass", "fail"}:
+def _record_artifact_review(source_sha256: str, artifact_paths: list[Path]) -> None:
+    artifact_texts = [path.read_text(encoding="utf-8") for path in artifact_paths]
+    statuses = [_scorecard_status(text) for text in artifact_texts]
+    if not statuses or any(status not in {"pass", "fail"} for status in statuses):
         return
+    status = "fail" if "fail" in statuses else "pass"
 
     record = {
         "path": _source_path(source_sha256).as_posix(),
         "source_sha256": source_sha256,
         "status": status,
         "linter_version": __version__,
-        "review_contract_sha256": review_contract_sha256(REPO_ROOT),
+        "review_contract_sha256": _review_contract_sha256(REPO_ROOT),
         "reviewer": REVIEWER,
-        "reason": _notes_value(artifact_text),
+        "reason": " ".join(
+            value for value in (_failed_scorecard_notes(text) for text in artifact_texts) if value
+        ),
     }
     records = [
         existing_record
@@ -177,30 +191,6 @@ def _source_path(source_sha256: str) -> Path:
     return Path("temporary_fixtures") / f"{source_sha256}.py"
 
 
-def _field_value(text: str, field_name: str) -> str:
-    prefix = f"{field_name}:"
-    for line in text.splitlines():
-        if line.startswith(prefix):
-            return line[len(prefix) :].strip()
-    return ""
-
-
-def _notes_value(text: str) -> str:
-    notes_started = False
-    notes: list[str] = []
-    for line in text.splitlines():
-        if line.strip() == "Notes:":
-            notes_started = True
-            continue
-        if not notes_started:
-            continue
-        if line.startswith("- "):
-            notes.append(line[2:].strip())
-        elif notes and line.startswith("  "):
-            notes[-1] = f"{notes[-1]} {line.strip()}"
-    return " ".join(notes).strip()
-
-
 def _version_is_older(recorded_version: str, current_version: str) -> bool:
     recorded_parts = _version_parts(recorded_version)
     current_parts = _version_parts(current_version)
@@ -219,8 +209,33 @@ def _version_parts(value: str) -> tuple[int, ...] | None:
     return tuple(int(part) for part in parts)
 
 
-def _artifact_path(source_sha256: str) -> Path:
-    return ARTIFACT_ROOT / f"{source_sha256}.agent.md"
+def _artifact_paths(source_sha256: str) -> list[Path]:
+    return sorted(ARTIFACT_ROOT.glob(f"{source_sha256}__*.agent.md"))
+
+
+def _scorecard_status(text: str) -> str:
+    results = []
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != 4 or not cells[0].isdigit():
+            continue
+        results.append(cells[2].lower())
+    if not results or any(result not in {"pass", "fail"} for result in results):
+        return "pending"
+    return "fail" if "fail" in results else "pass"
+
+
+def _failed_scorecard_notes(text: str) -> str:
+    notes = []
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) == 4 and cells[0].isdigit() and cells[2].lower() == "fail":
+            notes.append(f"{cells[1]}: {cells[3]}")
+    return "; ".join(notes)
 
 
 def _display_path(path: Path) -> str:
