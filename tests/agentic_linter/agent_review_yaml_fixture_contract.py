@@ -8,7 +8,13 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-EXAMPLES = REPO_ROOT / "tests" / "fixtures" / "agent_review_examples"
+EXAMPLES = (
+    REPO_ROOT
+    / "tests"
+    / "agentic_linter"
+    / "fixtures"
+    / "single_test_review"
+)
 TEMPLATE_PATH = (
     REPO_ROOT
     / "src"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import tempfile
+import textwrap
 import unittest
 from pathlib import Path
 
