@@ -36,7 +36,6 @@ def extract_typescript_tests_from_file(
                 node=None,
                 docstring=docstring,
                 source=source[source_start:source_end].strip(),
-                language="typescript",
             )
         )
     return tests

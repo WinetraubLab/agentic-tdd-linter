@@ -148,12 +148,13 @@ def run_conventional_linter(test_function: ExtractedTestRecord) -> list[LintIssu
             )
         )
 
-    if test_function.language == "python" and test_function.name.count("_") > 5:
+    if _descriptive_name_word_count(test_function.name) > 5:
         issues.append(
             _issue(
                 test_function,
                 "test_name_too_long",
-                "test name must be `test_` plus at most five descriptive words",
+                "test name must contain at most five descriptive words; "
+                "the Python `test_` prefix is not counted",
             )
         )
 
@@ -377,6 +378,11 @@ def _test_calls_private_function(test_function: ExtractedTestRecord) -> bool:
     if test_function.node is not None:
         return _calls_leading_underscore_callable(test_function.node)
     return bool(re.search(r"(?<![\w$])_[A-Za-z][\w$]*\s*\(", test_function.source))
+
+
+def _descriptive_name_word_count(name: str) -> int:
+    descriptive_name = name.removeprefix("test_")
+    return len(re.findall(r"[A-Za-z0-9]+", descriptive_name))
 
 
 def _test_calls_named_callable(test_function: ExtractedTestRecord, name: str) -> bool:
