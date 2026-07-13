@@ -1,6 +1,4 @@
 {#
-THIS FILE IS NOT YET INTEGRATED TO THE TEST SUIT
-
 Instructions for reviewing relationships among tests.
 
 Inputs:
@@ -46,13 +44,16 @@ If no cross-level pair exists, pass as not applicable.
 
 #### 23. Lower-Level Tests Are Justified
 The lower-level test in every cross-level pair shall justify why it is required in `Verification Detail`.
-The justification shall use one of these reasons:
+Format each justification as `Justification: <category> — <specific evidence>.`
+The category shall be exactly one of:
 
-- A. Shared foundation: The lower-level service supports multiple high-level use cases and therefore requires direct testing.
-- B. Deeper coverage: The high-level tests cover only part of the requirement, while the lower-level test covers it more deeply.
-- C. Diagnostic completeness: The lower-level test is not required for behavior coverage but is retained for completeness or clearer fault diagnosis.
+- `Shared foundation`: The lower-level test protects behavior reused by multiple higher-level tests. Name the reused behavior and the higher-level workflow that depends on it.
+- `Deeper coverage`: The lower-level test verifies coverage absent from the higher-level test. Name the exact case, assertion, field, or evidence covered only at the lower level.
+- `Diagnostic completeness`: The lower-level test isolates failures more precisely than the higher-level test. Name the exact failure or boundary it isolates.
+- `Comparable coverage`: The tests cover substantially the same behavior and provide similar diagnostic value. Use this category when no meaningful coverage difference can be named.
 
-Fail a lower-level test that omits the justification or does not explain how the selected reason applies.
+When the current test is the lower-level test, the evidence shall state exactly what the current test contributes beyond the named higher-level test.
+Fail a lower-level test that omits a justification, uses generic evidence, or selects a category that the specific evidence does not support.
 If no cross-level pair exists, pass as not applicable.
 
 ## Test Files
