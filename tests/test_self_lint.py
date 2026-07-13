@@ -204,7 +204,11 @@ class SelfLintTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 first_exit_code = main([*LOCAL_REVIEW_CHECK_ARGS, "--repo-root", str(repo_root)])
 
-            artifact_path = agent_review_artifact_path(test_file, repo_root)
+            artifact_path = agent_review_artifact_path(
+                test_file,
+                repo_root,
+                test_name="test_adds_values",
+            )
             artifact_exists = artifact_path.is_file()
             first_output = stdout.getvalue()
             _mark_agent_review_artifacts_pass(repo_root)
@@ -242,14 +246,16 @@ def _readme_ci_check_args() -> list[str]:
     raise AssertionError("README does not include the reviewer-explicit check command")
 
 
-def _agent_review_manifest_statuses() -> dict[Path, str]:
+def _agent_review_manifest_statuses() -> dict[tuple[Path, str], str]:
     manifest_path = REPO_ROOT / "tests" / "agentic_review_manifest.jsonl"
     statuses = {}
     for line in manifest_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         record = json.loads(line)
-        statuses[Path(record["path"])] = record.get("status", "")
+        statuses[(Path(record["path"]), record.get("test", ""))] = record.get(
+            "status", ""
+        )
     return statuses
 
 
@@ -268,7 +274,7 @@ def _mark_agent_review_artifacts_pass(repo_root: Path) -> None:
         raise AssertionError("expected generated agent review artifacts")
     for artifact_path in artifacts:
         artifact_text = artifact_path.read_text(encoding="utf-8")
-        artifact_text = artifact_text.replace("Status: pending", "Status: pass", 1)
+        artifact_text = artifact_text.replace("| pending |", "| pass |")
         artifact_text = artifact_text.replace(
             "- Scenario or example: Fill this line with the scenario or example used for judgment.",
             "- Scenario or example: dogfood review checks the sample test suite.",
