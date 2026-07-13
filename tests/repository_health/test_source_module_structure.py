@@ -7,33 +7,18 @@ import unittest
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-PACKAGE_ROOT = REPO_ROOT / "src" / "agentic_tdd_linter"
-TEST_ROOT = REPO_ROOT / "tests"
-DATA_ONLY_MODULES = {
-    Path("indexing_test_functions/extracted_test_record.py"),
-    Path("version.py"),
-}
-MIRRORED_TEST_FOLDERS = (
-    "agentic_linter",
-    "cli",
-    "conventional_linter",
-    "indexing_test_functions",
-)
-
-
 class SourceModuleStructureTests(unittest.TestCase):
-    def test_modules_have_matching_test_files(self) -> None:
+    def test_repository_modules_have_test_files(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Source modules have matching tests.
-        This rule applies to non-package Python modules under `src`.
+        `source modules` require tests.
+        When modules contain logic, `source modules` require tests.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        Every module maps to `test_<module>.py` in the matching test folder.
+        `_missing_test_paths` produces `[]`.
         """
 
         missing_tests = [
