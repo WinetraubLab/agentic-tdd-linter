@@ -185,7 +185,7 @@ def _lint_agent_review_manifest(
     *,
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
 ) -> list[LintIssue]:
-    """Return issues when compact review attestations are missing or stale."""
+    """Return manifest issues and remove attestations for stale test sources."""
     root = Path(repo_root).resolve()
     manifest = _agent_review_manifest_path(root, manifest_path)
     records, issues = _read_manifest_records(manifest, root, missing_is_issue=True)
@@ -193,6 +193,7 @@ def _lint_agent_review_manifest(
         return issues
 
     records_by_test: dict[tuple[str, str], ManifestRecord] = {}
+    stale_record_lines: set[int] = set()
     current_contract_hash = _review_contract_sha256(root)
     for record in records:
         path = record.values.get("path", "")
@@ -259,6 +260,7 @@ def _lint_agent_review_manifest(
                 )
             )
         if path and not (root / path).exists():
+            stale_record_lines.add(record.line)
             issues.append(
                 _manifest_issue(
                     manifest,
@@ -307,6 +309,7 @@ def _lint_agent_review_manifest(
             values = record.values
             expected_hash = _source_sha256(test_file)
             if values.get("source_sha256") != expected_hash:
+                stale_record_lines.add(record.line)
                 issues.append(
                     _manifest_issue(
                         manifest,
@@ -320,6 +323,7 @@ def _lint_agent_review_manifest(
     for key, record in records_by_test.items():
         if key[0] not in selected_paths or key in expected_keys:
             continue
+        stale_record_lines.add(record.line)
         issues.append(
             _manifest_issue(
                 manifest,
@@ -330,7 +334,22 @@ def _lint_agent_review_manifest(
             )
         )
 
+    if stale_record_lines:
+        _remove_manifest_record_lines(manifest, stale_record_lines)
+
     return issues
+
+
+def _remove_manifest_record_lines(manifest: Path, lines: set[int]) -> None:
+    manifest_lines = manifest.read_text(encoding="utf-8").splitlines(keepends=True)
+    manifest.write_text(
+        "".join(
+            line
+            for line_number, line in enumerate(manifest_lines, start=1)
+            if line_number not in lines
+        ),
+        encoding="utf-8",
+    )
 
 
 def _tests_for_file(
