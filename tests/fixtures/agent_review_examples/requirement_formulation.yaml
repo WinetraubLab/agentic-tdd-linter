@@ -30,6 +30,7 @@ availability_without_behavior:
       fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
     51: # Assertions Match the Requirement
       fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
+
 assertions_without_behavior:
   test: |
     def test_adds_numbers() -> None:
@@ -50,6 +51,7 @@ assertions_without_behavior:
       fail # The requirement describes assertion tags rather than system behavior.
     51: # Assertions Match the Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
+
 swappable_requirement:
   test: |
     def test_bad_sentence_structure() -> None:
