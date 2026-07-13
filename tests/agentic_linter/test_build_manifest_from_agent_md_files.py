@@ -24,7 +24,7 @@ from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import
     build_manifest_from_agent_md_files,
 )
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import _source_sha256
-from agentic_tdd_linter.cli import main
+from agentic_tdd_linter.cli.main import main
 from agentic_tdd_linter.version import __version__
 
 
@@ -175,7 +175,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Review contract hash changes when documentation changes.
+        Review digests include `README.md` content.
+        This applies when README text changes between digest calculations.
 
         Verification Method: verify public function output
 
@@ -197,7 +198,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Review contract hash changes when docs change.
+        Review digests include workflow documents.
+        This applies when `docs/workflow.md` changes between digest calculations.
 
         Verification Method: verify public function output
 
