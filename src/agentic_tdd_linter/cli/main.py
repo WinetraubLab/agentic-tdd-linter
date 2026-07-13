@@ -5,11 +5,10 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
-from importlib import resources
 from pathlib import Path
 from typing import Sequence
 
-from .report import format_json, format_text
+from .format_linter_results import format_json, format_text
 from .run_lint_pipeline import run_lint_pipeline
 
 
@@ -18,10 +17,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     parser = _build_parser()
     args = parser.parse_args(argv)
-
-    if args.refactor_instructions:
-        print(_refactor_instructions_text())
-        return 0
 
     if args.command != "check":
         parser.print_help()
@@ -59,11 +54,6 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="agentic-tdd-linter",
         description="Lint Python and TypeScript tests written during agent-assisted TDD.",
-    )
-    parser.add_argument(
-        "--refactor-instructions",
-        action="store_true",
-        help="print refactor-phase agent instructions and exit",
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -117,12 +107,6 @@ def _add_file_selection_arguments(parser: argparse.ArgumentParser) -> None:
         "--all",
         action="store_true",
         help="lint all project test files instead of changed test files",
-    )
-
-
-def _refactor_instructions_text() -> str:
-    return resources.files("agentic_tdd_linter").joinpath("cli/refactor_instructions.md").read_text(
-        encoding="utf-8"
     )
 
 
