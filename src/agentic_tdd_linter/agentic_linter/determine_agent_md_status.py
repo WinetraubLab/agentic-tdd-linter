@@ -14,7 +14,7 @@ COMPLETED_REVIEW_STATUSES = {"pass", "fail"}
 SCENARIO_NOTE_PREFIX = "Scenario or example:"
 
 
-def source_sha256(path: Path) -> str:
+def _source_sha256(path: Path) -> str:
     """Return the SHA256 digest for a file."""
 
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
