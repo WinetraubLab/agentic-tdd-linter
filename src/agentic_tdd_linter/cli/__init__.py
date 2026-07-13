@@ -9,14 +9,16 @@ from importlib import resources
 from pathlib import Path
 from typing import Sequence
 
-from ..agentic_linter.agent_review_artifacts import agent_review_artifact_path
-from ..agentic_linter.agent_ran_proof import (
-    agent_review_artifact_is_stale,
-    lint_agent_review_artifact,
+from ..agentic_linter.map_test_function_to_agent_md_file import (
+    map_test_function_to_agent_md_file,
 )
-from ..agentic_linter.agent_review_manifest import (
-    lint_agent_review_manifest,
-    record_agent_review_attestations,
+from ..agentic_linter.determine_agent_md_status import (
+    _agent_md_file_is_stale,
+    _lint_agent_md_file,
+)
+from ..agentic_linter.build_manifest_from_agent_md_files import (
+    _lint_agent_review_manifest,
+    build_manifest_from_agent_md_files,
 )
 from ..agentic_linter.render_agent_md_file import render_agent_md_file
 from ..conventional_linter.docstrings import (
@@ -127,12 +129,12 @@ def _run_check(args: argparse.Namespace) -> int:
     recorded_manifest_path: Path | None = None
     recorded_count = 0
     if review_files and args.review_proof == "manifest":
-        issues.extend(lint_agent_review_manifest(review_files, repo_root, args.manifest))
+        issues.extend(_lint_agent_review_manifest(review_files, repo_root, args.manifest))
     elif review_files and args.review_proof == "artifact":
         _write_missing_or_stale_agent_review_artifacts(review_files, repo_root, artifact_root)
         issues.extend(_lint_agent_review_artifacts(review_files, repo_root, artifact_root))
         if not issues:
-            manifest_path, count, manifest_issues = record_agent_review_attestations(
+            manifest_path, count, manifest_issues = build_manifest_from_agent_md_files(
                 review_files,
                 repo_root,
                 reviewer=args.reviewer or "",
@@ -144,14 +146,14 @@ def _run_check(args: argparse.Namespace) -> int:
                 recorded_manifest_path = manifest_path
                 recorded_count = count
     elif review_files:
-        manifest_issues = lint_agent_review_manifest(review_files, repo_root, args.manifest)
+        manifest_issues = _lint_agent_review_manifest(review_files, repo_root, args.manifest)
         if manifest_issues:
             _write_missing_or_stale_agent_review_artifacts(
                 review_files, repo_root, artifact_root
             )
             issues.extend(_lint_agent_review_artifacts(review_files, repo_root, artifact_root))
             if not issues:
-                manifest_path, count, refresh_issues = record_agent_review_attestations(
+                manifest_path, count, refresh_issues = build_manifest_from_agent_md_files(
                     review_files,
                     repo_root,
                     reviewer=args.reviewer or "",
@@ -216,13 +218,13 @@ def _write_missing_or_stale_agent_review_artifacts(
 ) -> None:
     for test_file in files:
         for test in test_functions_for_file(test_file, repo_root):
-            artifact_path = agent_review_artifact_path(
+            artifact_path = map_test_function_to_agent_md_file(
                 test_file,
                 repo_root,
                 artifact_root,
                 test.name,
             )
-            if not artifact_path.exists() or agent_review_artifact_is_stale(
+            if not artifact_path.exists() or _agent_md_file_is_stale(
                 test_file, artifact_path
             ):
                 render_agent_md_file(
@@ -238,7 +240,7 @@ def _lint_agent_review_artifacts(files: Sequence[Path], repo_root: Path, artifac
     for test_file in files:
         for test in test_functions_for_file(test_file, repo_root):
             issues.extend(
-                lint_agent_review_artifact(
+                _lint_agent_md_file(
                     test_file,
                     repo_root=repo_root,
                     artifact_root=artifact_root,
