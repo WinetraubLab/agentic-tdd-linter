@@ -1,4 +1,4 @@
-"""Extract Node-style TypeScript tests."""
+"""Extract tests from one Node-style TypeScript file."""
 
 from __future__ import annotations
 
