@@ -421,10 +421,11 @@ def _source_text(node: ast.AST) -> str:
 def _control_flow_has_testing_exception_tag(
     control_flow_node: ast.AST,
     lines: list[str],
+    testing_exception_tag: str,
 ) -> bool:
     start_line = max(1, control_flow_node.lineno - 1)
     return any(
-        TESTING_EXCEPTION_TAG in lines[line_number - 1]
+        testing_exception_tag in lines[line_number - 1]
         for line_number in range(start_line, control_flow_node.lineno + 1)
     )
 
