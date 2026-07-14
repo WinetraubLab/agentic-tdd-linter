@@ -2,6 +2,7 @@
 
 Terms:
 - `path mapper`: The path mapper converts between a test identity and its agent-packet path. For example, reversing a mapped path restores the original test name.
+- `test identity`: Test identity combines a repository-relative path and function name. For example, tests/test_math.py and test_adds_numbers identify one test.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The `path mapper` retains identity.
+        The `path mapper` retains `test identity`.
         When callers reverse a path, it restores the test.
 
         Verification Method: verify public function output
