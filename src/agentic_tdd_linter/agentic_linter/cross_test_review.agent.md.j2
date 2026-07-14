@@ -15,8 +15,9 @@ Set each result to exactly one of `pass` or `fail`.
 For every failure, provide concrete notes naming the relevant tests.
 
 Evaluate each criterion in a fresh subagent.
-Do not inspect manifests, non-test repository files, prior conversation, or unlisted tests.
-If a listed file is unavailable, fail with notes identifying the missing file.
+Use only this packet and the listed test files as review context.
+Treat manifests, other repository files, prior conversation, and unlisted tests as outside the review scope.
+When a listed file is unavailable, set the affected criteria to `fail` and identify the missing file in the notes.
 
 ## Review Criteria
 
