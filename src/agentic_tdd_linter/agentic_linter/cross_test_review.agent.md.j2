@@ -34,7 +34,7 @@ Evaluate intentional cross-level overlap under criteria 21 through 23.
 #### 21. Cross-Level Pairs Are Identified
 Identify every test pair that verifies the same or a substantially similar requirement at different levels.
 Examples include a private-function test paired with a public-function test, or a unit test paired with an integration test.
-If no cross-level pair exists, pass and state that no pair was found.
+When the scope contains zero cross-level pairs, set the result to `pass` and state that the review found zero pairs.
 
 #### 22. Cross-Level Pairs Reference Each Other
 Every test in a cross-level pair shall reference the other test in `Verification Detail`.
