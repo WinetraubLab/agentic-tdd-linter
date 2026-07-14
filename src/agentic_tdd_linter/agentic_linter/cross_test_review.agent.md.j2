@@ -26,8 +26,8 @@ When a listed file is unavailable, set the affected criteria to `fail` and ident
 #### 11. Requirements Are Distinct
 Extract `Requirement Tested` from every test docstring and compare the requirements.
 Each requirement shall describe behavior and a scenario that distinguish it from requirements at the same test level.
-Fail requirements that overlap because their wording is too generic, and recommend more specific wording.
-Do not fail intentional cross-level overlap under this criterion; evaluate that overlap under criteria 21 through 23.
+A passing same-level comparison uses wording specific enough to distinguish each requirement; when wording overlaps, set the result to `fail` and recommend more specific wording.
+Evaluate intentional cross-level overlap under criteria 21 through 23.
 
 ### 2x. Cross-Level Relationships
 
