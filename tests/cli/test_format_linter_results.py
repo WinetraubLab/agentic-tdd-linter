@@ -35,3 +35,27 @@ class LinterResultFormattingTests(unittest.TestCase):
 
         self.assertIn("Rule: sample_rule", output)
         self.assertIn("sample message", output)
+
+    def test_formats_json_report(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `format_json` renders summaries.
+        When the linter finds zero issues for one file, `format_json` renders the summary.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `format_json` output contains `PASS`.
+        `format_json` output contains one checked file.
+        """
+
+        output = format_json([], [Path("tests/test_sample.py")])
+
+        payload = json.loads(output)
+        self.assertEqual("PASS", payload["status"])
+        self.assertEqual(1, payload["files_checked"])
+
+
+if __name__ == "__main__":
+    unittest.main()
