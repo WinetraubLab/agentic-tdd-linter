@@ -1,3 +1,8 @@
+"""Verify deterministic module-docstring checks.
+
+Terms:
+- `check`: The check validates module-docstring placement in one test file. For example, it accepts a file whose first statement is a string literal.
+"""
     def test_reports_missing_file_docstring(self) -> None:
         """Test Path: failure path
 
