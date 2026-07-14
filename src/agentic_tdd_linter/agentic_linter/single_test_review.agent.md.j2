@@ -4,7 +4,8 @@ Instructions for reviewing a single test.
 Inputs:
 - file_docstring: Module docstring shared by tests in the source file.
 - test: Complete test source exactly as extracted from the source file.
-- source_sha256: SHA-256 digest of the complete source test file.
+- scenario_type: `happy path` or `failure path` value extracted from `Test Path` in the structured test docstring.
+- source_sha256: Invalidates this review packet when the complete source test file changes.
 -#}
 # Agentic Test Review
 
