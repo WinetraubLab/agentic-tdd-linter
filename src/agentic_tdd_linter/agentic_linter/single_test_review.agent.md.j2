@@ -94,8 +94,11 @@ Allow these words when they modify a named noun or are not the subject, such as 
 ### 4x. Terminology and Reference Clarity
 
 #### 42. Domain Terms Are Defined
-Every local or domain-specific term shall be defined or backticked.
-For example, fail "The frobnicator rejects input."; prefer "The `frobnicator` parser rejects input."
+Backticks in `Requirement Tested` declare shared local or domain-specific terms.
+Every declared term shall exactly match a `Terms:` entry in `File Docstring`.
+Backticks elsewhere identify code or literal values, not shared glossary terms.
+Do not infer glossary terms from plain, unbackticked wording.
+For example, "The parser applies `normalization`." requires a `normalization` glossary entry.
 
 #### 43. Data-Flow Terms Name an Owner
 Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` shall name an explicit owner.
