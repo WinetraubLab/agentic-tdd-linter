@@ -33,3 +33,34 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             / "cross_test_review.agent.md",
             artifact,
         )
+
+    def test_deduplicates_cross_test_paths(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The `renderer` deduplicates paths.
+        When path lists repeat entries, the packet includes each path once.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Alpha count equals one. Beta count equals one.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = "def test_example():\n    assert True\n"
+            first = root / "tests" / "test_alpha.py"
+            second = root / "tests" / "test_beta.py"
+            first.parent.mkdir(parents=True)
+            first.write_text(source, encoding="utf-8")
+            second.write_text(source, encoding="utf-8")
+
+            artifact = render_cross_test_agent_md_file(
+                [first, second, first],
+                root,
+            )
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertEqual(1, artifact_text.count("`tests/test_alpha.py`"))
+        self.assertEqual(1, artifact_text.count("`tests/test_beta.py`"))
