@@ -30,6 +30,10 @@ Fail wording that only describes a use case, mechanics, fixtures, constants, ass
 #### 12. Second Sentence Describes a Scenario
 The second `Requirement Tested` sentence shall describe one concrete use case where the rule applies: when, where, or for whom.
 Fail if the scenario sentence is missing or does not describe a use case.
+{% else %}
+The second `Requirement Tested` sentence shall describe one concrete failure scenario where the rule applies: when, where, or for whom.
+Fail if the scenario sentence is missing or does not describe a concrete failure scenario.
+{% endif %}
 
 #### 13. Requirement Is Specific
 `Requirement Tested` shall be specific to the behavior and scenario under review.
