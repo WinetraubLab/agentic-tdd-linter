@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import ast
 import hashlib
-import sys
 import textwrap
 import unittest
 from pathlib import Path

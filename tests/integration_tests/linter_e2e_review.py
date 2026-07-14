@@ -63,16 +63,17 @@ def _write_test_source(source_sha256: str, normalized_source: str) -> Path:
 def _run_linter(source_sha256: str) -> tuple[int, str]:
     stdout = io.StringIO()
     with contextlib.redirect_stdout(stdout):
-        main(
-            [
-                "create-agent-md",
-                str(TEST_ROOT / f"{source_sha256}.py"),
-                "--test-root",
-                str(TEST_ROOT),
-                "--manifest",
-                str(MANIFEST_PATH),
-            ]
-        )
+        if not _artifact_paths(source_sha256):
+            main(
+                [
+                    "create-agent-md",
+                    str(TEST_ROOT / f"{source_sha256}.py"),
+                    "--test-root",
+                    str(TEST_ROOT),
+                    "--manifest",
+                    str(MANIFEST_PATH),
+                ]
+            )
         exit_code = main(
             [
                 "lint",
