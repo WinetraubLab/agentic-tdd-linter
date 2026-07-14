@@ -64,3 +64,27 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         self.assertEqual(1, artifact_text.count("`tests/test_alpha.py`"))
         self.assertEqual(1, artifact_text.count("`tests/test_beta.py`"))
+    def test_rejects_non_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        The `renderer` validates paths.
+        When a path is not a test, it rejects the file.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `ValueError` identifies `test_*.py`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_file = root / "tests" / "helper.py"
+            source_file.parent.mkdir(parents=True)
+            source_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, r"requires test_\*\.py files"):
+                render_cross_test_agent_md_file([source_file], root)
