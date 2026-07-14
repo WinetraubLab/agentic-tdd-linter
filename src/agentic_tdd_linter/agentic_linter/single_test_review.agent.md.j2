@@ -118,6 +118,11 @@ For example, fail `The output contains errors.`; prefer `The parser output conta
 Review wording shall use concrete terms instead of vague or generic language.
 For example, fail `The parser handles input correctly.` because `correctly` is vague and does not name the expected behavior; prefer `The parser rejects empty input.`
 
+#### 46. Terms Reuse Shared Vocabulary
+`Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
+Use a new term only for a different concept.
+Fail duplicate terms and name the existing term to use instead.
+
 ### 5x. Assertion Quality
 
 #### 51. Assertions Match the Requirement
