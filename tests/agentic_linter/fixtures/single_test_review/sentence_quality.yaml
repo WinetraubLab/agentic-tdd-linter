@@ -212,8 +212,6 @@ backticked_review_markdown_term:
         Verification Method: verify public function output
 
         Verification Detail:
-        The result is positive.
-        """
 
         assert 1 + 1 > 0
   expected_scorecard:
