@@ -1,10 +1,11 @@
 {
-  "total": {"success": "53/56 (94.6% pass)", "enforced_checks": 56},
-  "runtime": {"yaml_cases": 42, "total": "4m 17.2s", "average_per_yaml_case": "6.1s"},
+  "reviewer": {"model": "5.6 Sol Medium"},
+  "total": {"success": "55/56 (98.2% pass)", "enforced_checks": 56},
+  "runtime": {"yaml_cases": 42, "total": "8m 13.3s", "average_per_yaml_case": "11.7s"},
   "criteria": {
     "11": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "12": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []},
-    "13": {"success": "1/3 (33.3% pass)", "enforced_checks": 3, "failing_yaml_cases": ["per_source_test_pairing_is_unstated", "workflow_baseline_omits_repository_policy"]},
+    "13": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "21": {"success": "1/1 (100% pass)", "enforced_checks": 1, "failing_yaml_cases": []},
     "22": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
     "23": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
@@ -21,8 +22,8 @@
     "43": {"success": "6/6 (100% pass)", "enforced_checks": 6, "failing_yaml_cases": []},
     "44": {"success": "1/1 (100% pass)", "enforced_checks": 1, "failing_yaml_cases": []},
     "46": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
-    "51": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []},
+    "51": {"success": "4/5 (80% pass)", "enforced_checks": 5, "failing_yaml_cases": ["per_source_test_pairing_is_unstated"]},
     "52": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
-    "53": {"success": "3/4 (75% pass)", "enforced_checks": 4, "failing_yaml_cases": ["external_requirement_helper"]}
+    "53": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []}
   }
 }
