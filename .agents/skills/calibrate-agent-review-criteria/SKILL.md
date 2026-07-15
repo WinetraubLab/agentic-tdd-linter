@@ -18,6 +18,7 @@ Resolve scorecard mismatches without tailoring review rules to one fixture.
 
 ## Propose fixes
 
+- Show the user the criterion's existing heading and complete wording before presenting candidate replacements.
 - For a fixture defect, propose the smallest YAML change that demonstrates the same general rule clearly.
 - For criterion ambiguity, propose two or three reusable formulations before editing Jinja.
 - Keep candidates domain-neutral. Do not copy fixture paths, identifiers, constants, function names, or domain language into a criterion.
