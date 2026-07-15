@@ -1,10 +1,15 @@
 # Test-source examples for agent review.
-# Each example contains only `test` and `expected_scorecard`.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
 external_expected_value:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_expected_value() -> None:
         """Test Path: failure path
@@ -15,16 +20,21 @@ external_expected_value:
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report includes Keep Assertions Self-Contained.
+        Linter report includes Test Values Are Local.
         """
 
         expected_value = EXPECTED_VALUE
         assert(fun_a(10), expected_value)
   expected_scorecard:
-    53: # Assertions Are Self-Contained
+    53: # Test Values Are Local
       fail # The expected result comes from `EXPECTED_VALUE` outside the test body.
 
 external_argument_value:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_argument_value() -> None:
         """Test Path: failure path
@@ -35,15 +45,20 @@ external_argument_value:
         Verification Method: verify public function output
 
         Verification Detail:
-        Linter report includes Keep Assertions Self-Contained.
+        Linter report includes Test Values Are Local.
         """
 
         assert(fun_a(EXPECTED_VALUE), 10)
   expected_scorecard:
-    53: # Assertions Are Self-Contained
+    53: # Test Values Are Local
       fail # The function input comes from `EXPECTED_VALUE` outside the test body.
 
 imported_fact_list:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     from ice_cream_database import ARTIFACT_BACKED_FACTS
 
@@ -65,10 +80,15 @@ imported_fact_list:
 
             self.assertIn("artifact_db_update", error)
   expected_scorecard:
-    53: # Assertions Are Self-Contained
+    53: # Test Values Are Local
       fail # Loop inputs come from the imported `ARTIFACT_BACKED_FACTS` list.
 
 external_requirement_helper:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_long_requirement_fails() -> None:
         """Test Path: failure path
