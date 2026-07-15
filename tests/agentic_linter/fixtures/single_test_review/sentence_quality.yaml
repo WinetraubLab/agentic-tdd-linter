@@ -145,7 +145,7 @@ requirement_relative_clause_omits_referent:
 
         assert 1 + 1 > 0
   expected_scorecard:
-    36: # Relative Clauses Name Their Referents
+    36: # Relative Clauses Are Complete
       fail # `whose SHA no longer matches` does not say what the SHA should match.
 
 backticked_agent_review_artifact_term:
