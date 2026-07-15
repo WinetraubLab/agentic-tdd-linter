@@ -250,7 +250,7 @@ version_equality_described_as_identification:
 
         Requirement Tested:
         Package metadata identifies `__version__`.
-        Standard usage: Callers use default inputs.
+        Standard usage: Callers provide their default values when they invoke the version reader.
 
         Verification Method: verify private function output
 

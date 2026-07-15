@@ -16,7 +16,7 @@ public_method_receives_public_result:
 
         Requirement Tested:
         The linter accepts valid tests.
-        Standard usage: Callers use default inputs.
+        Standard usage: Callers provide their default values when they invoke the linter.
 
         Verification Method: verify public function output
 
@@ -43,7 +43,7 @@ public_method_receives_private_result:
 
         Requirement Tested:
         The linter accepts valid tests.
-        Standard usage: Callers use default inputs.
+        Standard usage: Callers provide their default values when they invoke the linter helper.
 
         Verification Method: verify public function output
 
@@ -70,7 +70,7 @@ private_method_receives_private_result:
 
         Requirement Tested:
         The linter accepts valid tests.
-        Standard usage: Callers use default inputs.
+        Standard usage: Callers provide their default values when they invoke the linter helper.
 
         Verification Method: verify private function output
 
