@@ -1,0 +1,86 @@
+# Test-source examples for agent review.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+public_method_receives_public_result:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_lint_succeeds() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts valid tests.
+        Standard usage: Callers use default inputs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `run_lint_pipeline` returns zero issues.
+        """
+
+        issues = run_lint_pipeline()
+
+        assert issues == []
+  expected_scorecard:
+    23: # Verification Method Matches Exercised Interface
+      pass # The asserted evidence comes directly from the public `run_lint_pipeline` callable.
+
+public_method_receives_private_result:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_lint_succeeds() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts valid tests.
+        Standard usage: Callers use default inputs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `_run_lint` returns zero issues.
+        """
+
+        issues = _run_lint()
+
+        assert issues == []
+  expected_scorecard:
+    23: # Verification Method Matches Exercised Interface
+      fail # The asserted evidence comes from the private `_run_lint` helper, not a public interface.
+
+private_method_receives_private_result:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_lint_succeeds() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts valid tests.
+        Standard usage: Callers use default inputs.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_run_lint` returns zero issues.
+        """
+
+        issues = _run_lint()
+
+        assert issues == []
+  expected_scorecard:
+    23: # Verification Method Matches Exercised Interface
+      pass # The private verification method matches the private helper that supplies the asserted evidence.
