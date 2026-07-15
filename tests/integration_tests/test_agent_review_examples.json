@@ -1,10 +1,6 @@
 {
   "total": {"success": "48/56 (85.7% pass)", "enforced_checks": 56},
-  "runtime": {
-    "yaml_cases": 42,
-    "total": "10m 21.2s",
-    "average_per_yaml_case": "14.8s"
-  },
+  "runtime": {"yaml_cases": 42, "total": "10m 21.2s", "average_per_yaml_case": "14.8s"},
   "criteria": {
     "11": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "12": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []},
