@@ -1,10 +1,15 @@
 # Test-source examples for agent review.
-# Each example contains only `test` and `expected_scorecard`.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
 simple_sentence_structure:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -24,6 +29,11 @@ simple_sentence_structure:
       pass # The requirement and verification detail each express one idea.
 
 long_requirement_subject:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -43,6 +53,11 @@ long_requirement_subject:
       fail # The requirement uses `The current source artifact` as a long subject.
 
 long_verification_subject:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -62,6 +77,11 @@ long_verification_subject:
       fail # The verification detail uses `The captured failure output` as a long subject.
 
 verification_double_negation:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -81,6 +101,11 @@ verification_double_negation:
       fail # `no failure` combined with `false` expresses double negation.
 
 requirement_expresses_many_concepts:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -100,6 +125,11 @@ requirement_expresses_many_concepts:
       fail # The requirement combines acceptance, addition, return, sign, and side-effect concepts.
 
 requirement_relative_clause_omits_referent:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -119,6 +149,11 @@ requirement_relative_clause_omits_referent:
       fail # `whose SHA no longer matches` does not say what the SHA should match.
 
 unmarked_agent_review_artifacts_term:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -138,6 +173,11 @@ unmarked_agent_review_artifacts_term:
       fail # `Dogfood` and `agent review artifacts` are unmarked local terms.
 
 unmarked_review_markdown_term:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -157,6 +197,11 @@ unmarked_review_markdown_term:
       fail # `Review markdown` is an unmarked local term.
 
 backticked_review_markdown_term:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -176,6 +221,11 @@ backticked_review_markdown_term:
       pass # The local term `Review markdown` is backticked.
 
 backticked_agent_review_artifact_term:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -195,6 +245,11 @@ backticked_agent_review_artifact_term:
       pass # The local term `agent_review_artifact` is backticked.
 
 verification_omits_subject:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -214,6 +269,11 @@ verification_omits_subject:
       fail # The verification detail begins with mechanics and has no grammatical subject.
 
 verification_mechanics_omit_subject:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -233,6 +293,11 @@ verification_mechanics_omit_subject:
       fail # The verification detail starts with mechanics and omits a subject.
 
 verification_uses_names_as_verb:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -252,6 +317,11 @@ verification_uses_names_as_verb:
       fail # `names` can read as either a noun or a verb.
 
 verification_uses_reports_as_verb:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -271,6 +341,11 @@ verification_uses_reports_as_verb:
       fail # `reports` can read as either a noun or a verb.
 
 verification_expresses_many_concepts:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -290,6 +365,11 @@ verification_expresses_many_concepts:
       fail # The verification detail combines several independent evidence claims.
 
 vague_reference_is_not_passive_voice:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_review_manifest_is_tracked(self) -> None:
             """Test Path: happy path
