@@ -1,10 +1,15 @@
 # Test-source examples for agent review.
-# Each example contains only `test` and `expected_scorecard`.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
 extra_assertion_proves_other_behavior:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -28,6 +33,11 @@ extra_assertion_proves_other_behavior:
       fail # Exact addition is outside the stated positive-result requirement.
 
 tagged_input_assertions:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -52,6 +62,11 @@ tagged_input_assertions:
       pass # Both input-validation assertions use the exact `# Input check` comment.
 
 untagged_input_assertions:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
