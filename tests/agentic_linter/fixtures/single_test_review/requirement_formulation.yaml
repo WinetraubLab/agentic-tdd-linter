@@ -190,3 +190,35 @@ unused_context_without_scenario:
   expected_scorecard:
     12: # Second Sentence Describes a Scenario
       fail # Requirement Tested contains no second sentence describing a concrete unused-context scenario.
+
+version_equality_described_as_identification:
+  file_docstring: |
+    """Tests for package version metadata.
+
+    Terms:
+    - `__version__`: This package attribute exposes the installed linter version. For example, it equals the version declared in pyproject.toml.
+    """
+  test: |
+    def test_matches_package_metadata(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Package metadata identifies `__version__`.
+        Standard usage: Callers use default inputs.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_project_version` produces `__version__`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[1]
+        project_version = _project_version(repo_root / "pyproject.toml")
+
+        self.assertEqual(project_version, __version__)
+  expected_scorecard:
+    44: # Wording Is Concrete
+      fail # Identifies is vague because it does not state the equality invariant proved by the test.
+    51: # Assertions Match the Requirement
+      fail # The assertion compares two version values, while the requirement claims only that metadata identifies one attribute.
+           # Expected requirement: The package version exposed at runtime equals the project metadata version read by `_project_version`.
