@@ -24,8 +24,9 @@ If context is missing from this file, fail with notes asking the test to include
 ### 1x. Requirement Formulation
 
 #### 11. First Sentence Describes Behavior
-The first `Requirement Tested` sentence shall state the general behavioral rule: what the system must do.
-Fail wording that only describes a use case, mechanics, fixtures, constants, assertions, commands, tags, or test names.
+The first `Requirement Tested` sentence shall state a general behavioral rule from the perspective of a system architect.
+A system architect may not know implementation details or fixtures.
+When the requirement includes specific values, explain the rule or source from which those values are derived.
 
 #### 12. Second Sentence Describes a Scenario
 {% if scenario_type == "happy path" %}
@@ -83,9 +84,9 @@ For example, fail `The linter checks syntax.` because `checks` can name inspecti
 Every condition shall use an explicit condition word such as if, when, unless, or only if.
 For example, fail `Empty input triggers rejection.`; prefer `When input is empty, the parser rejects it.`
 
-#### 36. Relative Clauses Name Their Referents
-A sentence shall not end with a relative clause that omits referent information.
-For example, fail `The parser rejects it, which is invalid.`; prefer `The parser rejects invalid input.`
+#### 36. Relative Clauses Are Complete
+A relative clause shall identify its referent and include every comparison target needed to understand the relationship.
+Fail when the referent is unclear or a comparison target is missing.
 
 #### 37. Sentence Expresses One Concept
 Each sentence shall communicate one primary idea, requirement, or decision.
@@ -163,7 +164,7 @@ Define synthetic inputs and expected values inside the test body.
 | 33 | Subject and Object Are Concise | pending | Replace with review evidence. |
 | 34 | Main Verb Is Unambiguous | pending | Replace with review evidence. |
 | 35 | Conditions Are Explicit | pending | Replace with review evidence. |
-| 36 | Relative Clauses Name Their Referents | pending | Replace with review evidence. |
+| 36 | Relative Clauses Are Complete | pending | Replace with review evidence. |
 | 37 | Sentence Expresses One Concept | pending | Replace with review evidence. |
 | 38 | Behavior Uses Active Voice | pending | Replace with review evidence. |
 | 39 | Subject Is Not This, That, These, or Those | pending | Replace with review evidence. |
