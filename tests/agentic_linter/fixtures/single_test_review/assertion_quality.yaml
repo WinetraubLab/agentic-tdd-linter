@@ -29,7 +29,7 @@ extra_assertion_proves_other_behavior:
         assert c > 0
         assert c == a + b
   expected_scorecard:
-    51: # Assertions Match the Requirement
+    51: # Assertions Prove the Stated Requirement
       fail # Exact addition is outside the stated positive-result requirement.
 
 tagged_input_assertions:
