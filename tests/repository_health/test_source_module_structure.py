@@ -12,8 +12,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `source modules` require tests.
-        When modules contain logic, `source modules` require tests.
+        When a `source module` exists, the repository requires a matching `test module`.
 
         Verification Method: verify private function output
 
