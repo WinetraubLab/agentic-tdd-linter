@@ -104,7 +104,7 @@ per_source_test_pairing_is_unstated:
 
         Requirement Tested:
         A `source module` requires a `test module`.
-        Standard usage: Callers use default inputs.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
@@ -127,5 +127,9 @@ per_source_test_pairing_is_unstated:
             ),
         )
   expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      pass # The standard-usage sentence uses the exact baseline-behavior classification.
+    13: # Requirement Is Specific
+      fail # The requirement does not say that every source module needs its own corresponding test module.
     51: # Assertions Prove the Stated Requirement
       fail # The assertion enforces one matching test path for every source module, while the requirement says only that a source module requires some test module.

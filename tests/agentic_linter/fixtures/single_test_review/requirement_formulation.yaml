@@ -250,7 +250,7 @@ version_equality_described_as_identification:
 
         Requirement Tested:
         Package metadata identifies `__version__`.
-        Standard usage: Callers provide their default values when they invoke the version reader.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
@@ -283,7 +283,7 @@ workflow_baseline_omits_repository_policy:
 
             Requirement Tested:
             The `workflow` executes Python tests.
-            Standard usage: Callers provide their default values when they invoke the workflow loader.
+            Standard usage: The scenario demonstrates baseline behavior.
 
             Verification Method: verify private function output
 

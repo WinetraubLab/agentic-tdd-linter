@@ -350,7 +350,7 @@ demonstrative_modifies_explicit_noun:
     39: # Subject Is Not This, That, These, or Those
       pass # `The other test` is the explicit subject; `this test` is the comparison object.
 
-standard_usage_names_condition_and_owner:
+standard_usage_avoids_cross_criterion_conflicts:
   file_docstring: |
     """Verify ordinary parser calls.
 
@@ -362,7 +362,7 @@ standard_usage_names_condition_and_owner:
 
         Requirement Tested:
         The parser converts text.
-        Standard usage: Callers provide their default values when they invoke the parser.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
@@ -375,8 +375,8 @@ standard_usage_names_condition_and_owner:
         assert parse("word") == expected_tokens
   expected_scorecard:
     34: # Main Verb Is Unambiguous
-      pass # `converts`, `provide`, `invoke`, and `equals` do not have standard noun meanings.
+      pass # `converts`, `demonstrates`, and `equals` do not have standard noun meanings.
     35: # Conditions Are Explicit
-      pass # `when` explicitly introduces the condition for standard usage.
+      pass # The standard-usage classification expresses no condition that requires a condition word.
     43: # Data-Flow Terms Name an Owner
-      pass # `Callers` own their default values, and `Parser` owns its output.
+      pass # The standard-usage classification contains no ambiguous data-flow terms, and `Parser` owns its output.

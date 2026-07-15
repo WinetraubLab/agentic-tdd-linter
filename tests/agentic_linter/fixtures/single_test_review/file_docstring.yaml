@@ -18,7 +18,7 @@ defined_distinctive_file_terms:
 
         Requirement Tested:
         A `unit module` identifies an `implementation module`.
-        Standard usage: Callers provide their default values when they invoke the name mapper.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 

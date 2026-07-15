@@ -31,7 +31,7 @@ When the requirement includes specific values, explain the rule or source from w
 #### 12. Second Sentence Describes a Scenario
 {% if scenario_type == "happy path" %}
 Classify the test inputs with exactly one prefix:
-- `Standard usage:` for default or vanilla inputs. Use the form `Standard usage: Callers provide their default values when they invoke <named interface>.` Name the interface, but no further explanation is required.
+- `Standard usage:` when the test exercises baseline behavior without modifying an input, configuration, or precondition. Use the exact sentence `Standard usage: The scenario demonstrates baseline behavior.` No further description is required.
 - `Specialized usage:` for modified inputs. Name each modified input, contrast its special value with the standard value, and explain the use case requiring that difference. Use `Specialized usage: For <use case>, <named input> becomes <special value> (instead of <standard value>).`
 
 For example, ``Specialized usage: For immediate retries, `timeout` becomes zero (instead of a positive duration).`` names the use case, changed input, specialized value, and standard value.
