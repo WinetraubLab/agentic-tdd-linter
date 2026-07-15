@@ -15,7 +15,8 @@ availability_without_behavior:
         """Test Path: happy path
 
         Requirement Tested:
-        When organization is home, availability includes 09:00–12:00. When organization is Y, availability excludes 13:00–16:00.
+        When organization is home, availability includes 09:00–12:00; when organization is Y, availability excludes 13:00–16:00.
+        Specialized usage: For home availability, organization changes from Y to home.
 
         Verification Method: verify public function output
 
@@ -30,7 +31,7 @@ availability_without_behavior:
     11: # First Sentence Describes Behavior
       fail # The requirement lists availability examples without stating a general behavior.
     12: # Second Sentence Describes a Scenario
-      pass # The home and Y organization cases provide concrete applicability scenarios.
+      pass # The specialized-usage sentence names the use case, input, standard value, and modified value.
     21: # Expected Results Appear in Verification Detail
       fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
     51: # Assertions Match the Requirement
