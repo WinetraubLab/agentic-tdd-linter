@@ -349,3 +349,34 @@ demonstrative_modifies_explicit_noun:
   expected_scorecard:
     39: # Subject Is Not This, That, These, or Those
       pass # `The other test` is the explicit subject; `this test` is the comparison object.
+
+standard_usage_names_condition_and_owner:
+  file_docstring: |
+    """Verify ordinary parser calls.
+
+    For example, this file contains one parser test.
+    """
+  test: |
+    def test_parses_default_text() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The parser converts text.
+        Standard usage: Callers provide their default values when they invoke the parser.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Parser output equals expected tokens.
+        """
+
+        expected_tokens = ["word"]
+
+        assert parse("word") == expected_tokens
+  expected_scorecard:
+    34: # Main Verb Is Unambiguous
+      pass # `converts`, `provide`, `invoke`, and `equals` do not have standard noun meanings.
+    35: # Conditions Are Explicit
+      pass # `when` explicitly introduces the condition for standard usage.
+    43: # Data-Flow Terms Name an Owner
+      pass # `Callers` own their default values, and `Parser` owns its output.
