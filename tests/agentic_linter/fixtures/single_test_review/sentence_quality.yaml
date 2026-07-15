@@ -324,3 +324,27 @@ vague_reference_is_not_passive_voice:
       pass # `stay` and `applies` are active verb forms rather than passive `be` plus a past participle.
     44: # Wording Is Concrete
       fail # `This` does not identify the rule or behavior that applies to the repository test manifest.
+demonstrative_modifies_explicit_noun:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_review_levels() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Review packets compare levels.
+        When coverage overlaps, reviewers compare levels.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The other test is higher than this test.
+        """
+
+        assert "higher" in "higher than this test"
+  expected_scorecard:
+    39: # Subject Is Not This, That, These, or Those
+      pass # `The other test` is the explicit subject; `this test` is the comparison object.
