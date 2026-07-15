@@ -268,3 +268,34 @@ version_equality_described_as_identification:
     51: # Assertions Prove the Stated Requirement
       fail # The assertion compares two version values, while the requirement claims only that metadata identifies one attribute.
            # Expected requirement: The package version exposed at runtime equals the project metadata version read by `_project_version`.
+
+workflow_baseline_omits_repository_policy:
+  file_docstring: |
+    """Verify the repository's unit-test workflow configuration.
+
+    Terms:
+    - `workflow`: The workflow is `.github/workflows/unit-tests.yml`, which runs the complete Python test suite. For example, it executes unittest discovery under the tests directory for pushes and pull requests.
+    - `repository events`: Repository events are pushes and pull requests on any branch. For example, either event triggers the workflow.
+    """
+  test: |
+    def test_unit_workflow_runs_tests(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            The `workflow` executes Python tests.
+            Standard usage: Callers provide their default values when they invoke the workflow loader.
+
+            Verification Method: verify private function output
+
+            Verification Detail:
+            `_repository_test_workflow` output contains `python -m unittest discover -s tests`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            workflow = _repository_test_workflow(repo_root)
+            self.assertIn("python -m unittest discover -s tests", workflow)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # The requirement states the architectural behavior that the workflow executes Python tests.
+    13: # Requirement Is Specific
+      fail # Executing Python tests is a generic CI baseline, not a distinct repository policy; name the policy protected by unittest discovery, or remove the test when no distinct policy exists.
