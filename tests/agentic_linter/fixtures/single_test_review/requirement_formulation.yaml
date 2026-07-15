@@ -5,6 +5,11 @@
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
 availability_without_behavior:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_organization_availability() -> None:
         """Test Path: happy path
@@ -32,6 +37,11 @@ availability_without_behavior:
       fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
 
 assertions_without_behavior:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -53,6 +63,11 @@ assertions_without_behavior:
       fail # The arithmetic assertion does not prove the assertion-tag wording.
 
 swappable_requirement:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_bad_sentence_structure() -> None:
         """Test Path: failure path
@@ -72,6 +87,11 @@ swappable_requirement:
       fail # Each requirement is generic enough to be swapped onto another sentence-validation test.
 
 ambiguous_input:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -91,6 +111,11 @@ ambiguous_input:
       fail # Input does not name the component or caller that owns it.
 
 ambiguous_output:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -110,6 +135,11 @@ ambiguous_output:
       fail # Output does not name the component or operation that produces it.
 
 ambiguous_returns:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -131,6 +161,11 @@ ambiguous_returns:
       fail # Returns does not name the component or operation that owns the returned value.
 
 ambiguous_provided:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -150,6 +185,11 @@ ambiguous_provided:
       fail # Provided does not identify who supplies the activity name.
 
 missing_file_without_scenario:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_reports_manifest_missing_source() -> None:
         """Test Path: failure path
@@ -169,6 +209,11 @@ missing_file_without_scenario:
       fail # Requirement Tested contains no second sentence describing a concrete missing-file scenario.
 
 unused_context_without_scenario:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_rejects_unused_context_variable() -> None:
         """Test Path: failure path
