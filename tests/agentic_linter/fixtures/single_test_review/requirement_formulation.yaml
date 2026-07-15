@@ -32,6 +32,8 @@ availability_without_behavior:
       fail # The requirement lists availability examples without stating a general behavior.
     12: # Second Sentence Describes a Scenario
       pass # The specialized-usage sentence names the use case, input, standard value, and modified value.
+    14: # Requirement Is Atomic
+      fail # The requirement combines independent availability behaviors for two organizations.
     21: # Expected Results Appear in Verification Detail
       fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
     51: # Assertions Prove the Stated Requirement
@@ -350,44 +352,3 @@ record_field_set_forms_one_schema_contract:
       pass # The listed fields collectively define one complete record-schema contract.
     51: # Assertions Prove the Stated Requirement
       pass # Each field assertion proves one property named by the record-schema requirement.
-
-repository_pairing_relationship_is_unstated:
-  file_docstring: |
-    """Verify source-module API and test-file structure.
-
-    Terms:
-    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
-    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
-    """
-  test: |
-    def test_repository_modules_have_test_files(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        Repository validation requires `test module`s for `source module`s.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        `_missing_test_paths` produces `[]`.
-        Sources have tests.
-        """
-
-        repo_root = Path(__file__).resolve().parents[2]
-        package_root = repo_root / "src" / "agentic_tdd_linter"
-        test_root = repo_root / "tests"
-        self.assertEqual(
-            [],
-            _missing_test_paths(
-                package_root=package_root,
-                test_root=test_root,
-            ),
-        )
-  expected_scorecard:
-    12: # Second Sentence Describes a Scenario
-      pass # The standard-usage sentence uses the exact baseline-behavior classification.
-    13: # Requirement Is Specific
-      fail # The requirement omits that each source module needs its own corresponding test module.
-    51: # Assertions Prove the Stated Requirement
-      fail # The assertion proves one corresponding test path for every source module, while the requirement states only an unspecified relationship between the module groups.

@@ -29,6 +29,8 @@ extra_assertion_proves_other_behavior:
         assert c > 0
         assert c == a + b
   expected_scorecard:
+    14: # Requirement Is Atomic
+      pass # The requirement states one positive-result behavior; the unrelated assertion is evaluated by criterion 51.
     51: # Assertions Prove the Stated Requirement
       fail # Exact addition is outside the stated positive-result requirement.
 
