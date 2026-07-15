@@ -27,13 +27,16 @@ Resolve scorecard mismatches without tailoring review rules to one fixture.
 
 ## Run a blind experiment
 
-1. Run `scripts/criterion_experiment.py prepare` with the selected case, criterion number, candidate title, and rule lines. This regenerates only that anonymous packet and changes only the criterion inside the generated packet.
-2. Do not edit the YAML or Jinja template during the experiment.
-3. Start a fresh isolated reviewer with no conversation context.
-4. Give the reviewer only the generated Markdown packet. Do not expose the YAML case name, expected result, earlier reviews, diagnosis, or repository files.
-5. Ask the reviewer to evaluate only the experimental criterion, update only its scorecard row, and leave every other row unchanged.
-6. Run `scripts/criterion_experiment.py compare` after review.
-7. Report candidate wording, expected result, actual result, reviewer reasoning, and mismatch status.
+1. Run the complete blind experiment separately for every proposed candidate. Do not test only the recommended candidate.
+2. Run `scripts/criterion_experiment.py prepare` with the selected case, criterion number, candidate title, and rule lines. This regenerates only that anonymous packet and changes only the criterion inside the generated packet.
+3. Preserve a separate packet for each candidate so experiments cannot overwrite or influence one another.
+4. Do not edit the YAML or Jinja template during the experiment.
+5. Start a fresh isolated reviewer with no conversation context for each candidate.
+6. Give the reviewer only that candidate's generated Markdown packet. Do not expose the YAML case name, expected result, other candidates, earlier reviews, diagnosis, or repository files.
+7. Ask the reviewer to evaluate only the experimental criterion, update only its scorecard row, and leave every other row unchanged.
+8. Run `scripts/criterion_experiment.py compare` separately for every reviewed candidate.
+9. Show the user a side-by-side result containing every candidate's wording, expected result, actual result, reviewer reasoning, and mismatch status.
+10. Treat a candidate as solving the observed mismatch only when its isolated actual result matches the YAML expectation.
 
 Example:
 
