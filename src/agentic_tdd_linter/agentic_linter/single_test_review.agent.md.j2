@@ -117,8 +117,8 @@ Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` s
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
 #### 44. Wording Is Concrete
-Review wording shall use concrete terms instead of vague or generic language.
-For example, fail `The parser handles input correctly.` because `correctly` is vague and does not name the expected behavior; prefer `The parser rejects empty input.`
+Review wording shall use the most specific behavior or relationship supported by the evidence.
+Fail verbs that could describe several materially different outcomes when the evidence establishes one exact outcome.
 
 #### 46. Terms Reuse Shared Vocabulary
 `Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
