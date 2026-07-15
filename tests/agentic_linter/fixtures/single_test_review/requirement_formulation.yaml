@@ -16,7 +16,7 @@ availability_without_behavior:
 
         Requirement Tested:
         When organization is home, availability includes 09:00–12:00; when organization is Y, availability excludes 13:00–16:00.
-        Specialized usage: For home availability, organization changes from Y to home.
+        Specialized usage: For home availability, organization becomes home (instead of Y).
 
         Verification Method: verify public function output
 

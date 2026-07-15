@@ -107,5 +107,5 @@ external_requirement_helper:
 
         assert result.exit_code == 1
   expected_scorecard:
-      fail # The reviewed requirement value comes from a helper outside the test body.
     53: # Test Values Are Local
+      fail # The reviewed requirement value comes from a helper outside the test body.
