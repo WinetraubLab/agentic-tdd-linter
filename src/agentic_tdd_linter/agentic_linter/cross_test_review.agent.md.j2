@@ -37,16 +37,32 @@ Examples include a private-function test paired with a public-function test, or 
 When the scope contains zero cross-level pairs, set the result to `pass` and state that the review found zero pairs.
 
 #### 22. Cross-Level Pairs Reference Each Other
-Every test in a cross-level pair shall reference the other test in `Verification Detail`.
-In `Verification Detail`, name both tests and state the level covered by each test.
-Use wording equivalent to: `This is a <X>-level test; see also <test_name>, which tests the same requirement at the <Y> level.`
-Fail if either test omits the reciprocal reference or does not state both test levels.
-If no cross-level pair exists, pass as not applicable.
+Every test in a cross-level pair shall reference the other test in its own `Similar Coverage` section.
+Use the function definition as the current test's identifier.
+Name the other test as higher-level or lower-level relative to the current test.
+Use one of these entries for every related test:
 
-#### 23. Lower-Level Tests Are Justified
-The lower-level test in every cross-level pair shall justify why it is required in `Verification Detail`.
-Format each justification as `Justification: <category> — <specific evidence>.`
-The category shall be exactly one of:
+```text
+Similar Coverage:
+- Higher Level Test: `<file.py>::<test_name>`
+  Justification: <classification> — <specific coverage difference>
+```
+
+or:
+
+```text
+Similar Coverage:
+- Lower Level Test: `<file.py>::<test_name>`
+  Justification: <classification> — <specific coverage difference>
+```
+
+A passing pair includes reciprocal references and justifications in both tests.
+When the scope contains zero cross-level pairs, set the result to `pass` as not applicable.
+
+#### 23. Cross-Level Differences Are Justified
+Every test in a cross-level pair shall justify the relationship in `Similar Coverage`.
+Format each justification as `Justification: <classification> — <specific coverage difference>.`
+The classification shall be exactly one of:
 
 - `Shared foundation`: The lower-level test protects behavior reused by multiple higher-level tests. Name the reused behavior and the higher-level workflow that depends on it.
 - `Deeper coverage`: The lower-level test verifies coverage absent from the higher-level test. Name the exact case, assertion, field, or evidence covered only at the lower level.
