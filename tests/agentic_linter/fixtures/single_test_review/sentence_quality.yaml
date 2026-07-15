@@ -159,7 +159,7 @@ backticked_agent_review_artifact_term:
         """Test Path: happy path
 
         Requirement Tested:
-        Linter exit code matches pass or fail status values in `agent_review_artifact`.
+        `linter exit code` matches `pass status` or `fail status` in `agent_review_artifact`.
 
         Verification Method: verify public function output
 
@@ -170,7 +170,7 @@ backticked_agent_review_artifact_term:
         assert 1 + 1 > 0
   expected_scorecard:
     42: # Domain Terms Are Defined
-      pass # The local term `agent_review_artifact` is backticked.
+      fail # The backticked status and artifact terms have no matching Terms entries in the file docstring.
 
 verification_omits_subject:
   file_docstring: |
