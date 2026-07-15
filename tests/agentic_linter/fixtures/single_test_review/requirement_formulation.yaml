@@ -299,3 +299,54 @@ workflow_baseline_omits_repository_policy:
       pass # The requirement states the architectural behavior that the workflow executes Python tests.
     13: # Requirement Is Specific
       fail # Executing Python tests is a generic CI baseline, not a distinct repository policy; name the policy protected by unittest discovery, or remove the test when no distinct policy exists.
+
+record_field_set_forms_one_schema_contract:
+  file_docstring: |
+    """Verify extracted-test records.
+
+    Terms:
+    - `ExtractedTestRecord`: ExtractedTestRecord is the shared data structure for one indexed test. For example, it stores a test's path, name, line, syntax node, documentation, and source without a language discriminator.
+    """
+  test: |
+    def test_stores_all_fields_without_language(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `ExtractedTestRecord` stores path, name, line, syntax node, test docstring, source text, and file docstring fields without a language field.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            The record exposes `tests/test_sample.py` as its path.
+            The record exposes `test_sample` as its name.
+            The record exposes `1` as its line.
+            The record exposes `None` as its node.
+            The record exposes `Sample documentation.` as its docstring.
+            The record exposes `def test_sample(): pass` as its source.
+            The record exposes `None` as its file docstring.
+            The record omits `language`.
+            """
+
+            record = ExtractedTestRecord(
+                path=Path("tests/test_sample.py"),
+                name="test_sample",
+                line=1,
+                node=None,
+                docstring="Sample documentation.",
+                source="def test_sample(): pass",
+            )
+
+            self.assertEqual(Path("tests/test_sample.py"), record.path)
+            self.assertEqual("test_sample", record.name)
+            self.assertEqual(1, record.line)
+            self.assertIsNone(record.node)
+            self.assertEqual("Sample documentation.", record.docstring)
+            self.assertEqual("def test_sample(): pass", record.source)
+            self.assertIsNone(record.file_docstring)
+            self.assertFalse(hasattr(record, "language"))
+  expected_scorecard:
+    14: # Requirement Is Atomic
+      pass # The listed fields collectively define one complete record-schema contract.
+    51: # Assertions Prove the Stated Requirement
+      pass # Each field assertion proves one property named by the record-schema requirement.
