@@ -1,10 +1,15 @@
 # Test-source examples for agent review.
-# Each example contains only `test` and `expected_scorecard`.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
 # Criteria omitted from `expected_scorecard` are ignored during comparison.
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
 verification_names_mechanics_only:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -24,6 +29,11 @@ verification_names_mechanics_only:
       fail # The detail names command and assertion mechanics without behavior evidence.
 
 verification_uses_bare_exit_code:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
@@ -43,6 +53,11 @@ verification_uses_bare_exit_code:
       fail # A bare exit code does not explain the behavior it proves.
 
 verification_output_has_no_owner:
+  file_docstring: |
+    """Provide shared context.
+
+    For example, this file contains one test function.
+    """
   test: |
     def test_adds_numbers() -> None:
         """Test Path: happy path
