@@ -127,8 +127,10 @@ Fail duplicate terms and name the existing term to use instead.
 ### 5x. Assertion Quality
 
 #### 51. Assertions Prove the Stated Requirement
-Every assertion shall prove the exact behavior stated in `Requirement Tested`.
-Assertions that further validate related behavior require explicit descriptions in `Requirement Tested`.
+Review each assertion independently.
+Every behavioral guarantee established by an assertion shall be stated in `Requirement Tested`.
+Fail when an assertion establishes an additional or stronger guarantee, even when it also supports the stated requirement.
+Move the additional guarantee to another test when adding it would make the requirement non-atomic.
 
 #### 52. Input Checks Are Tagged
 Every input-validation assertion shall include the exact `# Input check` comment.
