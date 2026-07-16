@@ -352,3 +352,81 @@ record_field_set_forms_one_schema_contract:
       pass # The listed fields collectively define one complete record-schema contract.
     51: # Assertions Prove the Stated Requirement
       pass # Each field assertion proves one property named by the record-schema requirement.
+
+module_identity_is_described_as_check_behavior:
+  file_docstring: |
+    """Verify deterministic module-docstring checks.
+
+    Terms:
+    - `check`: The check validates module-docstring placement in one test file. For example, it accepts a file whose first statement is a string literal.
+    """
+  test: |
+    def test_missing_file_docstring_identifies_module(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When files omit docstrings, the `check` identifies module scope.
+        Specialized usage: For module-scope validation, docstring input becomes absent (instead of leading).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Issue name is `<module>`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_run_lint_pipeline.py::test_reports_missing_file_docstring`
+          Justification: Deeper coverage — This test verifies `<module>`. Pipeline output omits identity.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_sample.py"
+            test_file.parent.mkdir()
+            test_file.write_text(
+                "def test_sample():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            issues = check_test_file_docstring(test_file, root)
+
+        self.assertEqual(["<module>"], [issue.test_name for issue in issues])
+  expected_scorecard:
+    15: # Requirement Begins with the Behavior Owner
+      fail # The first sentence begins with a When scenario and makes the check, rather than the issue, own the behavior.
+    51: # Assertions Prove the Stated Requirement
+      fail # The assertion establishes the issue-name relationship that Requirement Tested omits.
+
+repository_policy_described_as_git_query_requirement:
+  file_docstring: |
+    """Verify that agent-review manifests remain tracked.
+
+    Terms:
+    - `review manifest`: A review manifest is the tracked proof file for repository test reviews. For example, `tests/agentic_review_manifest.jsonl` is a review manifest.
+    - `tracked-file query`: A tracked-file query runs `git ls-files --error-unmatch` for one repository path. For example, the query locates `tests/agentic_review_manifest.jsonl` in the Git index.
+    """
+  test: |
+    def test_review_manifest_is_tracked(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `tracked-file query` locates `review manifest`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_tracked_result` produces return code `0`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        result = _tracked_result(
+            Path("tests") / "agentic_review_manifest.jsonl",
+            repo_root=repo_root,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+  expected_scorecard:
+    15: # Requirement Begins with the Behavior Owner
+      fail # The requirement makes the Git query responsible for behavior instead of stating the repository policy that the manifest remains tracked.
+    44: # Wording Is Concrete
+      fail # `locates` describes the inspection mechanism's outcome instead of the repository state that the manifest remains tracked in source control.
