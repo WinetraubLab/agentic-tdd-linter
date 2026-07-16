@@ -88,7 +88,9 @@ Evaluate the exact main-verb word independently of the sentence grammar.
 Fail when the same word form has a standard noun meaning, even when the sentence clearly uses it as a verb.
 
 #### 35. Conditions Are Explicit
-Every condition shall use an explicit condition word such as if, when, unless, or only if.
+Every condition shall use an explicit condition marker such as `if`, `when`, `unless`, or `only if`.
+The exact criterion-12 form `Specialized usage: For <use case>, ...` uses `For <use case>,` as its explicit use-case condition marker and shall pass this criterion.
+Other `for` phrases do not satisfy this criterion unless they explicitly identify the use case that conditions the specialized input.
 For example, fail `Empty input triggers rejection.`; prefer `When input is empty, the parser rejects it.`
 
 #### 36. Relative Clauses Are Complete

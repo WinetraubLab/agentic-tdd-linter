@@ -380,3 +380,60 @@ standard_usage_avoids_cross_criterion_conflicts:
       pass # The standard-usage classification expresses no condition that requires a condition word.
     43: # Data-Flow Terms Name an Owner
       pass # The standard-usage classification contains no ambiguous data-flow terms, and `Parser` owns its output.
+
+specialized_usage_marks_condition_explicitly:
+  file_docstring: |
+    """Verify immediate retry behavior.
+
+    For example, this file contains one client test.
+    """
+  test: |
+    def test_retries_immediately() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The client sends requests.
+        Specialized usage: For immediate retries, timeout becomes zero (instead of a positive duration).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The client sends the request without waiting.
+        """
+
+        result = send_request(timeout=0)
+
+        assert result.sent
+  expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      pass # The specialized scenario uses criterion 12's exact use-case and modified-input format.
+    15: # Requirement Begins with the Behavior Owner
+      pass # The first requirement sentence begins with `The client`, which owns the behavior.
+    35: # Conditions Are Explicit
+      pass # The exact `For immediate retries,` phrase explicitly identifies the use case that conditions the specialized input.
+
+implicit_condition_omits_marker:
+  file_docstring: |
+    """Verify parser rejection behavior.
+
+    For example, this file contains one parser test.
+    """
+  test: |
+    def test_rejects_empty_text() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        The parser rejects empty text.
+        Empty text triggers rejection.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The parser raises `ValueError`.
+        """
+
+        with pytest.raises(ValueError):
+            parse("")
+  expected_scorecard:
+    35: # Conditions Are Explicit
+      fail # `Empty text triggers rejection.` expresses a condition without an explicit condition marker.

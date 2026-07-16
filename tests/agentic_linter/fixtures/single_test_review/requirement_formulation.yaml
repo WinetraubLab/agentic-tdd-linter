@@ -34,6 +34,8 @@ availability_without_behavior:
       pass # The specialized-usage sentence names the use case, input, standard value, and modified value.
     14: # Requirement Is Atomic
       fail # The requirement combines independent availability behaviors for two organizations.
+    15: # Requirement Begins with the Behavior Owner
+      fail # The first requirement sentence begins with the `When` scenario condition instead of the behavior owner.
     21: # Expected Results Appear in Verification Detail
       fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
     51: # Assertions Prove the Stated Requirement
