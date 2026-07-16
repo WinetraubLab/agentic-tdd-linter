@@ -367,4 +367,36 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("invalid_requirement_format", rules)
 
+    def test_reports_same_line_verification_detail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When docstrings place `Verification Detail` inline, the linter prohibits the format.
+        Specialized usage: For layout validation, `Verification Detail` becomes inline (instead of multiline).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When detail text stays inline, _lint_docstring_source includes `invalid_verification_detail_format`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail: by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("invalid_verification_detail_format", rules)
+
     unittest.main()
