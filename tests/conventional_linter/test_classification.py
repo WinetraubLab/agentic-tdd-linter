@@ -164,3 +164,43 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertEqual(set(), rules)
 
+    def test_accepts_visual_inspection(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts visual inspection when tests produce review artifacts.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When methods name inspection, rules contain zero issues.
+        """
+
+        rules = _lint_classification_source(
+            """
+            def write_visual_inspection_artifact() -> None:
+                return None
+
+
+            def test_draws_result_image() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                The renderer writes images.
+
+                Verification Method: visual inspection by user
+
+                Verification Detail:
+                The renderer writes tests/artifacts/addition.png.
+
+                Inspection Instructions:
+                Confirm the image shows the expected addition result.
+                \"\"\"
+
+                write_visual_inspection_artifact()
+            """
+        )
+
+        self.assertEqual(set(), rules)
+
