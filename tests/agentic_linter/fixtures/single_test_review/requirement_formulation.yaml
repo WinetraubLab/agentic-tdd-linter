@@ -432,3 +432,95 @@ repository_policy_described_as_git_query_requirement:
       fail # The requirement makes the Git query responsible for behavior instead of stating the repository policy that the manifest remains tracked.
     44: # Wording Is Concrete
       fail # `locates` describes the inspection mechanism's outcome instead of the repository state that the manifest remains tracked in source control.
+
+source_test_pairing_formulation_negative:
+  file_docstring: |
+    """Verify source-module API and test-file structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    """
+  test: |
+    def test_rejects_module_without_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Repository validation propagates errors when `source module`s lack `test module`s.
+        Specialized usage: For missing-test rejection, `test module` becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Validation propagates `AssertionError`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_root = root / "src" / "agentic_tdd_linter"
+            test_root = root / "tests"
+            source = package_root / "agentic_linter" / "orphan.py"
+            source.parent.mkdir(parents=True)
+            source.write_text("VALUE = 1\n", encoding="utf-8")
+            test_root.mkdir()
+
+            with self.assertRaises(AssertionError):
+                _assert_modules_have_matching_test_files(
+                    package_root=package_root,
+                    test_root=test_root,
+                )
+  expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      fail # The sentence presents an existing missing-match condition as a specialized input transition instead of directly stating the failure scenario.
+    44: # Wording Is Concrete
+      fail # The requirement describes error propagation instead of the repository policy that every source module requires a matching test module.
+
+source_test_pairing_formulation_positive:
+  file_docstring: |
+    """Verify source-module API and test-file structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    """
+  test: |
+    def test_rejects_module_without_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Repository validation requires every `source module` to have a matching `test module`.
+        Repository validation rejects a `source module` when it lacks a matching `test module`.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Validation propagates `AssertionError`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_root = root / "src" / "agentic_tdd_linter"
+            test_root = root / "tests"
+            source = package_root / "agentic_linter" / "orphan.py"
+            source.parent.mkdir(parents=True)
+            source.write_text("VALUE = 1\n", encoding="utf-8")
+            test_root.mkdir()
+
+            with self.assertRaises(AssertionError):
+                _assert_modules_have_matching_test_files(
+                    package_root=package_root,
+                    test_root=test_root,
+                )
+  expected_scorecard:
+    12: # Second Sentence Describes a Scenario
+      pass # The sentence directly names the missing-match condition and the validation behavior it triggers.
+    44: # Wording Is Concrete
+      pass # The requirement states both the repository pairing policy and the rejection behavior established by the test.
