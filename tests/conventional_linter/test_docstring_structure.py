@@ -399,4 +399,43 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("invalid_verification_detail_format", rules)
 
+    def test_reports_same_line_inspection_instructions(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When docstrings place `Inspection Instructions` inline, the linter emits issues.
+        Specialized usage: For layout validation, `Inspection Instructions` becomes inline (instead of multiline).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When instructions stay inline, _lint_docstring_source includes `invalid_inspection_instructions_format`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def write_visual_inspection_artifact() -> None:
+                return None
+
+
+            def test_draws_result_image() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                The renderer writes images.
+
+                Verification Method: visual inspection by user
+
+                Verification Detail:
+                The renderer writes tests/artifacts/addition.png.
+
+                Inspection Instructions: Confirm the image shows the expected addition result.
+                \"\"\"
+
+                write_visual_inspection_artifact()
+            """
+        )
+
+        self.assertIn("invalid_inspection_instructions_format", rules)
+
     unittest.main()
