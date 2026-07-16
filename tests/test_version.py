@@ -19,18 +19,18 @@ class VersionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The `__version__` value equals the `project.version` value.
-        Standard usage: Callers use default inputs.
+        `project.version` corresponds to `__version__`.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_project_version` reads `project.version` from `pyproject.toml`.
-        Its result equals `__version__`.
+        `_project_version` parses `project.version`.
+        `_project_version` result equals `__version__`.
 
         Similar Coverage:
-        - Other test: `test_build_manifest_from_agent_md_files.py::test_package_metadata_matches_linter_version`
-          Relative level: lower than this test
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_package_version_matches_manifest_contract`
+          Justification: Deeper coverage — Lower test verifies manifest-version equality, which this metadata test omits.
         """
 
         repo_root = Path(__file__).resolve().parents[1]
