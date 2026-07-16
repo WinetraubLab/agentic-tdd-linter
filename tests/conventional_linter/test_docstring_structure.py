@@ -299,4 +299,40 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("missing_visual_inspection_helper", rules)
 
+    def test_reports_long_typescript_test_name(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Naming policy rejects TypeScript labels when they exceed five words.
+        Specialized usage: For label validation, TypeScript label becomes long (instead of brief).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The limit is five words.
+        When labels contain six words, _lint_typescript_docstring_source includes `test_name_too_long`.
+        """
+
+        rules = _lint_typescript_docstring_source(
+            """
+            /**
+             * Test Path: happy path
+             *
+             * Requirement Tested:
+             * Addition returns the expected sum.
+             * This rule applies to positive integers.
+             *
+             * Verification Method: verify public function output
+             *
+             * Verification Detail:
+             * The returned total equals two.
+             */
+            test("adds two positive integer values correctly", () => {
+              assert.equal(1 + 1, 2);
+            });
+            """
+        )
+
+        self.assertIn("test_name_too_long", rules)
+
     unittest.main()
