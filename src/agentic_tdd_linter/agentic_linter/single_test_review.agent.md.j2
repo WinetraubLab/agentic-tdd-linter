@@ -42,14 +42,18 @@ Fail if the scenario sentence is missing or does not describe a concrete failure
 {% endif %}
 
 #### 13. Requirement Is Specific
-`Requirement Tested` shall be specific to the behavior and scenario under review.
-Fail wording that omits a scope, relationship, quantifier, or policy detail that the test actually verifies and therefore states a materially weaker requirement.
+`Requirement Tested` shall explicitly state every material scope, quantifier, correspondence, trigger, and policy established by the test.
+Do not infer universal, repository-wide, or per-item guarantees from singular or generic wording.
 Fail wording that could describe several tests or be swapped onto another test with little change.
 
 #### 14. Requirement Is Atomic
 `Requirement Tested` shall express one independently meaningful requirement.
 Treat multiple properties as one atomic requirement when they collectively define the complete structure of one record, schema, or interface.
 Fail wording that combines behaviors with independent purposes that should be specified and tested separately.
+
+#### 15. Requirement Begins with the Behavior Owner
+The first `Requirement Tested` sentence shall begin with the behavior owner as its grammatical subject.
+It shall begin with neither a scenario condition such as `When`, `If`, or `Unless`, nor a query, helper, or command used only to obtain evidence.
 
 ### 2x. Verification Formulation
 
@@ -119,8 +123,9 @@ Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` s
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
 #### 44. Wording Is Concrete
-Review wording shall use the most specific behavior or relationship supported by the evidence.
-Fail verbs that could describe several materially different outcomes when the evidence establishes one exact outcome.
+Review wording shall name the property established by the evidence.
+When a query, check, or observation supplies evidence about a state or relationship, state that underlying property rather than the evidence-gathering action.
+Fail wording that is weaker or less precise than the property the test establishes.
 
 #### 46. Terms Reuse Shared Vocabulary
 `Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
@@ -161,6 +166,7 @@ Define synthetic inputs and expected values inside the test body.
 | 12 | Second Sentence Describes a Scenario | pending | Replace with review evidence. |
 | 13 | Requirement Is Specific | pending | Replace with review evidence. |
 | 14 | Requirement Is Atomic | pending | Replace with review evidence. |
+| 15 | Requirement Begins with the Behavior Owner | pending | Replace with review evidence. |
 | 21 | Expected Results Appear in Verification Detail | pending | Replace with review evidence. |
 | 22 | Verification Detail Describes Evidence | pending | Replace with review evidence. |
 | 23 | Verification Method Matches Exercised Interface | pending | Replace with review evidence. |
