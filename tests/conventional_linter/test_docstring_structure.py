@@ -335,4 +335,36 @@ class DocstringStructureTests(unittest.TestCase):
 
         self.assertIn("test_name_too_long", rules)
 
+    def test_reports_same_line_requirement(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When docstrings place `Requirement Tested` inline, the linter emits issues.
+        Specialized usage: For layout validation, `Requirement Tested` becomes inline (instead of multiline).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When requirement text stays inline, _lint_docstring_source includes `invalid_requirement_format`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested: addition returns the expected sum.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("invalid_requirement_format", rules)
+
     unittest.main()
