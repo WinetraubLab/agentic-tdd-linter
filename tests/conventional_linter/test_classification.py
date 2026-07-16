@@ -92,3 +92,75 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertEqual(set(), rules)
 
+    def test_accepts_public_output(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts public verification when tests observe public-function output.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Public functions own the output.
+        Rules contain zero issues.
+        """
+
+        rules = _lint_classification_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Addition produces totals.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The sum equals two.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertEqual(set(), rules)
+
+    def test_accepts_private_output(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The linter accepts private verification when tests observe private-helper output.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Private helpers own the output.
+        Rules contain zero issues.
+        """
+
+        rules = _lint_classification_source(
+            """
+            def _add_values(left: int, right: int) -> int:
+                return left + right
+
+
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                Addition produces totals.
+
+                Verification Method: verify private function output
+
+                Verification Detail:
+                _add_values produces two.
+                \"\"\"
+
+                assert _add_values(1, 1) == 2
+            """
+        )
+
+        self.assertEqual(set(), rules)
+
