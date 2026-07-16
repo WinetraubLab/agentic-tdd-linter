@@ -50,3 +50,253 @@ class DocstringStructureTests(unittest.TestCase):
         )
 
         self.assertIn("missing_docstring", rules)
+
+    def test_reports_missing_test_path(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When docstrings omit `Test Path`, the linter emits issues.
+        Specialized usage: For field validation, `Test Path` becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When docstrings omit `Test Path`, _lint_docstring_source includes `missing_test_path`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_test_path", rules)
+
+    def test_reports_empty_requirement(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When `Requirement Tested` contains nothing, the linter emits issues.
+        Specialized usage: For content validation, `Requirement Tested` becomes empty (instead of populated).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When `Requirement Tested` contains nothing, _lint_docstring_source includes `missing_requirement`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_main.py::test_invalid_fixture_exits_one`
+          Justification: Diagnostic completeness — This test proves `missing_requirement`. CLI output aggregates the rule.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_requirement", rules)
+
+    def test_reports_missing_method(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When docstrings omit `Verification Method`, the linter emits issues.
+        Specialized usage: For field validation, `Verification Method` becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When docstrings omit `Verification Method`, _lint_docstring_source includes `missing_verification_method`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_verification_method", rules)
+
+    def test_reports_empty_verification_detail(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When `Verification Detail` contains nothing, the linter emits issues.
+        Specialized usage: For content validation, `Verification Detail` becomes empty (instead of populated).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When `Verification Detail` contains nothing, _lint_docstring_source includes `missing_verification_detail`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("missing_verification_detail", rules)
+
+    def test_reports_missing_inspection_artifact(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When visual details omit image paths, the linter emits issues.
+        Specialized usage: For artifact validation, artifact path becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When details omit image paths, _lint_docstring_source includes `missing_visual_inspection_artifact`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def write_visual_inspection_artifact() -> None:
+                return None
+
+
+            def test_draws_result_image() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                The renderer writes images.
+
+                Verification Method: visual inspection by user
+
+                Verification Detail:
+                The renderer writes an image for review.
+
+                Inspection Instructions:
+                Confirm the image shows the expected addition result.
+                \"\"\"
+
+                write_visual_inspection_artifact()
+            """
+        )
+
+        self.assertIn("missing_visual_inspection_artifact", rules)
+
+    def test_reports_missing_inspection_instructions(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When visual tests omit `Inspection Instructions`, the linter emits issues.
+        Specialized usage: For field validation, `Inspection Instructions` becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When tests omit `Inspection Instructions`, _lint_docstring_source includes `missing_inspection_instructions`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def write_visual_inspection_artifact() -> None:
+                return None
+
+
+            def test_draws_result_image() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                The renderer writes images.
+
+                Verification Method: visual inspection by user
+
+                Verification Detail:
+                The renderer writes tests/artifacts/addition.png.
+                \"\"\"
+
+                write_visual_inspection_artifact()
+            """
+        )
+
+        self.assertIn("missing_inspection_instructions", rules)
+
+    def test_reports_missing_visual_helper(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When visual tests omit helper calls, the linter emits diagnostics.
+        Specialized usage: For helper validation, helper call becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When tests omit `write_visual_inspection_artifact`, _lint_docstring_source includes `missing_visual_inspection_helper`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def write_visual_inspection_artifact() -> None:
+                return None
+
+
+            def test_draws_result_image() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                The renderer writes images.
+
+                Verification Method: visual inspection by user
+
+                Verification Detail:
+                The renderer writes tests/artifacts/addition.png.
+
+                Inspection Instructions:
+                Confirm the image shows the expected addition result.
+                \"\"\"
+
+                pass
+            """
+        )
+
+        self.assertIn("missing_visual_inspection_helper", rules)
+
+    unittest.main()
