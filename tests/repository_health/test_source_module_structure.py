@@ -1,25 +1,34 @@
-"""Verify source-module API and test-file structure."""
+"""Verify source-module API and test-file structure.
+
+Terms:
+- `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+- `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+- `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/requirement_validation.py supports test_requirement_validation.py.
+- `narrow API`: A narrow API provides one or two public functions. For example, main.py provides main.
+- `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
+"""
 
 from __future__ import annotations
 
 import ast
+import tempfile
 import unittest
 from pathlib import Path
 
 
 class SourceModuleStructureTests(unittest.TestCase):
-    def test_repository_modules_have_test_files(self) -> None:
+    def test_source_modules_have_test_modules(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Repository validation requires `test module` per `source module`.
+        Repository associates every `source module` with a same-basename `test module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         `_missing_test_paths` produces `[]`.
-        Sources possess tests.
+        Each checked `source module` matches a `test module`.
 
         Similar Coverage:
         - Lower Level Test: `test_source_module_structure.py::test_rejects_module_without_test_file`
@@ -50,7 +59,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Validation propagates `AssertionError`.
 
         Similar Coverage:
-        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+        - Higher Level Test: `test_source_module_structure.py::test_source_modules_have_test_modules`
           Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
         """
 
@@ -69,17 +78,18 @@ class SourceModuleStructureTests(unittest.TestCase):
                     test_root=test_root,
                 )
 
-    def test_modules_have_source_or_support(self) -> None:
+    def test_test_modules_have_source_or_harness_modules(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Mirrored unit-test modules match source modules.
-        This rule applies to production responsibility folders under `tests`.
+        Repository associates every `test module` with a same-basename `source module` or `test-harness module`.
+        Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        Every `test_<module>.py` maps back to an existing source module.
+        `_unmatched_test_paths` produces `[]`.
+        Each checked `test module` matches one of the two permitted module types.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -114,18 +124,22 @@ class SourceModuleStructureTests(unittest.TestCase):
         `_public_api_violations` produces `[]`.
         Checked modules provide `narrow API`s.
 
-                continue
         Similar Coverage:
         - Lower Level Test: `test_determine_agent_md_status.py::test_exposes_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies status function.
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_exposes_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies manifest function.
+        - Lower Level Test: `test_discover_test_files.py::test_exposes_one_public_function`
+          Justification: Deeper coverage — Lower test alone verifies discovery function.
         - Lower Level Test: `test_extract_tests_from_file.py::test_modules_expose_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies extraction functions.
+        - Lower Level Test: `test_extract_tests_from_file.py::test_module_exports_match_filenames`
+          Justification: Deeper coverage — Lower test verifies matching exports for each extraction module.
         - Lower Level Test: `test_linter_e2e_review.py::test_module_has_one_public_function`
           Justification: Deeper coverage — Lower test verifies the E2E harness module exposes exactly one named function; this policy permits two public functions.
+        """
 
-        self.assertEqual([], violations)
+        repo_root = Path(__file__).resolve().parents[2]
         package_root = repo_root / "src" / "agentic_tdd_linter"
         data_only_modules = {
             Path("indexing_test_functions/extracted_test_record.py"),
@@ -151,6 +165,7 @@ def _matching_test_path(
     package_root: Path,
     test_root: Path,
 ) -> Path:
+    relative_source = source.relative_to(package_root)
     return test_root / relative_source.parent / f"test_{source.name}"
 
 
@@ -164,6 +179,7 @@ def _missing_test_paths(*, package_root: Path, test_root: Path) -> list[str]:
             ).relative_to(test_root)
         )
         for source in _source_modules(package_root)
+        if not _matching_test_path(
             source,
             package_root=package_root,
             test_root=test_root,
@@ -174,6 +190,7 @@ def _missing_test_paths(*, package_root: Path, test_root: Path) -> list[str]:
 def _assert_modules_have_matching_test_files(
     *,
     package_root: Path,
+    test_root: Path,
 ) -> None:
     missing_tests = _missing_test_paths(
         package_root=package_root,
@@ -222,6 +239,27 @@ def _unmatched_test_paths(
         ).is_file()
         and not any(
             support_path.is_file()
+            for support_path in _matching_test_support_paths(test_file)
+        )
+    ]
+
+
+def _public_api_violations(
+    package_root: Path,
+    data_only_modules: set[Path],
+) -> list[str]:
+    violations = []
+    for source in _source_modules(package_root):
+        relative_source = source.relative_to(package_root)
+        if relative_source in data_only_modules:
+            continue
+        public_functions = _public_function_names(source)
+        if not 1 <= len(public_functions) <= 2:
+            violations.append(
+                f"{relative_source}: expected 1-2 public functions, "
+                f"found {public_functions}"
+            )
+    return violations
 
 
 def _public_function_names(source: Path) -> list[str]:
