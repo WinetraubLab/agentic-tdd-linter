@@ -49,7 +49,27 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         Validation propagates `AssertionError`.
 
-    def test_unit_modules_match_source_modules(self) -> None:
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_root = root / "src" / "agentic_tdd_linter"
+            test_root = root / "tests"
+            source = package_root / "agentic_linter" / "orphan.py"
+            source.parent.mkdir(parents=True)
+            source.write_text("VALUE = 1\n", encoding="utf-8")
+            test_root.mkdir()
+
+            with self.assertRaises(AssertionError):
+                _assert_modules_have_matching_test_files(
+                    package_root=package_root,
+                    test_root=test_root,
+                )
+
+    def test_modules_have_source_or_support(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
