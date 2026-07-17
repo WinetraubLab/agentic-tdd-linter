@@ -82,60 +82,146 @@ class SourceModuleStructureTests(unittest.TestCase):
         Every `test_<module>.py` maps back to an existing source module.
         """
 
-        unmatched_tests = [
-            str(test_file.relative_to(REPO_ROOT))
-            for folder in MIRRORED_TEST_FOLDERS
-            for test_file in sorted((TEST_ROOT / folder).glob("test_*.py"))
-            if not _matching_source_path(test_file).is_file()
-        ]
-
-        self.assertEqual([], unmatched_tests)
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        test_root = repo_root / "tests"
+        mirrored_folders = (
+            "agentic_linter",
+            "cli",
+            "conventional_linter",
+            "indexing_test_functions",
+        )
+        self.assertEqual(
+            [],
+            _unmatched_test_paths(
+                repo_root=repo_root,
+                package_root=package_root,
+                test_root=test_root,
+                mirrored_folders=mirrored_folders,
+            ),
+        )
 
     def test_modules_expose_narrow_apis(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Implementation modules expose narrow APIs.
-        This rule applies to callable modules under `src`.
+        `narrow API` restricts `source module`s to ≤2 functions unless they are `data-only module`s.
+        Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        AST reports one or two public functions per callable module.
-        """
+        `_public_api_violations` produces `[]`.
+        Checked modules provide `narrow API`s.
 
-        violations = []
-        for source in _implementation_modules():
-            relative_source = source.relative_to(PACKAGE_ROOT)
-            if relative_source in DATA_ONLY_MODULES:
                 continue
-            public_functions = _public_function_names(source)
-            if not 1 <= len(public_functions) <= 2:
-                violations.append(
-                    f"{relative_source}: expected 1-2 public functions, "
-                    f"found {public_functions}"
-                )
+        Similar Coverage:
+        - Lower Level Test: `test_determine_agent_md_status.py::test_exposes_one_public_function`
+          Justification: Deeper coverage — Lower test alone verifies status function.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_exposes_one_public_function`
+          Justification: Deeper coverage — Lower test alone verifies manifest function.
+        - Lower Level Test: `test_extract_tests_from_file.py::test_modules_expose_one_public_function`
+          Justification: Deeper coverage — Lower test alone verifies extraction functions.
+        - Lower Level Test: `test_linter_e2e_review.py::test_module_has_one_public_function`
+          Justification: Deeper coverage — Lower test verifies the E2E harness module exposes exactly one named function; this policy permits two public functions.
 
         self.assertEqual([], violations)
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        data_only_modules = {
+            Path("indexing_test_functions/extracted_test_record.py"),
+            Path("version.py"),
+        }
+        self.assertEqual(
+            [],
+            _public_api_violations(package_root, data_only_modules),
+        )
 
 
-def _implementation_modules() -> list[Path]:
+def _source_modules(package_root: Path) -> list[Path]:
     return sorted(
         path
-        for path in PACKAGE_ROOT.rglob("*.py")
+        for path in package_root.rglob("*.py")
         if path.name != "__init__.py"
     )
 
 
-def _matching_test_path(source: Path) -> Path:
-    relative_source = source.relative_to(PACKAGE_ROOT)
-    return TEST_ROOT / relative_source.parent / f"test_{source.name}"
+def _matching_test_path(
+    source: Path,
+    *,
+    package_root: Path,
+    test_root: Path,
+) -> Path:
+    return test_root / relative_source.parent / f"test_{source.name}"
 
 
-def _matching_source_path(test_file: Path) -> Path:
-    relative_test = test_file.relative_to(TEST_ROOT)
+def _missing_test_paths(*, package_root: Path, test_root: Path) -> list[str]:
+    return [
+        str(
+            _matching_test_path(
+                source,
+                package_root=package_root,
+                test_root=test_root,
+            ).relative_to(test_root)
+        )
+        for source in _source_modules(package_root)
+            source,
+            package_root=package_root,
+            test_root=test_root,
+        ).is_file()
+    ]
+
+
+def _assert_modules_have_matching_test_files(
+    *,
+    package_root: Path,
+) -> None:
+    missing_tests = _missing_test_paths(
+        package_root=package_root,
+        test_root=test_root,
+    )
+    if missing_tests:
+        raise AssertionError(
+            "source modules require matching test files: " + ", ".join(missing_tests)
+        )
+
+
+def _matching_source_path(
+    test_file: Path,
+    *,
+    test_root: Path,
+    package_root: Path,
+) -> Path:
+    relative_test = test_file.relative_to(test_root)
     source_name = relative_test.name.removeprefix("test_")
-    return PACKAGE_ROOT / relative_test.parent / source_name
+    return package_root / relative_test.parent / source_name
+
+
+def _matching_test_support_paths(test_file: Path) -> tuple[Path, Path]:
+    support_name = test_file.name.removeprefix("test_")
+    return (
+        test_file.with_name(support_name),
+        test_file.parent / "test_harness" / support_name,
+    )
+
+
+def _unmatched_test_paths(
+    *,
+    repo_root: Path,
+    package_root: Path,
+    test_root: Path,
+    mirrored_folders: tuple[str, ...],
+) -> list[str]:
+    return [
+        str(test_file.relative_to(repo_root))
+        for folder in mirrored_folders
+        for test_file in sorted((test_root / folder).glob("test_*.py"))
+        if not _matching_source_path(
+            test_file,
+            test_root=test_root,
+            package_root=package_root,
+        ).is_file()
+        and not any(
+            support_path.is_file()
 
 
 def _public_function_names(source: Path) -> list[str]:
