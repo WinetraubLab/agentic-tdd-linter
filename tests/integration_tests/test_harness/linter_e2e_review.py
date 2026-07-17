@@ -1,3 +1,12 @@
+"""Run generated test scenarios through the complete linter review workflow.
+
+This test-support module belongs under integration_tests because it exercises
+the conventional linter, CLI, agent-review packet generation, external agent
+handoff, and review manifest together. It is not production linter code: the
+integration tests use it to write temporary scenarios, pause for agent review,
+and obtain the final proof-backed lint result on a later run.
+"""
+
 from __future__ import annotations
 
 import contextlib
@@ -107,7 +116,7 @@ def _current_manifest_record(source_sha256: str) -> dict[str, str] | None:
             continue
         if record.get("review_contract_sha256") != _review_contract_sha256(REPO_ROOT):
             continue
-        if _version_is_older(record.get("linter_version", ""), __version__):
+        if record.get("linter_version", "") != __version__:
             continue
         if record.get("status") not in {"pass", "fail"}:
             continue
@@ -190,24 +199,6 @@ def _ordered_manifest_record(record: dict[str, str]) -> dict[str, str]:
 
 def _source_path(source_sha256: str) -> Path:
     return Path("temporary_fixtures") / f"{source_sha256}.py"
-
-
-def _version_is_older(recorded_version: str, current_version: str) -> bool:
-    recorded_parts = _version_parts(recorded_version)
-    current_parts = _version_parts(current_version)
-    if recorded_parts is None or current_parts is None:
-        return recorded_version != current_version
-    max_length = max(len(recorded_parts), len(current_parts))
-    recorded_parts = recorded_parts + (0,) * (max_length - len(recorded_parts))
-    current_parts = current_parts + (0,) * (max_length - len(current_parts))
-    return recorded_parts < current_parts
-
-
-def _version_parts(value: str) -> tuple[int, ...] | None:
-    parts = value.split(".")
-    if not parts or any(not part.isdigit() for part in parts):
-        return None
-    return tuple(int(part) for part in parts)
 
 
 def _artifact_paths(source_sha256: str) -> list[Path]:
