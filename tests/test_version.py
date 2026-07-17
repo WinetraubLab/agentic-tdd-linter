@@ -19,14 +19,14 @@ class VersionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `project.version` corresponds to `__version__`.
+        `project.version` is identical to `__version__`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_project_version` parses `project.version`.
-        `_project_version` result equals `__version__`.
+        `_project_version` obtains `project.version`.
+        `_project_version` result is `__version__`.
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_package_version_matches_manifest_contract`
