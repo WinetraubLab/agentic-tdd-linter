@@ -30,15 +30,14 @@ When the requirement includes specific values, explain the rule or source from w
 
 #### 12. Second Sentence Describes a Scenario
 {% if scenario_type == "happy path" %}
+The second `Requirement Tested` sentence shall make the concrete scenario immediately clear.
 Classify the test inputs with exactly one prefix:
 - `Standard usage:` when the test exercises baseline behavior without modifying an input, configuration, or precondition. Use the exact sentence `Standard usage: The scenario demonstrates baseline behavior.` No further description is required.
-- `Specialized usage:` for modified inputs. Name each modified input, contrast its special value with the standard value, and explain the use case requiring that difference. Use `Specialized usage: For <use case>, <named input> becomes <special value> (instead of <standard value>).`
+- `Specialized usage:` identifies behavior involving a modified input, configuration, or precondition. State the use case directly, name the changed item, and contrast its specialized value or state with its baseline value or state.
 
-For example, ``Specialized usage: For immediate retries, `timeout` becomes zero (instead of a positive duration).`` names the use case, changed input, specialized value, and standard value.
-Fail if the second sentence is missing, uses neither prefix, or does not provide the information required by its selected prefix.
+For example, `Specialized usage: Immediate retries set timeout to zero rather than a positive duration.` names the use case, changed input, specialized value, and baseline value.
 {% else %}
-The second `Requirement Tested` sentence shall describe one concrete failure scenario where the rule applies: when, where, or for whom.
-Fail if the scenario sentence is missing or does not describe a concrete failure scenario.
+The second `Requirement Tested` sentence shall state one concrete failure scenario directly: the existing invalid condition and the system behavior it triggers.
 {% endif %}
 
 #### 13. Requirement Is Specific
@@ -88,9 +87,9 @@ Evaluate the exact main-verb word independently of the sentence grammar.
 Fail when the same word form has a standard noun meaning, even when the sentence clearly uses it as a verb.
 
 #### 35. Conditions Are Explicit
-Every condition shall use an explicit condition marker such as `if`, `when`, `unless`, or `only if`.
-The exact criterion-12 form `Specialized usage: For <use case>, ...` uses `For <use case>,` as its explicit use-case condition marker and shall pass this criterion.
-Other `for` phrases do not satisfy this criterion unless they explicitly identify the use case that conditions the specialized input.
+Every conditional relationship shall explicitly name its trigger or governing use case.
+Use condition markers such as `if`, `when`, `unless`, or `only if` when expressing a logical condition.
+In a `Specialized usage:` sentence, directly naming the use case that governs the modified input, configuration, or precondition satisfies this criterion.
 For example, fail `Empty input triggers rejection.`; prefer `When input is empty, the parser rejects it.`
 
 #### 36. Relative Clauses Are Complete
@@ -146,7 +145,9 @@ Fail when an assertion establishes an additional, stronger, or more specific gua
 Every input-validation assertion shall include the exact `# Input check` comment.
 
 #### 53. Test Values Are Local
-Define synthetic inputs and expected values inside the test body.
+Define every case-specific synthetic input and expected value inside the test body.
+Setup helpers may realize values explicitly supplied by the test.
+Values observed from the system under test are evidence, not synthetic test values.
 
 ## File Docstring
 

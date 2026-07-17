@@ -1,10 +1,10 @@
 {
   "reviewer": {"model": "5.6 Sol Medium"},
-  "total": {"success": "71/73 (97.3% pass)", "enforced_checks": 73},
-  "runtime": {"yaml_cases": 49, "total": "44m 57.4s", "average_per_yaml_case": "55.0s"},
+  "total": {"success": "72/74 (97.3% pass)", "enforced_checks": 74},
+  "runtime": {"yaml_cases": 50, "total": "8m 49.9s", "average_per_yaml_case": "10.6s"},
   "criteria": {
     "11": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
-    "12": {"success": "7/8 (87.5% pass)", "enforced_checks": 8, "failing_yaml_cases": ["source_test_pairing_formulation_negative"]},
+    "12": {"success": "8/8 (100% pass)", "enforced_checks": 8, "failing_yaml_cases": []},
     "13": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "14": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "15": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []},
@@ -22,10 +22,10 @@
     "39": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
     "42": {"success": "1/1 (100% pass)", "enforced_checks": 1, "failing_yaml_cases": []},
     "43": {"success": "6/6 (100% pass)", "enforced_checks": 6, "failing_yaml_cases": []},
-    "44": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []},
+    "44": {"success": "3/4 (75% pass)", "enforced_checks": 4, "failing_yaml_cases": ["source_test_pairing_formulation_negative"]},
     "46": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
     "51": {"success": "7/7 (100% pass)", "enforced_checks": 7, "failing_yaml_cases": []},
     "52": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
-    "53": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []}
+    "53": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []}
   }
 }

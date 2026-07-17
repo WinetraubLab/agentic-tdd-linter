@@ -109,3 +109,49 @@ external_requirement_helper:
   expected_scorecard:
     53: # Test Values Are Local
       fail # The reviewed requirement value comes from a helper outside the test body.
+
+reviewed_artifact_helpers_realize_local_values:
+  file_docstring: |
+    """Verify single-test review status determination.
+
+    Terms:
+    - `status lint`: Status lint reports structural or proof problems in a review packet. For example, it rejects a missing scorecard row.
+    - `status`: Status is the aggregate outcome of a review packet. For example, a packet with one failed row has fail status.
+    - `pending`: Pending marks a scorecard row that has not been reviewed. For example, a newly rendered packet begins pending.
+    - `fail`: Fail marks a criterion whose requirement is not satisfied. For example, a vague requirement can receive fail.
+    - `pass`: Pass marks a completed scorecard whose criteria are all satisfied. For example, a precise requirement and matching assertion receive pass.
+    """
+  test: |
+    def test_accepts_reviewed_pass_artifact(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `status lint` accepts packets when `status` is `pass`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_lint_agent_md_file` produces no issues.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = textwrap.dedent(
+                '''
+                """Document temporary addition tests."""
+
+                def test_adds_values() -> None:
+                    """Test Path: happy path"""
+                    assert 1 + 1 == 2
+                '''
+            ).strip() + "\n"
+            test_file = _write_test_file(root, source)
+            artifact = _write_artifact(root, test_file, status="pass")
+
+            issues = _lint_agent_md_file(test_file, artifact, root)
+
+        self.assertEqual([], issues)
+  expected_scorecard:
+    53: # Test Values Are Local
+      pass # The test body defines the root, source, status, and expected issues; helpers perform reusable file and artifact setup.
