@@ -37,6 +37,17 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
+    def test_rejects_module_without_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Repository validation emits an error when an orphan `source module` lacks a `test module`.
+        Specialized usage: For module coverage, the `source module` lacks a `test module` instead of having one.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Validation propagates `AssertionError`.
 
     def test_unit_modules_match_source_modules(self) -> None:
         """Test Path: happy path
