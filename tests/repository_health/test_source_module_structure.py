@@ -12,14 +12,14 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Repository validation requires one `test module` per `source module`.
+        Repository validation requires `test module` per `source module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         `_missing_test_paths` produces `[]`.
-        Sources have tests.
+        Sources possess tests.
 
         Similar Coverage:
         - Lower Level Test: `test_source_module_structure.py::test_rejects_module_without_test_file`
