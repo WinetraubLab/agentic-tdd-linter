@@ -91,3 +91,55 @@ class UsageScenarioTests(unittest.TestCase):
             },
         )
 
+    def test_lint_before_packet_creation_scenario(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI rejects an unreviewed test when lint runs before review-packet creation.
+        Specialized usage: The repository has no review packets instead of generated packets.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one conventionally valid unreviewed test.
+        2. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
+        3. Read the CLI result and generated packet paths.
+        4. Verify that lint fails.
+        5. Verify that CLI output reports the missing review packet.
+        6. Verify that CLI output prescribes create-agent-md.
+        7. Verify that lint creates no packets.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify an unreviewed test fixture."""
+
+            def test_unreviewed_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Unreviewed behavior evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_unreviewed.py", test_source)
+
+            lint = _run_cli(repo_root, "lint")
+            packets = _packet_paths(repo_root)
+
+        self.assertEqual(1, lint.returncode)
+        self.assertIn("missing_required_agent_md", lint.stdout)
+        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
+        self.assertEqual([], packets)
+
