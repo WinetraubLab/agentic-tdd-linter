@@ -135,8 +135,6 @@ class SourceModuleStructureTests(unittest.TestCase):
           Justification: Deeper coverage — Lower test alone verifies extraction functions.
         - Lower Level Test: `test_extract_tests_from_file.py::test_module_exports_match_filenames`
           Justification: Deeper coverage — Lower test verifies matching exports for each extraction module.
-        - Lower Level Test: `test_main_function_interface_verification.py::test_module_has_one_public_function`
-          Justification: Deeper coverage — Lower test verifies the E2E harness module exposes exactly one named function; this policy permits two public functions.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
