@@ -376,3 +376,52 @@ class UsageScenarioTests(unittest.TestCase):
         self.assertNotIn("approved before source edit", edited_packet_after)
         self.assertEqual(unchanged_packet_before, unchanged_packet_after)
 
+    def test_cicd_pass_scenario(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        CLI succeeds in CI when committed manifest proof is current.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one valid test.
+        2. Record current passing manifest proof for the test.
+        3. Remove the generated '.agent.md' directory to reproduce the committed CI input state.
+        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` without a reviewer.
+        5. Verify that the command exits successfully.
+        CLI return code is `0`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify approved CI behavior."""
+
+            def test_approved_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Approved CI behavior evaluates to true.
+                Standard usage: The approved expression remains unchanged.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The approved expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_approved.py", test_source)
+            _record_approved_manifest(repo_root, reviewer="integration:ci-reviewer")
+            _remove_packet_directory(repo_root)
+
+            lint = _run_cli(repo_root, "lint")
+
+        self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
+
