@@ -27,8 +27,8 @@ class UsageScenarioTests(unittest.TestCase):
 
         Verification Detail:
         1. Create a temporary repository containing one unreviewed test file.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` to prepare review packets.
-        3. Verify that packet storage contains one single-test packet and one cross-test packet.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` to create '.agent.md' files.
+        3. Verify that the generated files include one single-test '.agent.md' file and one cross-test '.agent.md' file.
         4. The test harness mocks every review by marking it as pass.
         5. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
         6. Verify that the manifest records the expected path, test name, pass status, and reviewer.
@@ -95,8 +95,8 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI rejects an unreviewed test when lint runs before review-packet creation.
-        Specialized usage: The repository has no review packets instead of generated packets.
+        CLI rejects an unreviewed test when lint runs before '.agent.md' creation.
+        Specialized usage: The repository has no '.agent.md' files instead of generated files.
 
         Verification Method: verify private function output
 
@@ -147,7 +147,7 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI creates no review packets when conventional lint rejects a test.
+        CLI creates no '.agent.md' files when conventional lint rejects a test.
         Specialized usage: The test omits Requirement Tested instead of providing it.
 
         Verification Method: verify private function output
