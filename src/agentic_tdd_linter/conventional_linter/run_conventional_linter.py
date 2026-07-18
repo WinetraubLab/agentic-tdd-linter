@@ -17,6 +17,7 @@ from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
 ALLOWED_VERIFICATION_METHODS = (
     "verify public function output",
     "verify private function output",
+    "verify filesystem state",
     "visual inspection by user",
 )
 
@@ -30,6 +31,7 @@ KNOWN_FIELDS = (
     "Requirement Tested",
     "Verification Method",
     "Verification Detail",
+    "Similar Coverage",
     "Inspection Instructions",
 )
 
@@ -100,6 +102,8 @@ MOCKING_CALL_NAMES = {
     "patch",
 }
 
+TERM_DEFINITION_PATTERN = re.compile(r"^- `([^`\n]+)`: (\S.*)$")
+
 
 @dataclass(frozen=True)
 class LintIssue:
@@ -169,6 +173,25 @@ def run_conventional_linter(test_function: ExtractedTestRecord) -> list[LintIssu
                 "Requirement Tested must put text on the next line",
             )
         )
+    elif test_function.file_docstring:
+        defined_terms = _file_docstring_terms(test_function.file_docstring)
+        requirement_text = _field_block_value(
+            test_function.docstring,
+            "Requirement Tested",
+        )
+        for term in _backticked_terms(requirement_text):
+            if term in defined_terms:
+                continue
+            issues.append(
+                _issue(
+                    test_function,
+                    "undefined_requirement_term",
+                    (
+                        f"`{term}` must be defined in the file docstring under "
+                        f"Terms: using the bullet - `{term}`: definition"
+                    ),
+                )
+            )
 
     verification = _same_line_field_value(test_function.docstring, "Verification Method")
     if not verification:
@@ -212,6 +235,25 @@ def run_conventional_linter(test_function: ExtractedTestRecord) -> list[LintIssu
                     test_function,
                     "invalid_verification_detail_format",
                     "Verification Detail must put text on the next line",
+                )
+            )
+
+    if _field_line_exists(test_function.docstring, "Similar Coverage"):
+        coverage = _field_value(test_function.docstring, "Similar Coverage")
+        if not coverage:
+            issues.append(
+                _issue(
+                    test_function,
+                    "missing_similar_coverage",
+                    "missing Similar Coverage text",
+                )
+            )
+        elif not _field_is_own_line(test_function.docstring, "Similar Coverage"):
+            issues.append(
+                _issue(
+                    test_function,
+                    "invalid_similar_coverage_format",
+                    "Similar Coverage must put relationships on following lines",
                 )
             )
 
@@ -327,6 +369,25 @@ def _same_line_field_value(docstring: str, field_name: str) -> str:
     return ""
 
 
+def _field_block_value(docstring: str, field_name: str) -> str:
+    prefix = f"{field_name}:"
+    lines = [line.strip() for line in docstring.splitlines()]
+    for index, text in enumerate(lines):
+        if text != prefix and not text.startswith(prefix):
+            continue
+        values: list[str] = []
+        inline_value = text.removeprefix(prefix).strip()
+        if inline_value:
+            values.append(inline_value)
+        for next_text in lines[index + 1 :]:
+            if _is_field_line(next_text):
+                break
+            if next_text:
+                values.append(next_text)
+        return "\n".join(values)
+    return ""
+
+
 def _field_line_exists(docstring: str, field_name: str) -> bool:
     prefix = f"{field_name}:"
     return any(line.strip().startswith(prefix) for line in docstring.splitlines())
@@ -372,6 +433,31 @@ def _requirement_default_trouble_matches(requirement: str) -> list[str]:
                 "keep `default` only when the requirement also names the exact value being asserted"
             )
     return matches
+
+
+def _backticked_terms(requirement: str) -> list[str]:
+    return list(dict.fromkeys(re.findall(r"`([^`\n]+)`", requirement)))
+
+
+def _file_docstring_terms(file_docstring: str) -> set[str]:
+    lines = file_docstring.splitlines()
+    try:
+        terms_start = next(
+            index for index, line in enumerate(lines) if line.strip() == "Terms:"
+        )
+    except StopIteration:
+        return set()
+
+    terms: set[str] = set()
+    for line in lines[terms_start + 1 :]:
+        text = line.strip()
+        if not text:
+            continue
+        match = TERM_DEFINITION_PATTERN.fullmatch(text)
+        if match is None:
+            break
+        terms.add(match.group(1))
+    return terms
 
 
 def _test_calls_private_function(test_function: ExtractedTestRecord) -> bool:

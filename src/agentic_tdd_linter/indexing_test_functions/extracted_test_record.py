@@ -23,3 +23,5 @@ class ExtractedTestRecord:
     docstring: str
     # Complete source text for this test, including its structured documentation.
     source: str = ""
+    # Python module docstring shared by the file's tests; None for other languages.
+    file_docstring: str | None = None

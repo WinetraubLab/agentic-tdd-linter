@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Mapping, Sequence
 
 from ..agentic_linter.build_manifest_from_agent_md_files import (
-    _lint_agent_review_manifest,
     build_manifest_from_agent_md_files,
+    _find_tests_requiring_agent_review,
 )
 from ..agentic_linter.determine_agent_md_status import (
     _agent_md_file_is_stale,
@@ -18,6 +18,14 @@ from ..agentic_linter.map_test_function_to_agent_md_file import (
     map_test_function_to_agent_md_file,
 )
 from ..agentic_linter.render_agent_md_file import render_agent_md_file
+from ..agentic_linter.render_cross_test_agent_md_file import (
+    cross_test_agent_md_file_is_stale,
+    render_cross_test_agent_md_file,
+)
+from ..conventional_linter.check_test_file_docstring import check_test_file_docstring
+from ..conventional_linter.check_file_docstring_term_count import (
+    check_file_docstring_term_count,
+)
 from ..conventional_linter.run_conventional_linter import (
     LintIssue,
     run_conventional_linter,
@@ -35,6 +43,7 @@ class LintPipelineResult:
     issues: tuple[LintIssue, ...]
     recorded_manifest_path: Path | None = None
     recorded_count: int = 0
+    generated_artifacts: tuple[Path, ...] = ()
 
 
 def run_lint_pipeline(
@@ -42,100 +51,68 @@ def run_lint_pipeline(
     repo_root: Path,
     test_root: Path = Path("tests"),
     paths: Sequence[str] = (),
-    all_files: bool = False,
-    review_proof: str = "auto",
+    force_fresh: bool = False,
     manifest_path: Path | None = None,
     reviewer: str = "",
 ) -> LintPipelineResult:
-    """Run the complete lint workflow and return its structured result."""
+    """Lint tests that do not have current passing manifest proof."""
 
     root = Path(repo_root).resolve()
     resolved_test_root = _resolve_test_root(root, test_root)
     artifact_root = resolved_test_root / "agentic_review_artifacts"
-    files = _selected_test_files(root, resolved_test_root, paths, all_files)
-    tests_by_file, issues = _extract_and_lint_tests(files, root)
+    files = _selected_test_files(root, resolved_test_root, paths)
+    tests_by_file, issues = _extract_tests(files, root)
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
+    issues.extend(_check_test_file_docstrings(review_files, root))
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    issues.extend(_run_conventional_checks(tests_by_file))
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    pending_by_file = _find_tests_requiring_agent_review(
+        review_files,
+        root,
+        manifest_path,
+        tests_by_file=tests_by_file,
+        force_all=force_fresh,
+    )
+    pending_files = [path for path, tests in pending_by_file.items() if tests]
+    missing_artifact_issues = _missing_required_artifact_issues(
+        pending_files,
+        root,
+        artifact_root,
+        pending_by_file,
+        force_fresh=force_fresh,
+    )
+    if missing_artifact_issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(missing_artifact_issues))
+
+    issues.extend(
+        _lint_agent_review_artifacts(
+            pending_files,
+            root,
+            artifact_root,
+            pending_by_file,
+        )
+    )
 
     recorded_manifest_path: Path | None = None
     recorded_count = 0
-    if review_files and review_proof == "manifest":
-        issues.extend(
-            _lint_agent_review_manifest(
-                review_files,
-                root,
-                manifest_path,
-                tests_by_file=tests_by_file,
-            )
-        )
-    elif review_files and review_proof == "artifact":
-        _write_missing_or_stale_agent_review_artifacts(
-            review_files,
+    if pending_files and not issues:
+        recorded_manifest_path, recorded_count, issues = build_manifest_from_agent_md_files(
+            pending_files,
             root,
-            artifact_root,
-            tests_by_file,
+            reviewer=reviewer,
+            manifest_path=manifest_path,
+            artifact_root=artifact_root,
+            tests_by_file=pending_by_file,
+            preserve_unselected_tests=not force_fresh,
         )
-        issues.extend(
-            _lint_agent_review_artifacts(
-                review_files,
-                root,
-                artifact_root,
-                tests_by_file,
-            )
-        )
-        if not issues:
-            recorded_manifest_path, recorded_count, manifest_issues = (
-                build_manifest_from_agent_md_files(
-                    review_files,
-                    root,
-                    reviewer=reviewer,
-                    manifest_path=manifest_path,
-                    artifact_root=artifact_root,
-                    tests_by_file=tests_by_file,
-                )
-            )
-            issues.extend(manifest_issues)
-            if manifest_issues:
-                recorded_manifest_path = None
-                recorded_count = 0
-    elif review_files and review_proof == "auto":
-        manifest_issues = _lint_agent_review_manifest(
-            review_files,
-            root,
-            manifest_path,
-            tests_by_file=tests_by_file,
-        )
-        if manifest_issues:
-            _write_missing_or_stale_agent_review_artifacts(
-                review_files,
-                root,
-                artifact_root,
-                tests_by_file,
-            )
-            issues.extend(
-                _lint_agent_review_artifacts(
-                    review_files,
-                    root,
-                    artifact_root,
-                    tests_by_file,
-                )
-            )
-            if not issues:
-                recorded_manifest_path, recorded_count, refresh_issues = (
-                    build_manifest_from_agent_md_files(
-                        review_files,
-                        root,
-                        reviewer=reviewer,
-                        manifest_path=manifest_path,
-                        artifact_root=artifact_root,
-                        tests_by_file=tests_by_file,
-                    )
-                )
-                issues.extend(refresh_issues)
-                if refresh_issues:
-                    recorded_manifest_path = None
-                    recorded_count = 0
-    elif review_files:
-        raise ValueError(f"unsupported review proof source: {review_proof}")
+        if issues:
+            recorded_manifest_path = None
+            recorded_count = 0
 
     return LintPipelineResult(
         files=tuple(files),
@@ -143,6 +120,140 @@ def run_lint_pipeline(
         recorded_manifest_path=recorded_manifest_path,
         recorded_count=recorded_count,
     )
+
+
+def create_agent_md_files(
+    *,
+    repo_root: Path,
+    test_root: Path = Path("tests"),
+    paths: Sequence[str] = (),
+    force_fresh: bool = False,
+    manifest_path: Path | None = None,
+) -> LintPipelineResult:
+    """Create review packets for tests without current manifest proof."""
+
+    root = Path(repo_root).resolve()
+    resolved_test_root = _resolve_test_root(root, test_root)
+    artifact_root = resolved_test_root / "agentic_review_artifacts"
+    files = _selected_test_files(root, resolved_test_root, paths)
+    tests_by_file, issues = _extract_tests(files, root)
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
+    issues.extend(_check_test_file_docstrings(review_files, root))
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    issues.extend(_run_conventional_checks(tests_by_file))
+    if issues:
+        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    pending_by_file = _find_tests_requiring_agent_review(
+        review_files,
+        root,
+        manifest_path,
+        tests_by_file=tests_by_file,
+        force_all=force_fresh,
+    )
+    if force_fresh and not paths:
+        _remove_orphaned_agent_md_files(
+            tests_by_file,
+            root,
+            artifact_root,
+        )
+
+    generated: list[Path] = []
+    for test_file, tests in pending_by_file.items():
+        for test in tests:
+            artifact_path = map_test_function_to_agent_md_file(
+                test_file,
+                root,
+                artifact_root,
+                test.name,
+            )
+            if (
+                force_fresh
+                or not artifact_path.exists()
+                or _agent_md_file_is_stale(test_file, artifact_path)
+            ):
+                generated.append(render_agent_md_file(test_file, test, root, artifact_root))
+    cross_review_files = _all_review_files(root, resolved_test_root)
+    if cross_review_files and (
+        force_fresh
+        or cross_test_agent_md_file_is_stale(
+            cross_review_files,
+            root,
+            artifact_root,
+        )
+    ):
+        generated.append(
+            render_cross_test_agent_md_file(cross_review_files, root, artifact_root)
+        )
+    return LintPipelineResult(
+        files=tuple(files),
+        issues=(),
+        generated_artifacts=tuple(generated),
+    )
+
+
+def _all_review_files(repo_root: Path, test_root: Path) -> list[Path]:
+    """Return every discovered test file that contains an extracted test."""
+
+    files = _selected_test_files(repo_root, test_root, ())
+    review_files: list[Path] = []
+    for test_file in files:
+        if not test_file.name.startswith("test_") or test_file.suffix != ".py":
+            continue
+        try:
+            tests = extract_tests_from_file(test_file, repo_root)
+        except (OSError, SyntaxError):
+            continue
+        if tests:
+            review_files.append(test_file)
+    return review_files
+
+
+def _remove_orphaned_agent_md_files(
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+    repo_root: Path,
+    artifact_root: Path,
+) -> None:
+    if not artifact_root.exists():
+        return
+    expected_paths = {
+        map_test_function_to_agent_md_file(
+            test_file,
+            repo_root,
+            artifact_root,
+            test.name,
+        ).resolve()
+        for test_file, tests in tests_by_file.items()
+        for test in tests
+    }
+    cross_test_packet = (artifact_root / "cross_test_review.agent.md").resolve()
+    for artifact_path in artifact_root.glob("*.agent.md"):
+        if artifact_path.resolve() not in expected_paths | {cross_test_packet}:
+            artifact_path.unlink()
+
+
+def _check_test_file_docstrings(
+    test_files: Sequence[Path],
+    repo_root: Path,
+) -> list[LintIssue]:
+    issues: list[LintIssue] = []
+    for test_file in test_files:
+        issues.extend(check_test_file_docstring(test_file, repo_root))
+    return issues
+
+
+def _run_conventional_checks(
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+) -> list[LintIssue]:
+    issues: list[LintIssue] = []
+    for file_tests in tests_by_file.values():
+        if file_tests:
+            issues.extend(check_file_docstring_term_count(file_tests[0]))
+        for test in file_tests:
+            issues.extend(run_conventional_linter(test))
+    return issues
 
 
 def _resolve_test_root(repo_root: Path, test_root: Path) -> Path:
@@ -159,18 +270,13 @@ def _selected_test_files(
     repo_root: Path,
     test_root: Path,
     paths: Sequence[str],
-    all_files: bool,
 ) -> list[Path]:
-    if paths and all_files:
-        raise ValueError("use either explicit paths or --all, not both")
     if paths:
         return discover_test_files(repo_root, mode="requested", paths=paths)
-    if all_files:
-        return discover_test_files(repo_root, mode="all", test_root=test_root)
-    return discover_test_files(repo_root, mode="changed", test_root=test_root)
+    return discover_test_files(repo_root, mode="all", test_root=test_root)
 
 
-def _extract_and_lint_tests(
+def _extract_tests(
     files: Sequence[Path],
     repo_root: Path,
 ) -> tuple[dict[Path, list[ExtractedTestRecord]], list[LintIssue]]:
@@ -191,17 +297,18 @@ def _extract_and_lint_tests(
             )
             continue
         tests_by_file[test_file] = tests
-        for test in tests:
-            issues.extend(run_conventional_linter(test))
     return tests_by_file, issues
 
 
-def _write_missing_or_stale_agent_review_artifacts(
+def _missing_required_artifact_issues(
     files: Sequence[Path],
     repo_root: Path,
     artifact_root: Path,
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
-) -> None:
+    *,
+    force_fresh: bool,
+) -> list[LintIssue]:
+    issues: list[LintIssue] = []
     for test_file in files:
         for test in tests_by_file[test_file.resolve()]:
             artifact_path = map_test_function_to_agent_md_file(
@@ -211,7 +318,23 @@ def _write_missing_or_stale_agent_review_artifacts(
                 test.name,
             )
             if not artifact_path.exists() or _agent_md_file_is_stale(test_file, artifact_path):
-                render_agent_md_file(test_file, test, repo_root, artifact_root)
+                command = "agentic-tdd-linter create-agent-md"
+                if force_fresh:
+                    command += " --fresh"
+                command += f" {_relative_path(test_file, repo_root)}"
+                issues.append(
+                    LintIssue(
+                        path=_relative_path(artifact_path, repo_root),
+                        test_name=test.name,
+                        line=1,
+                        rule="missing_required_agent_md",
+                        message=(
+                            "required agent review packet is missing or stale; "
+                            f"run `{command}` before `agentic-tdd-linter lint`"
+                        ),
+                    )
+                )
+    return issues
 
 
 def _lint_agent_review_artifacts(

@@ -72,6 +72,7 @@ def build_manifest_from_agent_md_files(
     manifest_path: Path | None = None,
     artifact_root: Path | None = None,
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
+    preserve_unselected_tests: bool = False,
 ) -> tuple[Path, int, list[LintIssue]]:
     """Build compact pass records from reviewed ``.agent.md`` files."""
 
@@ -97,6 +98,11 @@ def build_manifest_from_agent_md_files(
     selected_files = sorted({Path(file).resolve() for file in files})
     selected_paths = {
         _relative_path(test_file, root).as_posix() for test_file in selected_files
+    }
+    selected_keys = {
+        (_relative_path(test_file, root).as_posix(), test.name)
+        for test_file in selected_files
+        for test in _tests_for_file(test_file, root, tests_by_file)
     }
     records: list[dict[str, str]] = []
     issues: list[LintIssue] = []
@@ -159,7 +165,9 @@ def build_manifest_from_agent_md_files(
             )
         if not (root / path).exists():
             continue
-        if path in selected_paths:
+        if path in selected_paths and not preserve_unselected_tests:
+            continue
+        if preserve_unselected_tests and (path, test_name) in selected_keys:
             continue
         if not test_name:
             continue
@@ -176,6 +184,63 @@ def build_manifest_from_agent_md_files(
         encoding="utf-8",
     )
     return manifest, len(records), []
+
+
+def _find_tests_requiring_agent_review(
+    files: Iterable[Path],
+    repo_root: Path,
+    manifest_path: Path | None = None,
+    *,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
+    force_all: bool = False,
+) -> dict[Path, list[ExtractedTestRecord]]:
+    """Return selected tests without current passing manifest proof."""
+
+    root = Path(repo_root).resolve()
+    selected_files = sorted({Path(file).resolve() for file in files})
+    selected_tests = {
+        test_file: list(_tests_for_file(test_file, root, tests_by_file))
+        for test_file in selected_files
+    }
+    _lint_agent_review_manifest(
+        selected_files,
+        root,
+        manifest_path,
+        tests_by_file=tests_by_file,
+    )
+    if force_all:
+        return selected_tests
+
+    manifest = _agent_review_manifest_path(root, manifest_path)
+    records, parse_issues = _read_manifest_records(manifest, root, missing_is_issue=False)
+    if parse_issues:
+        return selected_tests
+
+    contract_hash = _review_contract_sha256(root)
+    approved_keys: set[tuple[str, str]] = set()
+    for record in records:
+        values = record.values
+        path = values.get("path", "")
+        test_name = values.get("test", "")
+        test_file = (root / path).resolve()
+        if (
+            set(values) == set(REQUIRED_FIELDS)
+            and values.get("status") == "pass"
+            and values.get("review_contract_sha256") == contract_hash
+            and values.get("linter_version") == __version__
+            and test_file.is_file()
+            and values.get("source_sha256") == _source_sha256(test_file)
+        ):
+            approved_keys.add((path, test_name))
+
+    return {
+        test_file: [
+            test
+            for test in tests
+            if (_relative_path(test_file, root).as_posix(), test.name) not in approved_keys
+        ]
+        for test_file, tests in selected_tests.items()
+    }
 
 
 def _lint_agent_review_manifest(
@@ -232,7 +297,7 @@ def _lint_agent_review_manifest(
                 )
             )
         linter_version = record.values.get("linter_version", "")
-        if linter_version and _version_is_older(linter_version, __version__):
+        if linter_version and linter_version != __version__:
             issues.append(
                 _manifest_issue(
                     manifest,
@@ -241,7 +306,7 @@ def _lint_agent_review_manifest(
                     "stale_linter_review_attestation",
                     (
                         f"review attestation for {identity or '<missing test>'} was "
-                        f"recorded by linter version {linter_version}; expected at least {__version__}"
+                        f"recorded by linter version {linter_version}; expected exactly {__version__}"
                     ),
                 )
             )
@@ -455,24 +520,6 @@ def _plain_value(text: str, field_name: str) -> str:
     if match is None:
         return ""
     return match.group(1).strip()
-
-
-def _version_is_older(recorded_version: str, current_version: str) -> bool:
-    recorded_parts = _version_parts(recorded_version)
-    current_parts = _version_parts(current_version)
-    if recorded_parts is None or current_parts is None:
-        return recorded_version != current_version
-    max_length = max(len(recorded_parts), len(current_parts))
-    recorded_parts = recorded_parts + (0,) * (max_length - len(recorded_parts))
-    current_parts = current_parts + (0,) * (max_length - len(current_parts))
-    return recorded_parts < current_parts
-
-
-def _version_parts(value: str) -> tuple[int, ...] | None:
-    parts = value.split(".")
-    if not parts or any(not part.isdigit() for part in parts):
-        return None
-    return tuple(int(part) for part in parts)
 
 
 def _manifest_issue(path: Path, repo_root: Path, line: int, rule: str, message: str) -> LintIssue:

@@ -91,7 +91,7 @@ def _lint_agent_md_file(
             _issue(
                 relative_artifact,
                 "stale_agent_review_artifact",
-                "agent review artifact must include the current test file SHA256",
+                "agent review artifact must include the current source SHA256 value",
             )
         )
 
@@ -113,7 +113,7 @@ def _lint_agent_md_file(
                 (
                     "every scorecard row must contain exactly one pass or fail result; "
                     "complete the scorecard, then rerun "
-                    "`agentic-tdd-linter check --all`"
+                    "`agentic-tdd-linter lint`"
                 ),
             )
         )
@@ -159,10 +159,14 @@ def _issue(path: Path, rule: str, message: str) -> LintIssue:
 
 
 def _backtick_value(text: str, field_name: str) -> str:
-    match = re.search(rf"^{re.escape(field_name)}:\s*`([^`]+)`\s*$", text, re.MULTILINE)
-    if match is None:
+    matches = re.findall(
+        rf"^{re.escape(field_name)}:\s*`([^`]+)`\s*$",
+        text,
+        re.MULTILINE,
+    )
+    if not matches:
         return ""
-    return match.group(1).strip()
+    return matches[-1].strip()
 
 
 def _plain_value(text: str, field_name: str) -> str:

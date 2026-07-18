@@ -18,6 +18,7 @@ def extract_python_tests_from_file(
     relative_path = _relative_path(absolute_path, repo_root)
     source = absolute_path.read_text(encoding="utf-8")
     tree = ast.parse(source, filename=str(absolute_path))
+    file_docstring = ast.get_docstring(tree) or ""
     tests = [
         ExtractedTestRecord(
             path=relative_path,
@@ -26,6 +27,7 @@ def extract_python_tests_from_file(
             node=node,
             docstring=ast.get_docstring(node) or "",
             source=ast.get_source_segment(source, node) or "",
+            file_docstring=file_docstring,
         )
         for node in ast.walk(tree)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))

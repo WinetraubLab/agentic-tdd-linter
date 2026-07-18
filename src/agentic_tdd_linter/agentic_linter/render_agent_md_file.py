@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
@@ -41,9 +42,33 @@ def _render_agent_md(
 
     absolute_path = Path(test_file_path).resolve()
     return _agentic_review_template().render(
+        file_docstring=_file_docstring(absolute_path),
         source_sha256=_source_sha256(absolute_path),
         test=test.source or "<missing test source>",
+        scenario_type=_scenario_type(test),
     ).rstrip() + "\n"
+
+
+def _scenario_type(test: ExtractedTestRecord) -> str:
+    for line in test.docstring.splitlines():
+        field, separator, value = line.strip().partition(":")
+        if separator and field == "Test Path":
+            scenario_type = value.strip()
+            if scenario_type in {"happy path", "failure path"}:
+                return scenario_type
+            raise ValueError(
+                "Test Path must be either 'happy path' or 'failure path' before rendering"
+            )
+    raise ValueError("Test Path is required before rendering")
+
+
+def _file_docstring(test_file_path: Path) -> str:
+    path = Path(test_file_path).resolve()
+    if path.suffix != ".py":
+        return ""
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source, filename=str(path))
+    return ast.get_docstring(tree) or ""
 
 
 @lru_cache(maxsize=1)

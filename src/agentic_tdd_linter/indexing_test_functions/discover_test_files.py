@@ -17,6 +17,7 @@ _SKIPPED_PATH_PARTS = {
     "fixtures",
     "helpers",
     "cli_fixtures",
+    "temporary_fixtures",
 }
 
 
