@@ -24,7 +24,7 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `self lint` completes without issues, confirming that this repository has no lint violations.
+        CLI completes without issues, confirming that this repository has no lint violations.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
