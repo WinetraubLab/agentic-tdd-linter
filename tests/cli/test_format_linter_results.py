@@ -1,3 +1,11 @@
+"""Verify formatting of linter results.
+
+Terms:
+- `formatted result`: A formatted result is a text or JSON representation of one lint finding. For example, it names the finding's rule and file path.
+- `format_text`: This formatter renders lint findings as human-readable lines. For example, it includes a rule and message in terminal output.
+- `format_json`: This formatter renders lint findings as JSON. For example, it produces a JSON array containing the finding rule.
+"""
+
 from __future__ import annotations
 
 import json
@@ -13,13 +21,13 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_text` renders issues.
-        When the linter finds one issue, `format_text` renders it.
+        `format_text` creates `formatted result` with rule/message pairs.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `format_text` output contains `sample_rule`.
+        `format_text` output contains `Rule: sample_rule`.
         `format_text` output contains `sample message`.
         """
 
@@ -36,24 +44,40 @@ class LinterResultFormattingTests(unittest.TestCase):
         self.assertIn("Rule: sample_rule", output)
         self.assertIn("sample message", output)
 
-    def test_formats_json_report(self) -> None:
+    def test_formats_json_status(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `format_json` renders summaries.
-        When the linter finds zero issues for one file, `format_json` renders the summary.
+        `format_json` emits success status.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         `format_json` output contains `PASS`.
-        `format_json` output contains one checked file.
         """
 
         output = format_json([], [Path("tests/test_sample.py")])
 
         payload = json.loads(output)
         self.assertEqual("PASS", payload["status"])
+
+    def test_formats_json_file_count(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `format_json` emits checked-file totals.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The summary contains one file.
+        """
+
+        output = format_json([], [Path("tests/test_sample.py")])
+
+        payload = json.loads(output)
         self.assertEqual(1, payload["files_checked"])
 
 
