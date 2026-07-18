@@ -36,7 +36,7 @@ class ClassificationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        When paths equal `happy path`, rules contain zero issues.
+        When paths correspond to `happy path`, rules contain zero issues.
         """
 
         rules = _lint_classification_source(
@@ -63,13 +63,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts `failure path` when parser input fails.
+        The linter accepts declared `failure path`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When paths equal `failure path`, rules contain zero issues.
+        When paths correspond to `failure path`, rules contain zero issues.
         """
 
         rules = _lint_classification_source(
