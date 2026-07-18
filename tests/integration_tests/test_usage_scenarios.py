@@ -389,7 +389,7 @@ class UsageScenarioTests(unittest.TestCase):
         1. Create a temporary repository containing one valid test.
         2. Record current passing manifest proof for the test.
         3. Remove the generated '.agent.md' directory to reproduce the committed CI input state.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` without a reviewer.
+        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
         5. Verify that the command exits successfully.
         CLI return code is `0`.
         """
@@ -421,7 +421,12 @@ class UsageScenarioTests(unittest.TestCase):
             _record_approved_manifest(repo_root, reviewer="integration:ci-reviewer")
             _remove_packet_directory(repo_root)
 
-            lint = _run_cli(repo_root, "lint")
+            lint = _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:ci-reviewer",
+            )
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
 
