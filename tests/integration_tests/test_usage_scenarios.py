@@ -425,3 +425,90 @@ class UsageScenarioTests(unittest.TestCase):
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
 
+    def test_refresh_scenario(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        CLI rebuilds single-test and cross-test '.agent.md' scorecards from scratch when create-agent-md uses --fresh.
+        Specialized usage: Both artifact types contain completed evidence instead of pending evidence before refresh.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Create a temporary repository containing two tests.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. The test harness mocks every review by marking it as pass.
+        4. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
+        5. Read every regenerated '.agent.md' file.
+        6. Verify that both single-test and cross-test scorecards were rebuilt with only pending evidence.
+        Generated file types are `single` and `cross`.
+        Every generated file contains `| pending | Replace with review evidence. |`.
+        No generated file contains prior completed evidence.
+        """
+
+        first_source = textwrap.dedent(
+            '''\
+            """Verify the first refresh example."""
+
+            def test_first_refresh() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The first refresh expression evaluates to true.
+                Standard usage: The expression is unchanged.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The first expression equals true.
+                """
+
+                assert True
+            '''
+        )
+        second_source = textwrap.dedent(
+            '''\
+            """Verify the second refresh example."""
+
+            def test_second_refresh() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The second refresh expression evaluates to true.
+                Standard usage: The expression is unchanged.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The second expression equals true.
+                """
+
+                assert True
+            '''
+        )
+        reviewed_evidence = "completed before fresh review"
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_first.py", first_source)
+            _write_source(repo_root / "tests" / "test_second.py", second_source)
+            _run_cli(repo_root, "create-agent-md")
+            _complete_packets(repo_root, status="pass", evidence=reviewed_evidence)
+            _run_cli(repo_root, "create-agent-md", "--fresh")
+            refreshed_packets = _packet_paths(repo_root)
+            refreshed_contents = [path.read_text(encoding="utf-8") for path in refreshed_packets]
+
+        refreshed_types = {
+            "cross" if path.name == "cross_test_review.agent.md" else "single"
+            for path in refreshed_packets
+        }
+        self.assertEqual({"single", "cross"}, refreshed_types)
+        self.assertTrue(
+            all(
+                "| pending | Replace with review evidence. |" in text
+                for text in refreshed_contents
+            )
+        )
+        self.assertTrue(all("| pass |" not in text for text in refreshed_contents))
+        self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
+
