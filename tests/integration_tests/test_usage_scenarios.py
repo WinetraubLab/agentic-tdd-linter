@@ -186,3 +186,52 @@ class UsageScenarioTests(unittest.TestCase):
 
         self.assertEqual([], packets)
 
+    def test_agentic_linter_errors_scenario(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI reports a failed agentic review when generated scorecards contain failure evidence.
+        Specialized usage: When '.agent.md' files contain failed scorecards instead of passing scorecards, CLI reports the failures.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one conventionally valid test.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. The test harness mocks every review by marking it as fail with concrete evidence.
+        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
+        5. Verify that CLI output reports `agent_review_failed`.
+        Lint output emits `agent_review_failed`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify truth examples."""
+
+            def test_reports_truth() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Truth examples evaluate to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_truth.py", test_source)
+            _run_cli(repo_root, "create-agent-md")
+
+            _complete_packets(repo_root, status="fail", evidence="requirement is too vague")
+            lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
+
+        self.assertIn("agent_review_failed", lint.stdout)
+
