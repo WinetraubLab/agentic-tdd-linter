@@ -28,9 +28,11 @@ class UsageScenarioTests(unittest.TestCase):
         Verification Detail:
         1. Create a temporary repository containing one unreviewed test file.
         2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` to prepare review packets.
-        3. The test harness mocks every review by marking it as pass.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
-        5. Verify that the manifest records the expected path, test name, pass status, and reviewer.
+        3. Verify that packet storage contains one single-test packet and one cross-test packet.
+        4. The test harness mocks every review by marking it as pass.
+        5. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
+        6. Verify that the manifest records the expected path, test name, pass status, and reviewer.
+        Packet types are `single` and `cross`.
         """
 
         test_source = textwrap.dedent(
@@ -66,10 +68,16 @@ class UsageScenarioTests(unittest.TestCase):
             _write_source(repo_root / expected_test_path, test_source)
 
             _run_cli(repo_root, "create-agent-md")
+            packets = _packet_paths(repo_root)
             _complete_packets(repo_root, status="pass", evidence="nominal review passed")
             _run_cli(repo_root, "lint", "--reviewer", expected_reviewer)
             records = _manifest_records(repo_root)
 
+        packet_types = {
+            "cross" if path.name == "cross_test_review.agent.md" else "single"
+            for path in packets
+        }
+        self.assertEqual({"single", "cross"}, packet_types)
         self.assertEqual(
             {
                 "path": expected_test_path,
