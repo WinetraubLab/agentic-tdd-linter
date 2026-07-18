@@ -578,3 +578,145 @@ class UsageScenarioTests(unittest.TestCase):
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
         self.assertFalse(artifact_root_exists)
 
+    def test_refresh_removes_obsolete_packet(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        CLI removes all existing '.agent.md' files before create-agent-md --fresh rebuilds files for current tests.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one valid test.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Introduce `test_deleted__test_deleted.agent.md` without a corresponding test.
+        4. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
+        5. Verify that the extra '.agent.md' file was deleted and current single-test and cross-test files were rebuilt.
+        `test_deleted__test_deleted.agent.md` is absent after fresh creation.
+        Generated file types are `single` and `cross`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify obsolete-packet cleanup."""
+
+            def test_current_packet() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Current packet behavior evaluates to true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_current.py", test_source)
+            _run_cli(repo_root, "create-agent-md")
+            extra_agent_md = (
+                repo_root
+                / "tests"
+                / "agentic_review_artifacts"
+                / "test_deleted__test_deleted.agent.md"
+            )
+            extra_agent_md.write_text("extra .agent.md file\n", encoding="utf-8")
+
+            _run_cli(repo_root, "create-agent-md", "--fresh")
+            rebuilt_files = _packet_paths(repo_root)
+
+        rebuilt_types = {
+            "cross" if path.name == "cross_test_review.agent.md" else "single"
+            for path in rebuilt_files
+        }
+        self.assertFalse(extra_agent_md.exists())
+        self.assertEqual({"single", "cross"}, rebuilt_types)
+
+
+def _run_cli(repo_root: Path, command: str, *arguments: str) -> subprocess.CompletedProcess[str]:
+    environment = os.environ.copy()
+    existing_pythonpath = environment.get("PYTHONPATH", "")
+    source_root = str(PROJECT_ROOT / "src")
+    environment["PYTHONPATH"] = (
+        source_root if not existing_pythonpath else source_root + os.pathsep + existing_pythonpath
+    )
+    return subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "agentic_tdd_linter.cli.main",
+            command,
+            "--repo-root",
+            str(repo_root),
+            *arguments,
+        ],
+        cwd=PROJECT_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def _write_source(path: Path, source: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(source, encoding="utf-8")
+
+
+def _packet_paths(repo_root: Path) -> list[Path]:
+    return sorted((repo_root / "tests" / "agentic_review_artifacts").glob("*.agent.md"))
+
+
+def _complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
+    for packet_path in _packet_paths(repo_root):
+        packet = packet_path.read_text(encoding="utf-8")
+        if status == "pass":
+            packet = packet.replace(
+                "| pending | Replace with review evidence. |",
+                f"| pass | {evidence}. |",
+            )
+        else:
+            packet = packet.replace(
+                "| pending | Replace with review evidence. |",
+                f"| fail | {evidence}. |",
+                1,
+            ).replace(
+                "| pending | Replace with review evidence. |",
+                f"| pass | {evidence}. |",
+            )
+        packet_path.write_text(packet, encoding="utf-8")
+
+
+def _record_approved_manifest(repo_root: Path, *, reviewer: str) -> None:
+    creation = _run_cli(repo_root, "create-agent-md")
+    if creation.returncode != 0:
+        raise AssertionError(creation.stdout + creation.stderr)
+    _complete_packets(repo_root, status="pass", evidence="approved CI fixture")
+    lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
+    if lint.returncode != 0:
+        raise AssertionError(lint.stdout + lint.stderr)
+
+
+def _manifest_records(repo_root: Path) -> list[dict[str, str]]:
+    manifest_path = repo_root / "tests" / "agentic_review_manifest.jsonl"
+    return [json.loads(line) for line in manifest_path.read_text(encoding="utf-8").splitlines()]
+
+
+def _remove_packet_directory(repo_root: Path) -> None:
+    artifact_root = repo_root / "tests" / "agentic_review_artifacts"
+    for packet_path in artifact_root.glob("*.agent.md"):
+        packet_path.unlink()
+    if artifact_root.exists():
+        artifact_root.rmdir()
+
+
+if __name__ == "__main__":
+    unittest.main()
