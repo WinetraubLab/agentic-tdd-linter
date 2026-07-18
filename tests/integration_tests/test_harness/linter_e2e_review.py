@@ -1,6 +1,6 @@
 """Run generated test scenarios through the complete linter review workflow.
 
-This test-support module belongs under integration_tests because it exercises
+This test-harness module belongs under integration_tests because it exercises
 the conventional linter, CLI, agent-review packet generation, external agent
 handoff, and review manifest together. It is not production linter code: the
 integration tests use it to write temporary scenarios, pause for agent review,
