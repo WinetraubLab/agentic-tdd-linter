@@ -143,3 +143,46 @@ class UsageScenarioTests(unittest.TestCase):
         self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
         self.assertEqual([], packets)
 
+    def test_classic_linter_errors_scenario(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI creates no review packets when conventional lint rejects a test.
+        Specialized usage: The test omits Requirement Tested instead of providing it.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Create a temporary repository containing a test whose docstring omits Requirement Tested.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Read the generated packet paths.
+        4. Verify that the command created no `.agent.md` packets.
+        Packet list is empty.
+        """
+
+        invalid_test_source = textwrap.dedent(
+            '''\
+            """Verify an invalid test fixture."""
+
+            def test_invalid_documentation() -> None:
+                """Test Path: failure path
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_invalid.py", invalid_test_source)
+
+            _run_cli(repo_root, "create-agent-md")
+            packets = _packet_paths(repo_root)
+
+        self.assertEqual([], packets)
+
