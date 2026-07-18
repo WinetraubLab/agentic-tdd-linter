@@ -23,13 +23,14 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The `path mapper` retains `test identity`.
-        When callers reverse a path, it restores the test.
+        `path mapper` retains `test identity`.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Restored path equals expected path. Restored name equals expected name.
+        Restored path is `tests/test_math.py`. Restored name is
+        `test_adds_numbers`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
