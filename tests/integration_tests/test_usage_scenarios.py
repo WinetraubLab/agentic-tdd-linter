@@ -190,29 +190,50 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI reports a failed agentic review when generated scorecards contain failure evidence.
-        Specialized usage: When '.agent.md' files contain failed scorecards instead of passing scorecards, CLI reports the failures.
+        CLI reports failure when one test fails agentic review and another test passes.
+        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing one conventionally valid test.
+        1. Create a temporary repository containing two tests.
         2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. The test harness mocks every review by marking it as fail with concrete evidence.
+        3. The test harness mocks one test review as pass and the other as fail.
         4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. Verify that CLI output reports `agent_review_failed`.
+        5. Verify that CLI output reports `agent_review_failed` and prescribes one regeneration.
         Lint output emits `agent_review_failed`.
+        Lint output contains `Regenerate the selected packets once`.
         """
 
-        test_source = textwrap.dedent(
+        passing_source = textwrap.dedent(
             '''\
-            """Verify truth examples."""
+            """Verify a passing review example."""
 
-            def test_reports_truth() -> None:
+            def test_passing_review() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Truth examples evaluate to true.
+                Passing review behavior evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+        failing_source = textwrap.dedent(
+            '''\
+            """Verify a failing review example."""
+
+            def test_failing_review() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Failing review behavior evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -227,10 +248,22 @@ class UsageScenarioTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
-            _write_source(repo_root / "tests" / "test_truth.py", test_source)
+            _write_source(repo_root / "tests" / "test_passing.py", passing_source)
+            _write_source(repo_root / "tests" / "test_failing.py", failing_source)
             _run_cli(repo_root, "create-agent-md")
 
-            _complete_packets(repo_root, status="fail", evidence="requirement is too vague")
+            _complete_packets(repo_root, status="pass", evidence="mixed review passed")
+            failing_packet = next(
+                path
+                for path in _packet_paths(repo_root)
+                if "test_failing" in path.name
+            )
+            failing_text = failing_packet.read_text(encoding="utf-8").replace(
+                "| pass | mixed review passed. |",
+                "| fail | requirement is too vague. |",
+                1,
+            )
+            failing_packet.write_text(failing_text, encoding="utf-8")
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
