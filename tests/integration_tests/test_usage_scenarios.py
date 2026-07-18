@@ -267,4 +267,5 @@ class UsageScenarioTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
+        self.assertIn("Regenerate the selected packets once", lint.stdout)
 
