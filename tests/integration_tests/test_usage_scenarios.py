@@ -269,3 +269,110 @@ class UsageScenarioTests(unittest.TestCase):
         self.assertIn("agent_review_failed", lint.stdout)
         self.assertIn("Regenerate the selected packets once", lint.stdout)
 
+    def test_stale_test_requires_review(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI requires a new agentic review when an approved test becomes stale after a direct edit.
+        Specialized usage: The approved test changes after manifest proof is recorded instead of remaining current.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Create a temporary repository containing two tests.
+        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. The test harness mocks every review by marking it as pass.
+        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:approved-reviewer` to record passing proof.
+        5. Edit only the first test source outside the CLI, making its manifest proof stale.
+        6. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
+        7. Verify that lint rejects the previous proof and prescribes create-agent-md.
+        8. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        9. Verify that the stale test's '.agent.md' file is pending and the current test's file retains its passing review.
+        """
+
+        first_source = textwrap.dedent(
+            '''\
+            """Verify the first truth example."""
+
+            def test_first_truth() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The first truth example evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The first expression equals true.
+                """
+
+                assert True
+            '''
+        )
+        edited_first_source = first_source.replace(
+            "The first truth example evaluates to true.",
+            "The first documented boolean expression evaluates to true.",
+        )
+        second_source = textwrap.dedent(
+            '''\
+            """Verify the second truth example."""
+
+            def test_second_truth() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                The second truth example evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The second expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            first_file = repo_root / "tests" / "test_first.py"
+            second_file = repo_root / "tests" / "test_second.py"
+            _write_source(first_file, first_source)
+            _write_source(second_file, second_source)
+            _run_cli(repo_root, "create-agent-md")
+            _complete_packets(repo_root, status="pass", evidence="approved before source edit")
+
+            approved_lint = _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:approved-reviewer",
+            )
+            single_packets = [
+                path
+                for path in _packet_paths(repo_root)
+                if path.name != "cross_test_review.agent.md"
+            ]
+            first_packet = next(path for path in single_packets if "test_first" in path.name)
+            second_packet = next(path for path in single_packets if "test_second" in path.name)
+            unchanged_packet_before = second_packet.read_text(encoding="utf-8")
+
+            _write_source(first_file, edited_first_source)
+            stale_lint = _run_cli(repo_root, "lint")
+            _run_cli(repo_root, "create-agent-md")
+            edited_packet_after = first_packet.read_text(encoding="utf-8")
+            unchanged_packet_after = second_packet.read_text(encoding="utf-8")
+
+        self.assertEqual(0, approved_lint.returncode)
+        self.assertEqual(1, stale_lint.returncode)
+        self.assertIn("missing_required_agent_md", stale_lint.stdout)
+        self.assertIn("agentic-tdd-linter create-agent-md", stale_lint.stdout)
+        self.assertIn(
+            "| pending | Replace with review evidence. |",
+            edited_packet_after,
+        )
+        self.assertNotIn("approved before source edit", edited_packet_after)
+        self.assertEqual(unchanged_packet_before, unchanged_packet_after)
+
