@@ -517,3 +517,64 @@ class UsageScenarioTests(unittest.TestCase):
         self.assertTrue(all("| pass |" not in text for text in refreshed_contents))
         self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
 
+    def test_cicd_pass_omits_packets(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        CICD process shall succeed even if no '.agent.md' files are created, as long as manifest proof is current.
+        This is designed to save tokens during CICD process, relying on agentic review before push.
+        Standard usage: The recorded proof matches the test source, linter version, and review contract.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one valid test.
+        2. Complete its review and record current passing proof in the manifest.
+        3. Remove the existing '.agent.md' directory so no review files exist before lint.
+        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
+        5. Verify that lint succeeds using the manifest proof.
+        6. Verify that the '.agent.md' directory remains absent after lint.
+        CLI return code is `0`.
+        '.agent.md' directory is absent after lint.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify approved CI packet behavior."""
+
+            def test_approved_packet_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Approved behavior evaluates to true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_approved.py", test_source)
+            _record_approved_manifest(repo_root, reviewer="integration:ci-reviewer")
+            _remove_packet_directory(repo_root)
+
+            lint = _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:ci-reviewer",
+            )
+            artifact_root_exists = (
+                repo_root / "tests" / "agentic_review_artifacts"
+            ).exists()
+
+        self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
+        self.assertFalse(artifact_root_exists)
+
