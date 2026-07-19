@@ -67,8 +67,6 @@ class SourceModuleStructureTests(unittest.TestCase):
           Justification: Deeper coverage — Lower test alone verifies status function.
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_exposes_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies manifest function.
-        - Lower Level Test: `test_discover_test_files.py::test_exposes_one_public_function`
-          Justification: Deeper coverage — Lower test alone verifies discovery function.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
