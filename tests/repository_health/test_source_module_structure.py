@@ -61,10 +61,6 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_public_api_violations` produces `[]`.
         Checked modules provide `narrow API`s.
-
-        Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_exposes_one_public_function`
-          Justification: Deeper coverage — Lower test alone verifies manifest function.
         """
 
         repo_root = Path(__file__).resolve().parents[2]

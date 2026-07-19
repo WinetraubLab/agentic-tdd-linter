@@ -289,9 +289,10 @@ class UsageScenarioTests(unittest.TestCase):
         4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:approved-reviewer` to record passing proof.
         5. Edit only the first test source outside the CLI, making its manifest proof stale.
         6. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
-        7. Verify that lint rejects the previous proof and prescribes create-agent-md.
-        8. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        9. Verify that the stale test and cross-test '.agent.md' files are pending while the current test's file retains its passing review.
+        7. Verify that lint removes the edited test's manifest proof while retaining proof for the unchanged test.
+        8. Verify that lint rejects the previous proof and prescribes create-agent-md.
+        9. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        10. Verify that the stale test and cross-test '.agent.md' files are pending while the current test's file retains its passing review.
         """
 
         first_source = textwrap.dedent(
@@ -354,6 +355,9 @@ class UsageScenarioTests(unittest.TestCase):
                 "--reviewer",
                 "integration:approved-reviewer",
             )
+            approved_manifest_paths = {
+                record["path"] for record in _manifest_records(repo_root)
+            }
             single_packets = [
                 path
                 for path in _packet_paths(repo_root)
@@ -370,13 +374,21 @@ class UsageScenarioTests(unittest.TestCase):
 
             _write_source(first_file, edited_first_source)
             stale_lint = _run_cli(repo_root, "lint")
+            stale_manifest_paths = {
+                record["path"] for record in _manifest_records(repo_root)
+            }
             _run_cli(repo_root, "create-agent-md")
             edited_packet_after = first_packet.read_text(encoding="utf-8")
             unchanged_packet_after = second_packet.read_text(encoding="utf-8")
             cross_packet_after = cross_packet.read_text(encoding="utf-8")
 
         self.assertEqual(0, approved_lint.returncode)
+        self.assertEqual(
+            {"tests/test_first.py", "tests/test_second.py"},
+            approved_manifest_paths,
+        )
         self.assertEqual(1, stale_lint.returncode)
+        self.assertEqual({"tests/test_second.py"}, stale_manifest_paths)
         self.assertIn("missing_required_agent_md", stale_lint.stdout)
         self.assertIn("agentic-tdd-linter create-agent-md", stale_lint.stdout)
         self.assertIn(
