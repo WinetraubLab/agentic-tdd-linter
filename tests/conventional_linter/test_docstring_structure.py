@@ -22,7 +22,7 @@ from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
     extract_tests_from_file,
 )
 
-from tests.conventional_linter.docstring_structure import (
+from tests.conventional_linter.test_harness.docstring_structure import (
     _lint_docstring_source,
     _lint_typescript_docstring_source,
 )
