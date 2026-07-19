@@ -2,8 +2,6 @@
 
 Terms:
 - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
-- `test record`: A test record carries language-neutral extracted test data. For example, it carries the file docstring inspected by the glossary check.
-- `term-count issue`: A term-count issue identifies a glossary above the limit. For example, its rule is `too_many_file_docstring_terms`.
 """
 
 from __future__ import annotations
@@ -24,7 +22,7 @@ class FileDocstringTermCountTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter produces `term-count issue` when glossaries exceed `glossary limit`.
+        Conventional linter reports the too_many_file_docstring_terms rule when a test-file glossary exceeds `glossary limit`.
         Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it.
 
         Verification Method: verify public function output
