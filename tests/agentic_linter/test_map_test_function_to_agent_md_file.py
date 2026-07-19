@@ -23,7 +23,7 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `path mapper` retains `test identity`.
+        Agentic linter retains `test identity`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
