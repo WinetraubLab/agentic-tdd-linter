@@ -1,4 +1,4 @@
-"""Verify that contributor guides contain required review commands in workflow order.
+"""Verify that review documentation matches its local or CI workflow.
 
 Terms:
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
@@ -12,11 +12,11 @@ from pathlib import Path
 
 
 class ReviewDocumentationTests(unittest.TestCase):
-    def test_readme_lint_example_includes_reviewer_argument(self) -> None:
+    def test_readme_includes_reviewer(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        README provides a lint example showcasing the `--reviewer` argument and `reviewer identity`.
+        README provides a lint example with the --reviewer argument and a `reviewer identity`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -30,11 +30,11 @@ class ReviewDocumentationTests(unittest.TestCase):
         expected_args = ["lint", "--reviewer", reviewer]
         self.assertEqual(_readme_review_command_args(repo_root), expected_args)
 
-    def test_guides_show_complete_review_workflow(self) -> None:
+    def test_readme_shows_review_workflow(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        README and the GitHub Actions guide show this workflow: `create-agent-md` creates scorecards, reviewers complete scorecards, and `lint --reviewer` records review proof.
+        README shows the complete local workflow: create .agent.md files, complete their scorecards, and run lint with a reviewer to record manifest proof.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -44,31 +44,42 @@ class ReviewDocumentationTests(unittest.TestCase):
         1. Scorecard creation uses `create-agent-md`.
         2. Review completion updates every scorecard.
         3. Proof recording uses `lint --reviewer`.
-        The GitHub Actions guide presents the same ordered steps.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        guide_steps = {
-            Path("README.md"): (
-                "agentic-tdd-linter create-agent-md",
-                "Review the generated files",
-                "agentic-tdd-linter lint --reviewer codex:gpt-5.5",
-            ),
-            Path("docs/workflows/github-actions.md"): (
-                "agentic-tdd-linter create-agent-md",
-                "Review those artifacts",
-                "agentic-tdd-linter lint --reviewer codex:gpt-5.5",
-            ),
-        }
-        for guide_path, step_markers in guide_steps.items():
-            with self.subTest(guide_path=guide_path):
-                guide = (repo_root / guide_path).read_text(encoding="utf-8")
-                step_positions = tuple(guide.index(marker) for marker in step_markers)
-                self.assertEqual(
-                    tuple(sorted(step_positions)),
-                    step_positions,
-                    f"{guide_path} must document creation, review, and proof recording in order",
-                )
+        guide = (repo_root / "README.md").read_text(encoding="utf-8")
+        step_markers = (
+            "agentic-tdd-linter create-agent-md",
+            "Review the generated files",
+            "agentic-tdd-linter lint --reviewer codex:gpt-5.5",
+        )
+        step_positions = tuple(guide.index(marker) for marker in step_markers)
+
+        self.assertEqual(tuple(sorted(step_positions)), step_positions)
+
+    def test_github_actions_shows_ci(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The GitHub Actions guide shows CI validating committed manifest proof with lint without performing reviews or creating .agent.md files.
+        Standard usage: CI consumes review proof produced before the workflow runs.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The guide contains `agentic-tdd-linter lint`.
+        The guide states that GitHub Actions verifies committed proof.
+        The guide contains no `agentic-tdd-linter create-agent-md` command.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        guide = (repo_root / "docs" / "workflows" / "github-actions.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("GitHub Actions verifies committed agent-review proof", guide)
+        self.assertIn("agentic-tdd-linter lint", guide)
+        self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
 
 
 def _readme_review_command_args(repo_root: Path) -> list[str]:
