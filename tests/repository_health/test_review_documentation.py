@@ -37,7 +37,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         README and the GitHub Actions guide show this workflow: `create-agent-md` creates scorecards, reviewers complete scorecards, and `lint --reviewer` records review proof.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify filesystem state
+        Verification Method: verify public function output
 
         Verification Detail:
         README presents these steps in order:
