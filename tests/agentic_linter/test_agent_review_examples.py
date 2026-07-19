@@ -21,10 +21,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from tests.agentic_linter.test_harness import agent_review_examples as review_harness
-from tests.agentic_linter.test_harness.agent_review_examples import (
+from tests.agentic_linter.test_harness import agent_review_example_runner as runner_harness
+from tests.agentic_linter.test_harness.agent_review_example_runner import (
     REPO_ROOT,
     SCORECARD_BASELINE_PATH,
+)
+from tests.agentic_linter.test_harness.agent_review_examples import (
     _ScorecardMismatch,
     _reviewer_model_from_environment,
     _scorecard_mismatch_message,
@@ -53,7 +55,7 @@ class AgentReviewExampleTests(unittest.TestCase):
             / "tests"
             / "agentic_linter"
             / "test_harness"
-            / "agent_review_examples.py"
+            / "agent_review_example_runner.py"
         )
         module = ast.parse(runner_path.read_text(encoding="utf-8"))
         runner = next(
@@ -344,64 +346,64 @@ class AgentReviewExampleTests(unittest.TestCase):
 
             with (
                 mock.patch.multiple(
-                    review_harness,
+                    runner_harness,
                     ANONYMOUS_ROOT=anonymous_root,
                     ARTIFACT_ROOT=artifact_root,
                     SCORECARD_BASELINE_PATH=sidecar_path,
                     REVIEW_START_PATH=start_path,
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "lint_agent_review_examples",
                     return_value=[],
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "agent_review_example_files",
                     return_value=[Path("examples.yaml")],
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "read_agent_review_examples",
                     return_value=[example],
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "criterion_titles_from_template",
                     return_value={},
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "extract_tests_from_file",
                     return_value=[test_record],
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "map_test_function_to_agent_md_file",
                     return_value=artifact_path,
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "_agent_md_file_is_stale",
                     return_value=False,
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "determine_agent_md_status",
                     return_value="pass",
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "_scorecard_results",
                     return_value={11: "pass"},
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "_scorecard_regressions",
                     side_effect=[[], ["forced regression"]],
                 ),
                 mock.patch.object(
-                    review_harness,
+                    runner_harness,
                     "_review_duration_seconds",
                     return_value=1,
                 ),
@@ -410,7 +412,7 @@ class AgentReviewExampleTests(unittest.TestCase):
                 sidecar_path.write_text(successful_seed, encoding="utf-8")
                 start_path.write_text("started", encoding="utf-8")
 
-                review_harness.run_agent_review_examples(
+                runner_harness.run_agent_review_examples(
                     examples_path=temporary_root,
                     reviewer_model="reviewer",
                 )
@@ -421,7 +423,7 @@ class AgentReviewExampleTests(unittest.TestCase):
                 start_path.write_text("started", encoding="utf-8")
 
                 with self.assertRaises(AssertionError):
-                    review_harness.run_agent_review_examples(
+                    runner_harness.run_agent_review_examples(
                         examples_path=temporary_root,
                         reviewer_model="reviewer",
                     )
