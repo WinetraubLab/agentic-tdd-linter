@@ -18,6 +18,9 @@ from pathlib import Path
 from agentic_tdd_linter.conventional_linter.run_conventional_linter import (
     run_conventional_linter,
 )
+from agentic_tdd_linter.indexing_test_functions.extracted_test_record import (
+    ExtractedTestRecord,
+)
 from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
     extract_tests_from_file,
 )
@@ -33,21 +36,24 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issue when a test has no docstring.
-        Specialized usage: For test documentation, test docstring is absent instead of present.
+        Conventional linter reports missing_docstring when a shared extracted test record has empty documentation.
+        Specialized usage: The extracted record contains empty documentation instead of structured test documentation.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
-        When tests have no docstrings, _lint_docstring_source contains `missing_docstring`.
+        `run_conventional_linter` output contains `missing_docstring`.
         """
 
-        rules = _lint_docstring_source(
-            """
-            def test_adds_values() -> None:
-                assert 1 + 1 == 2
-            """
+        test = ExtractedTestRecord(
+            path=Path("tests/test_sample.py"),
+            name="test_sample",
+            line=1,
+            node=None,
+            docstring="",
+            source="def test_sample(): pass",
         )
+        rules = {issue.rule for issue in run_conventional_linter(test)}
 
         self.assertIn("missing_docstring", rules)
 

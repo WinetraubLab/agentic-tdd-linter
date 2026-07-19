@@ -22,7 +22,6 @@ from ..agentic_linter.render_cross_test_agent_md_file import (
     cross_test_agent_md_file_is_stale,
     render_cross_test_agent_md_file,
 )
-from ..conventional_linter.check_test_file_docstring import check_test_file_docstring
 from ..conventional_linter.check_file_docstring_term_count import (
     check_file_docstring_term_count,
 )
@@ -65,9 +64,6 @@ def run_lint_pipeline(
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
-    issues.extend(_check_test_file_docstrings(review_files, root))
-    if issues:
-        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     issues.extend(_run_conventional_checks(tests_by_file))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
@@ -140,9 +136,6 @@ def create_agent_md_files(
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
-    issues.extend(_check_test_file_docstrings(review_files, root))
-    if issues:
-        return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     issues.extend(_run_conventional_checks(tests_by_file))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
@@ -232,16 +225,6 @@ def _remove_orphaned_agent_md_files(
     for artifact_path in artifact_root.glob("*.agent.md"):
         if artifact_path.resolve() not in expected_paths | {cross_test_packet}:
             artifact_path.unlink()
-
-
-def _check_test_file_docstrings(
-    test_files: Sequence[Path],
-    repo_root: Path,
-) -> list[LintIssue]:
-    issues: list[LintIssue] = []
-    for test_file in test_files:
-        issues.extend(check_test_file_docstring(test_file, repo_root))
-    return issues
 
 
 def _run_conventional_checks(
