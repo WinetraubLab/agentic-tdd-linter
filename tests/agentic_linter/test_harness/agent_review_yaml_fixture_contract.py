@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 EXAMPLES = (
     REPO_ROOT
     / "tests"
@@ -25,7 +25,7 @@ TEMPLATE_PATH = (
 REQUIRED_FILE_DOCSTRING = "\n".join(
     (
         "# Test-source examples for agent review.",
-        "# Each example contains only `test` and `expected_scorecard`.",
+        "# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.",
         "# Criteria omitted from `expected_scorecard` are ignored during comparison.",
         "# Criterion comments must match their titles in `single_test_review.agent.md.j2`.",
         "# Each outcome must be `pass` or `fail` followed by an explanation comment.",
@@ -41,6 +41,7 @@ class ExpectedResult:
 @dataclass(frozen=True)
 class AgentReviewExample:
     name: str
+    file_docstring: str
     test: str
     expected_scorecard: dict[int, ExpectedResult]
 
@@ -83,13 +84,15 @@ def read_agent_review_examples(
     lines = path.read_text(encoding="utf-8").splitlines()
     examples: list[AgentReviewExample] = []
     example_name = ""
+    file_docstring_lines: list[str] = []
     test_lines: list[str] = []
     expected_scorecard: dict[int, dict[str, str]] = {}
     criterion: int | None = None
     section = ""
 
     def finish_example() -> None:
-        nonlocal example_name, test_lines, expected_scorecard, criterion, section
+        nonlocal example_name, file_docstring_lines, test_lines
+        nonlocal expected_scorecard, criterion, section
         if not example_name:
             return
         parsed_scorecard: dict[int, ExpectedResult] = {}
@@ -102,17 +105,22 @@ def read_agent_review_examples(
             parsed_scorecard[number] = ExpectedResult(result=result)
         if not parsed_scorecard:
             raise ValueError(f"{path}: {example_name} needs an expected_scorecard")
+        file_docstring = "\n".join(file_docstring_lines).rstrip() + "\n"
+        if not file_docstring.strip():
+            raise ValueError(f"{path}: {example_name} needs a file_docstring")
         test = "\n".join(test_lines).rstrip() + "\n"
         if not test.strip():
             raise ValueError(f"{path}: {example_name} needs test source")
         examples.append(
             AgentReviewExample(
                 name=example_name,
+                file_docstring=file_docstring,
                 test=test,
                 expected_scorecard=parsed_scorecard,
             )
         )
         example_name = ""
+        file_docstring_lines = []
         test_lines = []
         expected_scorecard = {}
         criterion = None
@@ -120,7 +128,9 @@ def read_agent_review_examples(
 
     for line_number, line in enumerate(lines, start=1):
         if not line or line.lstrip().startswith("#"):
-            if section == "test" and example_name:
+            if section == "file_docstring" and example_name:
+                file_docstring_lines.append("")
+            elif section == "test" and example_name:
                 test_lines.append("")
             continue
         if not line.startswith(" ") and line.endswith(":"):
@@ -137,16 +147,26 @@ def read_agent_review_examples(
             section = "expected_scorecard"
             continue
         if line == "  test: |":
-            if section:
-                raise ValueError(f"{path}:{line_number}: test must be the first field")
+            if section != "file_docstring":
+                raise ValueError(
+                    f"{path}:{line_number}: test must follow file_docstring"
+                )
             section = "test"
+            criterion = None
+            continue
+        if line == "  file_docstring: |":
+            if section:
+                raise ValueError(
+                    f"{path}:{line_number}: file_docstring must be the first field"
+                )
+            section = "file_docstring"
             criterion = None
             continue
         field_match = re.match(r"^  ([A-Za-z_][A-Za-z0-9_]*):", line)
         if field_match:
             raise ValueError(
                 f"{path}:{line_number}: unsupported field `{field_match.group(1)}`; "
-                "only `test` and `expected_scorecard` are allowed"
+                "only `file_docstring`, `test`, and `expected_scorecard` are allowed"
             )
         criterion_match = re.fullmatch(r"    (\d+):\s+#\s+(.+)", line)
         if section == "expected_scorecard" and criterion_match:
@@ -185,6 +205,9 @@ def read_agent_review_examples(
                 f"{path}:{line_number}: {outcome_without_explanation.group(1).lower()} "
                 "needs an explanation comment"
             )
+        if section == "file_docstring" and line.startswith("    "):
+            file_docstring_lines.append(line[4:])
+            continue
         if section == "test" and line.startswith("    "):
             test_lines.append(line[4:])
             continue
