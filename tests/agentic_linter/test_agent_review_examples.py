@@ -185,6 +185,39 @@ class AgentReviewExampleTests(unittest.TestCase):
         )
         self.assertEqual([], mismatches)
 
+    def test_runner_json_is_tracked(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Agentic linter stores populated runner results in 'tests/agentic_linter/test_agent_review_example_runner.json' under source control.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify filesystem state
+
+        Verification Detail:
+        1. Locate 'tests/agentic_linter/test_agent_review_example_runner.json'.
+        2. Verify that the JSON file contains data without inspecting its schema.
+        3. Verify that Git tracks the JSON file.
+        JSON file is non-empty.
+        `git ls-files --error-unmatch` returns `0`.
+        """
+
+        sidecar_text = SCORECARD_BASELINE_PATH.read_text(encoding="utf-8")
+        tracked_query = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--error-unmatch",
+                str(SCORECARD_BASELINE_PATH.relative_to(REPO_ROOT)),
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertTrue(sidecar_text.strip())
+        self.assertEqual(0, tracked_query.returncode, tracked_query.stderr)
     def test_missing_reviewer_model_fails(self) -> None:
         """Test Path: failure path
 
