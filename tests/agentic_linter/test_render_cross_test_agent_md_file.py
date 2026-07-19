@@ -51,31 +51,37 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         self.assertCountEqual(["tests/test_alpha.py", "tests/test_beta.py"], scope)
         self.assertEqual(2, len(scope))
 
-    def test_deduplicates_cross_test_paths(self) -> None:
+    def test_instructions_limit_review_to_packet(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        The `renderer` deduplicates paths.
-        When path lists repeat entries, the packet includes each path once.
+        Cross-test `.agent.md` includes an instruction to use only the `.agent.md` packet and its listed test files as review context.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Alpha count equals one. Beta count equals one.
+        The cross-test `.agent.md` file contains this instruction:
+        `Use only this packet and the listed test files as review context.`
         """
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = "def test_example():\n    assert True\n"
-            first = root / "tests" / "test_alpha.py"
-            second = root / "tests" / "test_beta.py"
-            first.parent.mkdir(parents=True)
-            first.write_text(source, encoding="utf-8")
-            second.write_text(source, encoding="utf-8")
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
 
-            artifact = render_cross_test_agent_md_file(
-                [first, second, first],
-                root,
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "Use only this packet and the listed test files as review context.",
+            artifact_text,
+        )
+
             )
             artifact_text = artifact.read_text(encoding="utf-8")
 
