@@ -2,6 +2,7 @@
 
 The YAML files provide example test source and expected results for selected
 review criteria. Tests in this module verify mismatch reporting and the
+runner-output lifecycle.
 
 Terms:
 - `mismatch diagnostics`: Mismatch diagnostics format YAML expectation mismatches with criterion metrics and recovery guidance. Criterion metrics contain failure count, enforced-check count, and pass rate. For example, two failures among five checks produce a 60% pass rate and a calibration recommendation.
@@ -11,6 +12,7 @@ Terms:
 
 from __future__ import annotations
 
+import ast
 import os
 import subprocess
 import tempfile
@@ -31,6 +33,92 @@ from tests.agentic_linter.test_harness.agent_review_examples import (
 
 
 class AgentReviewExampleTests(unittest.TestCase):
+    def test_runner_times_complete_evaluation(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Agentic linter measures YAML-example runtime from the start of evaluation until immediately before writing the JSON result.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify filesystem state
+
+        Verification Detail:
+        1. Parse `run_agent_review_examples` from the runner implementation.
+        2. Verify that `invocation_started_at = time.time()` appears immediately before YAML validation begins.
+        3. Verify that runtime calculation uses `completed_at=time.time()` immediately before `_write_scorecard_sidecar` writes the JSON result.
+        """
+
+        runner_path = (
+            REPO_ROOT
+            / "tests"
+            / "agentic_linter"
+            / "test_harness"
+            / "agent_review_examples.py"
+        )
+        module = ast.parse(runner_path.read_text(encoding="utf-8"))
+        runner = next(
+            node
+            for node in module.body
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "run_agent_review_examples"
+        )
+        start_index = next(
+            index
+            for index, statement in enumerate(runner.body)
+            if isinstance(statement, ast.Assign)
+            and any(
+                isinstance(target, ast.Name)
+                and target.id == "invocation_started_at"
+                for target in statement.targets
+            )
+        )
+        validation_index = next(
+            index
+            for index, statement in enumerate(runner.body)
+            if any(
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "lint_agent_review_examples"
+                for node in ast.walk(statement)
+            )
+        )
+        duration_index = next(
+            index
+            for index, statement in enumerate(runner.body)
+            if isinstance(statement, ast.Assign)
+            and any(
+                isinstance(target, ast.Name)
+                and target.id == "review_duration_seconds"
+                for target in statement.targets
+            )
+        )
+        write_index = next(
+            index
+            for index, statement in enumerate(runner.body)
+            if any(
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "_write_scorecard_sidecar"
+                for node in ast.walk(statement)
+            )
+        )
+        start_assignment = runner.body[start_index]
+        duration_assignment = runner.body[duration_index]
+        completed_at = next(
+            keyword.value
+            for node in ast.walk(duration_assignment)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "_review_duration_seconds"
+            for keyword in node.keywords
+            if keyword.arg == "completed_at"
+        )
+
+        self.assertEqual(start_index + 1, validation_index)
+        self.assertEqual("time.time()", ast.unparse(start_assignment.value))
+        self.assertEqual(duration_index + 1, write_index)
+        self.assertEqual("time.time()", ast.unparse(completed_at))
+
     def test_mismatch_message_recommends_calibration_skill(self) -> None:
         """Test Path: happy path
 
