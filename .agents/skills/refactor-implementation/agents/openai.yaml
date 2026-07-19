@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactor Implementation"
+  short_description: "Simplify all implementation and harness code"
+  default_prompt: "Use $refactor-implementation to simplify all production and test-harness implementation files while preserving approved behavior."
