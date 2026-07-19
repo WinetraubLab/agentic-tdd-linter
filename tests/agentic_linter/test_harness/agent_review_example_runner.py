@@ -38,7 +38,10 @@ ANONYMOUS_ROOT = REPO_ROOT / "temporary_fixtures" / "agent_review_examples"
 ARTIFACT_ROOT = ANONYMOUS_ROOT / "agentic_review_artifacts"
 REVIEW_START_PATH = ANONYMOUS_ROOT / ".review_started_at"
 SCORECARD_BASELINE_PATH = (
-    REPO_ROOT / "tests" / "integration_tests" / "test_agent_review_examples.json"
+    REPO_ROOT
+    / "tests"
+    / "agentic_linter"
+    / "test_agent_review_example_runner.json"
 )
 SCORECARD_ROW_PATTERN = re.compile(
     r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|$",
