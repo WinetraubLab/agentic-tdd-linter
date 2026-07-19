@@ -445,6 +445,63 @@ class UsageScenarioTests(unittest.TestCase):
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
 
+    def test_outdated_linter_review_requires_new_review(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        CLI requires a new agentic review when the committed manifest's `linter_version` differs from the installed linter version.
+        Specialized usage: The manifest's `linter_version` identifies an older release instead of the installed release.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Create a temporary repository containing one valid test.
+        2. Complete its review and record passing manifest proof with the installed CLI.
+        3. Replace only the manifest record's `linter_version` value with a different version.
+        4. Remove the existing '.agent.md' files to reproduce committed CI input.
+        5. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:version-reviewer`.
+        6. Verify that lint fails, reports missing current review evidence, and prescribes `create-agent-md`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Verify version-sensitive review proof."""
+
+            def test_version_sensitive_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Current review proof remains valid for the linter release that recorded it.
+                Standard usage: The installed linter records the completed review.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The reviewed expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_version.py", test_source)
+            reviewer = "integration:version-reviewer"
+            _record_approved_manifest(repo_root, reviewer=reviewer)
+            manifest_path = repo_root / "tests" / "agentic_review_manifest.jsonl"
+            record = json.loads(manifest_path.read_text(encoding="utf-8"))
+            recorded_version = record["linter_version"]
+            record["linter_version"] = f"{recorded_version}-outdated"
+            manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+            _remove_packet_directory(repo_root)
+
+            lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
+
+        self.assertEqual(1, lint.returncode)
+        self.assertIn("missing_required_agent_md", lint.stdout)
+        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
+
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
 
