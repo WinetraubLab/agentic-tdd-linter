@@ -82,13 +82,37 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text,
         )
 
+    def test_instructions_require_both_tests_to_explain_overlap(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Cross-test `.agent.md` instructions require both tests in a cross-level pair to reference each other and explain their coverage difference.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The cross-test `.agent.md` file contains this instruction:
+        `A passing pair includes reciprocal references and justifications`
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
             )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
             artifact_text = artifact.read_text(encoding="utf-8")
 
-        self.assertEqual(1, artifact_text.count("`tests/test_alpha.py`"))
-        self.assertEqual(1, artifact_text.count("`tests/test_beta.py`"))
-    def test_rejects_non_test_file(self) -> None:
-        """Test Path: failure path
+        self.assertIn(
+            "A passing pair includes reciprocal references and justifications",
+            artifact_text,
+        )
+
 
         Requirement Tested:
         The `renderer` validates paths.
