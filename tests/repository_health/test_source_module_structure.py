@@ -63,8 +63,6 @@ class SourceModuleStructureTests(unittest.TestCase):
         Checked modules provide `narrow API`s.
 
         Similar Coverage:
-        - Lower Level Test: `test_determine_agent_md_status.py::test_exposes_one_public_function`
-          Justification: Deeper coverage — Lower test alone verifies status function.
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_exposes_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies manifest function.
         """
