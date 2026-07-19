@@ -3,7 +3,6 @@
 Terms:
 - `happy path`: Happy path labels a test scenario where parser input succeeds. For example, a parser accepts a supported value on the happy path.
 - `failure path`: Failure path labels a test scenario where parser input is rejected. For example, a parser reports malformed syntax on the failure path.
-- `edge path`: Edge path labels a test scenario outside the supported classifications. For example, the linter rejects edge path as an invalid Test Path value.
 """
 
 from __future__ import annotations
@@ -30,7 +29,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts `happy path` when parser input succeeds.
+        Conventional linter accepts `happy path` when parser input succeeds.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -63,7 +62,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts declared `failure path`.
+        Conventional linter accepts declared `failure path`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -96,13 +95,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts public verification when tests observe public-function output.
+        Conventional linter accepts public verification when tests observe public-function output.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Public functions own the output.
+        Public functions produce the output.
         Rules contain zero issues.
         """
 
@@ -130,13 +129,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts private verification when tests observe private-helper output.
+        Conventional linter accepts private verification when tests observe private-helper output.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Private helpers own the output.
+        Private helpers produce the output.
         Rules contain zero issues.
         """
 
@@ -168,7 +167,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The linter accepts visual inspection when tests produce review artifacts.
+        Conventional linter accepts visual inspection when tests emit review artifacts.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -204,3 +203,39 @@ class ClassificationTests(unittest.TestCase):
 
         self.assertEqual(set(), rules)
 
+    def test_rejects_unsupported_verification_method(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Conventional linter reports an invalid-verification-method issue unless Verification Method is public function output, private function output, or visual inspection by user.
+        Specialized usage: The test declares "verify database state", which is not a supported Verification Method value.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_lint_classification_source` output contains `invalid_verification_method` for `Verification Method: verify database state`.
+        """
+
+        rules = _lint_classification_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                addition returns the expected sum for two positive integers.
+
+                Verification Method: verify database state
+
+                Verification Detail:
+                by asserting the returned numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("invalid_verification_method", rules)
+
+
+if __name__ == "__main__":
+    unittest.main()
