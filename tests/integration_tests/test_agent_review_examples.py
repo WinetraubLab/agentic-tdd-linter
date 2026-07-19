@@ -161,3 +161,26 @@ class AgentReviewExampleTests(unittest.TestCase):
         self.assertIn("`missing_subject` (expected: fail, got: pass)", message)
         self.assertIn("`missing_object` (expected: fail, got: pass)", message)
 
+    def test_compares_only_expected_criteria(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Scorecard comparison checks only criteria listed in the YAML expectation.
+        Specialized usage: The completed '.agent.md' scorecard contains every criterion, so additional results are not treated as mismatches.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        YAML expectation contains criterion `11` with result `fail`.
+        Reviewed scorecard additionally contains criteria `12` and `13`.
+        `_scorecard_mismatches` output contains no mismatches.
+        """
+
+        mismatches = _scorecard_mismatches(
+            example_name="example",
+            test_name="test_example",
+            expected_scorecard={11: "fail"},
+            actual_scorecard={11: "fail", 12: "pass", 13: "fail"},
+        )
+        self.assertEqual([], mismatches)
+
