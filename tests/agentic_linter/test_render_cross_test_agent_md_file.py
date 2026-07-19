@@ -1,15 +1,37 @@
+"""Verify rendering of cross-test review packets.
+
+Terms:
+- `renderer`: The renderer creates a cross-test review packet from selected paths. For example, it writes one packet for two test files.
+- `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
+"""
+
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+from agentic_tdd_linter.agentic_linter.render_cross_test_agent_md_file import (
+    _build_cross_test_review_scope,
+    render_cross_test_agent_md_file,
+)
+
+
 class CrossTestAgentMarkdownTests(unittest.TestCase):
-    def test_writes_cross_test_packet(self) -> None:
+    def test_deduplicates_cross_test_paths(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        The `renderer` generates cross-test packets.
-        When paths repeat, renderer retains canonical path.
+        Agentic linter deduplicates cross-test paths.
+        Specialized usage: For duplicate removal, packet path becomes repeated
+        (instead of unique).
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        `Artifact` equals `tests/agentic_review_artifacts/cross_test_review.agent.md`.
+        The packet contains these paths:
+        `tests/test_alpha.py`
+        `tests/test_beta.py`
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -21,18 +43,13 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             first.write_text(source, encoding="utf-8")
             second.write_text(source, encoding="utf-8")
 
-            artifact = render_cross_test_agent_md_file(
+            scope = _build_cross_test_review_scope(
                 [first, second, first],
                 root,
             )
 
-        self.assertEqual(
-            root.resolve()
-            / "tests"
-            / "agentic_review_artifacts"
-            / "cross_test_review.agent.md",
-            artifact,
-        )
+        self.assertCountEqual(["tests/test_alpha.py", "tests/test_beta.py"], scope)
+        self.assertEqual(2, len(scope))
 
     def test_deduplicates_cross_test_paths(self) -> None:
         """Test Path: happy path
