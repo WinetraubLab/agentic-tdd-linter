@@ -15,14 +15,34 @@ from agentic_tdd_linter.indexing_test_functions.discover_test_files import (
 )
 
 
-DISCOVERY_MODULE = (
-    Path(__file__).resolve().parents[2]
-    / "src"
-    / "agentic_tdd_linter"
-    / "indexing_test_functions"
-    / "discover_test_files.py"
-)
+class TestFileDiscoveryTests(unittest.TestCase):
+    def test_ignores_temporary_fixtures(self) -> None:
+        """Test Path: happy path
 
+        Requirement Tested:
+        `discover_test_files` excludes temporary fixtures from repository discovery.
+        Specialized usage: For repository discovery, fixture location becomes temporary (instead of maintained).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `discover_test_files` output excludes `tests/temporary_fixtures/test_generated.py`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            tests_root = repo_root / "tests"
+            fixture = tests_root / "temporary_fixtures" / "test_generated.py"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text("def test_generated(): pass\n", encoding="utf-8")
+
+            discovered = discover_test_files(
+                repo_root,
+                mode="all",
+                test_root=tests_root,
+            )
+
+        self.assertEqual([], discovered)
 
 class TestFileDiscoveryTests(unittest.TestCase):
     def test_exposes_one_public_function(self) -> None:
