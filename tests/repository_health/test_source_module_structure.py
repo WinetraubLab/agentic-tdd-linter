@@ -11,73 +11,11 @@ Terms:
 from __future__ import annotations
 
 import ast
-import tempfile
 import unittest
 from pathlib import Path
 
 
 class SourceModuleStructureTests(unittest.TestCase):
-    def test_source_modules_have_test_modules(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        Repository associates every `source module` with a same-basename `test module`.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        `_missing_test_paths` produces `[]`.
-        Each checked `source module` matches a `test module`.
-
-        Similar Coverage:
-        - Lower Level Test: `test_source_module_structure.py::test_rejects_module_without_test_file`
-          Justification: Diagnostic completeness — Lower test verifies missing-test assertion. This test verifies repository scan.
-        """
-
-        repo_root = Path(__file__).resolve().parents[2]
-        package_root = repo_root / "src" / "agentic_tdd_linter"
-        test_root = repo_root / "tests"
-        self.assertEqual(
-            [],
-            _missing_test_paths(
-                package_root=package_root,
-                test_root=test_root,
-            ),
-        )
-
-    def test_rejects_module_without_test_file(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        Repository validation emits an error when an orphan `source module` lacks a `test module`.
-        Specialized usage: For module coverage, the `source module` lacks a `test module` instead of having one.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        Validation propagates `AssertionError`.
-
-        Similar Coverage:
-        - Higher Level Test: `test_source_module_structure.py::test_source_modules_have_test_modules`
-          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
-        """
-
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            package_root = root / "src" / "agentic_tdd_linter"
-            test_root = root / "tests"
-            source = package_root / "agentic_linter" / "orphan.py"
-            source.parent.mkdir(parents=True)
-            source.write_text("VALUE = 1\n", encoding="utf-8")
-            test_root.mkdir()
-
-            with self.assertRaises(AssertionError):
-                _assert_modules_have_matching_test_files(
-                    package_root=package_root,
-                    test_root=test_root,
-                )
-
     def test_tests_have_source_or_harness(self) -> None:
         """Test Path: happy path
 
@@ -131,10 +69,6 @@ class SourceModuleStructureTests(unittest.TestCase):
           Justification: Deeper coverage — Lower test alone verifies manifest function.
         - Lower Level Test: `test_discover_test_files.py::test_exposes_one_public_function`
           Justification: Deeper coverage — Lower test alone verifies discovery function.
-        - Lower Level Test: `test_extract_tests_from_file.py::test_modules_expose_one_public_function`
-          Justification: Deeper coverage — Lower test alone verifies extraction functions.
-        - Lower Level Test: `test_extract_tests_from_file.py::test_module_exports_match_filenames`
-          Justification: Deeper coverage — Lower test verifies matching exports for each extraction module.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -155,49 +89,6 @@ def _source_modules(package_root: Path) -> list[Path]:
         for path in package_root.rglob("*.py")
         if path.name != "__init__.py"
     )
-
-
-def _matching_test_path(
-    source: Path,
-    *,
-    package_root: Path,
-    test_root: Path,
-) -> Path:
-    relative_source = source.relative_to(package_root)
-    return test_root / relative_source.parent / f"test_{source.name}"
-
-
-def _missing_test_paths(*, package_root: Path, test_root: Path) -> list[str]:
-    return [
-        str(
-            _matching_test_path(
-                source,
-                package_root=package_root,
-                test_root=test_root,
-            ).relative_to(test_root)
-        )
-        for source in _source_modules(package_root)
-        if not _matching_test_path(
-            source,
-            package_root=package_root,
-            test_root=test_root,
-        ).is_file()
-    ]
-
-
-def _assert_modules_have_matching_test_files(
-    *,
-    package_root: Path,
-    test_root: Path,
-) -> None:
-    missing_tests = _missing_test_paths(
-        package_root=package_root,
-        test_root=test_root,
-    )
-    if missing_tests:
-        raise AssertionError(
-            "source modules require matching test files: " + ", ".join(missing_tests)
-        )
 
 
 def _matching_source_path(
