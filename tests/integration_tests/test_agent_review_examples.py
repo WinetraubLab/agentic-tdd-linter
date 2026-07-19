@@ -184,3 +184,23 @@ class AgentReviewExampleTests(unittest.TestCase):
         )
         self.assertEqual([], mismatches)
 
+    def test_missing_reviewer_model_fails(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Model loading emits an error when the environment omits model identity.
+        Specialized usage: For model loading, environment identity is absent instead of present.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `mock.patch.dict` removes every environment entry.
+        `RuntimeError` identifies `AGENT_REVIEW_MODEL`.
+        """
+
+        with mock.patch.dict(os.environ, {}, clear=True):
+            with self.assertRaisesRegex(RuntimeError, "AGENT_REVIEW_MODEL"):
+                _reviewer_model_from_environment()
+
+if __name__ == "__main__":
+    unittest.main()
