@@ -40,7 +40,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         Agentic linter measures YAML-example runtime from the start of evaluation until immediately before writing the JSON result.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify filesystem state
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Parse `run_agent_review_examples` from the runner implementation.
@@ -276,7 +276,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         Agentic linter stores populated runner results in 'tests/agentic_linter/test_agent_review_example_runner.json' under source control.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify filesystem state
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Locate 'tests/agentic_linter/test_agent_review_example_runner.json'.
@@ -310,7 +310,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         Agentic linter overwrites 'test_agent_review_example_runner.json' after every completed runner evaluation of YAML examples.
         Specialized usage: The second evaluation reports a regression instead of succeeding.
 
-        Verification Method: verify filesystem state
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Use `mock.patch` to supply one completed YAML example and force the second evaluation to report a regression.
