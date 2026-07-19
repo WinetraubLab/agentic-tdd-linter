@@ -21,7 +21,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_text` creates `formatted result` with rule/message pairs.
+        CLI creates `formatted result` with rule/message pairs.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -48,7 +48,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_json` emits success status.
+        CLI emits success status.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -66,7 +66,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_json` emits checked-file totals.
+        CLI emits checked-file totals.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
