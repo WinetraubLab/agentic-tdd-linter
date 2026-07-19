@@ -193,8 +193,6 @@ def _all_review_files(repo_root: Path, test_root: Path) -> list[Path]:
     files = _selected_test_files(repo_root, test_root, ())
     review_files: list[Path] = []
     for test_file in files:
-        if not test_file.name.startswith("test_") or test_file.suffix != ".py":
-            continue
         try:
             tests = extract_tests_from_file(test_file, repo_root)
         except (OSError, SyntaxError):

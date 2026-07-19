@@ -82,7 +82,7 @@ def _build_cross_test_review_scope(
     test_file_paths: Sequence[Path],
     repo_root: Path,
 ) -> list[str]:
-    """Return unique repository-relative Python test paths in input order."""
+    """Return unique repository-relative test paths in input order."""
 
     repo_root = Path(repo_root).resolve()
     scope: list[str] = []
@@ -100,10 +100,6 @@ def _build_cross_test_review_scope(
             ) from error
         if not absolute_path.is_file():
             raise ValueError(f"cross-test review file does not exist: {relative_path}")
-        if not relative_path.name.startswith("test_") or relative_path.suffix != ".py":
-            raise ValueError(
-                f"cross-test review requires test_*.py files: {relative_path}"
-            )
         if relative_path in seen:
             continue
         seen.add(relative_path)
