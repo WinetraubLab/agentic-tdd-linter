@@ -155,8 +155,9 @@ class UsageScenarioTests(unittest.TestCase):
         Verification Detail:
         1. Create a temporary repository containing a test whose docstring omits Requirement Tested.
         2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Read the generated packet paths.
-        4. Verify that the command created no `.agent.md` packets.
+        3. Verify that the command fails and reports `missing_requirement`.
+        4. Verify that review-packet validation does not run after the conventional error.
+        5. Verify that the command created no `.agent.md` packets.
         Packet list is empty.
         """
 
@@ -181,9 +182,12 @@ class UsageScenarioTests(unittest.TestCase):
             repo_root = Path(directory)
             _write_source(repo_root / "tests" / "test_invalid.py", invalid_test_source)
 
-            _run_cli(repo_root, "create-agent-md")
+            creation = _run_cli(repo_root, "create-agent-md")
             packets = _packet_paths(repo_root)
 
+        self.assertEqual(1, creation.returncode)
+        self.assertIn("missing_requirement", creation.stdout)
+        self.assertNotIn("missing_required_agent_md", creation.stdout)
         self.assertEqual([], packets)
 
     def test_agentic_linter_errors_scenario(self) -> None:
@@ -287,7 +291,7 @@ class UsageScenarioTests(unittest.TestCase):
         6. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
         7. Verify that lint rejects the previous proof and prescribes create-agent-md.
         8. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        9. Verify that the stale test's '.agent.md' file is pending and the current test's file retains its passing review.
+        9. Verify that the stale test and cross-test '.agent.md' files are pending while the current test's file retains its passing review.
         """
 
         first_source = textwrap.dedent(
@@ -357,6 +361,11 @@ class UsageScenarioTests(unittest.TestCase):
             ]
             first_packet = next(path for path in single_packets if "test_first" in path.name)
             second_packet = next(path for path in single_packets if "test_second" in path.name)
+            cross_packet = next(
+                path
+                for path in _packet_paths(repo_root)
+                if path.name == "cross_test_review.agent.md"
+            )
             unchanged_packet_before = second_packet.read_text(encoding="utf-8")
 
             _write_source(first_file, edited_first_source)
@@ -364,6 +373,7 @@ class UsageScenarioTests(unittest.TestCase):
             _run_cli(repo_root, "create-agent-md")
             edited_packet_after = first_packet.read_text(encoding="utf-8")
             unchanged_packet_after = second_packet.read_text(encoding="utf-8")
+            cross_packet_after = cross_packet.read_text(encoding="utf-8")
 
         self.assertEqual(0, approved_lint.returncode)
         self.assertEqual(1, stale_lint.returncode)
@@ -375,6 +385,11 @@ class UsageScenarioTests(unittest.TestCase):
         )
         self.assertNotIn("approved before source edit", edited_packet_after)
         self.assertEqual(unchanged_packet_before, unchanged_packet_after)
+        self.assertIn(
+            "| pending | Replace with review evidence. |",
+            cross_packet_after,
+        )
+        self.assertNotIn("approved before source edit", cross_packet_after)
 
     def test_cicd_pass_scenario(self) -> None:
         """Test Path: happy path
