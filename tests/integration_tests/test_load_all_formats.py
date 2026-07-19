@@ -118,7 +118,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI creates a populated '.agent.md' file for a discovered TypeScript test file.
+        CLI creates populated single-test and cross-test '.agent.md' files for a discovered TypeScript test file.
         Standard usage: The repository contains one documented `.test.ts` file.
 
         Verification Method: verify public function output
@@ -127,8 +127,9 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Create a temporary repository containing `tests/parser.test.ts`.
         2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
         3. Read every generated '.agent.md' file.
-        4. Verify that the command succeeds and creates one single-test packet.
-        5. Verify that the packet contains the TypeScript test label, JSDoc requirement, and test-call source.
+        4. Verify that the command succeeds and creates one single-test packet plus one cross-test packet.
+        5. Verify that the single-test packet contains the TypeScript test label, JSDoc requirement, and test-call source.
+        6. Verify that the cross-test packet contains the TypeScript test-file path and source.
         """
 
         typescript_source = textwrap.dedent(
@@ -188,13 +189,26 @@ class LoadAllFormatsTests(unittest.TestCase):
                     "*.agent.md"
                 )
             )
-            single_packet = packets[0].read_text(encoding="utf-8")
+            cross_packet_path = next(
+                path
+                for path in packets
+                if path.name == "cross_test_review.agent.md"
+            )
+            single_packet_path = next(
+                path
+                for path in packets
+                if path.name != "cross_test_review.agent.md"
+            )
+            single_packet = single_packet_path.read_text(encoding="utf-8")
+            cross_packet = cross_packet_path.read_text(encoding="utf-8")
 
         self.assertEqual(0, creation.returncode, creation.stdout + creation.stderr)
-        self.assertEqual(1, len(packets), packets)
+        self.assertEqual(2, len(packets), packets)
         self.assertIn("returns stored text", single_packet)
         self.assertIn("Parser returns stored text.", single_packet)
         self.assertIn('test("returns stored text"', single_packet)
+        self.assertIn("tests/parser.test.ts", cross_packet)
+        self.assertIn('test("returns stored text"', cross_packet)
 
 
 if __name__ == "__main__":
