@@ -1,36 +1,32 @@
 """Verify deterministic mechanics for the YAML-example review harness.
 
 The YAML files provide example test source and expected results for selected
-review criteria. Tests in this module verify harness mechanics such as
-mismatch reporting, timing, and result serialization.
+review criteria. Tests in this module verify mismatch reporting and the
 
 Terms:
 - `mismatch diagnostics`: Mismatch diagnostics format YAML expectation mismatches with criterion metrics and recovery guidance. Criterion metrics contain failure count, enforced-check count, and pass rate. For example, two failures among five checks produce a 60% pass rate and a calibration recommendation.
 - `scorecard comparison`: Scorecard comparison checks selected expected results against reviewed scorecard results. For example, `_scorecard_mismatches` reports criterion 11 when expected fail differs from actual pass.
 - `calibration skill`: The calibration skill tests generalized review-criterion wording through blind experiments. For example, `$calibrate-agent-review-criteria` diagnoses a YAML scorecard mismatch.
-- `sidecar schema`: The sidecar schema contains reviewer, total, runtime, criteria, success, enforced-check count, and failing-case fields in their serialized order. For example, runtime records YAML-case count, total duration, and average duration per YAML case.
 """
 
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
+from tests.agentic_linter.test_harness import agent_review_examples as review_harness
 from tests.agentic_linter.test_harness.agent_review_examples import (
     REPO_ROOT,
     SCORECARD_BASELINE_PATH,
     _ScorecardMismatch,
-    _record_review_start,
-    _review_duration_seconds,
     _reviewer_model_from_environment,
     _scorecard_mismatch_message,
     _scorecard_mismatches,
-    _write_scorecard_sidecar,
 )
 
 
@@ -218,6 +214,136 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         self.assertTrue(sidecar_text.strip())
         self.assertEqual(0, tracked_query.returncode, tracked_query.stderr)
+
+    def test_runner_overwrites_json(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Agentic linter overwrites 'test_agent_review_example_runner.json' after every completed runner evaluation of YAML examples.
+        Specialized usage: The second evaluation reports a regression instead of succeeding.
+
+        Verification Method: verify filesystem state
+
+        Verification Detail:
+        1. Use `mock.patch` to supply one completed YAML example and force the second evaluation to report a regression.
+        2. Seed the JSON file with previous evaluation text.
+        3. Run one successful completed evaluation.
+        4. Verify that the runner replaced the previous text with populated JSON.
+        5. Seed the JSON file with different previous evaluation text.
+        6. Run one completed evaluation that reports a regression.
+        7. Verify that the runner replaced the previous text before raising the regression.
+        JSON output is non-empty after both evaluations.
+        JSON output differs from both seeded values.
+        """
+
+        example = SimpleNamespace(
+            name="example",
+            file_docstring='"""Verify an example."""',
+            test="def test_example() -> None:\n    assert True",
+            expected_scorecard={11: SimpleNamespace(result="pass")},
+        )
+        test_record = SimpleNamespace(name="test_example")
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            anonymous_root = temporary_root / "anonymous"
+            artifact_root = anonymous_root / "agentic_review_artifacts"
+            artifact_root.mkdir(parents=True)
+            artifact_path = artifact_root / "test_example.agent.md"
+            artifact_path.write_text("completed review", encoding="utf-8")
+            sidecar_path = temporary_root / "test_agent_review_example_runner.json"
+            start_path = temporary_root / ".review_started_at"
+
+            with (
+                mock.patch.multiple(
+                    review_harness,
+                    ANONYMOUS_ROOT=anonymous_root,
+                    ARTIFACT_ROOT=artifact_root,
+                    SCORECARD_BASELINE_PATH=sidecar_path,
+                    REVIEW_START_PATH=start_path,
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "lint_agent_review_examples",
+                    return_value=[],
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "agent_review_example_files",
+                    return_value=[Path("examples.yaml")],
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "read_agent_review_examples",
+                    return_value=[example],
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "criterion_titles_from_template",
+                    return_value={},
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "extract_tests_from_file",
+                    return_value=[test_record],
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "map_test_function_to_agent_md_file",
+                    return_value=artifact_path,
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "_agent_md_file_is_stale",
+                    return_value=False,
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "determine_agent_md_status",
+                    return_value="pass",
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "_scorecard_results",
+                    return_value={11: "pass"},
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "_scorecard_regressions",
+                    side_effect=[[], ["forced regression"]],
+                ),
+                mock.patch.object(
+                    review_harness,
+                    "_review_duration_seconds",
+                    return_value=1,
+                ),
+            ):
+                successful_seed = "previous successful evaluation"
+                sidecar_path.write_text(successful_seed, encoding="utf-8")
+                start_path.write_text("started", encoding="utf-8")
+
+                review_harness.run_agent_review_examples(
+                    examples_path=temporary_root,
+                    reviewer_model="reviewer",
+                )
+                successful_output = sidecar_path.read_text(encoding="utf-8")
+
+                failed_seed = "previous failed evaluation"
+                sidecar_path.write_text(failed_seed, encoding="utf-8")
+                start_path.write_text("started", encoding="utf-8")
+
+                with self.assertRaises(AssertionError):
+                    review_harness.run_agent_review_examples(
+                        examples_path=temporary_root,
+                        reviewer_model="reviewer",
+                    )
+                failed_output = sidecar_path.read_text(encoding="utf-8")
+
+        self.assertTrue(successful_output.strip())
+        self.assertNotEqual(successful_seed, successful_output)
+        self.assertTrue(failed_output.strip())
+        self.assertNotEqual(failed_seed, failed_output)
+
     def test_missing_reviewer_model_fails(self) -> None:
         """Test Path: failure path
 
