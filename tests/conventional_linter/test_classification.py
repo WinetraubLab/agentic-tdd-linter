@@ -19,7 +19,7 @@ from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
     extract_tests_from_file,
 )
 
-from tests.conventional_linter.classification import (
+from tests.conventional_linter.test_harness.classification import (
     _lint_classification_source,
 )
 
