@@ -27,10 +27,6 @@ class VersionTests(unittest.TestCase):
         Verification Detail:
         `_project_version` obtains `project.version`.
         `_project_version` result is `__version__`.
-
-        Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_package_version_matches_manifest_contract`
-          Justification: Deeper coverage — Lower test verifies manifest-version equality, which this metadata test omits.
         """
 
         repo_root = Path(__file__).resolve().parents[1]
