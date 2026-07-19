@@ -2,7 +2,7 @@
 
 The YAML files provide example test source and expected results for selected
 review criteria. Tests in this module verify harness mechanics such as
-mismatch reporting, baselines, timing, and result serialization.
+mismatch reporting, timing, and result serialization.
 
 Terms:
 - `mismatch diagnostics`: Mismatch diagnostics format YAML expectation mismatches with criterion metrics and recovery guidance. Criterion metrics contain failure count, enforced-check count, and pass rate. For example, two failures among five checks produce a 60% pass rate and a calibration recommendation.
@@ -15,20 +15,21 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-from tests.integration_tests.test_harness.agent_review_examples import (
+from tests.agentic_linter.test_harness.agent_review_examples import (
+    REPO_ROOT,
+    SCORECARD_BASELINE_PATH,
     _ScorecardMismatch,
     _record_review_start,
     _review_duration_seconds,
     _reviewer_model_from_environment,
     _scorecard_mismatch_message,
     _scorecard_mismatches,
-    _scorecard_regressions,
-    _write_scorecard_baseline,
     _write_scorecard_sidecar,
 )
 
