@@ -113,25 +113,41 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text,
         )
 
+    def test_instructions_show_similar_coverage_format(self) -> None:
+        """Test Path: happy path
 
         Requirement Tested:
-        The `renderer` validates paths.
-        When a path is not a test, it rejects the file.
+        Cross-test `.agent.md` instructions show how `Similar Coverage` records the related test's level, identity, classification, and coverage difference.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `ValueError` identifies `test_*.py`.
+        The cross-test `.agent.md` file contains these `Similar Coverage` formats:
+        ``Higher Level Test: `<file.py>::<test_name>```
+        ``Lower Level Test: `<file.py>::<test_name>```
+        `Justification: <classification> — <specific coverage difference>`
         """
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source_file = root / "tests" / "helper.py"
-            source_file.parent.mkdir(parents=True)
-            source_file.write_text(
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
                 "def test_example():\n    assert True\n",
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, r"requires test_\*\.py files"):
-                render_cross_test_agent_md_file([source_file], root)
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn("Higher Level Test: `<file.py>::<test_name>`", artifact_text)
+        self.assertIn("Lower Level Test: `<file.py>::<test_name>`", artifact_text)
+        self.assertIn(
+            "Justification: <classification> — <specific coverage difference>",
+            artifact_text,
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
