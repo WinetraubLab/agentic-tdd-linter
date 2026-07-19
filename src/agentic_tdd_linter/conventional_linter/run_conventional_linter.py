@@ -17,7 +17,6 @@ from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
 ALLOWED_VERIFICATION_METHODS = (
     "verify public function output",
     "verify private function output",
-    "verify filesystem state",
     "visual inspection by user",
 )
 
