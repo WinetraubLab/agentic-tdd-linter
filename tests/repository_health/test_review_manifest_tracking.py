@@ -17,7 +17,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Source control includes `review manifest` at tests/agentic_review_manifest.jsonl.
+        Git classifies `review manifest` at tests/agentic_review_manifest.jsonl as tracked.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -38,7 +38,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Source control includes `E2E manifest` at temporary_fixtures/agentic_review_manifest.jsonl.
+        Git classifies `E2E manifest` at temporary_fixtures/agentic_review_manifest.jsonl as tracked.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
