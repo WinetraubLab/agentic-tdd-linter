@@ -1,4 +1,5 @@
 ---
+name: refactor-implementation
 description: Simplify implementation code while preserving approved behavior and remove untested edge-case handling. Use after approved tests pass or when asked to refactor, simplify helpers, remove defensive branches, or clean production and test-harness implementations.
 ---
 

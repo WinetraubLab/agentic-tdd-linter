@@ -96,19 +96,23 @@ def build_manifest_from_agent_md_files(
 
     contract_hash = _review_contract_sha256(root)
     selected_files = sorted({Path(file).resolve() for file in files})
+    selected_tests = {
+        test_file: list(_tests_for_file(test_file, root, tests_by_file))
+        for test_file in selected_files
+    }
     selected_paths = {
         _relative_path(test_file, root).as_posix() for test_file in selected_files
     }
     selected_keys = {
         (_relative_path(test_file, root).as_posix(), test.name)
-        for test_file in selected_files
-        for test in _tests_for_file(test_file, root, tests_by_file)
+        for test_file, tests in selected_tests.items()
+        for test in tests
     }
     records: list[dict[str, str]] = []
     issues: list[LintIssue] = []
 
-    for test_file in selected_files:
-        for test in _tests_for_file(test_file, root, tests_by_file):
+    for test_file, tests in selected_tests.items():
+        for test in tests:
             artifact_issues = _lint_agent_md_file(
                 test_file,
                 repo_root=root,
@@ -514,13 +518,6 @@ def _review_contract_files(repo_root: Path | None) -> list[tuple[str, Path]]:
                 files[f"repo/{path.relative_to(root).as_posix()}"] = path
 
     return sorted(files.items())
-
-def _plain_value(text: str, field_name: str) -> str:
-    match = re.search(rf"^{re.escape(field_name)}:\s*(.+?)\s*$", text, re.MULTILINE)
-    if match is None:
-        return ""
-    return match.group(1).strip()
-
 
 def _manifest_issue(path: Path, repo_root: Path, line: int, rule: str, message: str) -> LintIssue:
     return LintIssue(

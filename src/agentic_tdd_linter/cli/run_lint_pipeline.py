@@ -168,7 +168,11 @@ def create_agent_md_files(
                 or _agent_md_file_is_stale(test_file, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    cross_review_files = _all_review_files(root, resolved_test_root)
+    cross_review_files = _all_review_files(
+        root,
+        resolved_test_root,
+        tests_by_file,
+    )
     if cross_review_files and (
         force_fresh
         or cross_test_agent_md_file_is_stale(
@@ -187,16 +191,24 @@ def create_agent_md_files(
     )
 
 
-def _all_review_files(repo_root: Path, test_root: Path) -> list[Path]:
+def _all_review_files(
+    repo_root: Path,
+    test_root: Path,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+) -> list[Path]:
     """Return every discovered test file that contains an extracted test."""
 
     files = _selected_test_files(repo_root, test_root, ())
     review_files: list[Path] = []
     for test_file in files:
-        try:
-            tests = extract_tests_from_file(test_file, repo_root)
-        except (OSError, SyntaxError):
-            continue
+        resolved_file = test_file.resolve()
+        if resolved_file in tests_by_file:
+            tests = tests_by_file[resolved_file]
+        else:
+            try:
+                tests = extract_tests_from_file(test_file, repo_root)
+            except (OSError, SyntaxError):
+                continue
         if tests:
             review_files.append(test_file)
     return review_files
@@ -219,9 +231,9 @@ def _remove_orphaned_agent_md_files(
         for test_file, tests in tests_by_file.items()
         for test in tests
     }
-    cross_test_packet = (artifact_root / "cross_test_review.agent.md").resolve()
+    expected_paths.add((artifact_root / "cross_test_review.agent.md").resolve())
     for artifact_path in artifact_root.glob("*.agent.md"):
-        if artifact_path.resolve() not in expected_paths | {cross_test_packet}:
+        if artifact_path.resolve() not in expected_paths:
             artifact_path.unlink()
 
 

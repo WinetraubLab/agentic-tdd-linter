@@ -344,19 +344,8 @@ def _issue(test_function: ExtractedTestRecord, rule: str, message: str) -> LintI
 
 
 def _field_value(docstring: str, field_name: str) -> str:
-    prefix = f"{field_name}:"
-    lines = [line.strip() for line in docstring.splitlines()]
-    for index, text in enumerate(lines):
-        if text == prefix:
-            for next_text in lines[index + 1 :]:
-                if _is_field_line(next_text):
-                    return ""
-                if next_text:
-                    return next_text
-            return ""
-        if text.startswith(prefix):
-            return text.removeprefix(prefix).strip()
-    return ""
+    value = _field_block_value(docstring, field_name)
+    return value.splitlines()[0] if value else ""
 
 
 def _same_line_field_value(docstring: str, field_name: str) -> str:

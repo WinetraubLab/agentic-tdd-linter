@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 
-import re
-
 from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
-from .run_conventional_linter import LintIssue
-
-
-TERM_DEFINITION_PATTERN = re.compile(r"^- `([^`\n]+)`: (\S.*)$")
+from .run_conventional_linter import LintIssue, _file_docstring_terms
 
 
 def check_file_docstring_term_count(
@@ -28,24 +23,3 @@ def check_file_docstring_term_count(
             message=f"test file must define at most 5 terms; found {term_count}",
         )
     ]
-
-
-def _file_docstring_terms(file_docstring: str) -> set[str]:
-    lines = file_docstring.splitlines()
-    try:
-        terms_start = next(
-            index for index, line in enumerate(lines) if line.strip() == "Terms:"
-        )
-    except StopIteration:
-        return set()
-
-    terms: set[str] = set()
-    for line in lines[terms_start + 1 :]:
-        text = line.strip()
-        if not text:
-            continue
-        match = TERM_DEFINITION_PATTERN.fullmatch(text)
-        if match is None:
-            break
-        terms.add(match.group(1))
-    return terms
