@@ -86,32 +86,6 @@ def _scorecard_regressions(
     return regressions
 
 
-def _write_scorecard_baseline(
-    path: Path,
-    *,
-    criterion: int,
-    enforced_checks: int,
-    failing_yaml_cases: list[str],
-) -> None:
-    passing = enforced_checks - len(failing_yaml_cases)
-    success = f"{passing}/{enforced_checks} ({_percentage(passing, enforced_checks)} pass)"
-    path.write_text(
-        json.dumps(
-            {
-                "total": {"success": success, "enforced_checks": enforced_checks},
-                "criteria": {
-                    str(criterion): {
-                        "success": success,
-                        "enforced_checks": enforced_checks,
-                        "failing_yaml_cases": failing_yaml_cases,
-                    }
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-
-
 def _write_scorecard_sidecar(
     *,
     sidecar_path: Path,
@@ -291,18 +265,8 @@ def _scorecard_mismatches(
 ) -> list[_ScorecardMismatch]:
     mismatches: list[_ScorecardMismatch] = []
     for criterion, expected_result in expected_scorecard.items():
-        actual_result = actual_scorecard.get(criterion)
-        if actual_result is None:
-            mismatches.append(
-                _ScorecardMismatch(
-                    yaml_case=example_name,
-                    test_name=test_name,
-                    criterion=criterion,
-                    expected=expected_result,
-                    actual="missing",
-                )
-            )
-        elif actual_result != expected_result:
+        actual_result = actual_scorecard.get(criterion, "missing")
+        if actual_result != expected_result:
             mismatches.append(
                 _ScorecardMismatch(
                     yaml_case=example_name,
@@ -313,4 +277,3 @@ def _scorecard_mismatches(
                 )
             )
     return mismatches
-
