@@ -66,7 +66,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI emits JSON count equal to checked paths.
+        CLI emits file count matching checked paths.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output

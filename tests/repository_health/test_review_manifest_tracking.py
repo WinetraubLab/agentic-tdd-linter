@@ -23,7 +23,8 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Git returns code `0`.
+        Git classifies manifest path as tracked.
+        Query code equals `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -44,7 +45,8 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Git returns code `0`.
+        Git classifies manifest path as tracked.
+        Query code equals `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
