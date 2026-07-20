@@ -19,7 +19,7 @@ class VersionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `project.version` is identical to `__version__`.
+        Package metadata defines `project.version` equal to `__version__`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
