@@ -20,7 +20,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Repository associates every `test module` with a same-basename `source module` or `test-harness module`.
+        Repository requires every `test module` to have a same-basename `source module` or `test-harness module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
