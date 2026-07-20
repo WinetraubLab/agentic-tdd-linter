@@ -23,7 +23,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `git ls-files --error-unmatch` exits with code `0`.
+        Git returns code `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -44,7 +44,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `git ls-files --error-unmatch` exits with code `0`.
+        Git returns code `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
