@@ -48,7 +48,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI emits success status.
+        CLI emits JSON status when lint has zero issues.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -66,7 +66,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI emits checked-file totals.
+        CLI emits JSON count equal to checked paths.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
