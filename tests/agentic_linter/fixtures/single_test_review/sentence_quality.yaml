@@ -76,6 +76,52 @@ long_verification_subject:
     33: # Subject and Object Are Concise
       fail # The verification detail uses `The captured failure output` as a long subject.
 
+necessary_quantifier_preserves_precision:
+  file_docstring: |
+    """Verify source-module API and test-file structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
+    """
+  test: |
+    def test_tests_have_source_or_harness(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Repository requires every `test module` to have a same-basename `source module` or `test-harness module`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_unmatched_test_paths` produces `[]`.
+        Each checked `test module` matches one of the two permitted module types.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        test_root = repo_root / "tests"
+        mirrored_folders = (
+            "agentic_linter",
+            "cli",
+            "conventional_linter",
+            "indexing_test_functions",
+        )
+        self.assertEqual(
+            [],
+            _unmatched_test_paths(
+                repo_root=repo_root,
+                package_root=package_root,
+                test_root=test_root,
+                mirrored_folders=mirrored_folders,
+            ),
+        )
+  expected_scorecard:
+    33: # Subject and Object Are Concise
+      pass # Although `every test module` exceeds two words, dropping `every` would make the repository-wide requirement less precise.
+
 verification_double_negation:
   file_docstring: |
     """Provide shared context.
