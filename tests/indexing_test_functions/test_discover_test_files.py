@@ -2,7 +2,7 @@
 
 Terms:
 - `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
-- `discover_test_files`: This public function selects test files for extraction. For example, it returns Python and TypeScript test paths.
+- `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ class TestFileDiscoveryTests(unittest.TestCase):
 
         Requirement Tested:
         `discover_test_files` excludes temporary fixtures from repository discovery.
-        Specialized usage: For repository discovery, fixture location becomes temporary (instead of maintained).
+        Specialized usage: Discovery receives temporary location instead of maintained location.
 
         Verification Method: verify public function output
 
