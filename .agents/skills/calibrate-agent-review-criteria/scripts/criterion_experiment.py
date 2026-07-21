@@ -52,7 +52,7 @@ def _repository_root(start: Path) -> Path:
 
 
 def _examples(root: Path):
-    from tests.agentic_linter.agent_review_yaml_fixture_contract import (
+    from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import (
         agent_review_example_files,
         criterion_titles_from_template,
         read_agent_review_examples,
