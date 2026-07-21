@@ -524,3 +524,57 @@ source_test_pairing_formulation_positive:
       pass # The sentence directly names the missing-match condition and the validation behavior it triggers.
     44: # Wording Is Concrete
       pass # The requirement states both the repository pairing policy and the rejection behavior established by the test.
+
+ordered_review_stages_form_one_workflow:
+  file_docstring: |
+    """Verify that review documentation matches its local or CI workflow.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    """
+  test: |
+    def test_readme_shows_review_workflow(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            README specifies review stages in order: packet creation, scorecard completion, and proof recording.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README presents these steps in order:
+            1. Scorecard creation uses `create-agent-md`.
+            2. Review completion updates every scorecard.
+            3. Proof recording uses `lint --reviewer`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            guide = (repo_root / "README.md").read_text(encoding="utf-8")
+            step_markers = (
+                "agentic-tdd-linter create-agent-md",
+                "Review the generated files",
+                "agentic-tdd-linter lint --reviewer",
+            )
+            step_positions = tuple(guide.index(marker) for marker in step_markers)
+
+            self.assertEqual(tuple(sorted(step_positions)), step_positions)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # The requirement states README's responsibility to document the ordered review stages.
+    13: # Requirement Is Specific
+      pass # The requirement names all three stages and explicitly requires their order.
+    14: # Requirement Is Atomic
+      pass # Packet creation, scorecard completion, and proof recording collectively define one review workflow.
+    21: # Expected Results Appear in Verification Detail
+      pass # The requirement names conceptual stages while Verification Detail contains the exact commands and README wording.
+    33: # Subject and Object Are Concise
+      pass # README is the one-word subject and review stages is the two-word direct object; the colon defines those stages.
+    34: # Main Verb Is Unambiguous
+      pass # Specifies and demonstrates do not have standard noun meanings.
+    37: # Sentence Expresses One Concept
+      pass # The colon list defines the components of one review workflow rather than independent behaviors.
+    44: # Wording Is Concrete
+      pass # The requirement states the ordering property established by the marker-position assertion.
+    51: # Assertions Prove the Stated Requirement
+      pass # The assertion proves that packet creation precedes scorecard completion and proof recording in README.
