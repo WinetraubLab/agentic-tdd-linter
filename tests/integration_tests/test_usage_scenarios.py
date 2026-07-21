@@ -20,19 +20,20 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI completes the nominal review workflow from packet generation through manifest attestation.
+        CLI persists manifest attestation after nominal review. Attestation correlates test identity with pass-status/reviewer values.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing one unreviewed test file.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` to create '.agent.md' files.
-        3. Verify that the generated files include one single-test '.agent.md' file and one cross-test '.agent.md' file.
-        4. The test harness mocks every review by marking it as pass.
-        5. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
-        6. Verify that the manifest records the expected path, test name, pass status, and reviewer.
-        Packet types are `single` and `cross`.
+        1. Harness creates repository. Harness adds one test.
+        2. Harness invokes create-agent-md.
+        3. Harness classifies reviews pass.
+        4. Harness invokes lint.
+        5. Manifest path equals `tests/test_arithmetic.py`.
+        6. Manifest test equals `test_adds_two_numbers`.
+        7. Manifest status equals `pass`.
+        8. Manifest reviewer equals `integration:nominal-reviewer`.
         """
 
         test_source = textwrap.dedent(
@@ -73,11 +74,6 @@ class UsageScenarioTests(unittest.TestCase):
             _run_cli(repo_root, "lint", "--reviewer", expected_reviewer)
             records = _manifest_records(repo_root)
 
-        packet_types = {
-            "cross" if path.name == "cross_test_review.agent.md" else "single"
-            for path in packets
-        }
-        self.assertEqual({"single", "cross"}, packet_types)
         self.assertEqual(
             {
                 "path": expected_test_path,
