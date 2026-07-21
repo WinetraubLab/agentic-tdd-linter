@@ -16,7 +16,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        README provides a lint example with the --reviewer argument and a `reviewer identity`.
+        README provides lint example with the --reviewer argument and a `reviewer identity`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
