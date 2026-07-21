@@ -576,5 +576,3 @@ ordered_review_stages_form_one_workflow:
       pass # The colon list defines the components of one review workflow rather than independent behaviors.
     44: # Wording Is Concrete
       pass # The requirement states the ordering property established by the marker-position assertion.
-    51: # Assertions Prove the Stated Requirement
-      pass # The assertion proves that packet creation precedes scorecard completion and proof recording in README.
