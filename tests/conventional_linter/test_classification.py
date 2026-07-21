@@ -62,13 +62,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts declared `failure path`.
+        Conventional linter accepts `failure path`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When paths correspond to `failure path`, rules contain zero issues.
+        When paths correspond to `failure path`, validator rules contain zero issues.
         """
 
         rules = _lint_classification_source(
