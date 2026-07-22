@@ -50,7 +50,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits issues when file glossaries omit backticked terms.
-        Specialized usage: For glossary validation, backticked term is absent instead of defined.
+        Specialized usage: File glossary omits backticked term instead of defining it.
 
         Verification Method: verify private function output
 
@@ -71,7 +71,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter prohibits definitions when their separators invoke hyphens.
-        Specialized usage: For definition format, separator is a hyphen instead of a colon.
+        Specialized usage: Definition uses hyphen separator instead of colon separator.
 
         Verification Method: verify private function output
 
