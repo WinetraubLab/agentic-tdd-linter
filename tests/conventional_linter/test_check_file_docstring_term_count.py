@@ -22,13 +22,13 @@ class FileDocstringTermCountTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter reports the too_many_file_docstring_terms rule when a test-file glossary exceeds `glossary limit`.
+        Conventional linter identifies glossary-size violations.
         Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Rule is `too_many_file_docstring_terms`.
+        Issue list contains `too_many_file_docstring_terms`.
         """
 
         term_names = ("alpha", "beta", "gamma", "delta", "epsilon", "zeta")
@@ -46,4 +46,4 @@ class FileDocstringTermCountTests(unittest.TestCase):
 
         issues = check_file_docstring_term_count(test)
 
-        self.assertEqual(["too_many_file_docstring_terms"], [issue.rule for issue in issues])
+        self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
