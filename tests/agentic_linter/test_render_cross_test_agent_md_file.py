@@ -22,16 +22,16 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter deduplicates cross-test paths.
-        Specialized usage: For duplicate removal, packet path becomes repeated
-        (instead of unique).
+        `renderer` deduplicates cross-test paths.
+        Specialized usage: Packet input repeats one path instead of containing only unique paths.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The packet contains these paths:
+        Packet contains paths:
         `tests/test_alpha.py`
         `tests/test_beta.py`
+        Packet contains each path once.
         """
 
         with tempfile.TemporaryDirectory() as directory:
