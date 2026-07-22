@@ -91,6 +91,9 @@ Use exactly these columns:
 | Criterion # | One-line explanation | # Passing / # Total (%) | Result explanations |
 |---:|---|---:|---|
 
+In `Criterion #`, append ` (edited)` when the criterion's complete heading or rule text differs from Git HEAD.
+Render unchanged criteria as the plain number. Preserve this marker when showing the full table.
+
 In `Result explanations`, show counts and YAML case names for New test pass, New test fail, Flaky, Fails in HEAD, Regression, and Fixed.
 Show the Stable pass count without listing every stable YAML case.
 Put every category on a separate line inside the table cell by separating categories with the HTML line break `<br>`. 
