@@ -3,7 +3,7 @@
 Manifest proof is scoped to the complete test file. Adding or deleting a test
 function invalidates every record for that changed file. Proof is also invalidated
 when repository review documentation changes. Records for deleted tests are removed,
-and incomplete reviews are never recorded.
+and only completed reviews become records.
 
 Terms:
 - `manifest proof`: Manifest proof records a completed review for a test. For example, current passing proof allows lint to accept that test without another review.
