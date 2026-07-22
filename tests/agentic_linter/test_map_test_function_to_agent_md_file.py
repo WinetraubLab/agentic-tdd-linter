@@ -29,8 +29,8 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Restored path is `tests/test_math.py`. Restored name is
-        `test_adds_numbers`.
+        Restored identity contains path `tests/test_math.py`.
+        Restored identity contains name `test_adds_numbers`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
