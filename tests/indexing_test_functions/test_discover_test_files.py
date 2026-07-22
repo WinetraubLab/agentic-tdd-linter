@@ -25,7 +25,7 @@ class TestFileDiscoveryTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `discover_test_files` excludes temporary fixtures from repository discovery.
+        Test discovery excludes temporary fixtures.
         Specialized usage: Discovery receives temporary location instead of maintained location.
 
         Verification Method: verify public function output
