@@ -84,7 +84,9 @@ Criterion wording is unchanged only when the complete criterion heading and rule
 
 ## Step 6: Report
 
-Return the analyzer's Markdown table with exactly these columns:
+The analyzer produces the complete Markdown table. For the initial user-facing report, show only rows for criteria whose complete heading or rule text differs from Git HEAD. This is a presentation filter only: do not change the analyzer command, analysis, classifications, or generated table.
+
+Use exactly these columns:
 
 | Criterion # | One-line explanation | # Passing / # Total (%) | Result explanations |
 |---:|---|---:|---|
@@ -94,6 +96,8 @@ Show the Stable pass count without listing every stable YAML case.
 Put every category on a separate line inside the table cell by separating categories with the HTML line break `<br>`. 
 The category counts for each criterion must equal that criterion's total enforced YAML checks.
 Also state whether a criterion with a current failure changed in the inspected history.
+
+After presenting the focused table, ask whether the user wants the full table containing unchanged criteria. If the user says yes, return every row from the analyzer output already produced. Do not rerun the analyzer, YAML reviews, or history collection.
 
 After the table, report:
 
