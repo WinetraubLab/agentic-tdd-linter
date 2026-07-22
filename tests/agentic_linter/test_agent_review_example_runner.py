@@ -23,17 +23,17 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter validates completed anonymous reviews against repository YAML expectations.
+        Review runner validates YAML expectations.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        1. Select the repository YAML examples for single-test review.
-        2. Run the anonymous agent-review example harness.
-        3. If reviews are pending, review the generated '.agent.md' files and rerun this test.
-        4. Verify that completed scorecards match the YAML expectations without regressions.
-        Completion produces `None`.
+        1. Runner selects repository examples.
+        2. Runner starts anonymous harness.
+        3. Reviewers complete generated files.
+        4. Runner compares scorecards with YAML expectations.
+        Review runner produces `None`.
         """
 
         examples_relative_path = Path(
