@@ -273,6 +273,79 @@ version_equality_described_as_identification:
       fail # The assertion compares two version values, while the requirement claims only that metadata identifies one attribute.
            # Expected requirement: The package version exposed at runtime equals the project metadata version read by `_project_version`.
 
+version_relationship_is_material:
+  file_docstring: |
+    """Tests for package version metadata.
+
+    Terms:
+    - `project.version`: Project.version is the package version field in pyproject.toml. For example, package builds use this value as their distribution version.
+    - `__version__`: This package attribute exposes the installed linter version. For example, callers can read it at runtime.
+    """
+  test: |
+    def test_matches_package_metadata(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Package metadata defines `project.version` equal to `__version__`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_project_version` reads `project.version`.
+        The returned value equals `__version__`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[1]
+        project_version = _project_version(repo_root / "pyproject.toml")
+
+        self.assertEqual(project_version, __version__)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # The equality between the project metadata version and runtime version is the architectural contract proved by the test.
+    21: # Expected Results Appear in Verification Detail
+      pass # The equality relationship defines the contract, while Verification Detail states the concrete observations that prove it.
+
+api_limit_and_exception_are_material:
+  file_docstring: |
+    """Verify source-module API and test-file structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, cli/main.py is a source module.
+    - `narrow API`: A narrow API exposes at most two public functions from a source module. For example, helper functions remain private.
+    - `data-only module`: A data-only module exposes declarative values instead of callable behavior. For example, version.py exposes version metadata.
+    """
+  test: |
+    def test_modules_expose_narrow_apis(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `narrow API` restricts every `source module` to at most two public functions unless it is a `data-only module`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` produces `[]`.
+        Every checked `source module` contains at most two public functions unless it is a `data-only module`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        data_only_modules = {
+            Path("indexing_test_functions/extracted_test_record.py"),
+            Path("version.py"),
+        }
+        self.assertEqual(
+            [],
+            _public_api_violations(package_root, data_only_modules),
+        )
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # The API limit and data-only exception are material parts of the architectural policy proved by the test.
+    21: # Expected Results Appear in Verification Detail
+      pass # The limit and exception define the contract, while Verification Detail states the observed absence of violations.
+
 workflow_baseline_omits_repository_policy:
   file_docstring: |
     """Verify the repository's unit-test workflow configuration.
