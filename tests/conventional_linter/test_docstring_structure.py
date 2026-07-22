@@ -36,7 +36,7 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter reports missing_docstring when a shared extracted test record has empty documentation.
+        Conventional linter identifies tests without documentation.
         Specialized usage: The extracted record contains empty documentation instead of structured test documentation.
 
         Verification Method: verify public function output
