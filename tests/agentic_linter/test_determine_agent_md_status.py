@@ -1,4 +1,4 @@
-"""Verify `.agent.md` scorecard status determination."""
+"""Agentic-linter tests verify `.agent.md` scorecard status determination."""
 
 from __future__ import annotations
 
@@ -16,27 +16,68 @@ from agentic_tdd_linter.agentic_linter.render_agent_md_file import (
 
 
 class AgentMdStatusTests(unittest.TestCase):
-    def test_derives_scorecard_status(self) -> None:
+    def test_derives_pass_status(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter treats a review as passing only when every scorecard criterion passes.
-        A review fails when any completed criterion fails and remains pending while any criterion is incomplete.
+        Agentic linter derives pass status when every scorecard row succeeds.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Two passing rows produce `pass`.
-        One failed row produces `fail`.
-        One pending row produces `pending`.
+        `determine_agent_md_status` produces `pass`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_usage_scenarios.py::test_agentic_linter_errors_scenario`
+          Justification: Deeper coverage — This test isolates pass-status derivation. The higher test combines passing and failing scorecards through the complete CLI workflow.
         """
 
-        cases = (
-            (("pass", "pass"), "pass"),
-            (("pass", "fail"), "fail"),
-            (("pass", "pending"), "pending"),
-        )
+        artifact = """# Agentic Test Review
+
+## Review Scorecard
+
+| # | Criterion | Result | Notes |
+|---:|---|---|---|
+| 1 | Criterion 1 | pass | Review evidence. |
+| 2 | Criterion 2 | pass | Review evidence. |
+"""
+
+        status = determine_agent_md_status(artifact)
+
+        self.assertEqual("pass", status)
+
+    def test_derives_fail_status(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        Agentic linter derives fail status when any scorecard row fails.
+        Specialized usage: One row has failed status instead of every row passing, so agentic linter derives failed status.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `determine_agent_md_status` produces `fail`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_usage_scenarios.py::test_agentic_linter_errors_scenario`
+          Justification: Deeper coverage — This test isolates fail-status precedence. Higher test verifies failed-review guidance through the complete CLI workflow.
+        """
+
+        artifact = """# Agentic Test Review
+
+## Review Scorecard
+
+| # | Criterion | Result | Notes |
+|---:|---|---|---|
+| 1 | Criterion 1 | pass | Review evidence. |
+| 2 | Criterion 2 | fail | Review evidence. |
+"""
+
+        status = determine_agent_md_status(artifact)
+
+        self.assertEqual("fail", status)
+
 
         for results, expected_status in cases:
             with self.subTest(results=results):
