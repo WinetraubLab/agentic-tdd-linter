@@ -1,4 +1,4 @@
-"""Verify private-function verification rules."""
+"""Conventional-linter tests verify private-function verification rules."""
 
 from __future__ import annotations
 
@@ -24,13 +24,13 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when private verification invokes public helpers.
-        Specialized usage: For private verification, test invokes helper instead of private function.
+        Conventional linter emits private_verification_missing_private_call when private-function verification invokes public helpers.
+        Specialized usage: For private-function verification, test invokes helper instead of private function, so conventional linter emits private_verification_missing_private_call.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The fixture declares `verify private function output` but calls `helper(" value ")`.
+        The fixture declares `verify private function output` but invokes `helper(" value ")`.
         Because `helper` lacks a leading underscore, _lint_private_verification_source contains `private_verification_missing_private_call`.
         """
 
@@ -49,7 +49,7 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
                 Verification Method: verify private function output
 
                 Verification Detail:
-                by asserting the returned stripped string.
+                Helper output equals expected stripped string.
                 \"\"\"
 
                 assert helper(" value ") == "value"
