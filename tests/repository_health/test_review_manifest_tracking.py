@@ -23,7 +23,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Git tracks `tests/agentic_review_manifest.jsonl`.
+        Source control maintains `tests/agentic_review_manifest.jsonl`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -44,7 +44,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Git tracks `temporary_fixtures/agentic_review_manifest.jsonl`.
+        Source control maintains `temporary_fixtures/agentic_review_manifest.jsonl`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
