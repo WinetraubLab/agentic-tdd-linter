@@ -30,8 +30,8 @@ class SelfLintTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Repository lint exit code is `0`.
-        Repository lint output includes `no issues found`.
+        Repository lint produces exit code `0`.
+        Repository lint output contains `no issues found`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
