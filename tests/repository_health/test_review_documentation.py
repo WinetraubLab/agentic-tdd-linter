@@ -62,15 +62,14 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The GitHub Actions guide shows CI validating committed manifest proof with lint without performing reviews or creating .agent.md files.
-        Standard usage: CI consumes review proof produced before the workflow runs.
+        The GitHub Actions guide tells CI to run `agentic-tdd-linter lint` and confirm that the committed review manifest still matches the repository tests.
+        Standard usage: Contributors complete the review workflow and commit the updated manifest before pushing their changes.
 
         Verification Method: verify public function output
 
         Verification Detail:
         The guide contains `agentic-tdd-linter lint`.
-        The guide states that GitHub Actions verifies committed proof.
-        The guide contains no `agentic-tdd-linter create-agent-md` command.
+        The guide declares that GitHub Actions verifies committed proof.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
