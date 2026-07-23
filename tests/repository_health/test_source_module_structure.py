@@ -28,7 +28,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Each checked `test module` has one permitted module counterpart.
+        Every repository `test module` has one permitted module counterpart.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -60,7 +60,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Each checked non-data module provides a `narrow API`.
+        Every non-data `source module` provides a `narrow API`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
