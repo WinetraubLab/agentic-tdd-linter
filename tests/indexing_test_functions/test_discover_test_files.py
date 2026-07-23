@@ -1,8 +1,9 @@
-"""Verify test-file discovery.
+"""Indexing tests verify test-file discovery.
 
 Terms:
 - `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
 - `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
+- `temporary_fixtures`: This directory contains generated tests that repository discovery ignores. For example, `tests/temporary_fixtures/test_generated.py` is outside the maintained test set.
 """
 
 from __future__ import annotations
@@ -25,8 +26,8 @@ class TestFileDiscoveryTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Test discovery excludes temporary fixtures.
-        Specialized usage: Discovery receives temporary location instead of maintained location.
+        `discover_test_files` excludes tests inside the `temporary_fixtures` directory.
+        Specialized usage: Discovery receives a test under `temporary_fixtures` instead of a maintained test location.
 
         Verification Method: verify public function output
 
