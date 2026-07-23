@@ -80,6 +80,25 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         self.assertIn("GitHub Actions verifies committed agent-review proof", guide)
         self.assertIn("agentic-tdd-linter lint", guide)
+
+    def test_github_actions_omits_packet_creation(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The GitHub Actions workflow runs without creating `.agent.md` files.
+        Standard usage: Contributors create review files before CI starts.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The guide excludes `agentic-tdd-linter create-agent-md`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        guide = (repo_root / "docs" / "workflows" / "github-actions.md").read_text(
+            encoding="utf-8"
+        )
+
         self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
 
 
