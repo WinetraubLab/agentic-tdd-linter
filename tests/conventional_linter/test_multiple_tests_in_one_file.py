@@ -1,4 +1,4 @@
-"""Verify conventional linting for multiple tests in one file.
+"""Conventional-linter tests verify multiple tests in one file.
 
 Terms:
 - `JSDoc`: JSDoc is the documentation comment attached to a TypeScript test. For example, a block beginning slash-star-star can contain Requirement Tested.
