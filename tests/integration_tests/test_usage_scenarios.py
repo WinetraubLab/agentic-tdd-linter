@@ -1,4 +1,4 @@
-"""Verify complete command-line usage scenarios."""
+"""Integration tests verify complete command-line usage scenarios."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI persists manifest attestation after nominal review. Attestation correlates test identity with pass-status/reviewer values.
+        CLI persists a manifest attestation that connects each reviewed test path and name to its pass status and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -28,12 +28,16 @@ class UsageScenarioTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates repository. Harness adds one test.
         2. Harness invokes create-agent-md.
-        3. Harness classifies reviews pass.
+        3. Harness classifies reviews as successful.
         4. Harness invokes lint.
-        5. Manifest path equals `tests/test_arithmetic.py`.
-        6. Manifest test equals `test_adds_two_numbers`.
-        7. Manifest status equals `pass`.
-        8. Manifest reviewer equals `integration:nominal-reviewer`.
+        5. Manifest contains path `tests/test_arithmetic.py`.
+        6. Manifest contains test `test_adds_two_numbers`.
+        7. Manifest contains status `pass`.
+        8. Manifest contains reviewer `integration:nominal-reviewer`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete CLI review lifecycle.
         """
 
         test_source = textwrap.dedent(
