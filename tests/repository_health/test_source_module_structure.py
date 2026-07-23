@@ -1,4 +1,6 @@
-"""Verify source-module API and test-file structure.
+"""Repository tests verify source-module API policy.
+
+Repository tests verify test-file structure.
 
 Terms:
 - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
@@ -26,8 +28,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_unmatched_test_paths` produces `[]`.
-        Each checked `test module` matches one of the two permitted module types.
+        Each checked `test module` has one permitted module counterpart.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -59,8 +60,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_public_api_violations` produces `[]`.
-        Checked modules provide `narrow API`s.
+        Each checked non-data module provides a `narrow API`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
