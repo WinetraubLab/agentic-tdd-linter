@@ -1,4 +1,4 @@
-"""Verify deterministic test-file glossary limits.
+"""Conventional-linter tests verify deterministic test-file glossary limits.
 
 Terms:
 - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
@@ -22,8 +22,8 @@ class FileDocstringTermCountTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter identifies glossary-size violations.
-        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it.
+        Conventional linter emits too_many_file_docstring_terms above `glossary limit`.
+        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
 
         Verification Method: verify public function output
 
