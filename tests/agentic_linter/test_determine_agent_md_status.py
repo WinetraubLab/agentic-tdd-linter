@@ -78,37 +78,44 @@ class AgentMdStatusTests(unittest.TestCase):
 
         self.assertEqual("fail", status)
 
+    def test_derives_pending_status(self) -> None:
+        """Test Path: failure path
 
-        for results, expected_status in cases:
-            with self.subTest(results=results):
-                rows = "\n".join(
-                    f"| {number} | Criterion {number} | {result} | Review evidence. |"
-                    for number, result in enumerate(results, start=1)
-                )
-                artifact = f"""# Agentic Test Review
+        Requirement Tested:
+        Agentic linter derives pending status when a scorecard contains a pending row and no failed rows.
+        Specialized usage: Scorecard contains a pending row alongside a passing row instead of only passing rows, so agentic linter derives pending status.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `determine_agent_md_status` produces `pending`.
+        """
+
+        artifact = """# Agentic Test Review
 
 ## Review Scorecard
 
 | # | Criterion | Result | Notes |
 |---:|---|---|---|
-{rows}
+| 1 | Criterion 1 | pass | Review evidence. |
+| 2 | Criterion 2 | pending | Review evidence. |
 """
 
-                status = determine_agent_md_status(artifact)
+        status = determine_agent_md_status(artifact)
 
-                self.assertEqual(expected_status, status)
+        self.assertEqual("pending", status)
 
-    def test_rejects_multiple_results_in_one_row(self) -> None:
+    def test_rejects_ambiguous_row_result(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic linter rejects ambiguous review evidence because every scorecard criterion must contain exactly one result.
-        Specialized usage: One criterion contains `pass/fail` instead of one result.
+        Agentic linter identifies ambiguous evidence when criteria contain multiple results.
+        Specialized usage: One criterion contains pass/fail ambiguity instead of one result, so agentic linter emits invalid_review_scorecard.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The issue rules contain `invalid_review_scorecard`.
+        Rules contain `invalid_review_scorecard`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
