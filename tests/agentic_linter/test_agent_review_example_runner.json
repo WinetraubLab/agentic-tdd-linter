@@ -1,7 +1,7 @@
 {
   "reviewer": {"model": "5.6 Sol Medium"},
-  "total": {"success": "81/87 (93.1% pass)", "enforced_checks": 87},
-  "runtime": {"yaml_cases": 54, "total": "21m 55.1s", "average_per_yaml_case": "24.4s"},
+  "total": {"success": "79/87 (90.8% pass)", "enforced_checks": 87},
+  "runtime": {"yaml_cases": 54, "total": "83m 58.6s", "average_per_yaml_case": "1m 33.3s"},
   "criteria": {
     "11": {"success": "6/6 (100% pass)", "enforced_checks": 6, "failing_yaml_cases": []},
     "12": {"success": "5/8 (62.5% pass)", "enforced_checks": 8, "failing_yaml_cases": ["availability_without_behavior", "per_source_test_pairing_is_unstated", "specialized_usage_marks_condition_explicitly"]},
@@ -13,8 +13,8 @@
     "23": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "31": {"success": "1/1 (100% pass)", "enforced_checks": 1, "failing_yaml_cases": []},
     "32": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
-    "33": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []},
-    "34": {"success": "3/5 (60% pass)", "enforced_checks": 5, "failing_yaml_cases": ["ordered_review_stages_form_one_workflow", "standard_usage_avoids_cross_criterion_conflicts"]},
+    "33": {"success": "3/4 (75% pass)", "enforced_checks": 4, "failing_yaml_cases": ["long_verification_subject"]},
+    "34": {"success": "4/5 (80% pass)", "enforced_checks": 5, "failing_yaml_cases": ["standard_usage_avoids_cross_criterion_conflicts"]},
     "35": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []},
     "36": {"success": "1/1 (100% pass)", "enforced_checks": 1, "failing_yaml_cases": []},
     "37": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []},
@@ -24,7 +24,7 @@
     "43": {"success": "6/6 (100% pass)", "enforced_checks": 6, "failing_yaml_cases": []},
     "44": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []},
     "46": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
-    "51": {"success": "6/7 (85.7% pass)", "enforced_checks": 7, "failing_yaml_cases": ["per_source_test_pairing_is_unstated"]},
+    "51": {"success": "4/7 (57.1% pass)", "enforced_checks": 7, "failing_yaml_cases": ["extra_assertion_proves_other_behavior", "per_source_test_pairing_is_unstated", "version_equality_described_as_identification"]},
     "52": {"success": "2/2 (100% pass)", "enforced_checks": 2, "failing_yaml_cases": []},
     "53": {"success": "5/5 (100% pass)", "enforced_checks": 5, "failing_yaml_cases": []}
   }

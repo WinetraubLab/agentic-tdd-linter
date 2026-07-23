@@ -288,7 +288,7 @@ verification_uses_names_as_verb:
         assert 1 + 1 > 0
   expected_scorecard:
     34: # Main Verb Is Unambiguous
-      fail # `names` can read as either a noun or a verb.
+      fail # `names` has a common noun use in contemporary technical prose.
 
 verification_uses_reports_as_verb:
   file_docstring: |
@@ -312,7 +312,7 @@ verification_uses_reports_as_verb:
         assert 1 + 1 > 0
   expected_scorecard:
     34: # Main Verb Is Unambiguous
-      fail # `reports` can read as either a noun or a verb.
+      fail # `reports` has a common noun use in contemporary technical prose.
 
 verification_expresses_many_concepts:
   file_docstring: |
@@ -365,7 +365,7 @@ demonstrative_subject_omits_referent:
     12: # Second Sentence Describes a Scenario
       fail # The happy-path scenario omits the required Standard usage or Specialized usage prefix.
     34: # Main Verb Is Unambiguous
-      fail # `reports` can read as either a noun or a verb.
+      fail # `reports` has a common noun use in contemporary technical prose.
     38: # Behavior Uses Active Voice
       pass # `stay` and `applies` are active verb forms rather than passive `be` plus a past participle.
     39: # Subject Is Not This, That, These, or Those
@@ -421,7 +421,7 @@ standard_usage_avoids_cross_criterion_conflicts:
         assert parse("word") == expected_tokens
   expected_scorecard:
     34: # Main Verb Is Unambiguous
-      pass # `converts`, `demonstrates`, and `equals` do not have standard noun meanings.
+      pass # `converts`, `demonstrates`, and `equals` have no common noun use in contemporary technical prose.
     35: # Conditions Are Explicit
       pass # The standard-usage classification expresses no condition that requires a condition word.
     43: # Data-Flow Terms Name an Owner

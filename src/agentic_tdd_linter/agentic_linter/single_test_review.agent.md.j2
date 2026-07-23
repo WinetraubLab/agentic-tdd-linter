@@ -31,6 +31,7 @@ A list of named input-to-outcome examples is not a general rule.
 
 #### 12. Second Sentence Describes a Scenario
 {% if scenario_type == "happy path" %}
+For this happy-path test, apply only the happy-path rules below. Do not require an invalid condition or failure behavior.
 The second `Requirement Tested` sentence shall make the concrete scenario immediately clear.
 Classify the test inputs with exactly one prefix:
 - `Standard usage:` when the test exercises baseline behavior without modifying an input, configuration, or precondition. Use the exact sentence `Standard usage: The scenario demonstrates baseline behavior.` No further description is required.
@@ -91,8 +92,9 @@ A modifier is not necessary merely because removing it broadens the noun's ordin
 Fail when the evidence does not distinguish the longer phrase from a concise alternative.
 
 #### 34. Main Verb Is Unambiguous
-Evaluate the exact main-verb word independently of the sentence grammar.
-Fail when the same word form has a standard noun meaning, even when the sentence clearly uses it as a verb.
+Evaluate each main verb in `Requirement Tested` and `Verification Detail`.
+Fail when the exact word form has a noun use that is common in contemporary technical prose.
+Do not fail for rare, specialized, historical, or unrelated noun senses.
 
 #### 35. Conditions Are Explicit
 Every conditional relationship shall explicitly name its trigger or governing use case.
