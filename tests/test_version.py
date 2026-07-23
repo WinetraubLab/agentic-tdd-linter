@@ -25,7 +25,7 @@ class VersionTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Package metadata `project.version` is `__version__`.
+        Package metadata declares `project.version` equal to `__version__`.
         """
 
         repo_root = Path(__file__).resolve().parents[1]
