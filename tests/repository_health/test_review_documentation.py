@@ -42,9 +42,9 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         Verification Detail:
         README presents these steps in order:
-        1. Scorecard creation command is `create-agent-md`.
+        1. `create-agent-md` creates the scorecards.
         2. Reviewers complete every scorecard.
-        3. Proof recording command is `lint --reviewer`.
+        3. `lint --reviewer` records the completed reviews in the manifest.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
