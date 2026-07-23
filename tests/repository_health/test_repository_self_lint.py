@@ -1,4 +1,4 @@
-"""Verify that the current repository passes its own linter.
+"""Repository tests verify that the current repository passes its own linter.
 
 Terms:
 - `self lint`: Self lint runs the linter against this repository's own tests. For example, the integration test runs lint with this repository as the repository root.
@@ -24,13 +24,14 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI completes without issues, confirming that this repository has no lint violations.
+        `self lint` accepts repository tests only after conventional rules and current review proof contain zero violations.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Repository lint returns `0` and prints `no issues found`.
+        Repository lint exit code is `0`.
+        Repository lint output includes `no issues found`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
