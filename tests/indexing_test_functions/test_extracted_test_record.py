@@ -1,7 +1,8 @@
-"""Verify extracted-test records.
+"""Indexing tests verify extracted-test records.
 
 Terms:
 - `ExtractedTestRecord`: ExtractedTestRecord is the shared data structure for one indexed test. For example, it stores a test's path, name, line, syntax node, documentation, and source without a language discriminator.
+- `record fields`: Record fields are path, name, line, syntax node, docstring, source, and a file docstring that defaults to None. For example, an extracted record preserves supplied values for all seven fields.
 """
 
 from __future__ import annotations
@@ -19,19 +20,17 @@ class ExtractedTestRecordTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `ExtractedTestRecord` contains its complete field structure.
+        `ExtractedTestRecord` preserves `record fields`.
         Standard usage: The scenario demonstrates baseline behavior.
-        Required fields contain supplied values.
-        File-docstring field begins empty.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Record path is `tests/test_sample.py`. Record name is `test_sample`.
-        Record line is `1`. Record node is `None`.
-        Record docstring is `Sample documentation.`.
-        Record source is `def test_sample(): pass`.
-        Record file-docstring is `None`.
+        Record exposes path `tests/test_sample.py`. Record exposes name `test_sample`.
+        Record exposes line `1`. Record exposes node `None`.
+        Record exposes docstring `Sample documentation.`.
+        Record exposes source `def test_sample(): pass`.
+        Record exposes file-docstring `None`.
         """
 
         expected_fields = (
