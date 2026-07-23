@@ -18,25 +18,33 @@ Resolve scorecard mismatches without tailoring review rules to one fixture.
 
 ## Propose fixes
 
-- Show the user the criterion's existing heading and complete wording before presenting candidate replacements.
+- Show the user **Option A**, consisting of the criterion's existing heading and complete wording unchanged.
 - For a fixture defect, propose the smallest YAML change that demonstrates the same general rule clearly.
-- For criterion ambiguity, propose two or three reusable formulations before editing Jinja.
+- For criterion ambiguity, propose exactly three reusable replacements labeled **Option B**, **Option C**, and **Option D** before editing Jinja.
 - Keep candidates domain-neutral. Do not copy fixture paths, identifiers, constants, function names, or domain language into a criterion.
 - Preserve the criterion's scope and avoid duplicating another criterion.
-- Show candidate wording to the user before running an experiment.
+- Show Options A through D to the user before running an experiment.
 
 ## Run a blind experiment
 
-1. Run the complete blind experiment separately for every proposed candidate. Do not test only the recommended candidate.
-2. Run `scripts/criterion_experiment.py prepare` with the selected case, criterion number, candidate title, and rule lines. This regenerates only that anonymous packet and changes only the criterion inside the generated packet.
-3. Preserve a separate packet for each candidate so experiments cannot overwrite or influence one another.
-4. Do not edit the YAML or Jinja template during the experiment.
-5. Start a fresh isolated reviewer with no conversation context for each candidate.
-6. Give the reviewer only that candidate's generated Markdown packet. Do not expose the YAML case name, expected result, other candidates, earlier reviews, diagnosis, or repository files.
-7. Ask the reviewer to evaluate only the experimental criterion, update only its scorecard row, and leave every other row unchanged.
-8. Run `scripts/criterion_experiment.py compare` separately for every reviewed candidate.
-9. Show the user a side-by-side result containing every candidate's wording, expected result, actual result, reviewer reasoning, and mismatch status.
-10. Treat a candidate as solving the observed mismatch only when its isolated actual result matches the YAML expectation.
+1. Run the complete blind experiment separately for Options A, B, C, and D. Do not omit the unchanged baseline or test only the recommended replacement.
+2. Prepare Option A with the selected case, criterion number, and `--current`. This regenerates the anonymous packet while preserving the current criterion exactly:
+
+   ```bash
+   .venv/bin/python \
+     .agents/skills/calibrate-agent-review-criteria/scripts/criterion_experiment.py \
+     prepare <case> <criterion> --current
+   ```
+
+3. Prepare Options B, C, and D separately with the selected case, criterion number, candidate title, and rule lines. This regenerates only that anonymous packet and changes only the experimental criterion.
+4. Preserve a separate packet for each option so experiments cannot overwrite or influence one another. Use option-labeled paths such as `a/`, `b/`, `c/`, and `d/`.
+5. Do not edit the YAML or Jinja template during the experiment.
+6. Start a fresh isolated reviewer with no conversation context for each option.
+7. Give the reviewer only that option's generated Markdown packet. Do not expose the YAML case name, expected result, other options, earlier reviews, diagnosis, or repository files.
+8. Ask the reviewer to evaluate only the experimental criterion, update only its scorecard row, and leave every other row unchanged.
+9. Run `scripts/criterion_experiment.py compare` separately for every reviewed option.
+10. Show the user a side-by-side result containing Options A through D, their wording, expected result, actual result, reviewer reasoning, and mismatch status.
+11. Compare every replacement with Option A. Treat a replacement as an improvement only when it resolves a mismatch that Option A reproduces without regressing controls.
 
 Example:
 

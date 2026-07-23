@@ -28,13 +28,20 @@ def _arguments() -> argparse.Namespace:
 
     prepare = subparsers.add_parser("prepare")
     _add_case_arguments(prepare)
-    prepare.add_argument("--title", required=True)
-    prepare.add_argument("--rule", action="append", required=True)
+    prepare.add_argument("--current", action="store_true")
+    prepare.add_argument("--title")
+    prepare.add_argument("--rule", action="append")
 
     compare = subparsers.add_parser("compare")
     _add_case_arguments(compare)
     compare.add_argument("--packet", type=Path, required=True)
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.command == "prepare":
+        if args.current and (args.title or args.rule):
+            parser.error("--current cannot be combined with --title or --rule")
+        if not args.current and (not args.title or not args.rule):
+            parser.error("prepare requires --current or both --title and --rule")
+    return args
 
 
 def _add_case_arguments(parser: argparse.ArgumentParser) -> None:
@@ -105,10 +112,11 @@ def _prepare(root: Path, args: argparse.Namespace) -> int:
         root,
         anonymous_root / "agentic_review_artifacts",
     )
-    text = packet.read_text(encoding="utf-8")
-    text = _replace_criterion(text, args.criterion, args.title, args.rule)
-    text = _replace_scorecard_title(text, args.criterion, args.title)
-    packet.write_text(text, encoding="utf-8")
+    if not args.current:
+        text = packet.read_text(encoding="utf-8")
+        text = _replace_criterion(text, args.criterion, args.title, args.rule)
+        text = _replace_scorecard_title(text, args.criterion, args.title)
+        packet.write_text(text, encoding="utf-8")
     print(packet.relative_to(root))
     return 0
 
