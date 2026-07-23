@@ -1,4 +1,4 @@
-"""Verify that agent-review manifests remain tracked.
+"""Repository tests verify that agent-review manifests remain tracked.
 
 Terms:
 - `review manifest`: A review manifest is the tracked proof file for repository test reviews. For example, `tests/agentic_review_manifest.jsonl` is a review manifest.
@@ -17,14 +17,13 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Git classifies `review manifest` at tests/agentic_review_manifest.jsonl as tracked.
+        Repository source control retains `review manifest` at tests/agentic_review_manifest.jsonl as a tracked file.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Git classifies manifest path as tracked.
-        Query code equals `0`.
+        Git tracks `tests/agentic_review_manifest.jsonl`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -39,14 +38,13 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Git classifies `E2E manifest` at temporary_fixtures/agentic_review_manifest.jsonl as tracked.
+        Repository source control retains `E2E manifest` at temporary_fixtures/agentic_review_manifest.jsonl as a tracked file.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Git classifies manifest path as tracked.
-        Query code equals `0`.
+        Git tracks `temporary_fixtures/agentic_review_manifest.jsonl`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
