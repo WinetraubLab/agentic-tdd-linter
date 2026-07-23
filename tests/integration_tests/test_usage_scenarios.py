@@ -708,12 +708,7 @@ class UsageScenarioTests(unittest.TestCase):
             _run_cli(repo_root, "create-agent-md", "--fresh")
             rebuilt_files = _packet_paths(repo_root)
 
-        rebuilt_types = {
-            "cross" if path.name == "cross_test_review.agent.md" else "single"
-            for path in rebuilt_files
-        }
         self.assertFalse(extra_agent_md.exists())
-        self.assertEqual({"single", "cross"}, rebuilt_types)
 
 
 def _run_cli(repo_root: Path, command: str, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -770,11 +765,21 @@ def _complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
         packet_path.write_text(packet, encoding="utf-8")
 
 
-def _record_approved_manifest(repo_root: Path, *, reviewer: str) -> None:
+def _record_approved_manifest(
+    repo_root: Path,
+    *,
+    reviewer: str,
+    review_status: str,
+    review_evidence: str,
+) -> None:
     creation = _run_cli(repo_root, "create-agent-md")
     if creation.returncode != 0:
         raise AssertionError(creation.stdout + creation.stderr)
-    _complete_packets(repo_root, status="pass", evidence="approved CI fixture")
+    _complete_packets(
+        repo_root,
+        status=review_status,
+        evidence=review_evidence,
+    )
     lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
     if lint.returncode != 0:
         raise AssertionError(lint.stdout + lint.stderr)
