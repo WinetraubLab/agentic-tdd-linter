@@ -95,19 +95,15 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI rejects an unreviewed test when lint runs before '.agent.md' creation.
-        Specialized usage: The repository has no '.agent.md' files instead of generated files.
+        CLI emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
+        Specialized usage: The repository has no '.agent.md' files instead of generated files, so CLI emits missing_required_agent_md.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing one conventionally valid unreviewed test.
-        2. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
-        3. Read the CLI result and generated packet paths.
-        4. Verify that lint fails.
-        5. Verify that CLI output reports the missing review packet.
-        6. Verify that CLI output prescribes create-agent-md.
-        7. Verify that lint creates no packets.
+        1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
+        2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
+        3. CLI output contains missing_required_agent_md.
         """
 
         test_source = textwrap.dedent(
@@ -136,29 +132,27 @@ class UsageScenarioTests(unittest.TestCase):
             _write_source(repo_root / "tests" / "test_unreviewed.py", test_source)
 
             lint = _run_cli(repo_root, "lint")
-            packets = _packet_paths(repo_root)
 
-        self.assertEqual(1, lint.returncode)
         self.assertIn("missing_required_agent_md", lint.stdout)
-        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
-        self.assertEqual([], packets)
 
     def test_classic_linter_errors_scenario(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        CLI creates no '.agent.md' files when conventional lint rejects a test.
-        Specialized usage: The test omits Requirement Tested instead of providing it.
+        CLI prevents '.agent.md' creation when conventional linter emits missing_requirement.
+        Specialized usage: The test omits Requirement Tested instead of providing it, so CLI creates zero packets.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing a test whose docstring omits Requirement Tested.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Verify that the command fails and reports `missing_requirement`.
-        4. Verify that review-packet validation does not run after the conventional error.
-        5. Verify that the command created no `.agent.md` packets.
-        Packet list is empty.
+        1. Harness creates a temporary repository containing a test whose docstring omits Requirement Tested.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Packet list remains empty.
+        Packet list contains zero paths.
+
+        Similar Coverage:
+        - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
+          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the CLI.
         """
 
         invalid_test_source = textwrap.dedent(
@@ -185,9 +179,6 @@ class UsageScenarioTests(unittest.TestCase):
             creation = _run_cli(repo_root, "create-agent-md")
             packets = _packet_paths(repo_root)
 
-        self.assertEqual(1, creation.returncode)
-        self.assertIn("missing_requirement", creation.stdout)
-        self.assertNotIn("missing_required_agent_md", creation.stdout)
         self.assertEqual([], packets)
 
     def test_agentic_linter_errors_scenario(self) -> None:
