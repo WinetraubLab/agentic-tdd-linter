@@ -1,4 +1,4 @@
-"""Verify requirement-term definition rules."""
+"""Conventional-linter tests verify requirement-term definition rules."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits issues when file glossaries omit backticked terms.
-        Specialized usage: File glossary omits backticked term instead of defining it.
+        Specialized usage: File glossary omits backticked term instead of defining it, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
 
@@ -71,7 +71,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter prohibits definitions when their separators invoke hyphens.
-        Specialized usage: Definition uses hyphen separator instead of colon separator.
+        Specialized usage: Definition has hyphen separator instead of colon separator, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
 
