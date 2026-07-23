@@ -1,4 +1,4 @@
-"""Tests for package version metadata.
+"""Repository tests verify package version metadata.
 
 Terms:
 - `__version__`: This package attribute exposes the installed linter version. For example, it equals the version declared in pyproject.toml.
@@ -25,8 +25,7 @@ class VersionTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_project_version` obtains `project.version`.
-        `_project_version` result is `__version__`.
+        Package metadata `project.version` is `__version__`.
         """
 
         repo_root = Path(__file__).resolve().parents[1]
