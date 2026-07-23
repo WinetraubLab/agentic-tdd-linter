@@ -453,12 +453,12 @@ class UsageScenarioTests(unittest.TestCase):
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
 
-    def test_outdated_linter_review_requires_new_review(self) -> None:
+    def test_outdated_version_requires_review(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        CLI requires a new agentic review when the committed manifest's `linter_version` differs from the installed linter version.
-        Specialized usage: The manifest's `linter_version` identifies an older release instead of the installed release.
+        CLI requires a new agentic review when the manifest linter version differs from the installed linter version.
+        Specialized usage: The manifest linter version identifies an older release instead of the installed release.
 
         Verification Method: verify public function output
 
