@@ -1,7 +1,8 @@
-"""Verify that review documentation matches its local or CI workflow.
+"""Repository tests verify that review documentation matches its workflow.
 
 Terms:
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+- `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        README provides lint example with the --reviewer argument and a `reviewer identity`.
+        README provides exact `lint arguments`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -34,7 +35,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        README shows the complete local workflow: create .agent.md files, complete their scorecards, and run lint with a reviewer to record manifest proof.
+        README presents the local review workflow in this order: create .agent.md files, complete scorecards, and record proof with a reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
