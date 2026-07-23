@@ -1,4 +1,4 @@
-"""Verify mock keyword identification.
+"""Conventional-linter tests verify mock keyword identification.
 
 Terms:
 - `Mock`: Mock identifies the standard mocking utility used by a test. For example, a Mock can supply a controlled dependency result.
@@ -30,7 +30,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits an issue when `Mock` appears without mock details.
-        Specialized usage: For mock documentation, mock detail is absent instead of present.
+        Specialized usage: For mock documentation, mock detail is absent instead of present, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
 
@@ -67,7 +67,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits an issue when `patch` appears without mock details.
-        Specialized usage: For patch documentation, mock detail is absent instead of present.
+        Specialized usage: For patch documentation, mock detail is absent instead of present, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
 
