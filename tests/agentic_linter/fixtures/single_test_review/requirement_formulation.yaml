@@ -616,10 +616,10 @@ ordered_review_stages_form_one_workflow:
             Verification Method: verify public function output
 
             Verification Detail:
-            README presents these steps in order:
-            1. Scorecard creation uses `create-agent-md`.
-            2. Review completion updates every scorecard.
-            3. Proof recording uses `lint --reviewer`.
+            README arranges these steps in order:
+            1. Scorecard creation invokes `create-agent-md`.
+            2. Review completion modifies every scorecard.
+            3. Proof recording invokes `lint --reviewer`.
             """
 
             repo_root = Path(__file__).resolve().parents[2]
@@ -644,7 +644,7 @@ ordered_review_stages_form_one_workflow:
     33: # Subject and Object Are Concise
       pass # README is the one-word subject and review stages is the two-word direct object; the colon defines those stages.
     34: # Main Verb Is Unambiguous
-      pass # Specifies and demonstrates do not have standard noun meanings.
+      pass # Specifies, demonstrates, arranges, invokes, and modifies do not have standard noun meanings.
     37: # Sentence Expresses One Concept
       pass # The colon list defines the components of one review workflow rather than independent behaviors.
     44: # Wording Is Concrete
