@@ -58,7 +58,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        README presents the local review workflow in this order: create .agent.md files, complete scorecards, and record proof with a reviewer identity.
+        `test_review_documentation` requires README to order `pre-commit review workflow` stages as .agent.md creation with agentic-tdd-linter create-agent-md, scorecard completion, then proof recording with agentic-tdd-linter lint --reviewer.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
