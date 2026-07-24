@@ -3,7 +3,6 @@
 
 Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
-- `selective review freshness`: Selective review freshness makes edited-test and cross-test scorecards pending while retaining successful evidence for an unchanged test. For example, editing one approved test regenerates only its packet and the cross-test packet.
 """
 
 from __future__ import annotations
@@ -296,10 +295,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI requires a new agentic review when an approved test becomes stale after a direct edit.
-        Specialized usage: The approved test changes after manifest proof is recorded instead of remaining current.
+        `pre-commit review workflow` regenerates pending scorecards for an edited test and the cross-test review while preserving the unchanged test's approved scorecard.
+        Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale review packets.
 
-        Verification Method: verify public function output
         Verification Method: verify private function output
 
         Verification Detail:
