@@ -62,8 +62,8 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The GitHub Actions guide tells CI to run `agentic-tdd-linter lint` and confirm that the committed review manifest still matches the repository tests.
-        Standard usage: Contributors complete the review workflow and commit the updated manifest before pushing their changes.
+        The GitHub Actions guide instructs CI to validate committed manifest proof against repository tests with 'agentic-tdd-linter lint'.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
@@ -84,8 +84,8 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The GitHub Actions workflow runs without creating `.agent.md` files.
-        Standard usage: Contributors create review files before CI starts.
+        The GitHub Actions workflow omits '.agent.md' creation.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
