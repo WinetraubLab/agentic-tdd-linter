@@ -1,4 +1,5 @@
-"""Repository tests verify that the current repository passes its own linter.
+"""Tests in this file validate `test_repository_self_lint` located at `tests/repository_health/test_repository_self_lint.py`.
+`test_repository_self_lint` is responsible for proving that this repository passes its own linter.
 
 Terms:
 - `self lint`: Self lint runs the linter against this repository's own tests. For example, the integration test runs lint with this repository as the repository root.
@@ -24,7 +25,7 @@ class SelfLintTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `self lint` accepts repository tests only after conventional rules and current review proof contain zero violations.
+        `test_repository_self_lint` requires `self lint` to complete with no issues for this repository.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
