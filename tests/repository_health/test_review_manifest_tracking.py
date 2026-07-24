@@ -2,8 +2,8 @@
 `test_review_manifest_tracking` is responsible for requiring repository review artifacts in source control.
 
 Terms:
-- `self-lint review record`: A self-lint review record is a tracked agent-review proof file. For example, `tests/agentic_review_manifest.jsonl` stores repository self-lint proof, while `temporary_fixtures/agentic_review_manifest.jsonl` stores integration-scenario proof.
-- `YAML-example lint review record`: A YAML-example lint review record stores the latest completed YAML-example results. For example, `tests/agentic_linter/test_agent_review_example_runner.json` is a YAML-example lint review record.
+- `self-lint review record`: The self-lint review record is the repository file at `tests/agentic_review_manifest.jsonl`.
+- `YAML-example lint review record`: The YAML-example lint review record is the repository file at `tests/agentic_linter/test_agent_review_example_runner.json`.
 """
 
 from __future__ import annotations
@@ -14,43 +14,45 @@ from pathlib import Path
 
 
 class ReviewManifestTrackingTests(unittest.TestCase):
-    def test_review_manifest_is_tracked(self) -> None:
+    def test_yaml_example_lint_review_record_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Repository source control retains `review manifest` at tests/agentic_review_manifest.jsonl as a tracked file.
+        `test_review_manifest_tracking` requires source control to track `YAML-example lint review record`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Source control maintains `tests/agentic_review_manifest.jsonl`.
+        `_tracked_result` returns code `0` for `tests/agentic_linter/test_agent_review_example_runner.json`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
         result = _tracked_result(
-            Path("tests") / "agentic_review_manifest.jsonl",
+            Path("tests")
+            / "agentic_linter"
+            / "test_agent_review_example_runner.json",
             repo_root=repo_root,
         )
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
 
-    def test_e2e_manifest_is_tracked(self) -> None:
+    def test_self_lint_review_record_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Repository source control retains `E2E manifest` at temporary_fixtures/agentic_review_manifest.jsonl as a tracked file.
+        `test_review_manifest_tracking` requires source control to track `self-lint review record`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Source control maintains `temporary_fixtures/agentic_review_manifest.jsonl`.
+        `_tracked_result` returns code `0` for `tests/agentic_review_manifest.jsonl`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
         result = _tracked_result(
-            Path("temporary_fixtures") / "agentic_review_manifest.jsonl",
+            Path("tests") / "agentic_review_manifest.jsonl",
             repo_root=repo_root,
         )
 
