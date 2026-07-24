@@ -1,4 +1,5 @@
-"""Repository tests verify that review documentation matches its workflow.
+"""Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+`test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
 
 Terms:
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
