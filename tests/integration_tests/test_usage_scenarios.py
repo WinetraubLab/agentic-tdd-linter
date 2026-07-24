@@ -599,7 +599,7 @@ class UsageScenarioTests(unittest.TestCase):
         This is designed to save tokens during CICD process, relying on agentic review before push.
         Standard usage: The recorded proof matches the test source, linter version, and review contract.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Create a temporary repository containing one valid test.
