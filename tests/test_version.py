@@ -1,4 +1,5 @@
-"""Repository tests verify package version metadata.
+"""Tests in this file validate `version` located at `src/agentic_tdd_linter/version.py`.
+`version` is responsible for exposing package version metadata.
 
 Terms:
 - `__version__`: This package attribute exposes the installed linter version. For example, it equals the version declared in pyproject.toml.
@@ -19,7 +20,7 @@ class VersionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Package metadata defines `project.version` equal to `__version__`.
+        `version` defines `__version__` equal to `project.version`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
