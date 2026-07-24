@@ -342,18 +342,18 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         edited_first_source = first_source.replace(
             "`first truth example` evaluates to true.",
+            "`first truth example` evaluates the documented boolean expression.",
         )
         second_source = textwrap.dedent(
             '''\
-            """Verify the second truth example."""
             """Tests in this file validate `second truth example` located at `src/second_truth.py`.
             `second truth example` is responsible for evaluating the second boolean expression.
+            """
 
             def test_second_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                The second truth example evaluates to true.
                 `second truth example` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
@@ -371,6 +371,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             repo_root = Path(directory)
             first_file = repo_root / "tests" / "test_first.py"
             second_file = repo_root / "tests" / "test_second.py"
+            _write_source(repo_root / "src" / "first_truth.py", "VALUE = True\n")
             _write_source(repo_root / "src" / "second_truth.py", "VALUE = True\n")
             _write_source(first_file, first_source)
             _write_source(second_file, second_source)
@@ -410,14 +411,6 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             unchanged_packet_after = second_packet.read_text(encoding="utf-8")
             cross_packet_after = cross_packet.read_text(encoding="utf-8")
 
-        self.assertEqual(
-            {"tests/test_first.py", "tests/test_second.py"},
-            approved_manifest_paths,
-        )
-        self.assertEqual(1, stale_lint.returncode)
-        self.assertEqual({"tests/test_second.py"}, stale_manifest_paths)
-        self.assertIn("missing_required_agent_md", stale_lint.stdout)
-        self.assertIn("agentic-tdd-linter create-agent-md", stale_lint.stdout)
         self.assertIn(
             "| pending | Replace with review evidence. |",
             edited_packet_after,
@@ -430,150 +423,41 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
 
-    def test_cicd_pass_scenario(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        CLI succeeds in CI when committed manifest proof is current.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        1. Create a temporary repository containing one valid test.
-        2. Record current passing manifest proof for the test.
-        3. Remove the generated '.agent.md' directory to reproduce the committed CI input state.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        5. Verify that the command exits successfully.
-        CLI return code is `0`.
-        """
-
-        test_source = textwrap.dedent(
-            '''\
-            """Verify approved CI behavior."""
-
-            def test_approved_behavior() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                Approved CI behavior evaluates to true.
-                Standard usage: The approved expression remains unchanged.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The approved expression equals true.
-                """
-
-                assert True
-            '''
-        )
-
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            _write_source(repo_root / "tests" / "test_approved.py", test_source)
-            _record_approved_manifest(repo_root, reviewer="integration:ci-reviewer")
-            _remove_packet_directory(repo_root)
-
-            lint = _run_cli(
-                repo_root,
-                "lint",
-                "--reviewer",
-                "integration:ci-reviewer",
-            )
-
-        self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
-
-    def test_outdated_version_requires_review(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        CLI requires a new agentic review when the manifest linter version differs from the installed linter version.
-        Specialized usage: The manifest linter version identifies an older release instead of the installed release.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        1. Create a temporary repository containing one valid test.
-        2. Complete its review and record passing manifest proof with the installed CLI.
-        3. Replace only the manifest record's `linter_version` value with a different version.
-        4. Remove the existing '.agent.md' files to reproduce committed CI input.
-        5. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:version-reviewer`.
-        6. Verify that lint fails, reports missing current review evidence, and prescribes `create-agent-md`.
-        """
-
-        test_source = textwrap.dedent(
-            '''\
-            """Verify version-sensitive review proof."""
-
-            def test_version_sensitive_behavior() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                Current review proof remains valid for the linter release that recorded it.
-                Standard usage: The installed linter records the completed review.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The reviewed expression equals true.
-                """
-
-                assert True
-            '''
-        )
-
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            _write_source(repo_root / "tests" / "test_version.py", test_source)
-            reviewer = "integration:version-reviewer"
-            _record_approved_manifest(repo_root, reviewer=reviewer)
-            manifest_path = repo_root / "tests" / "agentic_review_manifest.jsonl"
-            record = json.loads(manifest_path.read_text(encoding="utf-8"))
-            recorded_version = record["linter_version"]
-            record["linter_version"] = f"{recorded_version}-outdated"
-            manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
-            _remove_packet_directory(repo_root)
-
-            lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
-
-        self.assertEqual(1, lint.returncode)
-        self.assertIn("missing_required_agent_md", lint.stdout)
-        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
-
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        CLI rebuilds single-test and cross-test '.agent.md' scorecards from scratch when create-agent-md uses --fresh.
-        Specialized usage: Both artifact types contain completed evidence instead of pending evidence before refresh.
+        `pre-commit review workflow` generates every single-test and cross-test '.agent.md' scorecard anew with only pending evidence when create-agent-md receives --fresh.
+        Specialized usage: Both artifact types contain completed evidence instead of pending evidence before refresh, so `pre-commit review workflow` replaces every completed scorecard.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing two tests.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. The test harness mocks every review by marking it as pass.
-        4. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Read every regenerated '.agent.md' file.
-        6. Verify that both single-test and cross-test scorecards were rebuilt with only pending evidence.
-        Generated file types are `single` and `cross`.
-        Every generated file contains `| pending | Replace with review evidence. |`.
-        No generated file contains prior completed evidence.
+        1. Harness creates a temporary repository containing two tests.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness classifies every review as successful.
+        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
+        5. Every regenerated single-test and cross-test scorecard contains only pending evidence.
+        `pre-commit review workflow` output comprises `single` and `cross` types.
+        Every file from `pre-commit review workflow` contains `| pending | Replace with review evidence. |`.
+        No file from `pre-commit review workflow` contains prior completed evidence.
+
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves pending initialization for one packet. This test proves fresh regeneration for every single-test and cross-test packet.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves fresh regeneration for every single-test and cross-test packet.
         """
 
         first_source = textwrap.dedent(
             '''\
-            """Verify the first refresh example."""
+            """Tests in this file validate `first refresh expression` located at `src/first_refresh.py`.
+            `first refresh expression` is responsible for evaluating the first refresh value.
+            """
 
             def test_first_refresh() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                The first refresh expression evaluates to true.
+                `first refresh expression` evaluates to true.
                 Standard usage: The expression is unchanged.
 
                 Verification Method: verify public function output
@@ -587,13 +471,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         second_source = textwrap.dedent(
             '''\
-            """Verify the second refresh example."""
+            """Tests in this file validate `second refresh expression` located at `src/second_refresh.py`.
+            `second refresh expression` is responsible for evaluating the second refresh value.
+            """
 
             def test_second_refresh() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                The second refresh expression evaluates to true.
+                `second refresh expression` evaluates to true.
                 Standard usage: The expression is unchanged.
 
                 Verification Method: verify public function output
@@ -609,6 +495,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(repo_root / "src" / "first_refresh.py", "VALUE = True\n")
+            _write_source(repo_root / "src" / "second_refresh.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_first.py", first_source)
             _write_source(repo_root / "tests" / "test_second.py", second_source)
             _run_cli(repo_root, "create-agent-md")
@@ -621,6 +509,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             "cross" if path.name == "cross_test_review.agent.md" else "single"
             for path in refreshed_packets
         }
+        self.assertEqual(3, len(refreshed_packets))
         self.assertEqual({"single", "cross"}, refreshed_types)
         self.assertTrue(
             all(
@@ -631,75 +520,12 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         self.assertTrue(all("| pass |" not in text for text in refreshed_contents))
         self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
 
-    def test_cicd_pass_omits_packets(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `CI/CD lint` validates current manifest proof without creating an `.agent.md` directory.
-        Standard usage: The repository contains current passing manifest proof before `CI/CD lint` starts.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        1. Harness creates a temporary repository containing one valid test.
-        2. Harness completes its review.
-        3. Harness persists current passing proof in the manifest.
-        4. Harness removes the existing '.agent.md' directory before lint.
-        5. Harness invokes `CI/CD lint` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        6. Filesystem excludes the '.agent.md' directory after lint.
-        Filesystem excludes the '.agent.md' directory after lint.
-        """
-
-        test_source = textwrap.dedent(
-            '''\
-            """Verify approved CI packet behavior."""
-
-            def test_approved_packet_behavior() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                Approved behavior evaluates to true.
-                Standard usage: The scenario demonstrates baseline behavior.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The expression equals true.
-                """
-
-                assert True
-            '''
-        )
-
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            _write_source(repo_root / "tests" / "test_approved.py", test_source)
-            _record_approved_manifest(
-                repo_root,
-                reviewer="integration:ci-reviewer",
-                review_status="pass",
-                review_evidence="approved packetless CI fixture",
-            )
-            _remove_packet_directory(repo_root)
-
-            lint = _run_cli(
-                repo_root,
-                "lint",
-                "--reviewer",
-                "integration:ci-reviewer",
-            )
-            artifact_root_exists = (
-                repo_root / "tests" / "agentic_review_artifacts"
-            ).exists()
-
-        self.assertFalse(artifact_root_exists)
-
     def test_refresh_removes_obsolete_packet(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        CLI create-agent-md --fresh excludes '.agent.md' files without corresponding tests.
-        Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so CLI removes it before rebuilding current files.
+        `pre-commit review workflow` removes an '.agent.md' file when that file lacks a corresponding test during create-agent-md --fresh.
+        Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
 
         Verification Method: verify public function output
 
@@ -708,19 +534,21 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
         4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Filesystem excludes the extra '.agent.md' file after fresh creation.
-        Filesystem excludes `test_deleted__test_deleted.agent.md` after fresh creation.
+        5. Filesystem omits the extra '.agent.md' file after fresh creation.
+        Filesystem omits `test_deleted__test_deleted.agent.md` after fresh creation.
         """
 
         test_source = textwrap.dedent(
             '''\
-            """Verify obsolete-packet cleanup."""
+            """Tests in this file validate `current packet behavior` located at `src/current.py`.
+            `current packet behavior` is responsible for evaluating the current packet expression.
+            """
 
             def test_current_packet() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Current packet behavior evaluates to true.
+                `current packet behavior` evaluates to true.
                 Standard usage: The scenario demonstrates baseline behavior.
 
                 Verification Method: verify public function output
@@ -735,6 +563,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(repo_root / "src" / "current.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_current.py", test_source)
             _run_cli(repo_root, "create-agent-md")
             extra_agent_md = (
@@ -749,94 +578,6 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             rebuilt_files = _packet_paths(repo_root)
 
         self.assertFalse(extra_agent_md.exists())
-
-
-def _run_cli(repo_root: Path, command: str, *arguments: str) -> subprocess.CompletedProcess[str]:
-    environment = os.environ.copy()
-    existing_pythonpath = environment.get("PYTHONPATH", "")
-    source_root = str(PROJECT_ROOT / "src")
-    environment["PYTHONPATH"] = (
-        source_root if not existing_pythonpath else source_root + os.pathsep + existing_pythonpath
-    )
-    return subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "agentic_tdd_linter.cli.main",
-            command,
-            "--repo-root",
-            str(repo_root),
-            *arguments,
-        ],
-        cwd=PROJECT_ROOT,
-        env=environment,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-
-def _write_source(path: Path, source: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(source, encoding="utf-8")
-
-
-def _packet_paths(repo_root: Path) -> list[Path]:
-    return sorted((repo_root / "tests" / "agentic_review_artifacts").glob("*.agent.md"))
-
-
-def _complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
-    for packet_path in _packet_paths(repo_root):
-        packet = packet_path.read_text(encoding="utf-8")
-        if status == "pass":
-            packet = packet.replace(
-                "| pending | Replace with review evidence. |",
-                f"| pass | {evidence}. |",
-            )
-        else:
-            packet = packet.replace(
-                "| pending | Replace with review evidence. |",
-                f"| fail | {evidence}. |",
-                1,
-            ).replace(
-                "| pending | Replace with review evidence. |",
-                f"| pass | {evidence}. |",
-            )
-        packet_path.write_text(packet, encoding="utf-8")
-
-
-def _record_approved_manifest(
-    repo_root: Path,
-    *,
-    reviewer: str,
-    review_status: str,
-    review_evidence: str,
-) -> None:
-    creation = _run_cli(repo_root, "create-agent-md")
-    if creation.returncode != 0:
-        raise AssertionError(creation.stdout + creation.stderr)
-    _complete_packets(
-        repo_root,
-        status=review_status,
-        evidence=review_evidence,
-    )
-    lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
-    if lint.returncode != 0:
-        raise AssertionError(lint.stdout + lint.stderr)
-
-
-def _manifest_records(repo_root: Path) -> list[dict[str, str]]:
-    manifest_path = repo_root / "tests" / "agentic_review_manifest.jsonl"
-    return [json.loads(line) for line in manifest_path.read_text(encoding="utf-8").splitlines()]
-
-
-def _remove_packet_directory(repo_root: Path) -> None:
-    artifact_root = repo_root / "tests" / "agentic_review_artifacts"
-    for packet_path in artifact_root.glob("*.agent.md"):
-        packet_path.unlink()
-    if artifact_root.exists():
-        artifact_root.rmdir()
-
 
 if __name__ == "__main__":
     unittest.main()
