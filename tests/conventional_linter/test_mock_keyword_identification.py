@@ -30,7 +30,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits an issue when `Mock` appears without mock details.
-        Specialized usage: For mock documentation, mock detail is absent instead of present, so conventional linter emits mocking_detail_missing.
+        Specialized usage: Test documentation omits mock detail instead of providing it, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
 
@@ -67,7 +67,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
 
         Requirement Tested:
         Conventional linter emits an issue when `patch` appears without mock details.
-        Specialized usage: For patch documentation, mock detail is absent instead of present, so conventional linter emits mocking_detail_missing.
+        Specialized usage: Test documentation omits mock detail instead of providing it, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
 
