@@ -154,8 +154,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `CI/CD linter` prevents '.agent.md' creation when conventional linter emits missing_requirement.
-        Specialized usage: The test omits Requirement Tested instead of providing it, so `CI/CD linter` creates zero packets.
+        `pre-commit review workflow` prevents '.agent.md' creation when conventional linter emits missing_requirement.
+        Specialized usage: The test omits Requirement Tested instead of providing it, so `pre-commit review workflow` creates zero packets.
 
         Verification Method: verify private function output
 
@@ -166,12 +166,14 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
-          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the `CI/CD linter`.
+          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the `pre-commit review workflow`.
         """
 
         invalid_test_source = textwrap.dedent(
             '''\
-            """Verify an invalid test fixture."""
+            """Tests in this file validate `invalid fixture` located at `src/invalid.py`.
+            `invalid fixture` is responsible for representing invalid documentation.
+            """
 
             def test_invalid_documentation() -> None:
                 """Test Path: failure path
@@ -188,6 +190,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(repo_root / "src" / "invalid.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_invalid.py", invalid_test_source)
 
             creation = _run_cli(repo_root, "create-agent-md")
