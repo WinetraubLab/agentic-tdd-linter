@@ -25,6 +25,9 @@ from ..agentic_linter.render_cross_test_agent_md_file import (
 from ..conventional_linter.check_file_docstring_term_count import (
     check_file_docstring_term_count,
 )
+from ..conventional_linter.check_test_module_contract import (
+    check_test_module_contract,
+)
 from ..conventional_linter.run_conventional_linter import (
     LintIssue,
     run_conventional_linter,
@@ -64,7 +67,7 @@ def run_lint_pipeline(
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
-    issues.extend(_run_conventional_checks(tests_by_file))
+    issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     pending_by_file = _find_tests_requiring_agent_review(
@@ -136,7 +139,7 @@ def create_agent_md_files(
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     review_files = [test_file for test_file in files if tests_by_file.get(test_file.resolve())]
-    issues.extend(_run_conventional_checks(tests_by_file))
+    issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
     pending_by_file = _find_tests_requiring_agent_review(
@@ -239,10 +242,12 @@ def _remove_orphaned_agent_md_files(
 
 def _run_conventional_checks(
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+    repo_root: Path,
 ) -> list[LintIssue]:
     issues: list[LintIssue] = []
     for file_tests in tests_by_file.values():
         if file_tests:
+            issues.extend(check_test_module_contract(file_tests, repo_root))
             issues.extend(check_file_docstring_term_count(file_tests[0]))
         for test in file_tests:
             issues.extend(run_conventional_linter(test))
