@@ -5,7 +5,6 @@ Terms:
 - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
 - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
 - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
-- `narrow API`: A narrow API provides one or two public functions. For example, main.py provides main.
 - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
 """
 
@@ -49,17 +48,17 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-    def test_modules_expose_narrow_apis(self) -> None:
+    def test_modules_expose_at_most_two_public_functions(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `narrow API` restricts `source module`s to ≤2 functions unless they are `data-only module`s.
+        `test_source_module_structure` restricts every `source module` to at most two public functions unless it is a `data-only module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Every non-data `source module` provides a `narrow API`.
+        Every checked `source module` exposes at most two public functions unless it is a `data-only module`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
