@@ -602,21 +602,19 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CICD process shall succeed even if no '.agent.md' files are created, as long as manifest proof is current.
-        This is designed to save tokens during CICD process, relying on agentic review before push.
-        Standard usage: The recorded proof matches the test source, linter version, and review contract.
+        `CI/CD lint` validates current manifest proof without creating an `.agent.md` directory.
+        Standard usage: The repository contains current passing manifest proof before `CI/CD lint` starts.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        1. Create a temporary repository containing one valid test.
-        2. Complete its review and record current passing proof in the manifest.
-        3. Remove the existing '.agent.md' directory so no review files exist before lint.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        5. Verify that lint succeeds using the manifest proof.
-        6. Verify that the '.agent.md' directory remains absent after lint.
-        CLI return code is `0`.
-        '.agent.md' directory is absent after lint.
+        1. Harness creates a temporary repository containing one valid test.
+        2. Harness completes its review.
+        3. Harness persists current passing proof in the manifest.
+        4. Harness removes the existing '.agent.md' directory before lint.
+        5. Harness invokes `CI/CD lint` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
+        6. Filesystem excludes the '.agent.md' directory after lint.
+        Filesystem excludes the '.agent.md' directory after lint.
         """
 
         test_source = textwrap.dedent(
