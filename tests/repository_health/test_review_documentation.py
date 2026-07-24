@@ -103,12 +103,16 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         self.assertIn("GitHub Actions verifies committed agent-review proof", guide)
         self.assertIn("agentic-tdd-linter lint", guide)
+        self.assertIn(
+            "runs `agentic-tdd-linter lint` against the committed tests and manifest proof",
+            guide,
+        )
 
     def test_github_actions_omits_packet_creation(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        The GitHub Actions workflow omits '.agent.md' creation.
+        `test_review_documentation` requires `CI/CD validation workflow` guidance to omit the agentic-tdd-linter create-agent-md command.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
