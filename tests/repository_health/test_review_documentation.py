@@ -4,7 +4,7 @@
 Terms:
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
 - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
-- `pre-commit review workflow`: The pre-commit review workflow orders three stages: create .agent.md files, complete scorecards, and persist proof with a reviewer identity. For example, contributors run create-agent-md before reviewer-authenticated lint.
+- `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
 - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
 """
 
@@ -16,6 +16,26 @@ from pathlib import Path
 
 
 class ReviewDocumentationTests(unittest.TestCase):
+    def test_readme_names_both_workflows(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_review_documentation` requires README to distinguish `pre-commit review workflow` from `CI/CD validation workflow`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        README contains heading `Pre-commit review workflow`.
+        README contains heading `CI/CD validation workflow`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("### Pre-commit review workflow", readme)
+        self.assertIn("### CI/CD validation workflow", readme)
+
     def test_readme_includes_reviewer(self) -> None:
         """Test Path: happy path
 
