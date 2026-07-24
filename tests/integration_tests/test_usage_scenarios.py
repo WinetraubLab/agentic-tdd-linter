@@ -1,7 +1,7 @@
 """Integration tests verify complete command-line usage scenarios.
 
 Terms:
-- `CI/CD lint`: CI/CD lint runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
+- `CI/CD linter`: CI/CD linter runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
 """
 
 from __future__ import annotations
