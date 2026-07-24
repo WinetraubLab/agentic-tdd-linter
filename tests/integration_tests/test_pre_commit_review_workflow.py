@@ -27,7 +27,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` persists a manifest attestation that connects each reviewed test path and name to its pass status and reviewer identity.
+        `pre-commit review workflow` records an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -49,7 +49,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         test_source = textwrap.dedent(
             '''\
-            """Verify arithmetic examples.
+            """Tests in this file validate `addition` located at `src/arithmetic.py`.
+            `addition` is responsible for combining numbers into their sum.
 
             Terms:
             - `addition`: Addition combines two numbers into their sum. For example, one plus one produces two.
