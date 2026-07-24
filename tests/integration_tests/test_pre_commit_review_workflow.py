@@ -107,26 +107,28 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `CI/CD linter` emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
-        Specialized usage: The repository has no '.agent.md' files instead of generated files, so `CI/CD linter` emits missing_required_agent_md.
+        `pre-commit review workflow` emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
+        Specialized usage: Caller invokes lint before create-agent-md instead of after it, so `pre-commit review workflow` emits missing_required_agent_md.
 
         Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
-        3. `CI/CD linter` output contains missing_required_agent_md.
+        3. `pre-commit review workflow` output contains missing_required_agent_md.
         """
 
         test_source = textwrap.dedent(
             '''\
-            """Verify an unreviewed test fixture."""
+            """Tests in this file validate `unreviewed behavior` located at `src/unreviewed.py`.
+            `unreviewed behavior` is responsible for evaluating boolean expressions.
+            """
 
             def test_unreviewed_behavior() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Unreviewed behavior evaluates to true.
+                `unreviewed behavior` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -141,6 +143,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(repo_root / "src" / "unreviewed.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_unreviewed.py", test_source)
 
             lint = _run_cli(repo_root, "lint")
