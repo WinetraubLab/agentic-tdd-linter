@@ -202,8 +202,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `CI/CD linter` emits agent_review_failed when one test has an unsuccessful agentic review and another test has a successful review.
-        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards, so `CI/CD linter` emits agent_review_failed.
+        `pre-commit review workflow` emits agent_review_failed when any completed '.agent.md' contains a failing criterion.
+        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards, so `pre-commit review workflow` emits agent_review_failed.
 
         Verification Method: verify private function output
 
@@ -212,26 +212,28 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness classifies one review as successful and another as unsuccessful.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. `CI/CD linter` output contains `agent_review_failed`.
+        5. `pre-commit review workflow` output contains `agent_review_failed`.
         Lint output emits `agent_review_failed`.
         Lint output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
-          Justification: Deeper coverage — The lower test proves pass-status derivation. This test combines a passing review with a failed review through the `CI/CD linter`.
+          Justification: Deeper coverage — The lower test proves pass-status derivation. This test combines a passing review with a failed review through the `pre-commit review workflow`.
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_fail_status`
-          Justification: Deeper coverage — The lower test proves fail-status precedence. This test proves that a failed review produces the `CI/CD linter` diagnostic.
+          Justification: Deeper coverage — The lower test proves fail-status precedence. This test proves that a failed review produces the `pre-commit review workflow` diagnostic.
         """
 
         passing_source = textwrap.dedent(
             '''\
-            """Verify a passing review example."""
+            """Tests in this file validate `passing review behavior` located at `src/passing.py`.
+            `passing review behavior` is responsible for evaluating approved boolean expressions.
+            """
 
             def test_passing_review() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Passing review behavior evaluates to true.
+                `passing review behavior` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -245,13 +247,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         failing_source = textwrap.dedent(
             '''\
-            """Verify a failing review example."""
+            """Tests in this file validate `failing review behavior` located at `src/failing.py`.
+            `failing review behavior` is responsible for evaluating rejected boolean expressions.
+            """
 
             def test_failing_review() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Failing review behavior evaluates to true.
+                `failing review behavior` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -266,6 +270,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(repo_root / "src" / "passing.py", "VALUE = True\n")
+            _write_source(repo_root / "src" / "failing.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_passing.py", passing_source)
             _write_source(repo_root / "tests" / "test_failing.py", failing_source)
             _run_cli(repo_root, "create-agent-md")
