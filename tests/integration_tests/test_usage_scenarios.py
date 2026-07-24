@@ -24,7 +24,7 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI persists a manifest attestation that connects each reviewed test path and name to its pass status and reviewer identity.
+        `CI/CD linter` persists a manifest attestation that connects each reviewed test path and name to its pass status and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -41,7 +41,7 @@ class UsageScenarioTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete CLI review lifecycle.
+          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete `CI/CD linter` review lifecycle.
         """
 
         test_source = textwrap.dedent(
