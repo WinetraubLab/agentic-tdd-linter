@@ -33,7 +33,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates repository. Harness adds one test.
+        1. Harness creates repository. Harness creates one test.
         2. Harness invokes create-agent-md.
         3. Harness classifies reviews as successful.
         4. Harness invokes lint.
@@ -44,7 +44,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete `CI/CD linter` review lifecycle.
+          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete `pre-commit review workflow`.
         """
 
         test_source = textwrap.dedent(
