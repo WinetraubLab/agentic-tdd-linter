@@ -44,7 +44,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         README presents these steps in order:
         1. `create-agent-md` creates the scorecards.
         2. Reviewers complete every scorecard.
-        3. `lint --reviewer` records the completed reviews in the manifest.
+        3. `lint --reviewer` persists the completed reviews in the manifest.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
