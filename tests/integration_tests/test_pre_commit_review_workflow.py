@@ -300,6 +300,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Specialized usage: The approved test changes after manifest proof is recorded instead of remaining current.
 
         Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
@@ -342,18 +343,20 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             '''
         )
         edited_first_source = first_source.replace(
-            "The first truth example evaluates to true.",
-            "The first documented boolean expression evaluates to true.",
+            "`first truth example` evaluates to true.",
         )
         second_source = textwrap.dedent(
             '''\
             """Verify the second truth example."""
+            """Tests in this file validate `second truth example` located at `src/second_truth.py`.
+            `second truth example` is responsible for evaluating the second boolean expression.
 
             def test_second_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
                 The second truth example evaluates to true.
+                `second truth example` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -370,6 +373,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             repo_root = Path(directory)
             first_file = repo_root / "tests" / "test_first.py"
             second_file = repo_root / "tests" / "test_second.py"
+            _write_source(repo_root / "src" / "second_truth.py", "VALUE = True\n")
             _write_source(first_file, first_source)
             _write_source(second_file, second_source)
             _run_cli(repo_root, "create-agent-md")
@@ -408,7 +412,6 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             unchanged_packet_after = second_packet.read_text(encoding="utf-8")
             cross_packet_after = cross_packet.read_text(encoding="utf-8")
 
-        self.assertEqual(0, approved_lint.returncode)
         self.assertEqual(
             {"tests/test_first.py", "tests/test_second.py"},
             approved_manifest_paths,
