@@ -4,6 +4,8 @@
 Terms:
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
 - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+- `pre-commit review workflow`: The pre-commit review workflow orders three stages: create .agent.md files, complete scorecards, and persist proof with a reviewer identity. For example, contributors run create-agent-md before reviewer-authenticated lint.
+- `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
 """
 
 from __future__ import annotations
