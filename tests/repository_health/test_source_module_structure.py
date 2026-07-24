@@ -1,6 +1,5 @@
-"""Repository tests verify source-module API policy.
-
-Repository tests verify test-file structure.
+"""Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
+`test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
 
 Terms:
 - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
@@ -22,13 +21,13 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Repository requires every `test module` to have a same-basename `source module` or `test-harness module`.
+        `test_source_module_structure` requires every `test module` to have a same-basename `source module` or `test-harness module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Every repository `test module` has one permitted module counterpart.
+        Every `test module` has a permitted counterpart.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
