@@ -85,7 +85,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        The GitHub Actions guide instructs CI to validate committed manifest proof against repository tests with 'agentic-tdd-linter lint'.
+        `test_review_documentation` requires `CI/CD validation workflow` guidance to prescribe 'agentic-tdd-linter lint' for committed manifest proof and repository tests.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -93,6 +93,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Detail:
         The guide contains `agentic-tdd-linter lint`.
         The guide declares that GitHub Actions verifies committed proof.
+        The guide declares that the `CI/CD validation workflow` invokes lint against committed tests and manifest proof.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
