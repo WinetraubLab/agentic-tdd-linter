@@ -1,4 +1,8 @@
-"""Integration tests verify complete command-line usage scenarios."""
+"""Integration tests verify complete command-line usage scenarios.
+
+Terms:
+- `CI/CD lint`: CI/CD lint runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
+"""
 
 from __future__ import annotations
 
@@ -523,6 +527,9 @@ class UsageScenarioTests(unittest.TestCase):
         Generated file types are `single` and `cross`.
         Every generated file contains `| pending | Replace with review evidence. |`.
         No generated file contains prior completed evidence.
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Justification: Deeper coverage — The lower test proves pending initialization for one packet. This test proves fresh regeneration for every single-test and cross-test packet.
         """
 
         first_source = textwrap.dedent(
