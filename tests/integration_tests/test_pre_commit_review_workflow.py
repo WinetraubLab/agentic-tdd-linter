@@ -1,25 +1,28 @@
-"""Integration tests verify the local review workflow.
+"""Tests in this file validate `pre-commit review workflow` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+`pre-commit review workflow` is responsible for maintaining test-review evidence before commit.
 
 Terms:
-- `CI/CD linter`: CI/CD linter runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
+- `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
+- `selective review freshness`: Selective review freshness makes edited-test and cross-test scorecards pending while retaining successful evidence for an unchanged test. For example, editing one approved test regenerates only its packet and the cross-test packet.
 """
 
 from __future__ import annotations
 
-import json
-import os
-import subprocess
-import sys
 import tempfile
 import textwrap
 import unittest
 from pathlib import Path
 
+from tests.integration_tests.test_harness.usage_scenarios import (
+    complete_packets as _complete_packets,
+    manifest_records as _manifest_records,
+    packet_paths as _packet_paths,
+    run_cli as _run_cli,
+    write_source as _write_source,
+)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-
-class UsageScenarioTests(unittest.TestCase):
+class PreCommitReviewWorkflowTests(unittest.TestCase):
     def test_nominal_review_scenario(self) -> None:
         """Test Path: happy path
 
