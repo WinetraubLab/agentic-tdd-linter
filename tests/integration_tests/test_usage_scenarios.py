@@ -656,19 +656,18 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI removes all existing '.agent.md' files before create-agent-md --fresh rebuilds files for current tests.
-        Standard usage: The scenario demonstrates baseline behavior.
+        CLI create-agent-md --fresh excludes '.agent.md' files without corresponding tests.
+        Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so CLI removes it before rebuilding current files.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        1. Create a temporary repository containing one valid test.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Introduce `test_deleted__test_deleted.agent.md` without a corresponding test.
-        4. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Verify that the extra '.agent.md' file was deleted and current single-test and cross-test files were rebuilt.
-        `test_deleted__test_deleted.agent.md` is absent after fresh creation.
-        Generated file types are `single` and `cross`.
+        1. Harness creates a temporary repository containing one valid test.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
+        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
+        5. Filesystem excludes the extra '.agent.md' file after fresh creation.
+        Filesystem excludes `test_deleted__test_deleted.agent.md` after fresh creation.
         """
 
         test_source = textwrap.dedent(
