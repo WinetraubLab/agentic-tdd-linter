@@ -21,8 +21,8 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Repository YAML validation emits "fail needs an explanation comment" for an unexplained failed scorecard result.
-        Specialized usage: One expected fail result omits its explanation comment, so repository YAML validation emits the named diagnostic.
+        `test_agent_review_yaml_fixture_contract` requires an explanation comment when any scorecard result has fail status.
+        Specialized usage: One expected fail result omits its explanation comment, so YAML validation emits the named diagnostic.
 
         Verification Method: verify public function output
 
@@ -74,7 +74,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Repository YAML validation emits an unsupported-field error for any field outside `supported fields`.
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error when any field is outside `supported fields`.
         Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
 
         Verification Method: verify public function output
