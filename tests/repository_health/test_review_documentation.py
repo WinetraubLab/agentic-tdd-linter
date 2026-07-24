@@ -118,7 +118,11 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        The guide excludes `agentic-tdd-linter create-agent-md`.
+        The guide omits `agentic-tdd-linter create-agent-md`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_pass_omits_packets`
+          Justification: Deeper coverage — The lower test proves that CI lint omits '.agent.md' creation at runtime. This test proves that the GitHub Actions guide describes the same constraint.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
