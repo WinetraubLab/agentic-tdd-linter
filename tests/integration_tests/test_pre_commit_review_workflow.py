@@ -60,7 +60,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 """Test Path: happy path
 
                 Requirement Tested:
-                Addition produces the sum of two numbers.
+                `addition` produces the sum of two numbers.
                 Standard usage: The operands are positive integers.
 
                 Verification Method: verify public function output
@@ -78,6 +78,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
+            _write_source(
+                repo_root / "src" / "arithmetic.py",
+                "def add(a, b): return a + b\n",
+            )
             _write_source(repo_root / expected_test_path, test_source)
 
             _run_cli(repo_root, "create-agent-md")
