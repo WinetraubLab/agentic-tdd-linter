@@ -1,4 +1,4 @@
-"""Integration tests verify complete command-line usage scenarios.
+"""Integration tests verify the local review workflow.
 
 Terms:
 - `CI/CD linter`: CI/CD linter runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
