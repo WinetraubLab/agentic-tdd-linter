@@ -40,13 +40,13 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        README provides exact `lint arguments`.
+        `test_review_documentation` requires README to provide exact `lint arguments`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Parsed arguments equal `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
+        README parser produces `lint arguments` equal to `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
