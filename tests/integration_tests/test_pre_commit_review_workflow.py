@@ -302,27 +302,34 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        1. Create a temporary repository containing two tests.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. The test harness mocks every review by marking it as pass.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:approved-reviewer` to record passing proof.
-        5. Edit only the first test source outside the CLI, making its manifest proof stale.
-        6. Run `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
-        7. Verify that lint removes the edited test's manifest proof while retaining proof for the unchanged test.
-        8. Verify that lint rejects the previous proof and prescribes create-agent-md.
-        9. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        10. Verify that the stale test and cross-test '.agent.md' files are pending while the current test's file retains its passing review.
+        1. Harness creates a temporary repository containing two tests.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness classifies every review as successful.
+        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:approved-reviewer` to persist passing proof.
+        5. Harness modifies only the first test source outside the `pre-commit review workflow`.
+        6. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
+        7. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        8. Edited-test and cross-test '.agent.md' files contain pending evidence.
+        9. Unchanged-test '.agent.md' content retains successful evidence.
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves which packets regenerate after a source edit and which packet remains unchanged.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_invalidates_manifest_proof`
+          Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. This test proves selective regeneration after an existing function is edited.
         """
 
         first_source = textwrap.dedent(
             '''\
-            """Verify the first truth example."""
+            """Tests in this file validate `first truth example` located at `src/first_truth.py`.
+            `first truth example` is responsible for evaluating the first boolean expression.
+            """
 
             def test_first_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                The first truth example evaluates to true.
+                `first truth example` evaluates to true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
