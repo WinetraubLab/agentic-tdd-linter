@@ -51,7 +51,7 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic linter derives fail status when any scorecard row fails.
+        Agentic linter derives fail status when any scorecard row has fail status.
         Specialized usage: One row has failed status instead of every row passing, so agentic linter derives failed status.
 
         Verification Method: verify public function output
