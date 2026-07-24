@@ -1,4 +1,5 @@
-"""Repository tests verify rules for maintainable agent-review YAML examples.
+"""Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
+`test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
 
 Terms:
 - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
