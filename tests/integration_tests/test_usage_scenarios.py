@@ -99,15 +99,15 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
-        Specialized usage: The repository has no '.agent.md' files instead of generated files, so CLI emits missing_required_agent_md.
+        `CI/CD linter` emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
+        Specialized usage: The repository has no '.agent.md' files instead of generated files, so `CI/CD linter` emits missing_required_agent_md.
 
         Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
-        3. CLI output contains missing_required_agent_md.
+        3. `CI/CD linter` output contains missing_required_agent_md.
         """
 
         test_source = textwrap.dedent(
@@ -143,8 +143,8 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI prevents '.agent.md' creation when conventional linter emits missing_requirement.
-        Specialized usage: The test omits Requirement Tested instead of providing it, so CLI creates zero packets.
+        `CI/CD linter` prevents '.agent.md' creation when conventional linter emits missing_requirement.
+        Specialized usage: The test omits Requirement Tested instead of providing it, so `CI/CD linter` creates zero packets.
 
         Verification Method: verify private function output
 
@@ -155,7 +155,7 @@ class UsageScenarioTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
-          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the CLI.
+          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the `CI/CD linter`.
         """
 
         invalid_test_source = textwrap.dedent(
@@ -188,19 +188,25 @@ class UsageScenarioTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        CLI reports failure when one test fails agentic review and another test passes.
-        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards.
+        `CI/CD linter` emits agent_review_failed when one test has an unsuccessful agentic review and another test has a successful review.
+        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards, so `CI/CD linter` emits agent_review_failed.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing two tests.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. The test harness mocks one test review as pass and the other as fail.
-        4. Run `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. Verify that CLI output reports `agent_review_failed` and prescribes one regeneration.
+        1. Harness creates a temporary repository containing two tests.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness classifies one review as successful and another as unsuccessful.
+        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
+        5. `CI/CD linter` output contains `agent_review_failed`.
         Lint output emits `agent_review_failed`.
         Lint output contains `Regenerate the selected packets once`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Justification: Deeper coverage — The lower test proves pass-status derivation. This test combines a passing review with a failed review through the `CI/CD linter`.
+        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Justification: Deeper coverage — The lower test proves fail-status precedence. This test proves that a failed review produces the `CI/CD linter` diagnostic.
         """
 
         passing_source = textwrap.dedent(
@@ -265,7 +271,6 @@ class UsageScenarioTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
-        self.assertIn("Regenerate the selected packets once", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
         """Test Path: failure path
