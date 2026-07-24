@@ -52,7 +52,7 @@ class UsageScenarioTests(unittest.TestCase):
                 """Test Path: happy path
 
                 Requirement Tested:
-                `addition` produces the sum of two numbers.
+                Addition produces the sum of two numbers.
                 Standard usage: The operands are positive integers.
 
                 Verification Method: verify public function output
@@ -147,7 +147,6 @@ class UsageScenarioTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates a temporary repository containing a test whose docstring omits Requirement Tested.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Packet list remains empty.
         Packet list contains zero paths.
 
         Similar Coverage:
