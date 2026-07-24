@@ -1,8 +1,9 @@
-"""Repository tests verify that agent-review manifests remain tracked.
+"""Tests in this file validate `test_review_manifest_tracking` located at `tests/repository_health/test_review_manifest_tracking.py`.
+`test_review_manifest_tracking` is responsible for requiring repository review artifacts in source control.
 
 Terms:
-- `review manifest`: A review manifest is the tracked proof file for repository test reviews. For example, `tests/agentic_review_manifest.jsonl` is a review manifest.
-- `E2E manifest`: An E2E manifest stores agent-review proof for generated end-to-end scenarios. For example, `temporary_fixtures/agentic_review_manifest.jsonl` preserves proof between workflow runs.
+- `self-lint review record`: A self-lint review record is a tracked agent-review proof file. For example, `tests/agentic_review_manifest.jsonl` stores repository self-lint proof, while `temporary_fixtures/agentic_review_manifest.jsonl` stores integration-scenario proof.
+- `YAML-example lint review record`: A YAML-example lint review record stores the latest completed YAML-example results. For example, `tests/agentic_linter/test_agent_review_example_runner.json` is a YAML-example lint review record.
 """
 
 from __future__ import annotations
