@@ -1,4 +1,9 @@
-"""Verify creation of single-test `.agent.md` files."""
+"""Tests in this file validate `render_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_agent_md_file.py`.
+`render_agent_md_file` is responsible for creating one isolated single-test `.agent.md` with a pending review scorecard.
+
+Terms:
+- `single-test packet`: A single-test packet is the `.agent.md` file for one test. For example, it contains one test and its pending review scorecard.
+"""
 
 from __future__ import annotations
 
@@ -17,16 +22,40 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Single-test `.agent.md` includes instructions to evaluate each criterion with a fresh subagent and use only that `.agent.md` as review context.
+        `render_agent_md_file` constrains `single-test packet` review context to the packet itself.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The generated `.agent.md` text contains these instructions:
-        `Evaluate each criterion in a fresh subagent`
-        `Pass only this Markdown file as the review packet`
-        `Do not inspect repository files, manifests, outer unit tests`
+        `render_agent_md_file` output contains the instruction `Provide only this Markdown file as the review packet`.
+        `render_agent_md_file` output contains the instruction `Do not inspect repository files, manifests, outer unit tests`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = 'def test_adds_values() -> None:\n    """Test Path: happy path"""\n    assert 1 + 1 == 2\n'
+            test_file = Path(directory) / "test_sample.py"
+            test_file.write_text(source, encoding="utf-8")
+
+            markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
+
+        self.assertIn("Provide only this Markdown file as the review packet", markdown)
+        self.assertIn(
+            "Do not inspect repository files, manifests, outer unit tests",
+            markdown,
+        )
+
+    def test_requires_fresh_reviewers(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_agent_md_file` requires a fresh subagent for every `single-test packet` criterion.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `render_agent_md_file` output contains `Evaluate each criterion in a fresh subagent`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -37,11 +66,6 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
 
         self.assertIn("Evaluate each criterion in a fresh subagent", markdown)
-        self.assertIn("Pass only this Markdown file as the review packet", markdown)
-        self.assertIn(
-            "Do not inspect repository files, manifests, outer unit tests",
-            markdown,
-        )
 
     def test_creates_pending_packet(self) -> None:
         """Test Path: happy path
