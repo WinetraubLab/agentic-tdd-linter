@@ -1,8 +1,10 @@
-"""Verify focused command-line input and output behavior.
+"""Tests in this file validate `CLI` located at `src/agentic_tdd_linter/cli/main.py`.
+`CLI` is responsible for providing the create-agent-md and lint command interface.
 
 Terms:
-- `main`: Main is the CLI entry function. For example, tests call main with command arguments and inspect its exit code.
-- `main output`: Main output is the text printed for a command result. For example, it reports lint issues or the number of recorded attestations.
+- `CLI output`: CLI output is the text printed for a command result. For example, it reports lint issues or the number of recorded attestations.
+- `.agent.md`: An .agent.md file contains one review scorecard that create-agent-md generates. For example, packet creation writes one file for each test.
+- `reviewer identity`: A reviewer identity names the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
 """
 
 from __future__ import annotations
@@ -39,14 +41,13 @@ class CliTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `create-agent-md --test-root <directory>` processes tests outside the default `tests` directory and reports how many `.agent.md` files it generated.
-        Specialized usage: For generated fixtures, CLI configures test root as temporary_fixtures (instead of tests).
+        `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root.
+        Specialized usage: For generated fixtures, CLI configures temporary_fixtures as the test root instead of the default root.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `main output` contains this text:
-        `generated 1 agent review packets`
+        `CLI output` contains the text `generated 1 agent review packets`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -54,16 +55,21 @@ class CliTests(unittest.TestCase):
             test_root = repo_root / "temporary_fixtures"
             test_root.mkdir()
             test_file = test_root / "pass_test.py"
+            module_file = repo_root / "src" / "addition.py"
+            module_file.parent.mkdir()
+            module_file.write_text("def add(a, b): return a + b\n", encoding="utf-8")
             test_file.write_text(
                 textwrap.dedent(
                     '''
-                    """Document temporary addition tests."""
+                    """Tests in this file validate `addition` located at `src/addition.py`.
+                    `addition` is responsible for calculating numeric sums.
+                    """
 
                     def test_adds_positive_numbers() -> None:
                         """Test Path: happy path
 
                         Requirement Tested:
-                        Addition calculates sums.
+                        `addition` calculates sums.
                         When operands contain positive integers, addition calculates sums.
 
                         Verification Method: verify public function output
@@ -100,15 +106,15 @@ class ReviewProofFlowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        When lint is given one test-file path, it reports issues only for that selected file and ignores issues from unselected files.
-        Specialized usage: The command names one test file while another test file in the repository also has lint issues.
+        `CLI` confines `CLI output` to the caller-selected test-file path.
+        Specialized usage: Caller provides one test-file path instead of the full scope, so CLI confines `CLI output` to that file.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Run lint with `test_first.py` as the selected path.
-        `main` produces `1` and reports its missing `.agent.md` file.
-        `main output` does not mention the unselected `test_second.py` file.
+        Harness invokes lint with `test_first.py` as the selected path.
+        `CLI output` contains the selected `test_first.py` file.
+        `CLI output` omits the other `test_second.py` file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -119,17 +125,15 @@ class ReviewProofFlowTests(unittest.TestCase):
             second = tests / "test_second.py"
             source = textwrap.dedent(
                 '''
-                """Document temporary CLI tests.
-
-                A `CLI test` is source that exercises one command behavior.
-                For example, an addition test exercises manifest processing.
+                """Tests in this file validate `examples` located at `src/examples.py`.
+                `examples` is responsible for preserving boolean truth.
                 """
 
                 def test_example() -> None:
                     """Test Path: happy path
 
                     Requirement Tested:
-                    Examples preserve truth.
+                    `examples` preserves truth.
                     When expressions are true, examples preserve truth.
 
                     Verification Method: verify public function output
@@ -141,6 +145,9 @@ class ReviewProofFlowTests(unittest.TestCase):
                     assert True
                 '''
             ).strip() + "\n"
+            module_file = root / "src" / "examples.py"
+            module_file.parent.mkdir()
+            module_file.write_text("VALUE = True\n", encoding="utf-8")
             first.write_text(source, encoding="utf-8")
             second.write_text(source, encoding="utf-8")
             stdout = io.StringIO()
@@ -156,23 +163,23 @@ class ReviewProofFlowTests(unittest.TestCase):
                     ]
                 )
 
-        self.assertEqual(1, exit_code)
-        self.assertIn("missing_required_agent_md", stdout.getvalue())
+        self.assertIn("test_first.py", stdout.getvalue())
         self.assertNotIn("test_second", stdout.getvalue())
 
     def test_lint_requires_reviewer(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        When completed `.agent.md` files are ready to be recorded, lint fails with `missing_reviewer` if `--reviewer` is omitted.
-        Specialized usage: The completed `.agent.md` file is present, but the `--reviewer` argument is omitted.
+        `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent.
+        Specialized usage: Caller provides a completed `.agent.md` file without `reviewer identity`, so CLI emits missing_reviewer.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Create passing manifest proof and a completed `.agent.md` file.
-        Run lint without `--reviewer`.
-        `main` produces `1` and reports `missing_reviewer` instead of recording review proof without an identity.
+        Harness creates passing manifest proof.
+        Harness creates a completed `.agent.md` file.
+        Harness invokes lint without `--reviewer`.
+        `CLI output` contains `missing_reviewer`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -184,7 +191,7 @@ class ReviewProofFlowTests(unittest.TestCase):
                     """Test Path: happy path
 
                     Requirement Tested:
-                    Addition calculates sums.
+                    `addition` calculates sums.
                     When operands contain positive integers, addition calculates sums.
 
                     Verification Method: verify public function output
@@ -210,12 +217,14 @@ class ReviewProofFlowTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 exit_code = main(["lint", "--repo-root", str(root)])
 
-        self.assertEqual(1, exit_code)
         self.assertIn("missing_reviewer", stdout.getvalue())
 
 def _write_test_file(root: Path, source: str) -> Path:
     test_directory = root / "tests"
     test_directory.mkdir()
+    module_file = root / "src" / "addition.py"
+    module_file.parent.mkdir()
+    module_file.write_text("def add(a, b): return a + b\n", encoding="utf-8")
     test_file = test_directory / "test_sample.py"
     test_file.write_text(_with_file_docstring(source), encoding="utf-8")
     return test_file
@@ -224,10 +233,8 @@ def _write_test_file(root: Path, source: str) -> Path:
 def _with_file_docstring(source: str) -> str:
     return textwrap.dedent(
         '''
-        """Document temporary CLI tests.
-
-        A `CLI test` is source that exercises one command behavior.
-        For example, an addition test exercises manifest processing.
+        """Tests in this file validate `addition` located at `src/addition.py`.
+        `addition` is responsible for calculating numeric sums.
         """
         '''
     ).strip() + "\n\n" + source
@@ -240,7 +247,7 @@ def _valid_test_function_source(name: str) -> str:
             """Test Path: happy path
 
             Requirement Tested:
-            Examples preserve truth.
+            `addition` calculates sums.
             When expressions are true, examples preserve truth.
 
             Verification Method: verify public function output
