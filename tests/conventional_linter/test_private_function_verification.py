@@ -1,4 +1,5 @@
-"""Conventional-linter tests verify private-function verification rules."""
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for validating evidence declared as private-function output."""
 
 from __future__ import annotations
 
@@ -24,7 +25,7 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits private_verification_missing_private_call when private-function verification invokes public helpers.
+        `conventional_linter` emits private_verification_missing_private_call when private-function verification invokes public helpers.
         Specialized usage: For private-function verification, test invokes helper instead of private function, so conventional linter emits private_verification_missing_private_call.
 
         Verification Method: verify private function output
