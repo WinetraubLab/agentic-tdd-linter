@@ -237,8 +237,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                     )
                 failed_output = sidecar_path.read_text(encoding="utf-8")
 
-        self.assertNotEqual(successful_seed, successful_output)
-        self.assertNotEqual(failed_seed, failed_output)
+        self.assertNotIn(successful_seed, successful_output)
+        self.assertNotIn(failed_seed, failed_output)
 
 
 if __name__ == "__main__":
