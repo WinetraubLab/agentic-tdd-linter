@@ -1,5 +1,5 @@
 """Tests in this file validate `build_manifest_from_agent_md_files` located at `src/agentic_tdd_linter/agentic_linter/build_manifest_from_agent_md_files.py`.
-`build_manifest_from_agent_md_files` converts completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test files can skip another agent review.
+`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test files can skip another agent review.
 Changing a test file invalidates the proof for every test in that file.
 
 Terms:
@@ -54,7 +54,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — This test verifies file-wide invalidation after adding a function. Higher test verifies selective regeneration after caller modifies an existing function.
+          Justification: Deeper coverage — The current test verifies file-wide invalidation after adding a function. Higher test verifies selective regeneration after caller modifies an existing function.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -235,7 +235,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — This test proves orphan cleanup preserves current proof. The higher test proves the complete CLI review lifecycle.
+          Justification: Deeper coverage — The current test proves orphan cleanup preserves current proof. The higher test proves the complete CLI review lifecycle.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -303,13 +303,13 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` records `manifest proof` only after every scorecard row is completed.
+        `build_manifest_from_agent_md_files` writes `manifest proof` only after the reviewer completes every scorecard row.
         Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file remains absent.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The manifest path does not exist.
+        Filesystem contains no manifest file.
         """
 
         with tempfile.TemporaryDirectory() as directory:
