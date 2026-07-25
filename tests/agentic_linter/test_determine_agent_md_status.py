@@ -91,6 +91,10 @@ class AgentMdStatusTests(unittest.TestCase):
 
         Verification Detail:
         `determine_agent_md_status` produces `pending`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Justification: Deeper coverage — The current test isolates pending-status derivation. The higher test applies pending status to manifest-recording policy.
         """
 
         artifact = """# Agentic Test Review
