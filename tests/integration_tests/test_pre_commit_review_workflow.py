@@ -161,7 +161,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Requirement Tested:
         `pre-commit review workflow` prevents '.agent.md' creation when conventional linter emits missing_requirement.
-        Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero packets.
+        Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero `.agent.md` files.
 
         Verification Method: verify private function output
 
