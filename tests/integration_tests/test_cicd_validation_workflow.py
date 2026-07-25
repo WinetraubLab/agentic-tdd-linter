@@ -41,6 +41,10 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         5. Harness removes the existing '.agent.md' files to reproduce `CI/CD linter` input.
         6. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:version-reviewer`.
         7. `CI/CD linter` output contains missing_required_agent_md.
+
+        Similar Coverage:
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
+          Justification: Diagnostic completeness — The lower test isolates the stale review-contract rule. The current test exercises rejection of proof carrying outdated linter metadata through CI lint.
         """
 
         test_source = textwrap.dedent(
@@ -106,6 +110,12 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         3. Harness persists current passing proof in the manifest.
         4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
         5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_repository_self_lint.py::test_self_lint_validates_repository_tests`
+          Justification: Deeper coverage — The current test isolates current-proof acceptance in a temporary repository. The higher test validates current proof for this complete repository.
+        - Higher Level Test: `test_review_documentation.py::test_github_actions_shows_ci`
+          Justification: Deeper coverage — The current test executes CI lint against current proof. The higher test verifies that GitHub Actions guidance documents that validation.
         """
 
         test_source = textwrap.dedent(
