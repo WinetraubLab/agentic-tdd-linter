@@ -159,26 +159,8 @@ class LoadAllFormatsTests(unittest.TestCase):
             _write_source(repo_root / "src" / "parser.ts", "export const parse = () => 'stored text';\n")
             _write_source(test_file, typescript_source)
 
-            creation = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "agentic_tdd_linter.cli.main",
-                    "create-agent-md",
-                    "--repo-root",
-                    str(repo_root),
-                ],
-                cwd=PROJECT_ROOT,
-                env=environment,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            packets = sorted(
-                (repo_root / "tests" / "agentic_review_artifacts").glob(
-                    "*.agent.md"
-                )
-            )
+            creation = _run_cli(repo_root, "create-agent-md")
+            packets = _packet_paths(repo_root)
             cross_packet_path = next(
                 path
                 for path in packets
@@ -195,7 +177,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertEqual(0, creation.returncode, creation.stdout + creation.stderr)
         self.assertEqual(2, len(packets), packets)
         self.assertIn("returns stored text", single_packet)
-        self.assertIn("Parser returns stored text.", single_packet)
+        self.assertIn(
+            "Tests in this file validate `parser` located at `src/parser.ts`.",
+            single_packet,
+        )
+        self.assertIn("`parser` is responsible for returning stored text.", single_packet)
+        self.assertIn("`parser` returns stored text.", single_packet)
         self.assertIn('test("returns stored text"', single_packet)
         self.assertIn("tests/parser.test.ts", cross_packet)
         self.assertIn('test("returns stored text"', cross_packet)
