@@ -82,13 +82,13 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_scenario`
-          Justification: Deeper coverage — This test proves that one renderer output has exactly 25 pending rows. Higher test proves fresh regeneration of both '.agent.md' file types.
+          Justification: Deeper coverage — The current test proves that one renderer output has exactly 25 pending rows. Higher test proves fresh regeneration of both '.agent.md' file types.
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — This test proves that one renderer output has exactly 25 pending rows. Higher test proves selective pending regeneration after source edits.
+          Justification: Deeper coverage — The current test proves that one renderer output has exactly 25 pending rows. Higher test proves selective pending regeneration after source edits.
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — This test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_python_tests` verifies Python extraction and complete file content.
+          Justification: Deeper coverage — The current test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_python_tests` verifies Python extraction and complete file content.
         - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
-          Justification: Deeper coverage — This test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_typescript_tests` verifies TypeScript extraction and complete file content.
+          Justification: Deeper coverage — The current test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_typescript_tests` verifies TypeScript extraction and complete file content.
         """
 
         with tempfile.TemporaryDirectory() as directory:
