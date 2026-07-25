@@ -45,7 +45,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` removes all `manifest proof` for a reviewed test file when a new test function appears in that file.
-        Specialized usage: A new test function appears in an already reviewed file, so agentic linter removes all proof for that file.
+        Specialized usage: A new test function appears in an already reviewed file, so agentic linter removes all `manifest proof` for that file.
 
         Verification Method: verify private function output
 
