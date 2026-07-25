@@ -62,7 +62,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README sequence: '.agent.md' creation through 'agentic-tdd-linter create-agent-md', scorecard completion, and manifest recording through 'agentic-tdd-linter lint --reviewer'.
+        `test_review_documentation` requires `pre-commit review workflow` in README: '.agent.md' creation through 'agentic-tdd-linter create-agent-md', scorecard completion, and manifest recording through 'agentic-tdd-linter lint --reviewer'.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
