@@ -20,7 +20,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to distinguish `pre-commit review workflow` from `CI/CD validation workflow`.
+        `test_review_documentation` requires README headings: `pre-commit review workflow` and `CI/CD validation workflow`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -62,7 +62,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires this README `pre-commit review workflow` sequence: .agent.md creation with agentic-tdd-linter create-agent-md, scorecard completion, then proof recording with agentic-tdd-linter lint --reviewer.
+        `test_review_documentation` requires README sequence: '.agent.md' creation through 'agentic-tdd-linter create-agent-md', scorecard completion, and manifest recording through 'agentic-tdd-linter lint --reviewer'.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output

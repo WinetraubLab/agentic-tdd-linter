@@ -210,8 +210,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits agent_review_failed when any completed '.agent.md' contains a failing criterion.
-        Specialized usage: One '.agent.md' file contains a failed scorecard while another contains passing scorecards, so `pre-commit review workflow` emits agent_review_failed.
+        `pre-commit review workflow` reports failed reviews: `agent_review_failed` plus `.agent.md` regeneration instructions.
+        Specialized usage: When one '.agent.md' scorecard fails and another passes, `pre-commit review workflow` reports both messages.
 
         Verification Method: verify private function output
 
