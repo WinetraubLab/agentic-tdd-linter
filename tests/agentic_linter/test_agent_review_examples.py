@@ -129,12 +129,13 @@ class AgentReviewExampleTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_examples` enumerates every case in `mismatch diagnostics` by criterion with its expected and actual results.
+        `agent_review_examples` reports every mismatched case and each criterion's aggregate failure count, enforced-check count, and pass rate in `mismatch diagnostics`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
+        Criterion 32 reports `2` failures across `5` checks with a `60%` pass rate.
         Criterion 32 contains `missing_subject` with expected `fail` and actual `pass`.
         Criterion 32 contains `missing_object` with expected `fail` and actual `pass`.
         """
