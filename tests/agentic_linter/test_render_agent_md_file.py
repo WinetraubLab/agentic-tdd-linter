@@ -30,6 +30,10 @@ class AgenticMarkdownTests(unittest.TestCase):
         Verification Detail:
         `render_agent_md_file` output contains the instruction `Provide only this Markdown file as the review packet`.
         `render_agent_md_file` output contains the instruction `Do not inspect repository files, manifests, outer unit tests`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_render_cross_test_agent_md_file.py::test_instructions_limit_review_to_packet`
+          Justification: Comparable coverage — The current test constrains single-test review context. The higher test applies the same isolation policy to cross-test review context.
         """
 
         with tempfile.TemporaryDirectory() as directory:
