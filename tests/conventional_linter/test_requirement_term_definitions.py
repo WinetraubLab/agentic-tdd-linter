@@ -29,13 +29,13 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts a backticked requirement term defined by the file glossary.
+        `conventional_linter` accepts a backticked requirement term when the file glossary defines that term.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The `manifest proof` term passes glossary-definition validation.
+        The `manifest proof` term satisfies glossary-definition validation.
         """
 
         rules = _lint_requirement_term_source(
@@ -54,8 +54,8 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits undefined_requirement_term when file glossaries omit backticked terms.
-        Specialized usage: File glossary omits backticked term instead of defining it, so conventional linter emits undefined_requirement_term.
+        `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary.
+        Specialized usage: The requirement uses a backticked term with no glossary definition, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
 
