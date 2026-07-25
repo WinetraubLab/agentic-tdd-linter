@@ -1,8 +1,9 @@
-"""Indexing tests verify extracted-test records.
+"""Tests in this file validate `extracted_test_record` located at `src/agentic_tdd_linter/indexing_test_functions/extracted_test_record.py`.
+`extracted_test_record` is responsible for representing language-neutral indexed test data.
 
 Terms:
 - `ExtractedTestRecord`: ExtractedTestRecord is the shared data structure for one indexed test. For example, it stores a test's path, name, line, syntax node, documentation, and source without a language discriminator.
-- `record fields`: Record fields are path, name, line, syntax node, docstring, source, and a file docstring that defaults to None. For example, an extracted record preserves supplied values for all seven fields.
+- `record fields`: Record fields are path, name, line, syntax node, docstring, source, and a file docstring that defaults to None. For example, a caller supplies all seven fields to an extracted record.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ class ExtractedTestRecordTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `ExtractedTestRecord` preserves `record fields`.
+        `extracted_test_record` preserves `record fields` through `ExtractedTestRecord`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
