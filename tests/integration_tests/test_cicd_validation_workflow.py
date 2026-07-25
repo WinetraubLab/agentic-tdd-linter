@@ -90,3 +90,77 @@ class CicdValidationWorkflowTests(unittest.TestCase):
 
         self.assertIn("missing_required_agent_md", lint.stdout)
 
+    def test_cicd_pass_omits_packets(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `CI/CD linter` succeeds without creating an `.agent.md` directory when current manifest proof exists.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Harness creates a temporary repository containing one valid test.
+        2. Harness completes its review.
+        3. Harness persists current passing proof in the manifest.
+        4. Harness removes the existing '.agent.md' directory before invoking `CI/CD linter`.
+        5. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
+        6. `CI/CD linter` returns code `0`.
+        7. Filesystem has no '.agent.md' directory after lint.
+
+        Similar Coverage:
+        - Higher Level Test: `test_review_documentation.py::test_github_actions_omits_packet_creation`
+          Justification: Deeper coverage — This test proves that CI lint omits '.agent.md' creation at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `approved behavior` located at `src/approved.py`.
+            `approved behavior` is responsible for evaluating an approved boolean expression.
+            """
+
+            def test_approved_packet_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `approved behavior` evaluates to true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "approved.py", "VALUE = True\n")
+            _write_source(repo_root / "tests" / "test_approved.py", test_source)
+            _record_approved_manifest(
+                repo_root,
+                reviewer="integration:ci-reviewer",
+                review_status="pass",
+                review_evidence="approved packetless CI fixture",
+            )
+            _remove_packet_directory(repo_root)
+
+            lint = _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:ci-reviewer",
+            )
+            artifact_root_exists = (
+                repo_root / "tests" / "agentic_review_artifacts"
+            ).exists()
+
+        self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
+        self.assertFalse(artifact_root_exists)
+
+
+if __name__ == "__main__":
+    unittest.main()
