@@ -1,4 +1,6 @@
-"""Agentic-linter tests verify `.agent.md` scorecard status determination."""
+"""Tests in this file validate `determine_agent_md_status` located at `src/agentic_tdd_linter/agentic_linter/determine_agent_md_status.py`.
+`determine_agent_md_status` is responsible for deriving one status from the review results in a `.agent.md` scorecard.
+"""
 
 from __future__ import annotations
 
@@ -20,7 +22,7 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter derives pass status when every scorecard row succeeds.
+        `determine_agent_md_status` derives pass status when every scorecard row succeeds.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -29,7 +31,7 @@ class AgentMdStatusTests(unittest.TestCase):
         `determine_agent_md_status` produces `pass`.
 
         Similar Coverage:
-        - Higher Level Test: `test_usage_scenarios.py::test_agentic_linter_errors_scenario`
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
           Justification: Deeper coverage — This test isolates pass-status derivation. The higher test combines passing and failing scorecards through the complete CLI workflow.
         """
 
@@ -51,8 +53,8 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic linter derives fail status when any scorecard row has fail status.
-        Specialized usage: One row has failed status instead of every row passing, so agentic linter derives failed status.
+        `determine_agent_md_status` derives fail status when any scorecard row has fail status.
+        Specialized usage: One row has fail status instead of pass status, so agentic linter derives fail status.
 
         Verification Method: verify public function output
 
@@ -60,7 +62,7 @@ class AgentMdStatusTests(unittest.TestCase):
         `determine_agent_md_status` produces `fail`.
 
         Similar Coverage:
-        - Higher Level Test: `test_usage_scenarios.py::test_agentic_linter_errors_scenario`
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
           Justification: Deeper coverage — This test isolates fail-status precedence. Higher test verifies failed-review guidance through the complete CLI workflow.
         """
 
@@ -82,7 +84,7 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic linter derives pending status when a scorecard contains a pending row and no failed rows.
+        `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows.
         Specialized usage: Scorecard contains a pending row alongside a passing row instead of only passing rows, so agentic linter derives pending status.
 
         Verification Method: verify public function output
@@ -109,7 +111,7 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Agentic linter identifies ambiguous evidence when criteria contain multiple results.
+        `determine_agent_md_status` emits invalid_review_scorecard when criteria contain multiple results.
         Specialized usage: One criterion contains pass/fail ambiguity instead of one result, so agentic linter emits invalid_review_scorecard.
 
         Verification Method: verify private function output
