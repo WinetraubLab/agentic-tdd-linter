@@ -56,8 +56,7 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
     reviewer_model = reviewer_model.strip()
     if not reviewer_model:
         raise ValueError("reviewer model is required")
-    invocation_started_at = time.time()
-    schema_errors = lint_agent_review_examples(examples_path=examples_path)
+    invocation_started_at, schema_errors = _begin_yaml_validation(examples_path)
     if schema_errors:
         raise ValueError("\n".join(schema_errors))
 
@@ -156,6 +155,12 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
             + "New failures exceed the committed scorecard baseline:\n"
             + "\n".join(regressions)
         )
+
+
+def _begin_yaml_validation(examples_path: Path) -> tuple[float, list[str]]:
+    invocation_started_at = time.time()
+    schema_errors = lint_agent_review_examples(examples_path=examples_path)
+    return invocation_started_at, schema_errors
 
 
 def _display_path(path: Path) -> str:
