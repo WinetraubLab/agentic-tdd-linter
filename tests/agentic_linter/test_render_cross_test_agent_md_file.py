@@ -150,7 +150,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` shows how `relationship fields` represent a higher-level test, lower-level test, and coverage-difference justification.
+        `render_cross_test_agent_md_file` provides exact higher-level, lower-level, and justification placeholders in `relationship fields`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
