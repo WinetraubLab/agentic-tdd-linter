@@ -26,7 +26,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` records an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
+        `pre-commit review workflow` writes an approved test to the manifest with its file path, test name, pass status, and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -43,7 +43,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. This test proves the complete `pre-commit review workflow`.
+          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. The current test proves the complete `pre-commit review workflow`.
         """
 
         test_source = textwrap.dedent(
@@ -154,18 +154,18 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Requirement Tested:
         `pre-commit review workflow` prevents '.agent.md' creation when conventional linter emits missing_requirement.
-        Specialized usage: The test omits Requirement Tested instead of providing it, so `pre-commit review workflow` creates zero packets.
+        Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero packets.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing a test whose docstring omits Requirement Tested.
+        1. Harness creates a temporary repository containing a test whose docstring lacks Requirement Tested.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         Packet list contains zero paths.
 
         Similar Coverage:
         - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
-          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. This test proves that the rule prevents packet creation through the `pre-commit review workflow`.
+          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. The current test proves that the rule prevents packet creation through the `pre-commit review workflow`.
         """
 
         invalid_test_source = textwrap.dedent(
@@ -217,9 +217,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
-          Justification: Deeper coverage — The lower test proves pass-status derivation. This test combines a passing review with a failed review through the `pre-commit review workflow`.
+          Justification: Deeper coverage — The lower test proves pass-status derivation. The current test combines a passing review with a failed review through the `pre-commit review workflow`.
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_fail_status`
-          Justification: Deeper coverage — The lower test proves fail-status precedence. This test proves that a failed review produces the `pre-commit review workflow` diagnostic.
+          Justification: Deeper coverage — The lower test proves fail-status precedence. The current test proves that a failed review produces the `pre-commit review workflow` diagnostic.
         """
 
         passing_source = textwrap.dedent(
@@ -308,14 +308,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         5. Harness modifies only the first test source outside the `pre-commit review workflow`.
         6. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
         7. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        8. Edited-test and cross-test '.agent.md' files contain pending evidence.
-        9. Unchanged-test '.agent.md' content retains successful evidence.
+        8. Edited-test and cross-test '.agent.md' files contain `| pending | Replace with review evidence. |`.
+        9. Unchanged-test '.agent.md' content retains `approved before source edit`.
+        10. Edited-test and cross-test '.agent.md' files contain no `approved before source edit`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves which packets regenerate after a source edit and which packet remains unchanged.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves which packets regenerate after a source edit and which packet remains unchanged.
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_invalidates_manifest_proof`
-          Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. This test proves selective regeneration after an existing function is edited.
+          Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. The current test proves selective regeneration after an existing function is edited.
         """
 
         first_source = textwrap.dedent(
@@ -437,14 +438,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness classifies every review as successful.
         4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Every regenerated single-test and cross-test scorecard contains only pending evidence.
+        5. Refresh creates exactly `3` packets: two single-test packets and one cross-test packet.
+        6. Every regenerated single-test and cross-test scorecard contains only pending evidence.
         `pre-commit review workflow` output comprises `single` and `cross` types.
         Every file from `pre-commit review workflow` contains `| pending | Replace with review evidence. |`.
         No file from `pre-commit review workflow` contains prior completed evidence.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves fresh regeneration for every single-test and cross-test packet.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves fresh regeneration for every single-test and cross-test packet.
         """
 
         first_source = textwrap.dedent(
