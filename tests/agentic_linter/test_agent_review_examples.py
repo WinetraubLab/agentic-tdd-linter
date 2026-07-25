@@ -32,6 +32,10 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         Verification Detail:
         The message contains `$calibrate-agent-review-criteria`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates calibration guidance for mismatches. The higher test runs the complete YAML scorecard comparison workflow.
         """
 
         mismatch = _ScorecardMismatch(
@@ -58,6 +62,10 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         Verification Detail:
         One diagnostic connects `example` to expected `fail` and actual `pass`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates case-level mismatch evidence. The higher test runs the complete YAML scorecard comparison workflow.
         """
 
         mismatch = _ScorecardMismatch(
@@ -85,6 +93,10 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Detail:
         Criterion 32 produces `| 32 | 2 | 5 | 60% |`.
         Criterion 51 produces `| 51 | 1 | 5 | 80% |`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates per-criterion mismatch aggregation. The higher test runs the complete YAML scorecard comparison workflow.
         """
 
         message = _scorecard_mismatch_message(
@@ -112,6 +124,10 @@ class AgentReviewExampleTests(unittest.TestCase):
         Total row contains `3` mismatches.
         Total row contains `10` tested cases.
         Total row contains `70%`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates aggregate pass-rate calculation. The higher test runs the complete YAML scorecard comparison workflow.
         """
 
         message = _scorecard_mismatch_message(
@@ -137,6 +153,10 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Detail:
         Criterion 32 contains `missing_subject` with expected `fail` and actual `pass`.
         Criterion 32 contains `missing_object` with expected `fail` and actual `pass`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates criterion-specific case listings. The higher test runs the complete YAML scorecard comparison workflow.
         """
 
         message = _scorecard_mismatch_message(
