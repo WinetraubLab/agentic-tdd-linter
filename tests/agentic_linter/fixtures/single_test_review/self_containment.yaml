@@ -6,7 +6,8 @@
 
 external_expected_value:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `fun_a` located at `src/examples/fun_a.py`.
+    `fun_a` is responsible for computing numeric results.
 
     For example, this file contains one test function.
     """
@@ -15,7 +16,7 @@ external_expected_value:
         """Test Path: failure path
 
         Requirement Tested:
-        Function `fun_a` returns the expected value for ten.
+        `fun_a` returns the expected value for ten.
 
         Verification Method: verify public function output
 
@@ -26,12 +27,15 @@ external_expected_value:
         expected_value = EXPECTED_VALUE
         assert(fun_a(10), expected_value)
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Numeric return values belong to fun_a's computation responsibility.
     53: # Test Values Are Local
       fail # The expected result comes from `EXPECTED_VALUE` outside the test body.
 
 external_argument_value:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `fun_a` located at `src/examples/fun_a.py`.
+    `fun_a` is responsible for computing numeric results.
 
     For example, this file contains one test function.
     """
@@ -40,7 +44,7 @@ external_argument_value:
         """Test Path: failure path
 
         Requirement Tested:
-        Function `fun_a` returns ten for the provided value.
+        `fun_a` returns ten for the provided value.
 
         Verification Method: verify public function output
 
@@ -50,12 +54,15 @@ external_argument_value:
 
         assert(fun_a(EXPECTED_VALUE), 10)
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Numeric return values belong to fun_a's computation responsibility.
     53: # Test Values Are Local
       fail # The function input comes from `EXPECTED_VALUE` outside the test body.
 
 imported_fact_list:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `fact_update_policy` located at `src/examples/fact_update_policy.py`.
+    `fact_update_policy` is responsible for governing updates to externally owned facts.
 
     For example, this file contains one test function.
     """
@@ -67,7 +74,7 @@ imported_fact_list:
         """Test Path: failure path
 
         Requirement Tested:
-        Reject direct updates for facts whose source of truth is another database.
+        `fact_update_policy` rejects direct updates for facts whose source of truth is another database.
 
         Verification Method: verify public function output
 
@@ -80,12 +87,15 @@ imported_fact_list:
 
             self.assertIn("artifact_db_update", error)
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Direct-update rejection belongs to fact-update policy.
     53: # Test Values Are Local
       fail # Loop inputs come from the imported `ARTIFACT_BACKED_FACTS` list.
 
 external_requirement_helper:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `requirement_linter` located at `src/examples/requirement_linter.py`.
+    `requirement_linter` is responsible for validating requirement wording.
 
     For example, this file contains one test function.
     """
@@ -94,7 +104,7 @@ external_requirement_helper:
         """Test Path: failure path
 
         Requirement Tested:
-        Linter rejects long requirements.
+        `requirement_linter` rejects long requirements.
 
         Verification Method: verify public function output
 
@@ -107,12 +117,15 @@ external_requirement_helper:
 
         assert result.exit_code == 1
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Rejecting long requirements belongs to the requirement linter.
     53: # Test Values Are Local
       fail # The reviewed requirement value comes from a helper outside the test body.
 
 reviewed_artifact_helpers_realize_local_values:
   file_docstring: |
-    """Verify single-test review status determination.
+    """Tests in this file validate `review_status_lint` located at `src/examples/review_status_lint.py`.
+    `review_status_lint` is responsible for validating completed review packets.
 
     Terms:
     - `status lint`: Status lint reports structural or proof problems in a review packet. For example, it rejects a missing scorecard row.
@@ -126,7 +139,7 @@ reviewed_artifact_helpers_realize_local_values:
         """Test Path: happy path
 
         Requirement Tested:
-        `status lint` accepts packets when `status` is `pass`.
+        `review_status_lint` accepts packets when `status` is `pass`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -153,5 +166,7 @@ reviewed_artifact_helpers_realize_local_values:
 
         self.assertEqual([], issues)
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Accepting passed review packets belongs to review-status lint.
     53: # Test Values Are Local
       pass # The test body defines the root, source, status, and expected issues; helpers perform reusable file and artifact setup.

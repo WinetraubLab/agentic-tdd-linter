@@ -6,7 +6,8 @@
 
 extra_assertion_proves_other_behavior:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
 
     For example, this file contains one test function.
     """
@@ -15,7 +16,7 @@ extra_assertion_proves_other_behavior:
         """Test Path: happy path
 
         Requirement Tested:
-        Adding positive numbers returns a positive result.
+        `calculator` returns a positive result after adding positive numbers.
 
         Verification Method: verify public function output
 
@@ -29,14 +30,17 @@ extra_assertion_proves_other_behavior:
         assert c > 0
         assert c == a + b
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive-number addition belongs to the calculator's arithmetic responsibility.
     14: # Requirement Is Atomic
       pass # The requirement states one positive-result behavior; the unrelated assertion is evaluated by criterion 51.
     51: # Assertions Prove the Stated Requirement
       fail # Exact addition is outside the stated positive-result requirement.
 
-tagged_input_assertions:
+exact_expected_value_is_evidence:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
 
     For example, this file contains one test function.
     """
@@ -45,7 +49,43 @@ tagged_input_assertions:
         """Test Path: happy path
 
         Requirement Tested:
-        Adding positive numbers returns a positive result.
+        `calculator` adds positive numbers.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result equals `3`.
+        """
+
+        first = 1
+        second = 2
+        expected_result = 3
+        result = add_positive_numbers(first, second)
+        assert result == expected_result
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Adding positive numbers belongs to the calculator's arithmetic responsibility.
+    21: # Expected Results Appear in Verification Detail
+      pass # The exact result exemplifies the addition contract and belongs in Verification Detail.
+    51: # Assertions Prove the Stated Requirement
+      pass # The exact observed sum proves the stated addition contract without creating another requirement.
+    53: # Test Values Are Local
+      pass # The test body defines both inputs and the expected result.
+
+tagged_input_assertions:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` returns a positive result after adding positive numbers.
 
         Verification Method: verify public function output
 
@@ -60,12 +100,15 @@ tagged_input_assertions:
         assert b > 0  # Input check
         assert c > 0
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive-number addition belongs to the calculator's arithmetic responsibility.
     52: # Input Checks Are Tagged
       pass # Both input-validation assertions use the exact `# Input check` comment.
 
 untagged_input_assertions:
   file_docstring: |
-    """Provide shared context.
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
 
     For example, this file contains one test function.
     """
@@ -74,7 +117,7 @@ untagged_input_assertions:
         """Test Path: happy path
 
         Requirement Tested:
-        Adding positive numbers returns a positive result.
+        `calculator` returns a positive result after adding positive numbers.
 
         Verification Method: verify public function output
 
@@ -89,12 +132,15 @@ untagged_input_assertions:
         assert b > 0
         assert c > 0
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive-number addition belongs to the calculator's arithmetic responsibility.
     52: # Input Checks Are Tagged
       fail # The input-validation assertions omit the exact `# Input check` comment.
 
 per_source_test_pairing_is_unstated:
   file_docstring: |
-    """Verify source-module API and test-file structure.
+    """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
+    `repository_validation` is responsible for validating repository module coverage.
 
     Terms:
     - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, src/agentic_tdd_linter/cli/main.py is a source module.
@@ -105,7 +151,7 @@ per_source_test_pairing_is_unstated:
         """Test Path: happy path
 
         Requirement Tested:
-        A `source module` requires a `test module`.
+        `repository_validation` requires at least one `test module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -129,9 +175,11 @@ per_source_test_pairing_is_unstated:
             ),
         )
   expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Source-to-test module coverage belongs to repository validation.
     12: # Second Sentence Describes a Scenario
       pass # The standard-usage sentence uses the exact baseline-behavior classification.
     13: # Requirement Is Specific
-      fail # The requirement does not say that every source module needs its own corresponding test module.
+      fail # Requiring at least one test module omits the per-source correspondence enforced across the repository.
     51: # Assertions Prove the Stated Requirement
-      fail # The assertion enforces one matching test path for every source module, while the requirement says only that a source module requires some test module.
+      fail # The assertion enforces one matching test path for every source module, which is stronger than requiring at least one test module.
