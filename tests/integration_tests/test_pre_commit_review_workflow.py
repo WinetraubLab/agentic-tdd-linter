@@ -299,13 +299,14 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
+        self.assertIn("Regenerate the selected packets once", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` regenerates `.agent.md` packets only for an edited test file and the cross-test review.
-        Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale review packets.
+        `pre-commit review workflow` regenerates `.agent.md` files only for an edited test file and the cross-test review.
+        Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale `.agent.md` files.
 
         Verification Method: verify private function output
 
