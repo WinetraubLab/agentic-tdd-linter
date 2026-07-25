@@ -28,6 +28,7 @@ from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import
 )
 
 from .agent_review_examples import (
+    _ScorecardMismatch,
     _record_review_start,
     _review_duration_seconds,
     _scorecard_mismatch_message,
@@ -126,14 +127,11 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
         )
     if fixture_errors:
         raise AssertionError("\n".join(fixture_errors))
-    regressions = _scorecard_regressions(
-        mismatches,
+    regressions, review_duration_seconds = _finish_yaml_evaluation(
+        mismatches=mismatches,
         tested_cases_by_criterion=tested_cases_by_criterion,
         baseline_path=SCORECARD_BASELINE_PATH,
-    )
-    review_duration_seconds = _review_duration_seconds(
-        REVIEW_START_PATH,
-        completed_at=time.time(),
+        start_path=REVIEW_START_PATH,
     )
     _write_scorecard_sidecar(
         sidecar_path=SCORECARD_BASELINE_PATH,
@@ -161,6 +159,26 @@ def _begin_yaml_validation(examples_path: Path) -> tuple[float, list[str]]:
     invocation_started_at = time.time()
     schema_errors = lint_agent_review_examples(examples_path=examples_path)
     return invocation_started_at, schema_errors
+
+
+def _finish_yaml_evaluation(
+    *,
+    mismatches: list[_ScorecardMismatch],
+    tested_cases_by_criterion: dict[int, int],
+    baseline_path: Path,
+    start_path: Path,
+) -> tuple[list[str], float | None]:
+    regressions = _scorecard_regressions(
+        mismatches,
+        tested_cases_by_criterion=tested_cases_by_criterion,
+        baseline_path=baseline_path,
+    )
+    completed_at = time.time()
+    review_duration_seconds = _review_duration_seconds(
+        start_path,
+        completed_at=completed_at,
+    )
+    return regressions, review_duration_seconds
 
 
 def _display_path(path: Path) -> str:

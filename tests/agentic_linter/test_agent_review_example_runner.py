@@ -5,6 +5,7 @@ Terms:
 - `runner JSON`: Runner JSON is the `agent_review_example_runner` output at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
 - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
 - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
+- `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
 """
 
 from __future__ import annotations
@@ -113,6 +114,66 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         self.assertEqual(1.0, started_at)
         self.assertEqual(["time", "validation"], events)
+
+    def test_timer_end_follows_scorecard_comparison(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `agent_review_example_runner` ensures `timer end` occurs after scorecard comparison completes.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        mock.patch replaces scorecard comparison, time.time, and duration calculation to record their call order.
+        `_finish_yaml_evaluation` produces duration `3.0`.
+        Duration calculation receives `timer end` value `4.0`.
+        Call order is `comparison`, then `time`, then `duration`.
+        """
+
+        events: list[str] = []
+        completed_values: list[float] = []
+
+        def compare_scorecards(*args: object, **kwargs: object) -> list[str]:
+            events.append("comparison")
+            return []
+
+        def record_time() -> float:
+            events.append("time")
+            return 4.0
+
+        def calculate_duration(
+            start_path: Path,
+            *,
+            completed_at: float,
+        ) -> float:
+            events.append("duration")
+            completed_values.append(completed_at)
+            return 3.0
+
+        with (
+            mock.patch.object(
+                runner_harness,
+                "_scorecard_regressions",
+                side_effect=compare_scorecards,
+            ),
+            mock.patch.object(runner_harness.time, "time", side_effect=record_time),
+            mock.patch.object(
+                runner_harness,
+                "_review_duration_seconds",
+                side_effect=calculate_duration,
+            ),
+        ):
+            _, duration = runner_harness._finish_yaml_evaluation(
+                mismatches=[],
+                tested_cases_by_criterion={},
+                baseline_path=Path("baseline.json"),
+                start_path=Path("review-started-at"),
+            )
+
+        self.assertEqual(3.0, duration)
+        self.assertEqual([4.0], completed_values)
+        self.assertEqual(["comparison", "time", "duration"], events)
 
     def test_runner_overwrites_json(self) -> None:
         """Test Path: failure path
