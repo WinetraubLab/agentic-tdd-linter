@@ -234,9 +234,12 @@ def _failed_scorecard_notes(rows: list[tuple[int, str, str, str]]) -> str:
 
 
 def _markdown_section(text: str, heading: str) -> str:
-    match = re.search(rf"^## {re.escape(heading)}\s*$", text, re.MULTILINE)
-    if match is None:
+    matches = list(
+        re.finditer(rf"^## {re.escape(heading)}\s*$", text, re.MULTILINE)
+    )
+    if not matches:
         return ""
+    match = matches[-1]
     section = text[match.end() :]
     next_heading = re.search(r"^##\s+", section, re.MULTILINE)
     if next_heading is not None:
