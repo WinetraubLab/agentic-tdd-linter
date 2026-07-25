@@ -27,8 +27,8 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `CI/CD linter` emits missing_required_agent_md when manifest proof records a linter version different from the installed linter version.
-        Specialized usage: The manifest records a modified linter version instead of the installed linter version, so `CI/CD linter` emits missing_required_agent_md.
+        `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version.
+        Specialized usage: The manifest contains a modified linter version instead of the installed linter version, so `CI/CD linter` emits missing_required_agent_md.
 
         Verification Method: verify private function output
 
@@ -94,7 +94,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` succeeds without creating an `.agent.md` directory when current manifest proof exists.
+        `CI/CD linter` accepts current manifest proof without creating an `.agent.md` directory.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -105,12 +105,12 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         3. Harness persists current passing proof in the manifest.
         4. Harness removes the existing '.agent.md' directory before invoking `CI/CD linter`.
         5. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        6. `CI/CD linter` returns code `0`.
+        6. `CI/CD linter` exit code equals `0`.
         7. Filesystem has no '.agent.md' directory after lint.
 
         Similar Coverage:
         - Higher Level Test: `test_review_documentation.py::test_github_actions_omits_packet_creation`
-          Justification: Deeper coverage — This test proves that CI lint omits '.agent.md' creation at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
+          Justification: Deeper coverage — The current test proves that CI lint creates no '.agent.md' directory at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
         """
 
         test_source = textwrap.dedent(
