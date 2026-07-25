@@ -1,8 +1,12 @@
-"""Verify test-path and verification-method classification.
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for validating test-path and verification-method classifications.
 
 Terms:
 - `happy path`: Happy path labels a test scenario where parser input succeeds. For example, a parser accepts a supported value on the happy path.
 - `failure path`: Failure path labels a test scenario where parser input is rejected. For example, a parser reports malformed syntax on the failure path.
+- `supported methods`: Supported methods are public function output, private function output, and visual inspection by user. For example, conventional linter accepts public function output.
+- `invalid_verification_method`: This rule identifies a Verification Method value outside supported methods. For example, verify database state produces invalid_verification_method.
+- `visual inspection contract`: A visual inspection contract requires `visual inspection by user`, an artifact path, inspection instructions, and an artifact-writing helper call. For example, a rendering test documents an image path and inspection steps and invokes `write_visual_inspection_artifact`.
 """
 
 from __future__ import annotations
@@ -231,7 +235,7 @@ class ClassificationTests(unittest.TestCase):
                 Verification Method: verify database state
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
