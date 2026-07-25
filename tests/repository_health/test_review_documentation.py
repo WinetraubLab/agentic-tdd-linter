@@ -46,7 +46,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        README parser produces `lint arguments` equal to `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
+        README review command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -92,8 +92,8 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         Verification Detail:
         The guide contains `agentic-tdd-linter lint`.
-        The guide declares that GitHub Actions verifies committed proof.
-        The guide declares that the `CI/CD validation workflow` invokes lint against committed tests and manifest proof.
+        The guide contains `GitHub Actions verifies committed agent-review proof`.
+        The guide contains `runs `agentic-tdd-linter lint` against the committed tests and manifest proof`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -112,17 +112,17 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires `CI/CD validation workflow` guidance to omit the agentic-tdd-linter create-agent-md command.
+        `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the agentic-tdd-linter create-agent-md command.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The guide omits `agentic-tdd-linter create-agent-md`.
+        The guide contains no `agentic-tdd-linter create-agent-md` command.
 
         Similar Coverage:
         - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_pass_omits_packets`
-          Justification: Deeper coverage — The lower test proves that CI lint omits '.agent.md' creation at runtime. This test proves that the GitHub Actions guide describes the same constraint.
+          Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' directory at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
