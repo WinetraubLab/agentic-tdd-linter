@@ -1,22 +1,24 @@
-"""Verify that the CLI loads every supported test-file format.
+"""Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+`create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
 
 Terms:
 - `.py`: This suffix identifies a Python test file. For example, `test_parser.py` contains Python tests discovered by the CLI.
 - `.test.ts`: This suffix identifies a TypeScript test file. For example, `parser.test.ts` contains TypeScript tests discovered by the CLI.
+- `packet set`: A packet set contains one single-test and one cross-test `.agent.md` file populated with a discovered test's documentation and source.
 """
 
 from __future__ import annotations
 
-import os
-import subprocess
-import sys
 import tempfile
 import textwrap
 import unittest
 from pathlib import Path
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from tests.integration_tests.test_harness.usage_scenarios import (
+    packet_paths as _packet_paths,
+    run_cli as _run_cli,
+    write_source as _write_source,
+)
 
 
 class LoadAllFormatsTests(unittest.TestCase):
@@ -209,6 +211,25 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertIn('test("returns stored text"', single_packet)
         self.assertIn("tests/parser.test.ts", cross_packet)
         self.assertIn('test("returns stored text"', cross_packet)
+
+             * Verification Method: verify public function output
+             *
+             * Verification Detail:
+             * Parser output equals `stored text`.
+             */
+            test("returns stored text", () => {
+              assert.equal(parse(), "stored text");
+            });
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "parser.test.ts", typescript_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("missing_file_docstring", creation.stdout)
 
 
 if __name__ == "__main__":
