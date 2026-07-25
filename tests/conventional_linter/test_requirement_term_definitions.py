@@ -1,4 +1,9 @@
-"""Conventional-linter tests verify requirement-term definition rules."""
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for validating backticked requirement-term definitions.
+
+Terms:
+- `undefined_requirement_term`: This rule reports a backticked requirement term missing from the file glossary. For example, using an undefined term produces this rule.
+"""
 
 from __future__ import annotations
 
@@ -24,13 +29,13 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts backticked terms when file glossaries define them.
+        `conventional_linter` accepts a backticked requirement term defined by the file glossary.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rules exclude `undefined_requirement_term`.
+        The `manifest proof` term passes glossary-definition validation.
         """
 
         rules = _lint_requirement_term_source(
@@ -49,7 +54,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when file glossaries omit backticked terms.
+        `conventional_linter` emits undefined_requirement_term when file glossaries omit backticked terms.
         Specialized usage: File glossary omits backticked term instead of defining it, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
@@ -70,7 +75,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter prohibits definitions when their separators invoke hyphens.
+        `conventional_linter` requires colon separators in file glossary definitions.
         Specialized usage: Definition has hyphen separator instead of colon separator, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
