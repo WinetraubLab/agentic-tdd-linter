@@ -238,7 +238,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` retains `manifest proof` during `orphaned record` cleanup.
-        Specialized usage: Orphaned record accompanies manifest proof instead of only current records.
+        Specialized usage: The manifest contains one current record and one orphaned record, so cleanup removes the orphaned record and retains the current record.
 
         Verification Method: verify public function output
 
