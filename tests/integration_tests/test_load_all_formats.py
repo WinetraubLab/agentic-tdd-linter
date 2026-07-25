@@ -289,7 +289,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `create-agent-md` requires test requirements to identify the declared module.
+        `create-agent-md` requires every test requirement to identify the module declared by its test file.
         Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits multiple_modules_in_test_file.
 
         Verification Method: verify private function output
