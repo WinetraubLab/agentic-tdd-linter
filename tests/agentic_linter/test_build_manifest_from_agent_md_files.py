@@ -44,8 +44,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes all `manifest proof` for a reviewed test file when the caller adds a new test function to that file.
-        Specialized usage: Caller adds a new test function to an already reviewed file, so agentic linter removes all proof for that file.
+        `build_manifest_from_agent_md_files` removes all `manifest proof` for a reviewed test file when a new test function appears in that file.
+        Specialized usage: A new test function appears in an already reviewed file, so agentic linter removes all proof for that file.
 
         Verification Method: verify private function output
 
@@ -303,7 +303,7 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` writes `manifest proof` only after the reviewer completes every scorecard row.
+        `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row.
         Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file remains absent.
 
         Verification Method: verify public function output
