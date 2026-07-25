@@ -536,7 +536,7 @@ class DocstringStructureTests(unittest.TestCase):
         - Lower Level Test: `test_classification.py::test_accepts_public_output`
           Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete Python test docstring.
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Shared foundation — The current test validates a complete Python test docstring. The higher test loads that documentation into complete Python packets.
+          Justification: Deeper coverage — The current test directly validates every required Python docstring field. The higher test loads that documentation into complete Python packets without isolating conventional docstring validation.
         """
 
         rules = _lint_docstring_source(
@@ -582,7 +582,7 @@ class DocstringStructureTests(unittest.TestCase):
         - Lower Level Test: `test_classification.py::test_accepts_public_output`
           Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete TypeScript test docstring.
         - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
-          Justification: Shared foundation — The current test validates a complete TypeScript test docstring. The higher test loads that documentation into complete TypeScript packets.
+          Justification: Deeper coverage — The current test directly validates every required TypeScript JSDoc field. The higher test loads that documentation into complete TypeScript packets without isolating conventional docstring validation.
         """
 
         rules = _lint_typescript_docstring_source(

@@ -35,7 +35,7 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Shared foundation — The current test preserves test identity through `.agent.md` path mapping. The higher test uses that mapping during complete Python packet loading.
+          Justification: Deeper coverage — The current test directly verifies round-trip recovery of the test path and function name. The higher test uses the mapping during complete Python packet loading without isolating its reverse mapping.
         """
 
         with tempfile.TemporaryDirectory() as directory:

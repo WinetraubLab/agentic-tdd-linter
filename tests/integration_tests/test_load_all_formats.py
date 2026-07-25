@@ -55,9 +55,9 @@ class LoadAllFormatsTests(unittest.TestCase):
         - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
           Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by Python packet generation. The current test loads those fields into complete Python packets.
         - Lower Level Test: `test_map_test_function_to_agent_md_file.py::test_round_trip_preserves_test_identity`
-          Justification: Shared foundation — The lower test preserves test identity through `.agent.md` path mapping. The current test uses that mapping during complete Python packet loading.
+          Justification: Deeper coverage — The lower test directly verifies round-trip recovery of the test path and function name. The current test uses the mapping during complete Python packet loading without isolating its reverse mapping.
         - Lower Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Shared foundation — The lower test validates a complete Python test docstring. The current test loads that documentation into complete Python packets.
+          Justification: Deeper coverage — The lower test directly validates every required Python docstring field. The current test loads that documentation into complete Python packets without isolating conventional docstring validation.
         """
 
         python_source = textwrap.dedent(
@@ -148,7 +148,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
           Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by TypeScript packet generation. The current test loads those fields into complete TypeScript packets.
         - Lower Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Shared foundation — The lower test validates a complete TypeScript test docstring. The current test loads that documentation into complete TypeScript packets.
+          Justification: Deeper coverage — The lower test directly validates every required TypeScript JSDoc field. The current test loads that documentation into complete TypeScript packets without isolating conventional docstring validation.
         """
 
         typescript_source = textwrap.dedent(
