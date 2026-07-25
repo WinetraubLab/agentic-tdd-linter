@@ -29,6 +29,10 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         Validation errors contain `fail needs an explanation comment`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates missing failure-explanation validation. The higher test runs the complete YAML fixture catalog.
         """
 
         invalid_source = textwrap.dedent(
@@ -82,6 +86,10 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         Validation errors contain "unsupported field `owner`".
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates unsupported-field validation. The higher test runs the complete YAML fixture catalog.
         """
 
         invalid_source = textwrap.dedent(
