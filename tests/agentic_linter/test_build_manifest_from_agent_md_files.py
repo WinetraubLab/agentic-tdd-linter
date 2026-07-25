@@ -120,6 +120,10 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Verification Detail:
         Issue list contains `stale_review_contract_attestation`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
+          Justification: Diagnostic completeness — The current test isolates the stale review-contract rule. The higher test exercises rejection of proof carrying outdated linter metadata through CI lint.
         """
 
         with tempfile.TemporaryDirectory() as directory:
