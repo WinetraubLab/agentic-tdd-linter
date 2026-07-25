@@ -247,7 +247,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves orphan cleanup preserves current proof. The higher test proves the complete CLI review lifecycle.
+          Justification: Deeper coverage — The current test proves orphan cleanup preserves current `manifest proof`. The higher test proves the complete CLI review lifecycle.
         """
 
         with tempfile.TemporaryDirectory() as directory:
