@@ -40,7 +40,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         6. Single-test packet contains `test_returns_stored_text`.
         7. Single-test packet contains `Tests in this file validate `parser` located at `src/parser.py`.`.
         8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
-        9. Single-test packet contains `` `parser` returns stored text.``.
+        9. Single-test packet contains `` `parser` provides stored text.``.
         10. Single-test packet contains `def test_returns_stored_text`.
         11. Cross-test packet contains `tests/test_parser.py`.
         12. Cross-test packet contains `def test_returns_stored_text`.
@@ -60,7 +60,7 @@ class LoadAllFormatsTests(unittest.TestCase):
                 """Test Path: happy path
 
                 Requirement Tested:
-                `parser` returns stored text.
+                `parser` provides stored text.
                 Standard usage: The parser receives stored text.
 
                 Verification Method: verify public function output
@@ -102,7 +102,7 @@ class LoadAllFormatsTests(unittest.TestCase):
             single_packet,
         )
         self.assertIn("`parser` is responsible for returning stored text.", single_packet)
-        self.assertIn("`parser` returns stored text.", single_packet)
+        self.assertIn("`parser` provides stored text.", single_packet)
         self.assertIn("def test_returns_stored_text", single_packet)
         self.assertIn("tests/test_parser.py", cross_packet)
         self.assertIn("def test_returns_stored_text", cross_packet)
@@ -125,7 +125,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         6. Single-test packet contains `returns stored text`.
         7. Single-test packet contains `Tests in this file validate `parser` located at `src/parser.ts`.`.
         8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
-        9. Single-test packet contains `` `parser` returns stored text.``.
+        9. Single-test packet contains `` `parser` provides stored text.``.
         10. Single-test packet contains `test("returns stored text"`.
         11. Cross-test packet contains `tests/parser.test.ts`.
         12. Cross-test packet contains `test("returns stored text"`.
@@ -149,7 +149,7 @@ class LoadAllFormatsTests(unittest.TestCase):
              * Test Path: happy path
              *
              * Requirement Tested:
-             * `parser` returns stored text.
+             * `parser` provides stored text.
              * Standard usage: The parser receives stored text.
              *
              * Verification Method: verify public function output
@@ -192,7 +192,7 @@ class LoadAllFormatsTests(unittest.TestCase):
             single_packet,
         )
         self.assertIn("`parser` is responsible for returning stored text.", single_packet)
-        self.assertIn("`parser` returns stored text.", single_packet)
+        self.assertIn("`parser` provides stored text.", single_packet)
         self.assertIn('test("returns stored text"', single_packet)
         self.assertIn("tests/parser.test.ts", cross_packet)
         self.assertIn('test("returns stored text"', cross_packet)
@@ -218,7 +218,7 @@ class LoadAllFormatsTests(unittest.TestCase):
                 """Test Path: happy path
 
                 Requirement Tested:
-                `parser` returns stored text.
+                `parser` provides stored text.
                 Standard usage: The scenario demonstrates baseline behavior.
 
                 Verification Method: verify public function output
@@ -263,7 +263,7 @@ class LoadAllFormatsTests(unittest.TestCase):
              * Test Path: happy path
              *
              * Requirement Tested:
-             * `parser` returns stored text.
+             * `parser` provides stored text.
              * Standard usage: The scenario demonstrates baseline behavior.
              *
              * Verification Method: verify public function output
@@ -289,13 +289,13 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `create-agent-md` requires test requirements to name the declared module.
-        Specialized usage: The file declares parser, but one test requirement does not name parser, so `create-agent-md` emits multiple_modules_in_test_file.
+        `create-agent-md` requires test requirements to identify the declared module.
+        Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits multiple_modules_in_test_file.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates one file declaring `parser` and containing a requirement that does not name parser.
+        1. Harness creates one file declaring `parser` and containing a requirement that does not identify parser.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `multiple_modules_in_test_file`.
         """
