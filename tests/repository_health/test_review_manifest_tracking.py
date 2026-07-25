@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 class ReviewManifestTrackingTests(unittest.TestCase):
-    def test_yaml_example_lint_review_record_is_tracked(self) -> None:
+    def test_yaml_review_record_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -24,7 +24,8 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_tracked_result` returns code `0` for `tests/agentic_linter/test_agent_review_example_runner.json`.
+        Git index contains `tests/agentic_linter/test_agent_review_example_runner.json`.
+        `_tracked_result` exit code equals `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -37,7 +38,7 @@ class ReviewManifestTrackingTests(unittest.TestCase):
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
 
-    def test_self_lint_review_record_is_tracked(self) -> None:
+    def test_self_lint_record_is_tracked(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
@@ -47,7 +48,8 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_tracked_result` returns code `0` for `tests/agentic_review_manifest.jsonl`.
+        Git index contains `tests/agentic_review_manifest.jsonl`.
+        `_tracked_result` exit code equals `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
