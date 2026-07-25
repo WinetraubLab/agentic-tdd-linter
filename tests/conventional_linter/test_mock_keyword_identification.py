@@ -1,8 +1,10 @@
-"""Conventional-linter tests verify mock keyword identification.
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for requiring mock details when test code uses mocking constructs.
 
 Terms:
 - `Mock`: Mock identifies the standard mocking utility used by a test. For example, a Mock can supply a controlled dependency result.
 - `patch`: Patch identifies temporary replacement of a dependency during a test. For example, patch can substitute a network client.
+- `mocking_detail_missing`: This rule identifies a mock without documentation of its role. For example, the rule is omitted when the test explains its Mock.
 """
 
 from __future__ import annotations
@@ -29,7 +31,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits an issue when `Mock` appears without mock details.
+        `conventional_linter` emits mocking_detail_missing when `Mock` appears without mock details.
         Specialized usage: Test documentation omits mock detail instead of providing it, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
@@ -66,7 +68,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits an issue when `patch` appears without mock details.
+        `conventional_linter` emits mocking_detail_missing when `patch` appears without mock details.
         Specialized usage: Test documentation omits mock detail instead of providing it, so conventional linter emits mocking_detail_missing.
 
         Verification Method: verify private function output
@@ -104,13 +106,13 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts tests when `Mock` descriptions are present.
+        `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When details describe `Mock`, _lint_requirement_source excludes `mocking_detail_missing`.
+        `_lint_requirement_source` output omits `mocking_detail_missing`.
         """
 
         rules = _lint_requirement_source(
