@@ -9,7 +9,6 @@ Terms:
 
 from __future__ import annotations
 
-import ast
 import contextlib
 import tempfile
 import unittest
@@ -43,6 +42,22 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Review runner produces no value.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
         The orchestration test provides its catalog path, reviewer model, and expected result.
+
+        Similar Coverage:
+        - Lower Level Test: `test_agent_review_yaml_fixture_contract.py::test_result_requires_explanation`
+          Justification: Diagnostic completeness — The lower test isolates missing failure-explanation validation. The current test runs the complete YAML fixture catalog.
+        - Lower Level Test: `test_agent_review_yaml_fixture_contract.py::test_rejects_unsupported_fields`
+          Justification: Diagnostic completeness — The lower test isolates unsupported-field validation. The current test runs the complete YAML fixture catalog.
+        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
+          Justification: Diagnostic completeness — The lower test isolates calibration guidance for mismatches. The current test runs the complete YAML scorecard comparison workflow.
+        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
+          Justification: Diagnostic completeness — The lower test isolates case-level mismatch evidence. The current test runs the complete YAML scorecard comparison workflow.
+        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
+          Justification: Diagnostic completeness — The lower test isolates per-criterion mismatch aggregation. The current test runs the complete YAML scorecard comparison workflow.
+        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
+          Justification: Diagnostic completeness — The lower test isolates aggregate pass-rate calculation. The current test runs the complete YAML scorecard comparison workflow.
+        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
+          Justification: Diagnostic completeness — The lower test isolates criterion-specific case listings. The current test runs the complete YAML scorecard comparison workflow.
         """
 
         examples_relative_path = Path(
