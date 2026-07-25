@@ -32,7 +32,7 @@ class AgentMdStatusTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
-          Justification: Deeper coverage — This test isolates pass-status derivation. The higher test combines passing and failing scorecards through the complete CLI workflow.
+          Justification: Deeper coverage — The current test isolates pass-status derivation. The higher test combines passing and failing scorecards through the complete CLI workflow.
         """
 
         artifact = """# Agentic Test Review
@@ -63,7 +63,7 @@ class AgentMdStatusTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
-          Justification: Deeper coverage — This test isolates fail-status precedence. Higher test verifies failed-review guidance through the complete CLI workflow.
+          Justification: Deeper coverage — The current test isolates fail-status precedence. Higher test verifies failed-review guidance through the complete CLI workflow.
         """
 
         artifact = """# Agentic Test Review
