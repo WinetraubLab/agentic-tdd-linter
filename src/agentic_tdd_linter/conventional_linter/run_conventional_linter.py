@@ -102,6 +102,10 @@ MOCKING_CALL_NAMES = {
 }
 
 TERM_DEFINITION_PATTERN = re.compile(r"^- `([^`\n]+)`: (\S.*)$")
+TEST_MODULE_DECLARATION_PATTERN = re.compile(
+    r"\ATests in this file validate `(?P<module>[^`\n]+)` "
+    r"located at `(?P<path>[^`\n]+)`\.\s*$"
+)
 
 
 @dataclass(frozen=True)
@@ -174,6 +178,9 @@ def run_conventional_linter(test_function: ExtractedTestRecord) -> list[LintIssu
         )
     elif test_function.file_docstring:
         defined_terms = _file_docstring_terms(test_function.file_docstring)
+        module_name = _test_module_name(test_function.file_docstring)
+        if module_name:
+            defined_terms.add(module_name)
         requirement_text = _field_block_value(
             test_function.docstring,
             "Requirement Tested",
@@ -446,6 +453,15 @@ def _file_docstring_terms(file_docstring: str) -> set[str]:
             break
         terms.add(match.group(1))
     return terms
+
+
+def _test_module_name(file_docstring: str) -> str:
+    first_line = next(
+        (line.strip() for line in file_docstring.splitlines() if line.strip()),
+        "",
+    )
+    match = TEST_MODULE_DECLARATION_PATTERN.fullmatch(first_line)
+    return match.group("module") if match is not None else ""
 
 
 def _test_calls_private_function(test_function: ExtractedTestRecord) -> bool:
