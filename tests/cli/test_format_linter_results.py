@@ -1,9 +1,11 @@
-"""Verify formatting of linter results.
+"""Tests in this file validate `format_linter_results` located at `src/agentic_tdd_linter/cli/format_linter_results.py`.
+`format_linter_results` is responsible for rendering conventional-linter findings as terminal text or JSON.
 
 Terms:
-- `formatted result`: A formatted result is a text or JSON representation of one lint finding. For example, it names the finding's rule and file path.
+- `formatted result`: A formatted result is output owned by a CLI formatter for one lint finding. For example, CLI formatter output names the finding's rule and file path.
 - `format_text`: This formatter renders lint findings as human-readable lines. For example, it includes a rule and message in terminal output.
 - `format_json`: This formatter renders lint findings as JSON. For example, it produces a JSON array containing the finding rule.
+- `PASS`: PASS is the JSON status for lint output with zero issues. For example, format_json emits PASS for an empty issue list.
 """
 
 from __future__ import annotations
@@ -21,14 +23,14 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI creates `formatted result` with rule/message pairs.
+        `format_linter_results` creates a `formatted result` containing each lint issue's rule and message.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `format_text` output contains `Rule: sample_rule`.
-        `format_text` output contains `sample message`.
+        `formatted result` contains `Rule: sample_rule`.
+        `formatted result` contains `sample message`.
         """
 
         issue = LintIssue(
@@ -48,13 +50,13 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI emits JSON status when lint has zero issues.
+        `format_linter_results` emits JSON status `PASS` when lint has zero issues.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `format_json` output contains `PASS`.
+        JSON `status` field contains exactly `PASS`.
         """
 
         output = format_json([], [Path("tests/test_sample.py")])
@@ -66,13 +68,13 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI emits file count matching checked paths.
+        `format_linter_results` emits `format_json` field files_checked equal to the checked-path count.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The summary contains one file.
+        JSON `files_checked` field contains exactly `1`.
         """
 
         output = format_json([], [Path("tests/test_sample.py")])
