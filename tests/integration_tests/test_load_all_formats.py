@@ -37,12 +37,17 @@ class LoadAllFormatsTests(unittest.TestCase):
         3. Command produces exit code `0`.
         4. Artifact directory contains one single-test packet.
         5. Artifact directory contains one cross-test packet.
-        6. Single-test packet contains the Python file declaration, test name, requirement, and function source.
-        7. Cross-test packet contains the Python test-file path and source.
+        6. Single-test packet contains `test_returns_stored_text`.
+        7. Single-test packet contains `Tests in this file validate `parser` located at `src/parser.py`.`.
+        8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
+        9. Single-test packet contains `` `parser` returns stored text.``.
+        10. Single-test packet contains `def test_returns_stored_text`.
+        11. Cross-test packet contains `tests/test_parser.py`.
+        12. Cross-test packet contains `def test_returns_stored_text`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves Python discovery, extraction, and complete packet content.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves Python discovery, extraction, and complete packet content.
         """
 
         python_source = textwrap.dedent(
@@ -117,12 +122,17 @@ class LoadAllFormatsTests(unittest.TestCase):
         3. Command produces exit code `0`.
         4. Artifact directory contains one single-test packet.
         5. Artifact directory contains one cross-test packet.
-        6. Single-test packet contains the TypeScript file declaration, test label, JSDoc requirement, and test-call source.
-        7. Cross-test packet contains the TypeScript test-file path and source.
+        6. Single-test packet contains `returns stored text`.
+        7. Single-test packet contains `Tests in this file validate `parser` located at `src/parser.ts`.`.
+        8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
+        9. Single-test packet contains `` `parser` returns stored text.``.
+        10. Single-test packet contains `test("returns stored text"`.
+        11. Cross-test packet contains `tests/parser.test.ts`.
+        12. Cross-test packet contains `test("returns stored text"`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves TypeScript discovery, extraction, and complete packet content.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves TypeScript discovery, extraction, and complete packet content.
         """
 
         typescript_source = textwrap.dedent(
@@ -280,12 +290,12 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Requirement Tested:
         `create-agent-md` requires test requirements to name the declared module.
-        Specialized usage: The file declares `parser`, but one test requirement does not name `parser`.
+        Specialized usage: The file declares parser, but one test requirement does not name parser, so `create-agent-md` emits multiple_modules_in_test_file.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates one file declaring `parser` and containing a requirement that omits `parser`.
+        1. Harness creates one file declaring `parser` and containing a requirement that does not name parser.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `multiple_modules_in_test_file`.
         """
@@ -349,7 +359,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates one file declaring `parser` and containing parser and formatter tests.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Command output instructs the caller to create one test file per declared module.
+        3. Command output contains `split this test file so each file validates one module`.
         """
 
         test_source = textwrap.dedent(
@@ -407,7 +417,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Requirement Tested:
         `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist.
-        Specialized usage: The declaration identifies `src/parser.py`, but that file does not exist, so `create-agent-md` emits missing_test_module.
+        Specialized usage: The declaration identifies src/parser.py, but that file does not exist, so `create-agent-md` emits missing_test_module.
 
         Verification Method: verify private function output
 
