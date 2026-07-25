@@ -27,13 +27,13 @@ class TestFileDiscoveryTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `discover_test_files` omits tests when their files reside inside the `temporary_fixtures` directory.
+        `discover_test_files` excludes each `discovered file` inside the `temporary_fixtures` directory.
         Specialized usage: Discovery receives a test under `temporary_fixtures` instead of directly under the selected test root.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `discover_test_files` output omits `tests/temporary_fixtures/test_generated.py`.
+        `discover_test_files` produces `[]` for `tests/temporary_fixtures/test_generated.py`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
