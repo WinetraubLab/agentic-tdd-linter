@@ -44,7 +44,13 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current proof. The current test proves the complete `pre-commit review workflow`.
+          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current `manifest proof`. The current test proves the complete `pre-commit review workflow`.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Justification: Deeper coverage — The lower test proves pending scorecards leave manifest proof absent. The current test proves completed scorecards create proof through the full workflow.
+        - Lower Level Test: `test_main.py::test_lint_requires_reviewer`
+          Justification: Deeper coverage — The lower test proves completed reviews require reviewer identity. The current test proves reviewer-authenticated lint records completed reviews through the full workflow.
+        - Higher Level Test: `test_review_documentation.py::test_readme_shows_review_workflow`
+          Justification: Deeper coverage — The current test executes the review lifecycle. The higher test verifies that README documents the same ordered lifecycle.
         """
 
         test_source = textwrap.dedent(
