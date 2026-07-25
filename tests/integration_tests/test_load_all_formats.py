@@ -275,6 +275,52 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         self.assertIn("missing_file_docstring", creation.stdout)
 
+    def test_rejects_missing_module(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist.
+        Specialized usage: The declaration identifies `src/parser.py`, but that file does not exist, so `create-agent-md` emits missing_test_module.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates a test file declaring `src/parser.py` without creating that module.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `missing_test_module`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `parser` located at `src/parser.py`.
+            `parser` is responsible for returning stored text.
+            """
+
+            def test_returns_stored_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `parser` returns stored text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Parser output equals `stored text`.
+                """
+
+                assert parse() == "stored text"
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_parser.py", test_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("missing_test_module", creation.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
