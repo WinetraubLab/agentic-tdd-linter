@@ -47,6 +47,10 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         Verification Detail:
         README review command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
+
+        Similar Coverage:
+        - Lower Level Test: `test_main.py::test_lint_requires_reviewer`
+          Justification: Deeper coverage — The lower test proves runtime enforcement when reviewer identity is absent. The current test verifies that README supplies reviewer identity in the lint command.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -68,6 +72,10 @@ class ReviewDocumentationTests(unittest.TestCase):
         1. `create-agent-md` creates the scorecards.
         2. Reviewers complete every scorecard.
         3. `lint --reviewer` persists the completed reviews in the manifest.
+
+        Similar Coverage:
+        - Lower Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Justification: Deeper coverage — The lower test executes the review lifecycle. The current test verifies that README documents the same ordered lifecycle.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -94,6 +102,10 @@ class ReviewDocumentationTests(unittest.TestCase):
         The guide contains `agentic-tdd-linter lint`.
         The guide contains `GitHub Actions verifies committed agent-review proof`.
         The guide contains `committed tests and manifest proof`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Justification: Deeper coverage — The lower test executes CI lint against current proof. The current test verifies that GitHub Actions guidance documents that validation.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
