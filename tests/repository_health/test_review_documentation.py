@@ -97,7 +97,9 @@ class ReviewDocumentationTests(unittest.TestCase):
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        guide = (repo_root / "docs" / "workflows" / "github-actions.md").read_text(
+        guide = (
+            repo_root / "docs" / "workflows" / "github-actions.md"
+        ).read_text(
             encoding="utf-8"
         )
 
@@ -123,7 +125,9 @@ class ReviewDocumentationTests(unittest.TestCase):
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        guide = (repo_root / "docs" / "workflows" / "github-actions.md").read_text(
+        guide = (
+            repo_root / "docs" / "workflows" / "github-actions.md"
+        ).read_text(
             encoding="utf-8"
         )
 
