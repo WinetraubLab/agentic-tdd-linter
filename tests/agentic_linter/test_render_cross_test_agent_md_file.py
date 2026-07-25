@@ -63,6 +63,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         Cross-test file contains `Review context is limited to this packet and the listed test files.`
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_includes_review_isolation_instructions`
+          Justification: Comparable coverage — The lower test constrains single-test review context. The current test applies the same isolation policy to cross-test review context.
         """
 
         with tempfile.TemporaryDirectory() as directory:
