@@ -113,7 +113,7 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` invalidates `manifest proof` when its `review contract` differs from the current `review contract`.
+        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`.
         Specialized usage: Manifest proof contains a mismatched `review contract` instead of the current `review contract`, so agentic linter emits stale_review_contract_attestation.
 
         Verification Method: verify private function output
@@ -183,7 +183,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` removes all file-wide `manifest proof`, including `manifest proof` for the surviving function, after test-function deletion.
-        Specialized usage: Caller erases one reviewed function instead of retaining both functions, so agentic linter removes proof for both functions.
+        Specialized usage: Caller erases one reviewed function instead of retaining both functions, so agentic linter removes `manifest proof` for both functions.
 
         Verification Method: verify private function output
 
