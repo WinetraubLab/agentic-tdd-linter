@@ -71,14 +71,24 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter marks every review criterion as pending in a newly generated single-test `.agent.md`.
+        `render_agent_md_file` creates `single-test packet` with exactly 25 pending scorecard rows.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The returned path identifies an existing `.agent.md` file.
-        The file contains `24` pending scorecard rows.
+        Filesystem contains `render_agent_md_file` output path.
+        File contains 25 pending rows.
+
+        Similar Coverage:
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Justification: Deeper coverage — This test proves that one renderer output has exactly 25 pending rows. Higher test proves fresh regeneration of both '.agent.md' file types.
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Justification: Deeper coverage — This test proves that one renderer output has exactly 25 pending rows. Higher test proves selective pending regeneration after source edits.
+        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
+          Justification: Deeper coverage — This test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_python_tests` verifies Python extraction and complete file content.
+        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
+          Justification: Deeper coverage — This test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_typescript_tests` verifies TypeScript extraction and complete file content.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -99,7 +109,7 @@ class AgenticMarkdownTests(unittest.TestCase):
             artifact_text = artifact_path.read_text(encoding="utf-8")
 
         self.assertTrue(artifact_exists)
-        self.assertEqual(24, artifact_text.count("| pending |"))
+        self.assertEqual(25, artifact_text.count("| pending |"))
 
 if __name__ == "__main__":
     unittest.main()
