@@ -116,7 +116,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` requires `relationship fields` to name both tests in each higher-level/lower-level pair.
+        `render_cross_test_agent_md_file` requires `relationship fields` to identify both tests in each higher-level/lower-level pair.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -146,7 +146,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` shows how `relationship fields` record a higher-level test, lower-level test, and coverage-difference justification.
+        `render_cross_test_agent_md_file` shows how `relationship fields` represent a higher-level test, lower-level test, and coverage-difference justification.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
