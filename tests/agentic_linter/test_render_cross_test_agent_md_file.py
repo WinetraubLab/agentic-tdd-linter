@@ -116,13 +116,13 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` requires both tests in a higher-level/lower-level pair to name each other under Similar Coverage.
+        `render_cross_test_agent_md_file` requires `relationship fields` to name both tests in each higher-level/lower-level pair.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file instructs both tests in a passing pair to reference each other.
+        Cross-test file contains `A passing pair provides reciprocal references and justifications in both tests.`
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -146,7 +146,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` shows how to record a higher-level test, a lower-level test, and their coverage difference under Similar Coverage.
+        `render_cross_test_agent_md_file` shows how `relationship fields` record a higher-level test, lower-level test, and coverage-difference justification.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
