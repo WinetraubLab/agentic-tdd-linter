@@ -39,6 +39,10 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         Both tests contain docstrings.
         Both tests contain assertions.
         Rules contain zero issues.
+
+        Similar Coverage:
+        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
+          Justification: Deeper coverage — The current test isolates conventional validation for multiple Python tests in one file. The higher test loads Python tests through complete packet generation.
         """
 
         rules = _lint_multi_python_source(
@@ -90,6 +94,10 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         Both tests contain `JSDoc` comments.
         Both tests contain assertions.
         Rules contain zero issues.
+
+        Similar Coverage:
+        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
+          Justification: Deeper coverage — The current test isolates conventional validation for multiple TypeScript tests in one file. The higher test loads TypeScript tests through complete packet generation.
         """
 
         rules = _lint_multi_typescript_source(
