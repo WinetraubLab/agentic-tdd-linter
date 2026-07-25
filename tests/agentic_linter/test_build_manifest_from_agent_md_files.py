@@ -153,6 +153,10 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Verification Detail:
         Manifest contains no records.
+
+        Similar Coverage:
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_removes_obsolete_packet`
+          Justification: Comparable coverage — The current test removes manifest proof for a deleted test file. The higher test removes an obsolete `.agent.md` file through the CLI refresh workflow.
         """
 
         with tempfile.TemporaryDirectory() as directory:
