@@ -55,7 +55,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary.
-        Specialized usage: The requirement uses a backticked term with no glossary definition, so conventional linter emits undefined_requirement_term.
+        Specialized usage: The requirement contains a backticked term with no glossary definition, so conventional linter emits undefined_requirement_term.
 
         Verification Method: verify private function output
 
