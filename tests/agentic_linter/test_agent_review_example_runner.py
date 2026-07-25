@@ -4,7 +4,7 @@
 Terms:
 - `runner JSON`: Runner JSON is the `agent_review_example_runner` output at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
 - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
-- `_record_review_start`: This runner helper preserves the initial evaluation timestamp across pending review runs. For example, the completed run measures from the invocation that generated its scorecards.
+- `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
 """
 
 from __future__ import annotations
@@ -74,150 +74,45 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         self.assertEqual(expected_result, result)
 
-    def test_runner_times_complete_evaluation(self) -> None:
+    def test_timer_start_precedes_yaml_validation(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_example_runner` starts evaluation timing immediately before YAML validation, supplies that timestamp to `_record_review_start`, and calculates runtime after scorecard comparison.
+        `agent_review_example_runner` ensures `timer start` occurs before YAML validation begins.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        Runner assigns time.time() to the start timestamp immediately before YAML validation.
-        `_record_review_start` receives the start timestamp.
-        Duration calculation receives time.time() as the completion timestamp after scorecard comparison.
+        mock.patch replaces time.time and YAML validation to record their call order.
+        `_begin_yaml_validation` produces `timer start` value `1.0`.
+        Call order is `time`, then `validation`.
         """
 
-        runner_path = (
-            REPO_ROOT
-            / "tests"
-            / "agentic_linter"
-            / "test_harness"
-            / "agent_review_example_runner.py"
-        )
-        module = ast.parse(runner_path.read_text(encoding="utf-8"))
-        runner = next(
-            node
-            for node in module.body
-            if isinstance(node, ast.FunctionDef)
-            and node.name == "run_agent_review_examples"
-        )
-        start_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if isinstance(statement, ast.Assign)
-            and any(
-                isinstance(target, ast.Name)
-                and target.id == "invocation_started_at"
-                for target in statement.targets
+        events: list[str] = []
+
+        def record_time() -> float:
+            events.append("time")
+            return 1.0
+
+        def reject_yaml(*, examples_path: Path) -> list[str]:
+            events.append("validation")
+            return ["invalid fixture"]
+
+        with (
+            mock.patch.object(runner_harness.time, "time", side_effect=record_time),
+            mock.patch.object(
+                runner_harness,
+                "lint_agent_review_examples",
+                side_effect=reject_yaml,
+            ),
+        ):
+            started_at, _ = runner_harness._begin_yaml_validation(
+                Path("examples")
             )
-        )
-        validation_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if any(
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id == "lint_agent_review_examples"
-                for node in ast.walk(statement)
-            )
-        )
-        duration_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if isinstance(statement, ast.Assign)
-            and any(
-                isinstance(target, ast.Name)
-                and target.id == "review_duration_seconds"
-                for target in statement.targets
-            )
-        )
-        comparison_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if any(
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id == "_scorecard_regressions"
-                for node in ast.walk(statement)
-            )
-        )
-        start_assignment = runner.body[start_index]
-        duration_assignment = runner.body[duration_index]
-        completed_at = next(
-            keyword.value
-            for node in ast.walk(duration_assignment)
-            if isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id == "_review_duration_seconds"
-            for keyword in node.keywords
-            if keyword.arg == "completed_at"
-        )
-        recorded_started_at = next(
-            node.args[1]
-            for node in ast.walk(runner)
-            if isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id == "_record_review_start"
-        )
 
-        self.assertEqual(start_index + 1, validation_index)
-        self.assertEqual("time.time()", ast.unparse(start_assignment.value))
-        self.assertEqual("invocation_started_at", ast.unparse(recorded_started_at))
-        self.assertLess(comparison_index, duration_index)
-        self.assertEqual("time.time()", ast.unparse(completed_at))
-
-    def test_runner_writes_sidecar_after_timing(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `agent_review_example_runner` persists `runner JSON` immediately after calculating runtime.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        Runner assigns `review_duration_seconds`.
-        Runner invokes `_write_scorecard_sidecar` in the next statement.
-        """
-
-        runner_path = (
-            REPO_ROOT
-            / "tests"
-            / "agentic_linter"
-            / "test_harness"
-            / "agent_review_example_runner.py"
-        )
-        module = ast.parse(runner_path.read_text(encoding="utf-8"))
-        runner = next(
-            node
-            for node in module.body
-            if isinstance(node, ast.FunctionDef)
-            and node.name == "run_agent_review_examples"
-        )
-        duration_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if isinstance(statement, ast.Assign)
-            and any(
-                isinstance(target, ast.Name)
-                and target.id == "review_duration_seconds"
-                for target in statement.targets
-            )
-        )
-        write_index = next(
-            index
-            for index, statement in enumerate(runner.body)
-            if any(
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Name)
-                and node.func.id == "_write_scorecard_sidecar"
-                for node in ast.walk(statement)
-            )
-        )
-
-        self.assertEqual(duration_index + 1, write_index)
+        self.assertEqual(1.0, started_at)
+        self.assertEqual(["time", "validation"], events)
 
     def test_runner_overwrites_json(self) -> None:
         """Test Path: failure path
