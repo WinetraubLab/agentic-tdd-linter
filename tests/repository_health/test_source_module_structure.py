@@ -27,6 +27,10 @@ class SourceModuleStructureTests(unittest.TestCase):
 
         Verification Detail:
         Every `test module` has a permitted counterpart.
+
+        Similar Coverage:
+        - Lower Level Test: `test_load_all_formats.py::test_rejects_missing_module`
+          Justification: Deeper coverage — The lower test isolates CLI rejection of one missing declared module path. The current test enforces counterpart coverage across repository test modules.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
