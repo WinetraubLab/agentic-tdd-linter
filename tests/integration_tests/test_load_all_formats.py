@@ -26,29 +26,36 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI creates populated single-test and cross-test '.agent.md' files for a discovered Python test file.
-        Standard usage: The repository contains one documented `.py` test file.
+        `create-agent-md` creates a `packet set` from a discovered `.py` test file.
+        Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing `tests/test_parser.py`.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
-        3. Read every generated '.agent.md' file.
-        4. Verify that the command succeeds and creates one single-test packet plus one cross-test packet.
-        5. Verify that the single-test packet contains the Python test name, requirement, and function source.
-        6. Verify that the cross-test packet contains the Python test-file path and source.
+        1. Harness creates `src/parser.py` and `tests/test_parser.py`.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
+        3. Command produces exit code `0`.
+        4. Artifact directory contains one single-test packet.
+        5. Artifact directory contains one cross-test packet.
+        6. Single-test packet contains the Python file declaration, test name, requirement, and function source.
+        7. Cross-test packet contains the Python test-file path and source.
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves Python discovery, extraction, and complete packet content.
         """
 
         python_source = textwrap.dedent(
             '''\
-            """Verify Python parser behavior."""
+            """Tests in this file validate `parser` located at `src/parser.py`.
+            `parser` is responsible for returning stored text.
+            """
 
             def test_returns_stored_text() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                Parser returns stored text.
+                `parser` returns stored text.
                 Standard usage: The parser receives stored text.
 
                 Verification Method: verify public function output
@@ -64,37 +71,11 @@ class LoadAllFormatsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
             test_file = repo_root / "tests" / "test_parser.py"
-            test_file.parent.mkdir(parents=True)
-            test_file.write_text(python_source, encoding="utf-8")
-            environment = os.environ.copy()
-            existing_pythonpath = environment.get("PYTHONPATH", "")
-            source_root = str(PROJECT_ROOT / "src")
-            environment["PYTHONPATH"] = (
-                source_root
-                if not existing_pythonpath
-                else source_root + os.pathsep + existing_pythonpath
-            )
+            _write_source(repo_root / "src" / "parser.py", "def parse(): return 'stored text'\n")
+            _write_source(test_file, python_source)
 
-            creation = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "agentic_tdd_linter.cli.main",
-                    "create-agent-md",
-                    "--repo-root",
-                    str(repo_root),
-                ],
-                cwd=PROJECT_ROOT,
-                env=environment,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            packets = sorted(
-                (repo_root / "tests" / "agentic_review_artifacts").glob(
-                    "*.agent.md"
-                )
-            )
+            creation = _run_cli(repo_root, "create-agent-md")
+            packets = _packet_paths(repo_root)
             cross_packet_path = next(
                 path
                 for path in packets
@@ -111,7 +92,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertEqual(0, creation.returncode, creation.stdout + creation.stderr)
         self.assertEqual(2, len(packets), packets)
         self.assertIn("test_returns_stored_text", single_packet)
-        self.assertIn("Parser returns stored text.", single_packet)
+        self.assertIn(
+            "Tests in this file validate `parser` located at `src/parser.py`.",
+            single_packet,
+        )
+        self.assertIn("`parser` is responsible for returning stored text.", single_packet)
+        self.assertIn("`parser` returns stored text.", single_packet)
         self.assertIn("def test_returns_stored_text", single_packet)
         self.assertIn("tests/test_parser.py", cross_packet)
         self.assertIn("def test_returns_stored_text", cross_packet)
@@ -120,22 +106,32 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        CLI creates populated single-test and cross-test '.agent.md' files for a discovered TypeScript test file.
-        Standard usage: The repository contains one documented `.test.ts` file.
+        `create-agent-md` creates a `packet set` from a discovered `.test.ts` test file.
+        Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Create a temporary repository containing `tests/parser.test.ts`.
-        2. Run `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
-        3. Read every generated '.agent.md' file.
-        4. Verify that the command succeeds and creates one single-test packet plus one cross-test packet.
-        5. Verify that the single-test packet contains the TypeScript test label, JSDoc requirement, and test-call source.
-        6. Verify that the cross-test packet contains the TypeScript test-file path and source.
+        1. Harness creates `src/parser.ts` and `tests/parser.test.ts`.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
+        3. Command produces exit code `0`.
+        4. Artifact directory contains one single-test packet.
+        5. Artifact directory contains one cross-test packet.
+        6. Single-test packet contains the TypeScript file declaration, test label, JSDoc requirement, and test-call source.
+        7. Cross-test packet contains the TypeScript test-file path and source.
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. This test proves TypeScript discovery, extraction, and complete packet content.
         """
 
         typescript_source = textwrap.dedent(
             '''\
+            /**
+             * Tests in this file validate `parser` located at `src/parser.ts`.
+             * `parser` is responsible for returning stored text.
+             */
+
             import test from "node:test";
             import assert from "node:assert/strict";
 
@@ -143,7 +139,7 @@ class LoadAllFormatsTests(unittest.TestCase):
              * Test Path: happy path
              *
              * Requirement Tested:
-             * Parser returns stored text.
+             * `parser` returns stored text.
              * Standard usage: The parser receives stored text.
              *
              * Verification Method: verify public function output
@@ -160,16 +156,8 @@ class LoadAllFormatsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
             test_file = repo_root / "tests" / "parser.test.ts"
-            test_file.parent.mkdir(parents=True)
-            test_file.write_text(typescript_source, encoding="utf-8")
-            environment = os.environ.copy()
-            existing_pythonpath = environment.get("PYTHONPATH", "")
-            source_root = str(PROJECT_ROOT / "src")
-            environment["PYTHONPATH"] = (
-                source_root
-                if not existing_pythonpath
-                else source_root + os.pathsep + existing_pythonpath
-            )
+            _write_source(repo_root / "src" / "parser.ts", "export const parse = () => 'stored text';\n")
+            _write_source(test_file, typescript_source)
 
             creation = subprocess.run(
                 [
