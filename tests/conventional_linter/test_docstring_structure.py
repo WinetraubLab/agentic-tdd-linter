@@ -104,7 +104,7 @@ class DocstringStructureTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
-          Justification: Diagnostic completeness — This test proves the exact missing-requirement rule. The higher test proves that a conventionally invalid test prevents packet creation.
+          Justification: Diagnostic completeness — The current test proves the exact missing-requirement rule. The higher test proves that a conventionally invalid test prevents packet creation.
         """
 
         rules = _lint_docstring_source(
