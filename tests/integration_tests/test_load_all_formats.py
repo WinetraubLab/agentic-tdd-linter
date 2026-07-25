@@ -187,6 +187,75 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertIn("tests/parser.test.ts", cross_packet)
         self.assertIn('test("returns stored text"', cross_packet)
 
+    def test_rejects_python_without_file_docstring(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation.
+        Specialized usage: The `.py` file contains a documented test but omits its file docstring, so `create-agent-md` emits missing_file_docstring.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates a `.py` file containing one fully documented test and no file docstring.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `missing_file_docstring`.
+        """
+
+        python_source = textwrap.dedent(
+            '''\
+            def test_returns_stored_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `parser` returns stored text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Parser output equals `stored text`.
+                """
+
+                assert parse() == "stored text"
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "tests" / "test_parser.py", python_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("missing_file_docstring", creation.stdout)
+
+    def test_rejects_typescript_without_file_docstring(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation.
+        Specialized usage: The `.test.ts` file contains documented test JSDoc but omits file-level JSDoc, so `create-agent-md` emits missing_file_docstring.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates a `.test.ts` file containing one fully documented test and no file-level JSDoc.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `missing_file_docstring`.
+        """
+
+        typescript_source = textwrap.dedent(
+            '''\
+            import test from "node:test";
+            import assert from "node:assert/strict";
+
+            /**
+             * Test Path: happy path
+             *
+             * Requirement Tested:
+             * `parser` returns stored text.
+             * Standard usage: The scenario demonstrates baseline behavior.
+             *
              * Verification Method: verify public function output
              *
              * Verification Detail:
