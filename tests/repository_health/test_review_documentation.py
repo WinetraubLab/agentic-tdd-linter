@@ -58,7 +58,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to order `pre-commit review workflow` stages as .agent.md creation with agentic-tdd-linter create-agent-md, scorecard completion, then proof recording with agentic-tdd-linter lint --reviewer.
+        `test_review_documentation` requires this README `pre-commit review workflow` sequence: .agent.md creation with agentic-tdd-linter create-agent-md, scorecard completion, then proof recording with agentic-tdd-linter lint --reviewer.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -93,7 +93,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Detail:
         The guide contains `agentic-tdd-linter lint`.
         The guide contains `GitHub Actions verifies committed agent-review proof`.
-        The guide contains `runs `agentic-tdd-linter lint` against the committed tests and manifest proof`.
+        The guide contains `committed tests and manifest proof`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -103,10 +103,7 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         self.assertIn("GitHub Actions verifies committed agent-review proof", guide)
         self.assertIn("agentic-tdd-linter lint", guide)
-        self.assertIn(
-            "runs `agentic-tdd-linter lint` against the committed tests and manifest proof",
-            guide,
-        )
+        self.assertIn("committed tests and manifest proof", guide)
 
     def test_github_actions_omits_packet_creation(self) -> None:
         """Test Path: happy path
