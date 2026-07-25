@@ -99,7 +99,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` recognizes public function output as a supported Verification Method.
+        `conventional_linter` includes public function output in `supported methods`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -133,7 +133,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` recognizes private function output as a supported Verification Method.
+        `conventional_linter` includes private function output in `supported methods`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
