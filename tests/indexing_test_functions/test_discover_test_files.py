@@ -1,9 +1,10 @@
-"""Indexing tests verify test-file discovery.
+"""Tests in this file validate `discover_test_files` located at `src/agentic_tdd_linter/indexing_test_functions/discover_test_files.py`.
+`discover_test_files` is responsible for finding supported test files under a selected path.
 
 Terms:
 - `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
 - `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
-- `temporary_fixtures`: This directory contains generated tests that repository discovery ignores. For example, `tests/temporary_fixtures/test_generated.py` is outside the maintained test set.
+- `temporary_fixtures`: This directory contains tests that the test harness generates. For example, repository discovery ignores `tests/temporary_fixtures/test_generated.py`.
 """
 
 from __future__ import annotations
@@ -26,13 +27,13 @@ class TestFileDiscoveryTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `discover_test_files` excludes tests inside the `temporary_fixtures` directory.
-        Specialized usage: Discovery receives a test under `temporary_fixtures` instead of a maintained test location.
+        `discover_test_files` omits tests when their files reside inside the `temporary_fixtures` directory.
+        Specialized usage: Discovery receives a test under `temporary_fixtures` instead of directly under the selected test root.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `discover_test_files` output excludes `tests/temporary_fixtures/test_generated.py`.
+        `discover_test_files` output omits `tests/temporary_fixtures/test_generated.py`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
