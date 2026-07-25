@@ -1,4 +1,5 @@
-"""Conventional-linter tests verify deterministic test-file glossary limits.
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
+`conventional_linter` is responsible for enforcing the test-file glossary limit.
 
 Terms:
 - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
@@ -22,12 +23,13 @@ class FileDocstringTermCountTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits too_many_file_docstring_terms above `glossary limit`.
+        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
         Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
 
         Verification Method: verify public function output
 
         Verification Detail:
+        File docstring defines six terms: alpha, beta, gamma, delta, epsilon, and zeta.
         Issue list contains `too_many_file_docstring_terms`.
         """
 
