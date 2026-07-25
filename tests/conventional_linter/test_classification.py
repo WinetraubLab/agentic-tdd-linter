@@ -99,14 +99,14 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts public function output when tests observe public function output.
+        `conventional_linter` recognizes public function output as a supported Verification Method.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Public functions produce public-function output.
-        Rules contain zero issues.
+        The synthetic test declares `Verification Method: verify public function output`.
+        Rules equal an empty set.
         """
 
         rules = _lint_classification_source(
@@ -133,14 +133,14 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts private function output when tests observe private function output.
+        `conventional_linter` recognizes private function output as a supported Verification Method.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Private helpers produce private-helper output.
-        Rules contain zero issues.
+        The synthetic test declares `Verification Method: verify private function output`.
+        Rules equal an empty set.
         """
 
         rules = _lint_classification_source(
