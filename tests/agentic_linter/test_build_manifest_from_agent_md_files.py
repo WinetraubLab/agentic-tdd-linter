@@ -84,8 +84,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` recomputes the `review contract` digest from README.md and docs/workflow.md after caller modifies either file.
-        Specialized usage: Caller modifies README.md or docs/workflow.md instead of preserving both files.
+        `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md.
+        Specialized usage: Caller modifies README.md or docs/workflow.md instead of preserving both files, so `build_manifest_from_agent_md_files` produces a new digest.
 
         Verification Method: verify private function output
 
