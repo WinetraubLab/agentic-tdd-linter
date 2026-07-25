@@ -148,6 +148,29 @@ Before committing, run `agentic-tdd-linter create-agent-md`, review any generate
 
 Full proof flow: [GitHub Actions Review Proof](docs/workflows/github-actions.md).
 
+## Two Review Workflows
+
+This project separates review creation from automated validation:
+
+### Pre-commit review workflow
+
+Contributors run this workflow before committing test changes:
+
+1. Run `agentic-tdd-linter create-agent-md` to create `.agent.md` scorecards.
+2. Complete every generated scorecard.
+3. Run `lint --reviewer <identity>` to record completed reviews in `tests/agentic_review_manifest.jsonl`.
+4. Commit the updated tests and manifest.
+
+This workflow creates `.agent.md` files and updates manifest proof.
+
+### CI/CD validation workflow
+
+CI/CD runs `agentic-tdd-linter lint` after the changes are committed. It validates
+the committed tests and `tests/agentic_review_manifest.jsonl`. CI/CD does not create
+`.agent.md` files, perform reviews, or record new manifest proof. Missing, stale,
+failed, or version-incompatible proof causes CI/CD to fail and directs the contributor
+back to the pre-commit review workflow.
+
 ## Test Docstring Contract
 
 ```text
@@ -155,7 +178,8 @@ Test naming:
 Use at most five descriptive words. The Python `test_` prefix is not counted.
 
 File docstring:
-"""Define vocabulary shared by this file's tests.
+"""Tests in this file validate `parser` located at `src/parser.py`.
+`parser` is responsible for converting text into structured values.
 
 Terms:
 - `manifest proof`: A stored agent-review result for one test source hash.
@@ -180,6 +204,11 @@ Inspection Instructions:
 ```
 
 Instructions:
+- Begin every test-file docstring with the exact module declaration and responsibility sentences shown above.
+- Use a repository-relative path that identifies an existing module.
+- Begin every first `Requirement Tested` sentence with the exact backticked module name declared by the file.
+- Split tests into separate files when their requirements validate different modules.
+- Put the corresponding file-level JSDoc before imports in a TypeScript `.test.ts` file.
 - Use `happy path` when valid or supported inputs produce the expected successful result.
 - Use `failure path` when invalid, unsafe, missing, or unsupported inputs are rejected with the expected error or guard behavior.
 - Use `verify public function output` when the test calls a public function and asserts its returned output.
