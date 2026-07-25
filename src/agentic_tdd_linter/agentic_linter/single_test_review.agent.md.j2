@@ -15,7 +15,7 @@ Review the shared vocabulary under `## File Docstring` and the structured test d
 Update every row in `## Review Scorecard` according to the criteria under `## Review Criteria`.
 Set each result to `pass` or `fail`, and provide concrete notes for every failure.
 
-Evaluate each criterion in a fresh subagent. Pass only this Markdown file as the review packet.
+Evaluate each criterion in a fresh subagent. Provide only this Markdown file as the review packet.
 Do not inspect repository files, manifests, outer unit tests, prior conversation, or expected assertions.
 If context is missing from this file, fail with notes asking the test to include it.
 
@@ -56,6 +56,13 @@ Fail wording that combines behaviors with independent purposes that should be sp
 The first `Requirement Tested` sentence shall begin with the behavior owner as its grammatical subject.
 It shall begin with neither a scenario condition such as `When`, `If`, or `Unless`, nor a query, helper, or command used only to obtain evidence.
 
+#### 16. Requirement Fits Declared Module Responsibility
+Use the single module and its responsibility stated at the start of `File Docstring` as review context.
+The first `Requirement Tested` sentence shall begin with that exact backticked module name as its grammatical subject, and the behavior assigned to it shall fall within the declared responsibility.
+Fail when the sentence omits the declared module, names another owner, or assigns behavior outside that responsibility.
+When another module owns the behavior, tell the author to move the test into or split it into a test file for that module.
+Do not judge whether the declaration is true of repository source; repository files are outside this review.
+
 ### 2x. Verification Formulation
 
 #### 21. Expected Results Appear in Verification Detail
@@ -87,6 +94,7 @@ Evaluate only `Requirement Tested`, its `Standard usage:` or `Specialized usage:
 Do not apply this criterion to `File Docstring`, test code, `Similar Coverage`, or other packet sections.
 Prefer sentence subjects and objects of no more than two words.
 Count each backticked term defined in `File Docstring` as one word, regardless of spaces inside it.
+Do not count grammatical articles `a`, `an`, or `the` toward the two-word limit.
 A longer phrase passes only when every word beyond the limit states a constraint independently established by the test evidence.
 A modifier is not necessary merely because removing it broadens the noun's ordinary meaning.
 Fail when the evidence does not distinguish the longer phrase from a concise alternative.
@@ -124,7 +132,8 @@ Allow these words when they modify a named noun or are not the subject, such as 
 
 #### 42. Domain Terms Are Defined
 Backticks in `Requirement Tested` declare shared local or domain-specific terms.
-Every declared term shall exactly match a `Terms:` entry in `File Docstring`.
+The module name in the opening `File Docstring` declaration is defined by that declaration.
+Every other declared term shall exactly match a `Terms:` entry in `File Docstring`.
 Backticks elsewhere identify code or literal values, not shared glossary terms.
 Do not infer glossary terms from plain, unbackticked wording.
 For example, "The parser applies `normalization`." requires a `normalization` glossary entry.
