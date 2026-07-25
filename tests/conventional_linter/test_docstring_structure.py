@@ -529,6 +529,14 @@ class DocstringStructureTests(unittest.TestCase):
         The test contains `Verification Method`.
         The test contains `Verification Detail`.
         Rules contain zero issues.
+
+        Similar Coverage:
+        - Lower Level Test: `test_classification.py::test_accepts_happy_path`
+          Justification: Deeper coverage — The lower test isolates acceptance of the `happy path` classification. The current test validates that classification inside a complete Python test docstring.
+        - Lower Level Test: `test_classification.py::test_accepts_public_output`
+          Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete Python test docstring.
+        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
+          Justification: Shared foundation — The current test validates a complete Python test docstring. The higher test loads that documentation into complete Python packets.
         """
 
         rules = _lint_docstring_source(
@@ -567,6 +575,14 @@ class DocstringStructureTests(unittest.TestCase):
         The test contains `Verification Method`.
         The test contains `Verification Detail`.
         Rules contain zero issues.
+
+        Similar Coverage:
+        - Lower Level Test: `test_classification.py::test_accepts_happy_path`
+          Justification: Deeper coverage — The lower test isolates acceptance of the `happy path` classification. The current test validates that classification inside a complete TypeScript test docstring.
+        - Lower Level Test: `test_classification.py::test_accepts_public_output`
+          Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete TypeScript test docstring.
+        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
+          Justification: Shared foundation — The current test validates a complete TypeScript test docstring. The higher test loads that documentation into complete TypeScript packets.
         """
 
         rules = _lint_typescript_docstring_source(
