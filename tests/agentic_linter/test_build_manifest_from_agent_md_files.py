@@ -181,6 +181,10 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Verification Detail:
         Manifest contains zero records, including `manifest proof` for the surviving function.
+
+        Similar Coverage:
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Justification: Deeper coverage — The current test proves file-wide `manifest proof` invalidation after function deletion. The higher test proves selective packet regeneration after an approved test is edited.
         """
 
         with tempfile.TemporaryDirectory() as directory:
