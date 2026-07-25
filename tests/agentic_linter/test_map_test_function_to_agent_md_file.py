@@ -1,7 +1,8 @@
-"""Tests for mapping test functions to agent Markdown files.
+"""Tests in this file validate `map_test_function_to_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/map_test_function_to_agent_md_file.py`.
+`map_test_function_to_agent_md_file` is responsible for mapping test identities to `.agent.md` paths and recovering test identities from those paths.
 
 Terms:
-- `path mapper`: The path mapper converts between a test identity and its agent-packet path. For example, reversing a mapped path restores the original test name.
+- `path mapper`: The path mapper converts between a test identity and its agent-packet path. For example, reversing a mapped path returns the original test name.
 - `test identity`: Test identity combines a repository-relative path and function name. For example, tests/test_math.py and test_adds_numbers identify one test.
 """
 
@@ -23,14 +24,14 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Agentic linter retains `test identity`.
+        `map_test_function_to_agent_md_file` round trip recovers both repository-relative path and function name of `test identity`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Restored identity contains path `tests/test_math.py`.
-        Restored identity contains name `test_adds_numbers`.
+        `path mapper` restores `test identity` with path `tests/test_math.py`.
+        `path mapper` restores `test identity` with name `test_adds_numbers`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
