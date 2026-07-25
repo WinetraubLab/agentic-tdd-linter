@@ -15,7 +15,7 @@ Set each result to exactly one of `pass` or `fail`.
 For every failure, provide concrete notes naming the relevant tests.
 
 Evaluate each criterion in a fresh subagent.
-Use only this packet and the listed test files as review context.
+Review context is limited to this packet and the listed test files.
 The packet embeds every listed test file below, including each test definition, docstring, and `Similar Coverage` section.
 Treat manifests, other repository files, prior conversation, and unlisted tests as outside the review scope.
 
@@ -56,7 +56,7 @@ Similar Coverage:
   Justification: <classification> — <specific coverage difference>
 ```
 
-A passing pair includes reciprocal references and justifications in both tests.
+A passing pair provides reciprocal references and justifications in both tests.
 When the scope contains zero cross-level pairs, set the result to `pass` as not applicable.
 
 #### 23. Cross-Level Differences Are Justified
