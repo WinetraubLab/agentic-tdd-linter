@@ -48,6 +48,10 @@ class CliTests(unittest.TestCase):
 
         Verification Detail:
         `CLI output` contains the text `generated 1 agent review packets`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
+          Justification: Deeper coverage — The current test proves packet-count reporting for a nondefault test root. The higher test proves complete Python packet loading.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -180,6 +184,12 @@ class ReviewProofFlowTests(unittest.TestCase):
         Harness creates a completed `.agent.md` file.
         Harness invokes lint without `--reviewer`.
         `CLI output` contains `missing_reviewer`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Justification: Deeper coverage — The current test proves lint rejects completed reviews without reviewer identity. The higher test proves reviewer-authenticated lint records completed reviews through the full workflow.
+        - Higher Level Test: `test_review_documentation.py::test_readme_includes_reviewer`
+          Justification: Deeper coverage — The current test proves runtime enforcement when reviewer identity is absent. The higher test verifies that README supplies reviewer identity in the lint command.
         """
 
         with tempfile.TemporaryDirectory() as directory:
