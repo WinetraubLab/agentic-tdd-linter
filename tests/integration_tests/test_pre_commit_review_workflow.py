@@ -320,6 +320,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves which packets regenerate after a source edit and which packet remains unchanged.
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_invalidates_manifest_proof`
           Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. The current test proves selective regeneration after an existing function is edited.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Justification: Deeper coverage — The lower test proves file-wide `manifest proof` invalidation after function deletion. The current test proves selective packet regeneration after an approved test is edited.
         """
 
         first_source = textwrap.dedent(
@@ -540,6 +542,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
         4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
         5. Rebuilt packet paths exclude `test_deleted__test_deleted.agent.md`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Justification: Comparable coverage — The lower test removes manifest proof for a deleted test file. The current test removes an obsolete `.agent.md` file through the CLI refresh workflow.
         """
 
         test_source = textwrap.dedent(
