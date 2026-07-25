@@ -1,7 +1,9 @@
-"""Verify rendering of cross-test review packets.
+"""Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
+`render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
 
 Terms:
 - `renderer`: The renderer creates a cross-test review packet from selected paths. For example, it writes one packet for two test files.
+- `cross-test packet`: A cross-test packet contains review context for relationships among tests. For example, it lists test files and Similar Coverage instructions.
 - `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
 """
 
@@ -22,15 +24,14 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `renderer` deduplicates cross-test paths.
-        Specialized usage: Packet input repeats one path instead of containing only unique paths.
+        `render_cross_test_agent_md_file` retains every unique selected path exactly once.
+        Specialized usage: Selected paths contain one duplicate path instead of only unique paths.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Packet contains paths:
-        `tests/test_alpha.py`
-        `tests/test_beta.py`
+        Packet contains path `tests/test_alpha.py`.
+        Packet contains path `tests/test_beta.py`.
         Packet contains each path once.
         """
 
@@ -55,14 +56,13 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Cross-test `.agent.md` includes an instruction to use only the `.agent.md` packet and its listed test files as review context.
+        `render_cross_test_agent_md_file` constrains `cross-test packet` context to the packet and listed files.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The cross-test `.agent.md` file contains this instruction:
-        `Use only this packet and the listed test files as review context.`
+        Cross-test file contains `Review context is limited to this packet and the listed test files.`
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -78,22 +78,21 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "Use only this packet and the listed test files as review context.",
+            "Review context is limited to this packet and the listed test files.",
             artifact_text,
         )
 
-    def test_instructions_require_both_tests_to_explain_overlap(self) -> None:
+    def test_requires_overlap_explanations(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        Cross-test `.agent.md` instructions require both tests in a cross-level pair to reference each other and explain their coverage difference.
+        `render_cross_test_agent_md_file` requires `relationship fields` to provide a coverage classification and a specific coverage-difference explanation.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The cross-test `.agent.md` file contains this instruction:
-        `A passing pair includes reciprocal references and justifications`
+        Cross-test file contains `Justification: <classification> — <specific coverage difference>`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -109,7 +108,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "A passing pair includes reciprocal references and justifications",
+            "Justification: <classification> — <specific coverage difference>",
+            artifact_text,
+        )
+
             artifact_text,
         )
 
