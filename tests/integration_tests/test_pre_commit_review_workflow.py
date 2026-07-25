@@ -162,6 +162,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates a temporary repository containing a test whose docstring lacks Requirement Tested.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `missing_requirement`.
         Packet list contains zero paths.
 
         Similar Coverage:
@@ -196,6 +197,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             creation = _run_cli(repo_root, "create-agent-md")
             packets = _packet_paths(repo_root)
 
+        self.assertIn("missing_requirement", creation.stdout)
         self.assertEqual([], packets)
 
     def test_agentic_linter_errors_scenario(self) -> None:
@@ -537,8 +539,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
         4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Filesystem omits the extra '.agent.md' file after fresh creation.
-        Filesystem omits `test_deleted__test_deleted.agent.md` after fresh creation.
+        5. Rebuilt packet paths exclude `test_deleted__test_deleted.agent.md`.
         """
 
         test_source = textwrap.dedent(
@@ -580,7 +581,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _run_cli(repo_root, "create-agent-md", "--fresh")
             rebuilt_files = _packet_paths(repo_root)
 
-        self.assertFalse(extra_agent_md.exists())
+        self.assertNotIn(extra_agent_md, rebuilt_files)
 
 if __name__ == "__main__":
     unittest.main()
