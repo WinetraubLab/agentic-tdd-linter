@@ -32,6 +32,12 @@ class ExtractedTestRecordTests(unittest.TestCase):
         Record exposes docstring `Sample documentation.`.
         Record exposes source `def test_sample(): pass`.
         Record exposes file-docstring `None`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
+          Justification: Shared foundation — The current test preserves language-neutral indexed fields reused by Python packet generation. The higher test loads those fields into complete Python packets.
+        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
+          Justification: Shared foundation — The current test preserves language-neutral indexed fields reused by TypeScript packet generation. The higher test loads those fields into complete TypeScript packets.
         """
 
         expected_fields = (
