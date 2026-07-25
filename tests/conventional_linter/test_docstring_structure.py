@@ -1,10 +1,11 @@
-"""Verify structured test-docstring rules.
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
 
 Terms:
 - `Test Path`: Test Path is the structured field naming a test's scenario category. For example, Test Path can contain happy path.
 - `Requirement Tested`: Requirement Tested is the structured field stating behavior and scenario. For example, it says that a parser accepts valid text.
 - `Verification Method`: Verification Method is the structured field naming the observation approach. For example, it can say verify public function output.
-- `Verification Detail`: Verification Detail is the structured field stating exact evidence. For example, it says that the result equals three.
+- `Verification Detail`: Verification Detail is the structured field stating exact evidence. For example, it says that `_add_values` output equals three.
 - `Inspection Instructions`: Inspection Instructions is the structured field that authorizes source inspection when linter issues cannot describe visual evidence. For example, it can name a specific module to inspect.
 """
 
@@ -36,13 +37,13 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter identifies tests without documentation.
-        Specialized usage: The extracted record contains empty documentation instead of structured test documentation.
+        `conventional_linter` emits missing_docstring when a test lacks a test docstring.
+        Specialized usage: The extracted record contains an empty test docstring instead of a populated docstring, so conventional linter emits missing_docstring.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `run_conventional_linter` output contains `missing_docstring`.
+        `conventional_linter` output contains `missing_docstring`.
         """
 
         test = ExtractedTestRecord(
@@ -61,8 +62,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when docstrings omit `Test Path`.
-        Specialized usage: For path metadata, `Test Path` is absent instead of present.
+        `conventional_linter` emits missing_test_path when docstrings omit `Test Path`.
+        Specialized usage: Docstring omits `Test Path` instead of providing it, so conventional linter emits missing_test_path.
 
         Verification Method: verify private function output
 
@@ -80,7 +81,7 @@ class DocstringStructureTests(unittest.TestCase):
                 Verification Method: verify public function output
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -93,8 +94,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when `Requirement Tested` contains nothing.
-        Specialized usage: For requirement validation, `Requirement Tested` is empty instead of populated.
+        `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing.
+        Specialized usage: Docstring contains empty `Requirement Tested` instead of populated content, so conventional linter emits missing_requirement.
 
         Verification Method: verify private function output
 
@@ -102,8 +103,8 @@ class DocstringStructureTests(unittest.TestCase):
         When `Requirement Tested` contains nothing, _lint_docstring_source contains `missing_requirement`.
 
         Similar Coverage:
-        - Higher Level Test: `test_main.py::test_invalid_fixture_exits_one`
-          Justification: Diagnostic completeness — This test proves `missing_requirement`. CLI output aggregates the rule.
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Justification: Diagnostic completeness — This test proves the exact missing-requirement rule. The higher test proves that a conventionally invalid test prevents packet creation.
         """
 
         rules = _lint_docstring_source(
@@ -116,7 +117,7 @@ class DocstringStructureTests(unittest.TestCase):
                 Verification Method: verify public function output
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -129,8 +130,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when docstrings omit `Verification Method`.
-        Specialized usage: For verification metadata, `Verification Method` is absent instead of present.
+        `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`.
+        Specialized usage: Docstring omits `Verification Method` instead of providing it, so conventional linter emits missing_verification_method.
 
         Verification Method: verify private function output
 
@@ -147,7 +148,7 @@ class DocstringStructureTests(unittest.TestCase):
                 addition returns the expected sum for two positive integers.
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -160,8 +161,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when `Verification Detail` contains nothing.
-        Specialized usage: For evidence validation, `Verification Detail` is empty instead of populated.
+        `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing.
+        Specialized usage: Docstring contains empty `Verification Detail` instead of populated content, so conventional linter emits missing_verification_detail.
 
         Verification Method: verify private function output
 
@@ -192,8 +193,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when `Verification Detail` omits image paths.
-        Specialized usage: For visual evidence, image path is absent instead of present.
+        `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` omits image paths.
+        Specialized usage: `Verification Detail` omits image path instead of providing it, so conventional linter emits missing_visual_inspection_artifact.
 
         Verification Method: verify private function output
 
@@ -232,8 +233,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when visual tests omit `Inspection Instructions`.
-        Specialized usage: For visual evidence, `Inspection Instructions` is absent instead of present.
+        `conventional_linter` emits missing_inspection_instructions when visual tests omit `Inspection Instructions`.
+        Specialized usage: Docstring omits `Inspection Instructions` instead of providing them, so conventional linter emits missing_inspection_instructions.
 
         Verification Method: verify private function output
 
@@ -269,8 +270,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits diagnostics when visual tests omit helper calls.
-        Specialized usage: For visual evidence, helper call is absent instead of present.
+        `conventional_linter` requires visual tests to invoke write_visual_inspection_artifact.
+        Specialized usage: Test source lacks a write_visual_inspection_artifact call instead of containing one, so conventional linter emits missing_visual_inspection_helper.
 
         Verification Method: verify private function output
 
@@ -309,13 +310,13 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter prohibits Python names when they exceed five words.
-        Specialized usage: For Python naming, test name exceeds five words instead of staying within five.
+        `conventional_linter` prohibits Python names when they exceed five words.
+        Specialized usage: For Python naming, test name exceeds five words instead of staying within five, so conventional linter emits test_name_too_long.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The limit is five words.
+        Conventional linter enforces a five-word limit.
         When names contain seven words, _lint_docstring_source contains `test_name_too_long`.
         """
 
@@ -330,7 +331,7 @@ class DocstringStructureTests(unittest.TestCase):
                 Verification Method: verify public function output
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -343,13 +344,13 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter prohibits TypeScript labels when they exceed five words.
-        Specialized usage: For TypeScript naming, test label exceeds five words instead of staying within five.
+        `conventional_linter` prohibits TypeScript labels when they exceed five words.
+        Specialized usage: For TypeScript naming, test label exceeds five words instead of staying within five, so conventional linter emits test_name_too_long.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The limit is five words.
+        Conventional linter enforces a five-word limit.
         When labels contain six words, _lint_typescript_docstring_source contains `test_name_too_long`.
         """
 
@@ -365,7 +366,7 @@ class DocstringStructureTests(unittest.TestCase):
              * Verification Method: verify public function output
              *
              * Verification Detail:
-             * The returned total equals two.
+             * Addition output equals two.
              */
             test("adds two positive integer values correctly", () => {
               assert.equal(1 + 1, 2);
@@ -379,8 +380,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when docstrings locate `Requirement Tested` inline.
-        Specialized usage: For section layout, `Requirement Tested` is inline instead of on the following line.
+        `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline.
+        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so conventional linter emits invalid_requirement_format.
 
         Verification Method: verify private function output
 
@@ -398,7 +399,7 @@ class DocstringStructureTests(unittest.TestCase):
                 Verification Method: verify public function output
 
                 Verification Detail:
-                by asserting the returned numeric total.
+                Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -411,8 +412,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter prohibits the format when docstrings locate `Verification Detail` inline.
-        Specialized usage: For section layout, `Verification Detail` is inline instead of on the following line.
+        `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline.
+        Specialized usage: Docstring locates `Verification Detail` inline instead of on a separate line, so conventional linter emits invalid_verification_detail_format.
 
         Verification Method: verify private function output
 
@@ -430,7 +431,7 @@ class DocstringStructureTests(unittest.TestCase):
 
                 Verification Method: verify public function output
 
-                Verification Detail: by asserting the returned numeric total.
+                Verification Detail: Addition output equals expected numeric total.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -443,8 +444,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when docstrings locate `Inspection Instructions` inline.
-        Specialized usage: For section layout, `Inspection Instructions` is inline instead of on the following line.
+        `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline.
+        Specialized usage: Docstring locates `Inspection Instructions` inline instead of on a separate line, so conventional linter emits invalid_inspection_instructions_format.
 
         Verification Method: verify private function output
 
@@ -482,8 +483,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter emits issues when TypeScript fields are adjacent.
-        Specialized usage: For TypeScript layout, metadata fields are adjacent instead of separated by blank lines.
+        `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent.
+        Specialized usage: TypeScript doc comment locates metadata fields adjacent instead of separating them with blank lines, so conventional linter emits invalid_field_spacing.
 
         Verification Method: verify private function output
 
@@ -516,7 +517,7 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts docstrings when their schema is complete.
+        `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -541,7 +542,7 @@ class DocstringStructureTests(unittest.TestCase):
                 Verification Method: verify public function output
 
                 Verification Detail:
-                Returned total equals expected sum.
+                Addition output equals expected sum.
                 \"\"\"
 
                 assert 1 + 1 == 2
@@ -554,7 +555,7 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts comments when their schema is complete.
+        `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
