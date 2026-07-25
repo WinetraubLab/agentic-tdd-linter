@@ -310,6 +310,12 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Verification Detail:
         Filesystem contains no manifest file.
+
+        Similar Coverage:
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Justification: Deeper coverage — The current test proves pending scorecards leave manifest proof absent. The higher test proves completed scorecards create proof through the full workflow.
+        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Justification: Deeper coverage — The lower test isolates pending-status derivation. The current test applies pending status to manifest-recording policy.
         """
 
         with tempfile.TemporaryDirectory() as directory:
