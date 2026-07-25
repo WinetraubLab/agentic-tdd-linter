@@ -112,6 +112,33 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text,
         )
 
+    def test_requires_reciprocal_references(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` requires both tests in a higher-level/lower-level pair to name each other under Similar Coverage.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Cross-test file instructs both tests in a passing pair to reference each other.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "A passing pair provides reciprocal references",
             artifact_text,
         )
 
