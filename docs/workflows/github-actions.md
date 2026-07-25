@@ -1,6 +1,11 @@
 # GitHub Actions Review Proof
 
-GitHub Actions verifies committed agent-review proof. It does not perform reviews or create `.agent.md` files. The local review workflow is documented in the README.
+This repository has two separate workflows:
+
+- The **pre-commit review workflow** creates `.agent.md` scorecards, completes their reviews, and records proof in the manifest before changes are committed.
+- The **CI/CD validation workflow** runs `agentic-tdd-linter lint` against the committed tests and manifest proof.
+
+GitHub Actions verifies committed agent-review proof. It performs only the CI/CD validation workflow. It does not perform reviews, create `.agent.md` files, or record new manifest proof. The pre-commit review workflow is documented in the README.
 
 The committed proof is the compact JSONL manifest at `tests/agentic_review_manifest.jsonl`.
 
@@ -42,4 +47,4 @@ The workflow verifies the committed manifest against the committed repository st
 4. Each `linter_version` must exactly match the linter version installed by the workflow.
 5. Each `review_contract_sha256` must match the current linter source and documentation.
 
-When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the developer to complete the local review workflow. It never creates `.agent.md` files in CI.
+When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the developer to complete the pre-commit review workflow. It never creates `.agent.md` files in CI.
