@@ -29,7 +29,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts `happy path` when parser input succeeds.
+        `conventional_linter` accepts `happy path` when parser input succeeds.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -62,7 +62,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts `failure path`.
+        `conventional_linter` accepts `failure path`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -95,13 +95,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts public verification when tests observe public-function output.
+        `conventional_linter` accepts public function output when tests observe public function output.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Public functions produce the output.
+        Public functions produce public-function output.
         Rules contain zero issues.
         """
 
@@ -129,13 +129,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts private verification when tests observe private-helper output.
+        `conventional_linter` accepts private function output when tests observe private function output.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Private helpers produce the output.
+        Private helpers produce private-helper output.
         Rules contain zero issues.
         """
 
@@ -167,13 +167,17 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter accepts visual inspection when tests emit review artifacts.
+        `conventional_linter` accepts a `visual inspection contract`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When methods name inspection, rules contain zero issues.
+        `conventional_linter` output contains zero issues.
+        The test docstring declares `visual inspection by user`.
+        The test docstring contains `tests/artifacts/addition.png`.
+        The test docstring contains inspection instructions.
+        The test source invokes `write_visual_inspection_artifact`.
         """
 
         rules = _lint_classification_source(
@@ -207,8 +211,8 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        Conventional linter reports an invalid-verification-method issue unless Verification Method is public function output, private function output, or visual inspection by user.
-        Specialized usage: The test declares "verify database state", which is not a supported Verification Method value.
+        `conventional_linter` accepts only `supported methods` as Verification Method values.
+        Specialized usage: The test declares "verify database state" instead of a supported method, so conventional linter emits `invalid_verification_method`.
 
         Verification Method: verify private function output
 
