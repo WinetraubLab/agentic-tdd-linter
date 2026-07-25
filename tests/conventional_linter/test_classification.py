@@ -40,6 +40,12 @@ class ClassificationTests(unittest.TestCase):
 
         Verification Detail:
         When paths correspond to `happy path`, rules contain zero issues.
+
+        Similar Coverage:
+        - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
+          Justification: Deeper coverage — The current test isolates acceptance of the `happy path` classification. The higher test validates that classification inside a complete Python test docstring.
+        - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Justification: Deeper coverage — The current test isolates acceptance of the `happy path` classification. The higher test validates that classification inside a complete TypeScript test docstring.
         """
 
         rules = _lint_classification_source(
@@ -107,6 +113,12 @@ class ClassificationTests(unittest.TestCase):
         Verification Detail:
         The synthetic test declares `Verification Method: verify public function output`.
         Rules equal an empty set.
+
+        Similar Coverage:
+        - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
+          Justification: Deeper coverage — The current test isolates acceptance of public function output. The higher test validates that method inside a complete Python test docstring.
+        - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Justification: Deeper coverage — The current test isolates acceptance of public function output. The higher test validates that method inside a complete TypeScript test docstring.
         """
 
         rules = _lint_classification_source(
