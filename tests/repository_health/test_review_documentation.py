@@ -120,8 +120,8 @@ class ReviewDocumentationTests(unittest.TestCase):
         The guide contains no `agentic-tdd-linter create-agent-md` command.
 
         Similar Coverage:
-        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_pass_omits_packets`
-          Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' directory at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
+        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' files at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
