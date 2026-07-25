@@ -1,4 +1,5 @@
-"""Conventional-linter tests verify multiple tests in one file.
+"""Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+`conventional_linter` is responsible for validating every extracted test independently when a file contains multiple tests.
 
 Terms:
 - `JSDoc`: JSDoc is the documentation comment attached to a TypeScript test. For example, a block beginning slash-star-star can contain Requirement Tested.
@@ -29,7 +30,7 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter allows multiple tests in one Python file.
+        `conventional_linter` allows multiple tests in one Python file.
         Specialized usage: For Python aggregation, one file contains multiple tests instead of one test.
 
         Verification Method: verify private function output
@@ -80,7 +81,7 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Conventional linter allows multiple tests in one TypeScript file.
+        `conventional_linter` allows multiple tests in one TypeScript file.
         Specialized usage: For TypeScript aggregation, one file contains multiple tests instead of one test.
 
         Verification Method: verify private function output
