@@ -146,16 +146,15 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        Cross-test `.agent.md` instructions show how `Similar Coverage` records the related test's level, identity, classification, and coverage difference.
+        `render_cross_test_agent_md_file` shows how to record a higher-level test, a lower-level test, and their coverage difference under Similar Coverage.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The cross-test `.agent.md` file contains these `Similar Coverage` formats:
-        ``Higher Level Test: `<file.py>::<test_name>```
-        ``Lower Level Test: `<file.py>::<test_name>```
-        `Justification: <classification> — <specific coverage difference>`
+        Packet contains ``Higher Level Test: `<file.py>::<test_name>```.
+        Packet contains ``Lower Level Test: `<file.py>::<test_name>```.
+        Packet contains `Justification: <classification> — <specific coverage difference>`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
