@@ -4,6 +4,7 @@
 Terms:
 - `runner JSON`: Runner JSON is the `agent_review_example_runner` output at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
 - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
+- `_record_review_start`: This runner helper preserves the initial evaluation timestamp across pending review runs. For example, the completed run measures from the invocation that generated its scorecards.
 """
 
 from __future__ import annotations
@@ -41,7 +42,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         4. Runner compares scorecards with YAML expectations.
         Review runner produces no value.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
-        This test provides its catalog path, reviewer model, and expected result.
+        The orchestration test provides its catalog path, reviewer model, and expected result.
         """
 
         examples_relative_path = Path(
@@ -62,14 +63,14 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_example_runner` calculates evaluation runtime from time.time() calls immediately before YAML validation and after scorecard comparison.
+        `agent_review_example_runner` starts evaluation timing immediately before YAML validation, supplies that timestamp to `_record_review_start`, and calculates runtime after scorecard comparison.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         Runner assigns time.time() to the start timestamp immediately before YAML validation.
-        Runner passes the start timestamp to `_record_review_start`.
+        `_record_review_start` receives the start timestamp.
         Duration calculation receives time.time() as the completion timestamp after scorecard comparison.
         """
 
