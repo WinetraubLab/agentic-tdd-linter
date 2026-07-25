@@ -48,6 +48,16 @@ class LoadAllFormatsTests(unittest.TestCase):
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
           Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves Python discovery, extraction, and complete packet content.
+        - Lower Level Test: `test_main.py::test_test_root_reports_generated_packet`
+          Justification: Deeper coverage — The lower test proves packet-count reporting for a nondefault test root. The current test proves complete Python packet loading.
+        - Lower Level Test: `test_multiple_tests_in_one_file.py::test_python_multiple_tests_pass`
+          Justification: Deeper coverage — The lower test isolates conventional validation for multiple Python tests in one file. The current test loads Python tests through complete packet generation.
+        - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
+          Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by Python packet generation. The current test loads those fields into complete Python packets.
+        - Lower Level Test: `test_map_test_function_to_agent_md_file.py::test_round_trip_preserves_test_identity`
+          Justification: Shared foundation — The lower test preserves test identity through `.agent.md` path mapping. The current test uses that mapping during complete Python packet loading.
+        - Lower Level Test: `test_docstring_structure.py::test_python_docstring_passes`
+          Justification: Shared foundation — The lower test validates a complete Python test docstring. The current test loads that documentation into complete Python packets.
         """
 
         python_source = textwrap.dedent(
@@ -133,6 +143,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
           Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves TypeScript discovery, extraction, and complete packet content.
+        - Lower Level Test: `test_multiple_tests_in_one_file.py::test_typescript_multiple_tests_pass`
+          Justification: Deeper coverage — The lower test isolates conventional validation for multiple TypeScript tests in one file. The current test loads TypeScript tests through complete packet generation.
+        - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
+          Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by TypeScript packet generation. The current test loads those fields into complete TypeScript packets.
+        - Lower Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Justification: Shared foundation — The lower test validates a complete TypeScript test docstring. The current test loads that documentation into complete TypeScript packets.
         """
 
         typescript_source = textwrap.dedent(
@@ -425,6 +441,10 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Harness creates a test file declaring `src/parser.py` without creating that module.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `missing_test_module`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_tests_have_source_or_harness`
+          Justification: Deeper coverage — The current test isolates CLI rejection of one missing declared module path. The higher test enforces counterpart coverage across repository test modules.
         """
 
         test_source = textwrap.dedent(
