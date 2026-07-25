@@ -25,7 +25,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Requirement Tested:
         `render_cross_test_agent_md_file` retains every unique selected path exactly once.
-        Specialized usage: Selected paths contain one duplicate path instead of only unique paths.
+        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` retains the duplicated path once.
 
         Verification Method: verify private function output
 
