@@ -48,7 +48,7 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-    def test_modules_expose_at_most_two_public_functions(self) -> None:
+    def test_limits_module_public_functions(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
