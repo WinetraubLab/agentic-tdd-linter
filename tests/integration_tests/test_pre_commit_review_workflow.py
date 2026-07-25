@@ -3,6 +3,7 @@
 
 Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
+- `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` writes an approved test to the manifest with its file path, test name, pass status, and reviewer identity.
+        `pre-commit review workflow` persists an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -295,7 +296,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` regenerates pending scorecards for an edited test and the cross-test review while preserving the unchanged test's approved scorecard.
+        `pre-commit review workflow` regenerates `.agent.md` packets only for an edited test file and the cross-test review.
         Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale review packets.
 
         Verification Method: verify private function output
@@ -529,7 +530,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` removes an '.agent.md' file when that file lacks a corresponding test during create-agent-md --fresh.
         Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
