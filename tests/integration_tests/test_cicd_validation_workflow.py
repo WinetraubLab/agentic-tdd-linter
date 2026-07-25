@@ -15,6 +15,7 @@ import unittest
 from pathlib import Path
 
 from tests.integration_tests.test_harness.usage_scenarios import (
+    packet_paths as _packet_paths,
     record_approved_manifest as _record_approved_manifest,
     remove_packet_directory as _remove_packet_directory,
     run_cli as _run_cli,
@@ -104,7 +105,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         2. Harness completes its review.
         3. Harness persists current passing proof in the manifest.
         4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        5. `CI/CD linter` exit code equals `0`.
+        5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
         """
 
         test_source = textwrap.dedent(
@@ -153,7 +154,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` creates no `.agent.md` directory when current manifest proof exists.
+        `CI/CD linter` creates no `.agent.md` files when current manifest proof exists.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -164,11 +165,11 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         3. Harness persists current passing proof in the manifest.
         4. Harness removes the existing '.agent.md' directory before invoking `CI/CD linter`.
         5. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        6. Filesystem has no '.agent.md' directory after lint.
+        6. Packet list contains zero paths after lint.
 
         Similar Coverage:
         - Higher Level Test: `test_review_documentation.py::test_github_actions_omits_packet_creation`
-          Justification: Deeper coverage — The current test proves that CI lint creates no '.agent.md' directory at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
+          Justification: Deeper coverage — The current test proves that CI lint creates no '.agent.md' files at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
         """
 
         test_source = textwrap.dedent(
@@ -212,11 +213,9 @@ class CicdValidationWorkflowTests(unittest.TestCase):
                 "--reviewer",
                 "integration:ci-reviewer",
             )
-            artifact_root_exists = (
-                repo_root / "tests" / "agentic_review_artifacts"
-            ).exists()
+            packets = _packet_paths(repo_root)
 
-        self.assertFalse(artifact_root_exists)
+        self.assertEqual([], packets)
 
 
 if __name__ == "__main__":
