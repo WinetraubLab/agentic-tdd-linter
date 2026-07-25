@@ -275,6 +275,68 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         self.assertIn("missing_file_docstring", creation.stdout)
 
+    def test_rejects_requirement_without_declared_module(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `create-agent-md` requires test requirements to name the declared module.
+        Specialized usage: The file declares `parser`, but one test requirement does not name `parser`.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates one file declaring `parser` and containing a requirement that omits `parser`.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `multiple_modules_in_test_file`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `parser` located at `src/parser.py`.
+            `parser` is responsible for returning stored text.
+            """
+
+            def test_parses_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `parser` returns stored text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Parser output equals `stored text`.
+                """
+
+                assert parse() == "stored text"
+
+            def test_formats_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Formatting text returns formatted text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Formatter output equals `formatted text`.
+                """
+
+                assert format_text() == "formatted text"
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "parser.py", "def parse(): return 'stored text'\n")
+            _write_source(repo_root / "tests" / "test_parser.py", test_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("multiple_modules_in_test_file", creation.stdout)
+
     def test_instructs_split_for_multiple_modules(self) -> None:
         """Test Path: failure path
 
