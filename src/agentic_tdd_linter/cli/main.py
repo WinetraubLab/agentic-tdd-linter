@@ -102,7 +102,8 @@ def _next_action(
             (
                 "Next action:",
                 "1. Keep the reviewed source stable.",
-                "2. Complete every scorecard with one fresh isolated reviewer per criterion.",
+                "2. Complete every scorecard with one fresh isolated reviewer per "
+                "`.agent.md` packet.",
                 "3. Rerun `agentic-tdd-linter lint` after every selected packet is complete.",
             )
         )
@@ -129,7 +130,7 @@ def _next_action(
                 "2. If source changed after packet generation, regenerate once with "
                 "`agentic-tdd-linter create-agent-md --fresh`.",
                 "3. Keep the source stable while every generated scorecard is reviewed "
-                "with one fresh isolated reviewer per criterion.",
+                "with one fresh isolated reviewer per `.agent.md` packet.",
                 "4. If review fails, collect every packet failure before editing; make one "
                 "consolidated edit, rerun tests, and regenerate once.",
                 "5. Do not retry an unchanged criterion to obtain a different result; "
