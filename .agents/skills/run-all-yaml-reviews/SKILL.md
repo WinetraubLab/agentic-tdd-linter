@@ -38,11 +38,7 @@ The invocation should stop with pending packets. Treat that result as packet gen
 
 Review every generated `.agent.md` file by following its instructions:
 
-- Use a fresh isolated reviewer for each criterion.
-- Give a reviewer only generated Markdown packets. Do not expose YAML expectations, repository files, helper implementations, manifests, Git history, previous results, this skill, or conversation.
-- A reviewer may evaluate its one assigned criterion across every pending packet.
-- Tell each reviewer to change only its assigned scorecard row and supply a concrete note.
-- Never ask another reviewer to retry an unchanged criterion merely to obtain a different result.
+- Follow the review procedure embedded in each generated `.agent.md`.
 - Continue until no generated packet contains a pending scorecard row.
 
 ## Step 4: Rerun all YAML tests
