@@ -59,7 +59,8 @@ class AgenticMarkdownTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `render_agent_md_file` output contains `Evaluate each criterion in a fresh subagent`.
+        `render_agent_md_file` output contains `Use one fresh isolated reviewer for this Markdown packet`.
+        `render_agent_md_file` output requires that reviewer to evaluate every criterion.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -69,7 +70,14 @@ class AgenticMarkdownTests(unittest.TestCase):
 
             markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
 
-        self.assertIn("Evaluate each criterion in a fresh subagent", markdown)
+        self.assertIn(
+            "Use one fresh isolated reviewer for this Markdown packet",
+            markdown,
+        )
+        self.assertIn(
+            "The reviewer shall evaluate every criterion",
+            markdown,
+        )
 
     def test_creates_pending_packet(self) -> None:
         """Test Path: happy path
