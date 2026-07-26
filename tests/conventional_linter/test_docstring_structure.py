@@ -532,9 +532,9 @@ class DocstringStructureTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_classification.py::test_accepts_happy_path`
-          Justification: Deeper coverage — The lower test isolates acceptance of the `happy path` classification. The current test validates that classification inside a complete Python test docstring.
+          Justification: Diagnostic completeness — The lower test isolates whether `happy path` alone is accepted. The current test combines that classification with three other required Python docstring fields.
         - Lower Level Test: `test_classification.py::test_accepts_public_output`
-          Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete Python test docstring.
+          Justification: Diagnostic completeness — The lower test isolates whether public function output alone is accepted. The current test combines that method with three other required Python docstring fields.
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
           Justification: Deeper coverage — The current test directly validates every required Python docstring field. The higher test loads that documentation into complete Python packets without isolating conventional docstring validation.
         """
@@ -578,9 +578,9 @@ class DocstringStructureTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_classification.py::test_accepts_happy_path`
-          Justification: Deeper coverage — The lower test isolates acceptance of the `happy path` classification. The current test validates that classification inside a complete TypeScript test docstring.
+          Justification: Diagnostic completeness — The lower test isolates whether `happy path` alone is accepted. The current test combines that classification with three other required TypeScript docstring fields.
         - Lower Level Test: `test_classification.py::test_accepts_public_output`
-          Justification: Deeper coverage — The lower test isolates acceptance of public function output. The current test validates that method inside a complete TypeScript test docstring.
+          Justification: Diagnostic completeness — The lower test isolates whether public function output alone is accepted. The current test combines that method with three other required TypeScript docstring fields.
         - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
           Justification: Deeper coverage — The current test directly validates every required TypeScript JSDoc field. The higher test loads that documentation into complete TypeScript packets without isolating conventional docstring validation.
         """
