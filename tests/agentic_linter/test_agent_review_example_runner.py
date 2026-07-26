@@ -246,20 +246,20 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `agent_review_example_runner` supersedes `runner JSON` after every completed YAML-example evaluation.
-        Specialized usage: When the second evaluation detects a scorecard mismatch, `agent_review_example_runner` replaces prior `runner JSON`.
+        `agent_review_example_runner` replaces `runner JSONL` after every completed YAML-example evaluation with its expected and actual scorecards.
+        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSONL` records different expected and actual scorecards.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness applies mock.patch to replace one example.
-        2. Harness initializes runner JSON with seed text.
-        3. Harness completes successful evaluation.
-        4. Runner replaces seeded text.
-        5. Harness initializes runner JSON with new seed text.
-        6. Harness completes regressing evaluation.
-        7. Runner replaces seeded text before raising regression.
-        Runner JSON supersedes both seeds.
+        Harness applies mock.patch to complete one successful and one regressing evaluation.
+        1. Harness initializes `runner JSONL` with seed text.
+        2. Harness completes a successful evaluation.
+        3. Successful proof records equal expected and actual scorecards.
+        4. Harness initializes `runner JSONL` with new seed text.
+        5. Harness completes a regressing evaluation.
+        6. Regressing proof records different expected and actual scorecards.
+        Both seed values are absent from the resulting proof.
         """
 
         example = SimpleNamespace(
@@ -269,104 +269,212 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             expected_scorecard={11: SimpleNamespace(result="pass")},
         )
         test_record = SimpleNamespace(name="test_example")
+        successful_seed = "previous successful evaluation"
+        failed_seed = "previous failed evaluation"
+        actual_scorecards = [{11: "pass"}, {11: "fail"}]
+        regressions = [[], ["forced regression"]]
 
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            temporary_root = Path(temporary_directory)
-            anonymous_root = temporary_root / "anonymous"
-            artifact_root = anonymous_root / "agentic_review_artifacts"
-            artifact_root.mkdir(parents=True)
-            artifact_path = artifact_root / "test_example.agent.md"
-            artifact_path.write_text("completed review", encoding="utf-8")
-            sidecar_path = temporary_root / "test_agent_review_example_runner.json"
-            start_path = temporary_root / ".review_started_at"
+        outputs = _run_completed_evaluations(
+            example=example,
+            test_record=test_record,
+            successful_seed=successful_seed,
+            failed_seed=failed_seed,
+            actual_scorecards=actual_scorecards,
+            regressions=regressions,
+        )
+        successful_record = json.loads(
+            outputs["successful_attestations"].splitlines()[0]
+        )
+        failed_record = json.loads(
+            outputs["failed_attestations"].splitlines()[0]
+        )
 
-            with (
-                mock.patch.multiple(
-                    runner_harness,
-                    ANONYMOUS_ROOT=anonymous_root,
-                    ARTIFACT_ROOT=artifact_root,
-                    SCORECARD_BASELINE_PATH=sidecar_path,
-                    REVIEW_START_PATH=start_path,
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "lint_agent_review_examples",
-                    return_value=[],
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "agent_review_example_files",
-                    return_value=[Path("examples.yaml")],
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "read_agent_review_examples",
-                    return_value=[example],
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "criterion_titles_from_template",
-                    return_value={},
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "extract_tests_from_file",
-                    return_value=[test_record],
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "map_test_function_to_agent_md_file",
-                    return_value=artifact_path,
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "_agent_md_file_is_stale",
-                    return_value=False,
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "determine_agent_md_status",
-                    return_value="pass",
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "_scorecard_results",
-                    return_value={11: "pass"},
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "_scorecard_regressions",
-                    side_effect=[[], ["forced regression"]],
-                ),
-                mock.patch.object(
-                    runner_harness,
-                    "_review_duration_seconds",
-                    return_value=1,
-                ),
-            ):
-                successful_seed = "previous successful evaluation"
-                sidecar_path.write_text(successful_seed, encoding="utf-8")
-                start_path.write_text("started", encoding="utf-8")
+        self.assertNotIn(successful_seed, outputs["successful_attestations"])
+        self.assertNotIn(failed_seed, outputs["failed_attestations"])
+        self.assertEqual(
+            successful_record["expected_scorecard"],
+            successful_record["actual_scorecard"],
+        )
+        self.assertNotEqual(
+            failed_record["expected_scorecard"],
+            failed_record["actual_scorecard"],
+        )
 
+    def test_runner_overwrites_json_report(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `agent_review_example_runner` replaces `runner JSON` after every completed YAML-example evaluation with its failing YAML cases.
+        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSON` names the failing YAML case.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Harness applies mock.patch to complete one successful and one regressing evaluation.
+        1. Harness initializes `runner JSON` with seed text.
+        2. Harness completes a successful evaluation.
+        3. Successful report contains zero failing YAML cases.
+        4. Harness initializes `runner JSON` with new seed text.
+        5. Harness completes a regressing evaluation.
+        6. Regressing report contains the failing YAML case.
+        Both seed values are absent from the resulting report.
+        """
+
+        example = SimpleNamespace(
+            name="example",
+            file_docstring='"""Verify an example."""',
+            test="def test_example() -> None:\n    assert True",
+            expected_scorecard={11: SimpleNamespace(result="pass")},
+        )
+        test_record = SimpleNamespace(name="test_example")
+        successful_seed = "previous successful evaluation"
+        failed_seed = "previous failed evaluation"
+        actual_scorecards = [{11: "pass"}, {11: "fail"}]
+        regressions = [[], ["forced regression"]]
+
+        outputs = _run_completed_evaluations(
+            example=example,
+            test_record=test_record,
+            successful_seed=successful_seed,
+            failed_seed=failed_seed,
+            actual_scorecards=actual_scorecards,
+            regressions=regressions,
+        )
+        successful_report = json.loads(outputs["successful_report"])
+        failed_report = json.loads(outputs["failed_report"])
+
+        self.assertNotIn(successful_seed, outputs["successful_report"])
+        self.assertNotIn(failed_seed, outputs["failed_report"])
+        self.assertEqual(
+            [],
+            successful_report["criteria"]["11"]["failing_yaml_cases"],
+        )
+        self.assertEqual(
+            ["example"],
+            failed_report["criteria"]["11"]["failing_yaml_cases"],
+        )
+
+
+def _run_completed_evaluations(
+    *,
+    example: SimpleNamespace,
+    test_record: SimpleNamespace,
+    successful_seed: str,
+    failed_seed: str,
+    actual_scorecards: list[dict[int, str]],
+    regressions: list[list[str]],
+) -> dict[str, str]:
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        temporary_root = Path(temporary_directory)
+        anonymous_root = temporary_root / "anonymous"
+        artifact_root = anonymous_root / "agentic_review_artifacts"
+        artifact_root.mkdir(parents=True)
+        artifact_path = artifact_root / "test_example.agent.md"
+        artifact_path.write_text("completed review", encoding="utf-8")
+        sidecar_path = temporary_root / "test_agent_review_example_runner.json"
+        attestation_path = (
+            temporary_root / "test_agent_review_example_runner.jsonl"
+        )
+        start_path = temporary_root / ".review_started_at"
+
+        with (
+            mock.patch.multiple(
+                runner_harness,
+                ANONYMOUS_ROOT=anonymous_root,
+                ARTIFACT_ROOT=artifact_root,
+                SCORECARD_BASELINE_PATH=sidecar_path,
+                SCORECARD_ATTESTATION_PATH=attestation_path,
+                REVIEW_START_PATH=start_path,
+            ),
+            mock.patch.object(
+                runner_harness,
+                "lint_agent_review_examples",
+                return_value=[],
+            ),
+            mock.patch.object(
+                runner_harness,
+                "agent_review_example_files",
+                return_value=[Path("examples.yaml")],
+            ),
+            mock.patch.object(
+                runner_harness,
+                "read_agent_review_examples",
+                return_value=[example],
+            ),
+            mock.patch.object(
+                runner_harness,
+                "criterion_titles_from_template",
+                return_value={},
+            ),
+            mock.patch.object(
+                runner_harness,
+                "extract_tests_from_file",
+                return_value=[test_record],
+            ),
+            mock.patch.object(
+                runner_harness,
+                "map_test_function_to_agent_md_file",
+                return_value=artifact_path,
+            ),
+            mock.patch.object(
+                runner_harness,
+                "_agent_md_file_is_stale",
+                return_value=False,
+            ),
+            mock.patch.object(
+                runner_harness,
+                "determine_agent_md_status",
+                return_value="pass",
+            ),
+            mock.patch.object(
+                runner_harness,
+                "_scorecard_results",
+                side_effect=actual_scorecards,
+            ),
+            mock.patch.object(
+                runner_harness,
+                "_scorecard_regressions",
+                side_effect=regressions,
+            ),
+            mock.patch.object(
+                runner_harness,
+                "_review_duration_seconds",
+                return_value=1,
+            ),
+        ):
+            sidecar_path.write_text(successful_seed, encoding="utf-8")
+            attestation_path.write_text(successful_seed, encoding="utf-8")
+            start_path.write_text("started", encoding="utf-8")
+
+            runner_harness.run_agent_review_examples(
+                examples_path=temporary_root,
+                reviewer_model="reviewer",
+            )
+            successful_report = sidecar_path.read_text(encoding="utf-8")
+            successful_attestations = attestation_path.read_text(
+                encoding="utf-8"
+            )
+
+            sidecar_path.write_text(failed_seed, encoding="utf-8")
+            attestation_path.write_text(failed_seed, encoding="utf-8")
+            start_path.write_text("started", encoding="utf-8")
+
+            with contextlib.suppress(AssertionError):
                 runner_harness.run_agent_review_examples(
                     examples_path=temporary_root,
                     reviewer_model="reviewer",
                 )
-                successful_output = sidecar_path.read_text(encoding="utf-8")
+            failed_report = sidecar_path.read_text(encoding="utf-8")
+            failed_attestations = attestation_path.read_text(
+                encoding="utf-8"
+            )
 
-                failed_seed = "previous failed evaluation"
-                sidecar_path.write_text(failed_seed, encoding="utf-8")
-                start_path.write_text("started", encoding="utf-8")
-
-                with contextlib.suppress(AssertionError):
-                    runner_harness.run_agent_review_examples(
-                        examples_path=temporary_root,
-                        reviewer_model="reviewer",
-                    )
-                failed_output = sidecar_path.read_text(encoding="utf-8")
-
-        self.assertNotIn(successful_seed, successful_output)
-        self.assertNotIn(failed_seed, failed_output)
+    return {
+        "successful_report": successful_report,
+        "successful_attestations": successful_attestations,
+        "failed_report": failed_report,
+        "failed_attestations": failed_attestations,
+    }
 
 
 if __name__ == "__main__":
