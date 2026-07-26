@@ -9,6 +9,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from agentic_tdd_linter.version import __version__
+
 SCORECARD_ROW_PATTERN = re.compile(
     r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|$",
     re.MULTILINE,
@@ -159,6 +161,72 @@ def _scorecard_sidecar_text(sidecar: dict[str, object]) -> str:
         lines.append(f"    {json.dumps(criterion)}: {json.dumps(row)}{comma}")
     lines.extend(["  }", "}"])
     return "\n".join(lines) + "\n"
+
+
+def _read_scorecard_attestations(
+    path: Path,
+) -> dict[tuple[str, str], dict[str, object]]:
+    if not path.exists():
+        return {}
+    try:
+        records = [
+            json.loads(line)
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+    except (json.JSONDecodeError, OSError, TypeError):
+        return {}
+    return {
+        (str(record["yaml_case"]), str(record["test"])): record
+        for record in records
+        if isinstance(record, dict)
+        and "yaml_case" in record
+        and "test" in record
+    }
+
+
+def _scorecard_attestation_is_current(
+    record: dict[str, object] | None,
+    *,
+    source_sha256: str,
+    expected_scorecard: dict[int, str],
+) -> bool:
+    if record is None:
+        return False
+    expected = {
+        str(number): result
+        for number, result in sorted(expected_scorecard.items())
+    }
+    actual = record.get("actual_scorecard")
+    return (
+        record.get("scorecard_scope") == "expected_criteria"
+        and record.get("source_sha256") == source_sha256
+        and record.get("linter_version") == __version__
+        and record.get("expected_scorecard") == expected
+        and isinstance(actual, dict)
+        and set(actual) == set(expected)
+        and all(result in ("pass", "fail") for result in actual.values())
+        and bool(record.get("reviewer"))
+    )
+
+
+def _write_scorecard_attestations(
+    path: Path,
+    records: list[dict[str, object]],
+) -> None:
+    path.write_text(
+        "".join(
+            json.dumps(record, sort_keys=True) + "\n"
+            for record in sorted(
+                records,
+                key=lambda record: (
+                    str(record["yaml_case"]),
+                    str(record["test"]),
+                ),
+            )
+        ),
+        encoding="utf-8",
+    )
 
 
 def _record_review_start(start_path: Path, started_at: float) -> None:
