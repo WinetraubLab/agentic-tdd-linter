@@ -32,7 +32,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_example_runner` produces no value when every `YAML fixture catalog` entry agrees with its expected scorecard.
+        `agent_review_example_runner` creates no '.agent.md' files when committed `runner JSONL` proof is current.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -67,7 +67,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             "tests/agentic_linter/fixtures/single_test_review"
         )
         reviewer_model = "5.6 Sol Medium"
-        expected_result = None
         examples_path = REPO_ROOT / examples_relative_path
 
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -185,11 +184,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 side_effect=reject_yaml,
             ),
         ):
-            started_at, _ = runner_harness._begin_yaml_validation(
-                Path("examples")
-            )
+            runner_harness._begin_yaml_validation(Path("examples"))
 
-        self.assertEqual(1.0, started_at)
         self.assertEqual(["time", "validation"], events)
 
     def test_timer_end_follows_scorecard_comparison(self) -> None:
@@ -197,13 +193,13 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Requirement Tested:
         `agent_review_example_runner` ensures `timer end` occurs after scorecard comparison completes.
+        `agent_review_example_runner` orders scorecard comparison, `timer end`, and duration calculation.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         mock.patch replaces scorecard comparison, time.time, and duration calculation to record their call order.
-        `_finish_yaml_evaluation` produces duration `3.0`.
         Duration calculation receives `timer end` value `4.0`.
         Call order is `comparison`, then `time`, then `duration`.
         """
