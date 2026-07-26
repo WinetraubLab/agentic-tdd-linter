@@ -1,0 +1,67 @@
+# Test-source examples for agent review.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+defined_distinctive_file_terms:
+  file_docstring: |
+    """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
+    `module_mapping` is responsible for relating test modules to implementation modules.
+
+    Terms:
+    - `unit module`: A unit module is a test file that validates one implementation. For example, `test_parser.py` validates `parser.py`.
+    - `implementation module`: An implementation module is code exercised by one unit module. For example, `parser.py` is exercised by `test_parser.py`.
+    """
+  test: |
+    def test_maps_module_name() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `module_mapping` relates a `unit module` to an `implementation module`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Removing `test_` from `test_parser.py` produces `parser.py`.
+        """
+
+        assert "test_parser.py".removeprefix("test_") == "parser.py"
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Test-to-implementation module identification belongs to module mapping.
+    46: # Terms Reuse Shared Vocabulary
+      pass # Unit module and implementation module name different roles, so neither term duplicates the other.
+
+interchangeable_file_terms:
+  file_docstring: |
+    """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
+    `module_mapping` is responsible for relating source modules to their implementations.
+
+    A `source module` is a Python file.
+    For example, `parser.py` is a source module.
+
+    An `implementation module` is a Python file.
+    For example, `parser.py` is an implementation module.
+    """
+  test: |
+    def test_maps_module_name() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `module_mapping` relates a `source module` to an `implementation module`.
+        When files use matching basenames, source modules identify implementations.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The basename equals `parser.py`.
+        """
+
+        assert "parser.py" == "parser.py"
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Source-to-implementation identification belongs to module mapping.
+    46: # Terms Reuse Shared Vocabulary
+      fail # Implementation module duplicates source module, so the requirement should reuse source module.

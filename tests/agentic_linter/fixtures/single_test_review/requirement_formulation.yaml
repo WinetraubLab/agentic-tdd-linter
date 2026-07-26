@@ -1,0 +1,761 @@
+# Test-source examples for agent review.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+availability_without_behavior:
+  file_docstring: |
+    """Tests in this file validate `availability_policy` located at `src/examples/availability_policy.py`.
+    `availability_policy` is responsible for selecting availability windows for organizations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_organization_availability() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        When organization is home, availability includes 09:00–12:00; when organization is Y, availability excludes 13:00–16:00.
+        Specialized usage: For home availability, organization becomes home (instead of Y).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Availability contains the expected time ranges.
+        """
+
+        availability = compute_availability(organization="home")
+
+        assert "09:00–12:00" in availability
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement begins with a scenario condition instead of the declared `availability_policy` module.
+    11: # First Sentence Describes Behavior
+      fail # The requirement lists availability examples without stating a general behavior.
+    12: # Second Sentence Describes a Scenario
+      pass # The specialized-usage sentence names the use case, input, standard value, and modified value.
+    14: # Requirement Is Atomic
+      fail # The requirement combines independent availability behaviors for two organizations.
+    15: # Requirement Begins with the Behavior Owner
+      fail # The first requirement sentence begins with the `When` scenario condition instead of the behavior owner.
+    21: # Expected Results Appear in Verification Detail
+      fail # Exact time ranges appear in Requirement Tested instead of Verification Detail.
+    51: # Assertions Prove the Stated Requirement
+      fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
+
+assertions_without_behavior:
+  file_docstring: |
+    """Tests in this file validate `input_assertions` located at `src/examples/input_assertions.py`.
+    `input_assertions` is responsible for validating test inputs.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `input_assertions` pass when `assert a > 0` and `assert b > 0` include `# Input check` tags.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Input-assertion tags belong to input validation.
+    11: # First Sentence Describes Behavior
+      fail # The requirement describes assertion tags rather than system behavior.
+    51: # Assertions Prove the Stated Requirement
+      fail # The arithmetic assertion does not prove the assertion-tag wording.
+
+swappable_requirement:
+  file_docstring: |
+    """Tests in this file validate `sentence_validator` located at `src/examples/sentence_validator.py`.
+    `sentence_validator` is responsible for validating sentence structure.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_bad_sentence_structure() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `sentence_validator` rejects bad sentence structure.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The assertion checks a sentence without a verb.
+        """
+
+        assert validate_sentence("Apple catapiller") == "fail"
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Sentence rejection belongs to sentence validation.
+    13: # Requirement Is Specific
+      fail # Each requirement is generic enough to be swapped onto another sentence-validation test.
+
+ambiguous_input:
+  file_docstring: |
+    """Tests in this file validate `value_normalizer` located at `src/examples/value_normalizer.py`.
+    `value_normalizer` is responsible for preparing values for validation.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The input is normalized before validation.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement begins with ambiguous input instead of the declared `value_normalizer` module.
+    43: # Data-Flow Terms Name an Owner
+      fail # Input does not name the component or caller that owns it.
+
+ambiguous_output:
+  file_docstring: |
+    """Tests in this file validate `value_normalizer` located at `src/examples/value_normalizer.py`.
+    `value_normalizer` is responsible for producing normalized values.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        The output includes the normalized value.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement begins with ambiguous output instead of the declared `value_normalizer` module.
+    43: # Data-Flow Terms Name an Owner
+      fail # Output does not name the component or operation that produces it.
+
+ambiguous_returns:
+  file_docstring: |
+    """Tests in this file validate `value_provider` located at `src/examples/value_provider.py`.
+    `value_provider` is responsible for supplying computed values.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Returns the expected value.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement omits the declared `value_provider` module and has no grammatical subject.
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The sentence omits the subject that performs the return operation.
+    43: # Data-Flow Terms Name an Owner
+      fail # Returns does not name the component or operation that owns the returned value.
+
+ambiguous_provided:
+  file_docstring: |
+    """Tests in this file validate `artifact_table` located at `src/examples/artifact_table.py`.
+    `artifact_table` is responsible for constructing artifact rows from templates.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `artifact_table` adds an artifact row from a template using the provided activity name.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Constructing artifact rows belongs to the artifact table.
+    43: # Data-Flow Terms Name an Owner
+      fail # Provided does not identify who supplies the activity name.
+
+missing_file_without_scenario:
+  file_docstring: |
+    """Tests in this file validate `jinja_render_validation` located at `src/examples/jinja_render_validation.py`.
+    `jinja_render_validation` is responsible for validating manifest-backed template rendering.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_reports_manifest_missing_source() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `jinja_render_validation` reports files named in the render manifest YAML but missing on disk.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation error names missing source files.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Missing render-manifest files belong to Jinja render validation.
+    12: # Second Sentence Describes a Scenario
+      fail # Requirement Tested contains no second sentence describing a concrete missing-file scenario.
+
+unused_context_without_scenario:
+  file_docstring: |
+    """Tests in this file validate `jinja_manifest_rendering` located at `src/examples/jinja_manifest_rendering.py`.
+    `jinja_manifest_rendering` is responsible for rendering templates from manifest context.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_rejects_unused_context_variable() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `jinja_manifest_rendering` rejects context variables unused by the source template.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Error report names unused context variable.
+        """
+
+        source_template = "Hello {{ name }}"
+        manifest_context = {"name": "Ada", "unused_title": "Dr"}
+        errors = validate_manifest_render(source_template, manifest_context)
+
+        assert "unused_title" in errors
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Unused manifest context belongs to Jinja manifest rendering.
+    12: # Second Sentence Describes a Scenario
+      fail # Requirement Tested contains no second sentence describing a concrete unused-context scenario.
+
+version_equality_described_as_identification:
+  file_docstring: |
+    """Tests in this file validate `package_metadata` located at `src/examples/package_metadata.py`.
+    `package_metadata` is responsible for exposing package version information.
+
+    Terms:
+    - `__version__`: This package attribute exposes the installed linter version. For example, callers read it at runtime.
+    """
+  test: |
+    def test_matches_package_metadata(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `package_metadata` identifies `__version__`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_project_version` produces `__version__`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[1]
+        project_version = _project_version(repo_root / "pyproject.toml")
+
+        self.assertEqual(project_version, __version__)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Runtime and project versions belong to package metadata.
+    44: # Wording Is Concrete
+      fail # Identifies is vague because it does not state the equality invariant proved by the test.
+    51: # Assertions Prove the Stated Requirement
+      fail # The assertion compares two version values, while the requirement claims only that metadata identifies one attribute.
+           # Expected requirement: The package version exposed at runtime equals the project metadata version read by `_project_version`.
+
+version_relationship_is_material:
+  file_docstring: |
+    """Tests in this file validate `package_metadata` located at `src/examples/package_metadata.py`.
+    `package_metadata` is responsible for exposing package version information.
+
+    Terms:
+    - `project.version`: Project.version is the package version field in pyproject.toml. For example, package builds use this value as their distribution version.
+    - `__version__`: This package attribute exposes the installed linter version. For example, callers can read it at runtime.
+    """
+  test: |
+    def test_matches_package_metadata(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `package_metadata` defines `project.version` equal to `__version__`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_project_version` reads `project.version`.
+        The returned value equals `__version__`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[1]
+        project_version = _project_version(repo_root / "pyproject.toml")
+
+        self.assertEqual(project_version, __version__)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Equality between project and runtime versions belongs to package metadata.
+    11: # First Sentence Describes Behavior
+      pass # The equality between the project metadata version and runtime version is the architectural contract proved by the test.
+    21: # Expected Results Appear in Verification Detail
+      pass # The equality relationship defines the contract, while Verification Detail states the concrete observations that prove it.
+
+api_limit_and_exception_are_material:
+  file_docstring: |
+    """Tests in this file validate `source_module_policy` located at `src/examples/source_module_policy.py`.
+    `source_module_policy` is responsible for defining public interfaces for source modules.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, cli/main.py is a source module.
+    - `data-only module`: A data-only module exposes declarative values instead of callable behavior. For example, version.py exposes version metadata.
+    """
+  test: |
+    def test_limits_module_public_functions(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `source_module_policy` restricts every `source module` to at most two public functions unless it is a `data-only module`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` produces `[]`.
+        Every checked `source module` contains at most two public functions unless it is a `data-only module`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        data_only_modules = {
+            Path("indexing_test_functions/extracted_test_record.py"),
+            Path("version.py"),
+        }
+        self.assertEqual(
+            [],
+            _public_api_violations(package_root, data_only_modules),
+        )
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Public-interface limits belong to source-module policy.
+    11: # First Sentence Describes Behavior
+      pass # The API limit and data-only exception are material parts of the architectural policy proved by the test.
+    21: # Expected Results Appear in Verification Detail
+      pass # The limit and exception define the contract, while Verification Detail states the observed absence of violations.
+
+workflow_baseline_omits_repository_policy:
+  file_docstring: |
+    """Tests in this file validate `unit_test_workflow` located at `src/examples/unit_test_workflow.py`.
+    `unit_test_workflow` is responsible for running repository unit tests.
+
+    Terms:
+    - `workflow`: The workflow is `.github/workflows/unit-tests.yml`. For example, repository events can trigger this file.
+    - `repository events`: Repository events are pushes and pull requests on any branch. For example, either event triggers the workflow.
+    """
+  test: |
+    def test_unit_workflow_runs_tests(self) -> None:
+            """Test Path: happy path
+
+        Requirement Tested:
+        `unit_test_workflow` runs tests.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify private function output
+
+            Verification Detail:
+            `_repository_test_workflow` output contains `python -m unittest discover -s tests`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            workflow = _repository_test_workflow(repo_root)
+            self.assertIn("python -m unittest discover -s tests", workflow)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Executing Python tests belongs to the unit-test workflow.
+    11: # First Sentence Describes Behavior
+      pass # The requirement states that the workflow runs tests.
+    13: # Requirement Is Specific
+      fail # Running tests omits the complete Python-suite scope established by unittest discovery under the tests directory.
+
+record_field_set_forms_one_schema_contract:
+  file_docstring: |
+    """Tests in this file validate `extracted_test_record` located at `src/examples/extracted_test_record.py`.
+    `extracted_test_record` is responsible for storing language-neutral test data.
+
+    Terms:
+    - `ExtractedTestRecord`: ExtractedTestRecord is the shared data structure for one indexed test. For example, it stores a test's path, name, line, syntax node, documentation, and source without a language discriminator.
+    """
+  test: |
+    def test_stores_all_fields_without_language(self) -> None:
+            """Test Path: happy path
+
+        Requirement Tested:
+        `extracted_test_record` stores path, name, line, syntax node, test docstring, source text, and file docstring fields without a language field.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            The record exposes `tests/test_sample.py` as its path.
+            The record exposes `test_sample` as its name.
+            The record exposes `1` as its line.
+            The record exposes `None` as its node.
+            The record exposes `Sample documentation.` as its docstring.
+            The record exposes `def test_sample(): pass` as its source.
+            The record exposes `None` as its file docstring.
+            The record omits `language`.
+            """
+
+            record = ExtractedTestRecord(
+                path=Path("tests/test_sample.py"),
+                name="test_sample",
+                line=1,
+                node=None,
+                docstring="Sample documentation.",
+                source="def test_sample(): pass",
+            )
+
+            self.assertEqual(Path("tests/test_sample.py"), record.path)
+            self.assertEqual("test_sample", record.name)
+            self.assertEqual(1, record.line)
+            self.assertIsNone(record.node)
+            self.assertEqual("Sample documentation.", record.docstring)
+            self.assertEqual("def test_sample(): pass", record.source)
+            self.assertIsNone(record.file_docstring)
+            self.assertFalse(hasattr(record, "language"))
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # The extracted-test field schema belongs to the extracted-test record.
+    14: # Requirement Is Atomic
+      pass # The listed fields collectively define one complete record-schema contract.
+    51: # Assertions Prove the Stated Requirement
+      pass # Each field assertion proves one property named by the record-schema requirement.
+
+module_identity_is_described_as_check_behavior:
+  file_docstring: |
+    """Tests in this file validate `test_file_docstring_check` located at `src/examples/test_file_docstring_check.py`.
+    `test_file_docstring_check` is responsible for validating test-file documentation.
+
+    Terms:
+    - `check`: The check validates module-docstring placement in one test file. For example, it accepts a file whose first statement is a string literal.
+    """
+  test: |
+    def test_missing_file_docstring_identifies_module(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        When files omit docstrings, the `check` identifies module scope.
+        Specialized usage: For module-scope validation, docstring input becomes absent (instead of leading).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Issue name is `<module>`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_run_lint_pipeline.py::test_reports_missing_file_docstring`
+          Justification: Deeper coverage — This test verifies `<module>`. Pipeline output omits identity.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_sample.py"
+            test_file.parent.mkdir()
+            test_file.write_text(
+                "def test_sample():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            issues = check_test_file_docstring(test_file, root)
+
+        self.assertEqual(["<module>"], [issue.test_name for issue in issues])
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement begins with a scenario condition instead of the declared `test_file_docstring_check` module.
+    15: # Requirement Begins with the Behavior Owner
+      fail # The first sentence begins with a When scenario and makes the check, rather than the issue, own the behavior.
+    51: # Assertions Prove the Stated Requirement
+      pass # The exact `<module>` issue name is concrete evidence that the check identifies module scope.
+
+repository_policy_described_as_git_query_requirement:
+  file_docstring: |
+    """Tests in this file validate `review_manifest_policy` located at `src/examples/review_manifest_policy.py`.
+    `review_manifest_policy` is responsible for preserving review proof in source control.
+
+    Terms:
+    - `review manifest`: A review manifest is the tracked proof file for repository test reviews. For example, `tests/agentic_review_manifest.jsonl` is a review manifest.
+    - `tracked-file query`: A tracked-file query runs `git ls-files --error-unmatch` for one repository path. For example, the query locates `tests/agentic_review_manifest.jsonl` in the Git index.
+    """
+  test: |
+    def test_review_manifest_is_tracked(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `tracked-file query` locates `review manifest`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_tracked_result` produces return code `0`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        result = _tracked_result(
+            Path("tests") / "agentic_review_manifest.jsonl",
+            repo_root=repo_root,
+        )
+
+        self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement begins with `tracked-file query` instead of the declared `review_manifest_policy` module.
+    15: # Requirement Begins with the Behavior Owner
+      fail # The requirement makes the Git query responsible for behavior instead of stating the repository policy that the manifest remains tracked.
+    44: # Wording Is Concrete
+      fail # `locates` describes the inspection mechanism's outcome instead of the repository state that the manifest remains tracked in source control.
+
+source_test_pairing_formulation_negative:
+  file_docstring: |
+    """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
+    `repository_validation` is responsible for validating repository module coverage.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    """
+  test: |
+    def test_rejects_module_without_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `repository_validation` checks missing `test module`s.
+        Specialized usage: For missing-test rejection, `test module` becomes absent (instead of present).
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Validation propagates `AssertionError`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_root = root / "src" / "agentic_tdd_linter"
+            test_root = root / "tests"
+            source = package_root / "agentic_linter" / "orphan.py"
+            source.parent.mkdir(parents=True)
+            source.write_text("VALUE = 1\n", encoding="utf-8")
+            test_root.mkdir()
+
+            with self.assertRaises(AssertionError):
+                _assert_modules_have_matching_test_files(
+                    package_root=package_root,
+                    test_root=test_root,
+                )
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Missing source-to-test matches belong to repository validation.
+    12: # Second Sentence Describes a Scenario
+      fail # The sentence presents an existing missing-match condition as a specialized input transition instead of directly stating the failure scenario.
+    44: # Wording Is Concrete
+      fail # `checks` names an inspection action instead of the policy that repository validation rejects an orphan source module.
+
+source_test_pairing_formulation_positive:
+  file_docstring: |
+    """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
+    `repository_validation` is responsible for validating repository module coverage.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    """
+  test: |
+    def test_rejects_module_without_test_file(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `repository_validation` requires every `source module` to have a matching `test module`.
+        Repository validation rejects a `source module` when it lacks a matching `test module`.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        Validation propagates `AssertionError`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_source_module_structure.py::test_repository_modules_have_test_files`
+          Justification: Diagnostic completeness — This test verifies missing-test assertion. Higher test verifies repository scan.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_root = root / "src" / "agentic_tdd_linter"
+            test_root = root / "tests"
+            source = package_root / "agentic_linter" / "orphan.py"
+            source.parent.mkdir(parents=True)
+            source.write_text("VALUE = 1\n", encoding="utf-8")
+            test_root.mkdir()
+
+            with self.assertRaises(AssertionError):
+                _assert_modules_have_matching_test_files(
+                    package_root=package_root,
+                    test_root=test_root,
+                )
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Source-to-test pairing belongs to repository validation.
+    12: # Second Sentence Describes a Scenario
+      pass # The sentence directly names the missing-match condition and the validation behavior it triggers.
+    44: # Wording Is Concrete
+      pass # The requirement states both the repository pairing policy and the rejection behavior established by the test.
+
+ordered_review_stages_form_one_workflow:
+  file_docstring: |
+    """Tests in this file validate `review_documentation` located at `src/examples/review_documentation.py`.
+    `review_documentation` is responsible for describing the repository review workflow.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    """
+  test: |
+    def test_readme_shows_review_workflow(self) -> None:
+            """Test Path: happy path
+
+        Requirement Tested:
+        `review_documentation` specifies review stages in order: packet creation, scorecard completion, and proof recording.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README arranges these steps in order:
+            1. Scorecard creation invokes `create-agent-md`.
+            2. Review completion modifies every scorecard.
+            3. Proof recording invokes `lint --reviewer`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            guide = (repo_root / "README.md").read_text(encoding="utf-8")
+            step_markers = (
+                "agentic-tdd-linter create-agent-md",
+                "Review the generated files",
+                "agentic-tdd-linter lint --reviewer",
+            )
+            step_positions = tuple(guide.index(marker) for marker in step_markers)
+
+            self.assertEqual(tuple(sorted(step_positions)), step_positions)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Ordered review stages belong to review documentation.
+    11: # First Sentence Describes Behavior
+      pass # The requirement states review documentation's responsibility to document the ordered review stages.
+    13: # Requirement Is Specific
+      pass # The requirement names all three stages and explicitly requires their order.
+    14: # Requirement Is Atomic
+      pass # Packet creation, scorecard completion, and proof recording collectively define one review workflow.
+    21: # Expected Results Appear in Verification Detail
+      pass # The requirement names conceptual stages while Verification Detail contains the exact commands and README wording.
+    33: # Subject and Object Are Concise
+      pass # `review_documentation` is the one-term subject and review stages is the two-word direct object; the colon defines those stages.
+    34: # Main Verb Is Unambiguous
+      pass # Specifies, demonstrates, arranges, invokes, and modifies have no common noun use in contemporary technical prose.
+    37: # Sentence Expresses One Concept
+      pass # The colon list defines the components of one review workflow rather than independent behaviors.
+    44: # Wording Is Concrete
+      pass # The requirement states the ordering property established by the marker-position assertion.
+
+requirement_omits_declared_module_owner:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        Adding positive numbers returns a positive result.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The calculated result is positive.
+        """
+
+        result = add_positive_numbers(1, 2)
+
+        assert result > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # The requirement describes arithmetic behavior but omits the declared `calculator` module as its grammatical subject.
+
+requirement_outside_declared_module_responsibility:
+  file_docstring: |
+    """Tests in this file validate `parser` located at `src/examples/parser.py`.
+    `parser` is responsible for converting text into records.
+    """
+  test: |
+    def test_sends_account_email() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `parser` sends account emails.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `parser` produces a successful email result.
+        """
+
+        result = parser.send_account_email()
+
+        assert result == "sent"
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      fail # Sending account emails is outside the parser's declared text-conversion responsibility, so the test belongs in a separate module-specific test file.

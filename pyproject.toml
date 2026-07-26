@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentic-tdd-linter"
-version = "0.5.0"
+version = "0.6.0"
 description = "A linter for Python and TypeScript tests written during agent-assisted TDD."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["Jinja2>=3.1"]
 
 [project.scripts]
-agentic-tdd-linter = "agentic_tdd_linter.cli:main"
+agentic-tdd-linter = "agentic_tdd_linter.cli.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_tdd_linter"]

@@ -1,51 +1,37 @@
 # GitHub Actions Review Proof
 
-`agentic-tdd-linter` separates local agent review from CI verification.
+This repository has two separate workflows:
 
-The full review artifacts stay local. The committed proof is the compact JSONL manifest at `tests/agentic_review_manifest.jsonl`.
+- The **pre-commit review workflow** creates `.agent.md` scorecards, completes their reviews, and records proof in the manifest before changes are committed.
+- The **CI/CD validation workflow** runs `agentic-tdd-linter lint` against the committed tests and manifest proof.
 
-## Local Review
+GitHub Actions verifies committed agent-review proof. It performs only the CI/CD validation workflow. It does not perform reviews, create `.agent.md` files, or record new manifest proof. The pre-commit review workflow is documented in the README.
 
-Run the linter on the developer machine:
-
-```bash
-agentic-tdd-linter check --all --reviewer codex:gpt-5.5
-```
-
-The linter checks `tests/agentic_review_manifest.jsonl` first. If the manifest is missing or stale, it writes review artifacts under `tests/agentic_review_artifacts`. Each artifact includes the agent review prompt, a copy of the test file being reviewed, the review `Status:`, review notes, and the test file SHA. The artifact files are intentionally ignored by git.
-
-Review those artifacts with the local Claude or Codex session already being used for development. After review, the agent sets each artifact `Status:` to `pass` or `fail`.
-
-Then rerun the same command:
-
-```bash
-agentic-tdd-linter check --all --reviewer codex:gpt-5.5
-```
-
-When the reviewed artifacts pass, the rerun writes or updates `tests/agentic_review_manifest.jsonl`. Commit that manifest with the code change.
+The committed proof is the compact JSONL manifest at `tests/agentic_review_manifest.jsonl`.
 
 ## Manifest Contents
 
-Each JSONL record proves one reviewed test file:
+Each JSONL record proves one reviewed test:
 
 ```json
-{"path": "tests/test_example.py", "source_sha256": "...", "status": "pass", "linter_version": "0.1.0", "review_contract_sha256": "...", "reviewer": "codex:gpt-5.5"}
+{"path": "tests/test_example.py", "test": "test_example", "source_sha256": "...", "status": "pass", "linter_version": "0.1.0", "review_contract_sha256": "...", "reviewer": "codex:gpt-5.5"}
 ```
 
 The fields mean:
 - `path`: the reviewed test file.
+- `test`: the reviewed test name.
 - `source_sha256`: the exact contents of that test file at review time.
 - `status`: the review result. CI accepts only `pass`.
 - `linter_version`: the linter version that wrote the attestation.
 - `review_contract_sha256`: a hash of the linter source and repository documentation.
 - `reviewer`: the model or agent identity used for review.
 
-## GitHub Actions Verification
+## Workflow Verification
 
-In CI, verify the manifest with the same command:
+In CI, verify the manifest:
 
 ```bash
-agentic-tdd-linter check --all --reviewer codex:gpt-5.5
+agentic-tdd-linter lint
 ```
 
 You can run that command directly as a workflow step, or call it from dogfood tests that are already part of the normal unit suite. This repository uses the dogfood test path, so the unit test workflow only needs:
@@ -54,19 +40,11 @@ You can run that command directly as a workflow step, or call it from dogfood te
 python -m unittest discover -s tests
 ```
 
-The linter verifies the committed manifest against the committed repository state before falling back to artifact review:
-1. The manifest must include a record for each checked test file.
+The workflow verifies the committed manifest against the committed repository state:
+1. The manifest must include a record for each checked test.
 2. Each `source_sha256` must match the committed test file contents.
 3. Each record must have `status: pass`.
-4. Each `linter_version` must be at least the linter version installed by the workflow.
+4. Each `linter_version` must exactly match the linter version installed by the workflow.
 5. Each `review_contract_sha256` must match the current linter source and documentation.
 
-When those checks pass, CI does not need the full review artifacts. When the manifest is missing or stale, the command creates the full review artifact and fails until the review is completed locally and the refreshed manifest is committed.
-
-## When To Refresh Proof
-
-Run `agentic-tdd-linter check --all --reviewer ...` again when:
-- a reviewed test file changes
-- the linter version is bumped
-- `README.md`, `pyproject.toml`, or files under `docs` change
-- the manifest format changes
+When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the developer to complete the pre-commit review workflow. It never creates `.agent.md` files in CI.

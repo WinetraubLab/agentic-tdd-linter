@@ -1,0 +1,213 @@
+{#
+Instructions for reviewing a single test.
+
+Inputs:
+- file_docstring: Module docstring shared by tests in the source file.
+- test: Complete test source exactly as extracted from the source file.
+- scenario_type: `happy path` or `failure path` value extracted from `Test Path` in the structured test docstring.
+- source_sha256: Invalidates this review packet when the complete source test file changes.
+-#}
+# Agentic Test Review
+
+## Instructions
+
+Review the shared vocabulary under `## File Docstring` and the structured test docstring and assertions under `## Test Content`.
+Update every row in `## Review Scorecard` according to the criteria under `## Review Criteria`.
+Set each result to `pass` or `fail`, and provide concrete notes for every failure.
+
+Evaluate each criterion in a fresh subagent. Provide only this Markdown file as the review packet.
+Do not inspect repository files, manifests, outer unit tests, prior conversation, or expected assertions.
+If context is missing from this file, fail with notes asking the test to include it.
+
+## Review Criteria
+
+### 1x. Requirement Formulation
+
+#### 11. First Sentence Describes Behavior
+The first `Requirement Tested` sentence shall state a general behavioral rule from the perspective of a system architect.
+The rule shall apply beyond the particular inputs exercised by the test.
+Exact contract entities, relationships, limits, and exceptions may remain when they define the rule.
+A list of named input-to-outcome examples is not a general rule.
+
+#### 12. Second Sentence Describes a Scenario
+{% if scenario_type == "happy path" %}
+For this happy-path test, apply only the happy-path rules below. Do not require an invalid condition or failure behavior.
+The second `Requirement Tested` sentence shall make the concrete scenario immediately clear.
+Classify the test inputs with exactly one prefix:
+- `Standard usage:` when the test exercises baseline behavior without modifying an input, configuration, or precondition. Use the exact sentence `Standard usage: The scenario demonstrates baseline behavior.` No further description is required.
+- `Specialized usage:` identifies behavior involving a modified input, configuration, or precondition. State the use case directly, name the changed item, and contrast its specialized value or state with its baseline value or state.
+
+For example, `Specialized usage: Immediate retries set timeout to zero rather than a positive duration.` names the use case, changed input, specialized value, and baseline value.
+{% else %}
+The second `Requirement Tested` sentence shall state one concrete failure scenario directly: the existing invalid condition and the system behavior it triggers.
+{% endif %}
+
+#### 13. Requirement Is Specific
+`Requirement Tested` shall explicitly state every material scope, quantifier, correspondence, trigger, and policy established by the test.
+Do not infer universal, repository-wide, or per-item guarantees from singular or generic wording.
+Fail wording that could describe several tests or be swapped onto another test with little change.
+
+#### 14. Requirement Is Atomic
+`Requirement Tested` shall express one independently meaningful requirement.
+Treat multiple properties as one atomic requirement when they collectively define the complete structure of one record, schema, or interface.
+Fail wording that combines behaviors with independent purposes that should be specified and tested separately.
+
+#### 15. Requirement Begins with the Behavior Owner
+The first `Requirement Tested` sentence shall begin with the behavior owner as its grammatical subject.
+It shall begin with neither a scenario condition such as `When`, `If`, or `Unless`, nor a query, helper, or command used only to obtain evidence.
+
+#### 16. Requirement Fits Declared Module Responsibility
+Use the single module and its responsibility stated at the start of `File Docstring` as review context.
+The first `Requirement Tested` sentence shall begin with that exact backticked module name as its grammatical subject, and the behavior assigned to it shall fall within the declared responsibility.
+Fail when the sentence omits the declared module, names another owner, or assigns behavior outside that responsibility.
+When another module owns the behavior, tell the author to move the test into or split it into a test file for that module.
+Do not judge whether the declaration is true of repository source; repository files are outside this review.
+
+### 2x. Verification Formulation
+
+#### 21. Expected Results Appear in Verification Detail
+`Requirement Tested` shall state every material contract relationship, limit, scope, and exception established by the test.
+`Verification Detail` shall state the concrete observations and values that prove that contract.
+An exact value that merely exemplifies the contract belongs in `Verification Detail`.
+An exact name or value that defines the contract itself remains in `Requirement Tested`.
+
+#### 22. Verification Detail Describes Evidence
+`Verification Detail` shall state the evidence that proves the requirement rather than only naming mechanics, fixtures, constants, assertions, commands, tags, or test names.
+
+#### 23. Verification Method Matches Exercised Interface
+`Verification Method` shall identify the interface whose result the test body directly obtains and asserts.
+Fail `verify public function output` when the asserted result comes only from a private helper or private function.
+
+### 3x. Sentence Structure and Logic
+
+#### 31. Sentence Avoids Double Negation
+Each sentence shall avoid double negation.
+For example, fail `The parser does not reject no input.`; prefer `The parser accepts empty input.`
+
+#### 32. Sentence Uses Subject-Verb-Object Order
+Each sentence shall state an explicit subject, finite main verb, and object in Subject -> Verb -> Object order.
+Evaluate the complete sentence, not a clause contained within it.
+Fail sentence fragments that describe only a method, including fragments beginning with `by`, `using`, `via`, or `through`.
+
+#### 33. Subject and Object Are Concise
+Evaluate only `Requirement Tested`, its `Standard usage:` or `Specialized usage:` sentence, and `Verification Detail`.
+Do not apply this criterion to `File Docstring`, test code, `Similar Coverage`, or other packet sections.
+Prefer sentence subjects and objects of no more than two words.
+Count each backticked term defined in `File Docstring` as one word, regardless of spaces inside it.
+Do not count grammatical articles `a`, `an`, or `the` toward the two-word limit.
+A longer phrase passes only when every word beyond the limit states a constraint independently established by the test evidence.
+A modifier is not necessary merely because removing it broadens the noun's ordinary meaning.
+Fail when the evidence does not distinguish the longer phrase from a concise alternative.
+
+#### 34. Main Verb Is Unambiguous
+Evaluate each main verb in `Requirement Tested` and `Verification Detail`.
+Fail when the exact word form has a noun use that is common in contemporary technical prose.
+Do not fail for rare, specialized, historical, or unrelated noun senses.
+
+#### 35. Conditions Are Explicit
+Every conditional relationship shall explicitly name its trigger or governing use case.
+Use condition markers such as `if`, `when`, `unless`, or `only if` when expressing a logical condition.
+In a `Specialized usage:` sentence, directly naming the use case that governs the modified input, configuration, or precondition satisfies this criterion.
+For example, fail `Empty input triggers rejection.`; prefer `When input is empty, the parser rejects it.`
+
+#### 36. Relative Clauses Are Complete
+A relative clause shall identify its referent and include every comparison target needed to understand the relationship.
+Fail when the referent is unclear or a comparison target is missing.
+
+#### 37. Sentence Expresses One Concept
+Each sentence shall communicate one primary idea, requirement, or decision.
+For example, fail `The parser trims whitespace and rejects empty input.` because trimming and rejection are separate behaviors; prefer `The parser trims whitespace. The parser rejects empty input.`
+
+#### 38. Behavior Uses Active Voice
+`Requirement Tested` shall use active voice when describing behavior.
+Fail passive constructions that make the responsible actor implicit or secondary.
+For example, fail `Invalid tests are rejected by the linter.`; prefer `The linter rejects invalid tests.`
+
+#### 39. Subject Is Not This, That, These, or Those
+A sentence's grammatical subject shall not be `This`, `That`, `These`, or `Those` by itself.
+For example, fail `This applies to the repository manifest.`; prefer `The rule applies to the repository manifest.`
+Allow these words when they modify a named noun or are not the subject, such as `higher than this test`.
+
+### 4x. Terminology and Reference Clarity
+
+#### 42. Domain Terms Are Defined
+Backticks in `Requirement Tested` declare shared local or domain-specific terms.
+The module name in the opening `File Docstring` declaration is defined by that declaration.
+Every other declared term shall exactly match a `Terms:` entry in `File Docstring`.
+Backticks elsewhere identify code or literal values, not shared glossary terms.
+Do not infer glossary terms from plain, unbackticked wording.
+For example, "The parser applies `normalization`." requires a `normalization` glossary entry.
+
+#### 43. Data-Flow Terms Name an Owner
+Ambiguous data-flow words such as `input`, `output`, `provided`, and `returns` shall name an explicit owner.
+For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
+
+#### 44. Wording Is Concrete
+Review wording shall name the property established by the evidence.
+When a query, check, or observation supplies evidence about a state or relationship, state that underlying property rather than the evidence-gathering action.
+Fail wording that is weaker or less precise than the property the test establishes.
+
+#### 46. Terms Reuse Shared Vocabulary
+`Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
+Use a new term only for a different concept.
+Fail duplicate terms and name the existing term to use instead.
+
+### 5x. Assertion Quality
+
+#### 51. Assertions Prove the Stated Requirement
+Review each assertion independently.
+`Requirement Tested` shall state every behavior, scope, relationship, quantifier, identity, and correspondence established by an assertion.
+Multiple assertions may jointly prove one stated structural contract.
+Fail when an assertion establishes an additional, stronger, or more specific guarantee.
+
+#### 52. Input Checks Are Tagged
+Every input-validation assertion shall include the exact `# Input check` comment.
+
+#### 53. Test Values Are Local
+Define every case-specific synthetic input and expected value inside the test body.
+Setup helpers may realize values explicitly supplied by the test.
+Values observed from the system under test are evidence, not synthetic test values.
+
+## File Docstring
+
+````text
+{{ file_docstring }}
+````
+
+## Test Content
+
+```
+{{ test }}
+```
+
+## Review Scorecard
+
+| # | Criterion | Result | Notes |
+|---:|---|---|---|
+| 11 | First Sentence Describes Behavior | pending | Replace with review evidence. |
+| 12 | Second Sentence Describes a Scenario | pending | Replace with review evidence. |
+| 13 | Requirement Is Specific | pending | Replace with review evidence. |
+| 14 | Requirement Is Atomic | pending | Replace with review evidence. |
+| 15 | Requirement Begins with the Behavior Owner | pending | Replace with review evidence. |
+| 16 | Requirement Fits Declared Module Responsibility | pending | Replace with review evidence. |
+| 21 | Expected Results Appear in Verification Detail | pending | Replace with review evidence. |
+| 22 | Verification Detail Describes Evidence | pending | Replace with review evidence. |
+| 23 | Verification Method Matches Exercised Interface | pending | Replace with review evidence. |
+| 31 | Sentence Avoids Double Negation | pending | Replace with review evidence. |
+| 32 | Sentence Uses Subject-Verb-Object Order | pending | Replace with review evidence. |
+| 33 | Subject and Object Are Concise | pending | Replace with review evidence. |
+| 34 | Main Verb Is Unambiguous | pending | Replace with review evidence. |
+| 35 | Conditions Are Explicit | pending | Replace with review evidence. |
+| 36 | Relative Clauses Are Complete | pending | Replace with review evidence. |
+| 37 | Sentence Expresses One Concept | pending | Replace with review evidence. |
+| 38 | Behavior Uses Active Voice | pending | Replace with review evidence. |
+| 39 | Subject Is Not This, That, These, or Those | pending | Replace with review evidence. |
+| 42 | Domain Terms Are Defined | pending | Replace with review evidence. |
+| 43 | Data-Flow Terms Name an Owner | pending | Replace with review evidence. |
+| 44 | Wording Is Concrete | pending | Replace with review evidence. |
+| 46 | Terms Reuse Shared Vocabulary | pending | Replace with review evidence. |
+| 51 | Assertions Prove the Stated Requirement | pending | Replace with review evidence. |
+| 52 | Input Checks Are Tagged | pending | Replace with review evidence. |
+| 53 | Test Values Are Local | pending | Replace with review evidence. |
+
+Source SHA256: `{{ source_sha256 }}`

@@ -1,0 +1,568 @@
+# Test-source examples for agent review.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+simple_sentence_structure:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    37: # Sentence Expresses One Concept
+      pass # The requirement and verification detail each express one idea.
+
+long_requirement_subject:
+  file_docstring: |
+    """Tests in this file validate `source_artifact` located at `src/examples/source_artifact.py`.
+    `source_artifact` is responsible for emitting source-analysis diagnostics.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `source_artifact` module in the current repository emits warning.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Emitting diagnostics belongs to the source artifact.
+    33: # Subject and Object Are Concise
+      fail # The subject contains `source_artifact` plus the unsupported words `module in the current repository`.
+
+long_verification_subject:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The captured failure output names double negation.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    33: # Subject and Object Are Concise
+      fail # The verification detail uses `The captured failure output` as a long subject.
+
+necessary_quantifier_preserves_precision:
+  file_docstring: |
+    """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
+    `repository_validation` is responsible for validating repository module coverage.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
+    """
+  test: |
+    def test_tests_have_source_or_harness(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `repository_validation` requires every `test module` to have a same-basename `source module` or `test-harness module`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_unmatched_test_paths` produces `[]`.
+        Each checked `test module` matches one of the two permitted module types.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        test_root = repo_root / "tests"
+        mirrored_folders = (
+            "agentic_linter",
+            "cli",
+            "conventional_linter",
+            "indexing_test_functions",
+        )
+        self.assertEqual(
+            [],
+            _unmatched_test_paths(
+                repo_root=repo_root,
+                package_root=package_root,
+                test_root=test_root,
+                mirrored_folders=mirrored_folders,
+            ),
+        )
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Module-counterpart coverage belongs to repository validation.
+    33: # Subject and Object Are Concise
+      pass # Although `every test module` exceeds two words, dropping `every` would make the repository-wide requirement less precise.
+
+articles_do_not_count_toward_phrase_length:
+  file_docstring: |
+    """Tests in this file validate `yaml_validation` located at `src/examples/yaml_validation.py`.
+    `yaml_validation` is responsible for reporting YAML schema errors.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_rejects_owner_field() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `yaml_validation` emits an unsupported-field error.
+        Specialized usage: YAML input contains an owner field instead of supported fields.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation errors contain `owner is unsupported`.
+        """
+
+        errors = validate_yaml({"owner": "example"})
+        assert "owner is unsupported" in errors
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Unsupported-field errors belong to YAML schema validation.
+    33: # Subject and Object Are Concise
+      pass # The grammatical article `an` does not count toward the two-word object limit.
+
+verification_double_negation:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by checking that `no failure` is false.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    31: # Sentence Avoids Double Negation
+      fail # `no failure` combined with `false` expresses double negation.
+
+requirement_expresses_many_concepts:
+  file_docstring: |
+    """Tests in this file validate `parser` located at `src/examples/parser.py`.
+    `parser` is responsible for processing numeric input.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `parser` accepts positive numbers safely. It adds paired inputs together. It returns a numeric total. It preserves sign information for callers. It gives successful calculation results without extra side effects or hidden fallback behavior in the result during normal use.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Numeric processing belongs to the parser's declared responsibility.
+    37: # Sentence Expresses One Concept
+      fail # The requirement combines acceptance, addition, return, sign, and side-effect concepts.
+
+requirement_relative_clause_omits_referent:
+  file_docstring: |
+    """Tests in this file validate `review_packet_generation` located at `src/examples/review_packet_generation.py`.
+    `review_packet_generation` is responsible for refreshing review artifacts.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `review_packet_generation` regenerates artifacts whose SHA no longer matches.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Refreshing stale artifacts belongs to review-packet generation.
+    36: # Relative Clauses Are Complete
+      fail # `whose SHA no longer matches` does not say what the SHA should match.
+
+backticked_agent_review_artifact_term:
+  file_docstring: |
+    """Tests in this file validate `review_status_lint` located at `src/examples/review_status_lint.py`.
+    `review_status_lint` is responsible for deriving lint outcomes from review artifacts.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `review_status_lint` matches `linter exit code` to `pass status` or `fail status` in `agent_review_artifact`.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The result is positive.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Mapping review status to lint outcomes belongs to review-status lint.
+    42: # Domain Terms Are Defined
+      fail # The backticked status and artifact terms have no matching Terms entries in the file docstring.
+
+verification_omits_subject:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by asserting failed review output names self-contained assertions.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The verification detail begins with mechanics and has no grammatical subject.
+
+verification_mechanics_omit_subject:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by changing a reviewed test file and asserting the artifact returns to pending.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    32: # Sentence Uses Subject-Verb-Object Order
+      fail # The verification detail starts with mechanics and omits a subject.
+
+verification_uses_names_as_verb:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Output names double negation.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    34: # Main Verb Is Unambiguous
+      fail # `names` has a common noun use in contemporary technical prose.
+
+verification_uses_reports_as_verb:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        A pending artifact reports that agent review has not completed.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    34: # Main Verb Is Unambiguous
+      fail # `reports` has a common noun use in contemporary technical prose.
+
+verification_expresses_many_concepts:
+  file_docstring: |
+    """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
+    `calculator` is responsible for arithmetic calculations.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_adds_numbers() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calculator` produces a positive result when adding two numbers.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        by checking the sum is positive. It uses two numbers. It compares a total. It confirms normal output. It records the calculation result without hidden fallback checks or extra branch expectations during review for this ordinary addition example case only.
+        """
+
+        assert 1 + 1 > 0
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Positive arithmetic results belong to the calculator.
+    37: # Sentence Expresses One Concept
+      fail # The verification detail combines several independent evidence claims.
+
+demonstrative_subject_omits_referent:
+  file_docstring: |
+    """Tests in this file validate `review_manifest_policy` located at `src/examples/review_manifest_policy.py`.
+    `review_manifest_policy` is responsible for preserving review manifests in source control.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_review_manifest_is_tracked(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `review_manifest_policy` keeps review manifests in source control.
+            This applies to the repository test manifest.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            Git reports the manifest as tracked.
+            """
+
+            result = _tracked_result(Path("tests") / "agentic_review_manifest.jsonl")
+
+            self.assertEqual(0, result.returncode, result.stderr or result.stdout)
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Keeping review manifests in source control belongs to review-manifest policy.
+    12: # Second Sentence Describes a Scenario
+      fail # The happy-path scenario omits the required Standard usage or Specialized usage prefix.
+    34: # Main Verb Is Unambiguous
+      fail # `reports` has a common noun use in contemporary technical prose.
+    38: # Behavior Uses Active Voice
+      pass # `keeps` and `applies` are active verb forms rather than passive `be` plus a past participle.
+    39: # Subject Is Not This, That, These, or Those
+      fail # `This` stands alone as the subject and requires the reader to infer the source-control rule.
+
+demonstrative_modifies_explicit_noun:
+  file_docstring: |
+    """Tests in this file validate `review_packet_comparison` located at `src/examples/review_packet_comparison.py`.
+    `review_packet_comparison` is responsible for comparing review levels.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_review_levels() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `review_packet_comparison` compares review levels.
+        When coverage overlaps, reviewers compare levels.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The other test is higher than this test.
+        """
+
+        assert "higher" in "higher than this test"
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Comparing review levels belongs to review-packet comparison.
+    39: # Subject Is Not This, That, These, or Those
+      pass # `The other test` is the explicit subject; `this test` is the comparison object.
+
+standard_usage_avoids_cross_criterion_conflicts:
+  file_docstring: |
+    """Tests in this file validate `parser` located at `src/examples/parser.py`.
+    `parser` is responsible for converting text.
+
+    For example, this file contains one parser test.
+    """
+  test: |
+    def test_parses_default_text() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `parser` converts text.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Parser output contains expected tokens.
+        """
+
+        expected_tokens = ["word"]
+
+        assert parse("word") == expected_tokens
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Text conversion belongs to the parser.
+    34: # Main Verb Is Unambiguous
+      pass # `converts`, `demonstrates`, and `contains` have no common noun use in contemporary technical prose.
+    35: # Conditions Are Explicit
+      pass # The standard-usage classification expresses no condition that requires a condition word.
+    43: # Data-Flow Terms Name an Owner
+      pass # The standard-usage classification contains no ambiguous data-flow terms, and `Parser` owns its output.
+
+specialized_usage_marks_condition_explicitly:
+  file_docstring: |
+    """Tests in this file validate `client` located at `src/examples/client.py`.
+    `client` is responsible for sending requests.
+
+    For example, this file contains one client test.
+    """
+  test: |
+    def test_retries_immediately() -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `client` sends requests.
+        Specialized usage: For immediate retries, timeout becomes zero (instead of a positive duration).
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The client sends the request without waiting.
+        """
+
+        result = send_request(timeout=0)
+
+        assert result.sent
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Sending immediate-retry requests belongs to the client.
+    12: # Second Sentence Describes a Scenario
+      pass # The specialized scenario uses criterion 12's exact use-case and modified-input format.
+    15: # Requirement Begins with the Behavior Owner
+      pass # The first requirement sentence begins with the declared `client`, which owns the behavior.
+    35: # Conditions Are Explicit
+      pass # The exact `For immediate retries,` phrase explicitly identifies the use case that conditions the specialized input.
+
+implicit_condition_omits_marker:
+  file_docstring: |
+    """Tests in this file validate `parser` located at `src/examples/parser.py`.
+    `parser` is responsible for validating text.
+
+    For example, this file contains one parser test.
+    """
+  test: |
+    def test_rejects_empty_text() -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `parser` rejects empty text.
+        Empty text triggers rejection.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The parser raises `ValueError`.
+        """
+
+        with pytest.raises(ValueError):
+            parse("")
+  expected_scorecard:
+    16: # Requirement Fits Declared Module Responsibility
+      pass # Rejecting empty text belongs to the parser's validation responsibility.
+    35: # Conditions Are Explicit
+      fail # `Empty text triggers rejection.` expresses a condition without an explicit condition marker.

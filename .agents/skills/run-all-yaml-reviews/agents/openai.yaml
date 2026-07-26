@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run All YAML Reviews"
+  short_description: "Freshly review and classify all YAML examples"
+  default_prompt: "Use $run-all-yaml-reviews to run all YAML examples fresh and classify every mismatch against recent history."

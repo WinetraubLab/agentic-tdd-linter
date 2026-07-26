@@ -1,0 +1,4 @@
+interface:
+  display_name: "Calibrate Review Criteria"
+  short_description: "Test and refine agent-review criteria"
+  default_prompt: "Use $calibrate-agent-review-criteria to diagnose this YAML scorecard mismatch and test generalized criterion wording."
