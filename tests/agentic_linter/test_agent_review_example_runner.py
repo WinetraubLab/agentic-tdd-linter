@@ -163,7 +163,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Verification Detail:
         mock.patch replaces time.time and YAML validation to record their call order.
-        Event log records time before validation.
+        `_begin_yaml_validation` produces `timer start` value `1.0`.
+        Call order is `time`, then `validation`.
         """
 
         events: list[str] = []
@@ -184,25 +185,31 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 side_effect=reject_yaml,
             ),
         ):
-            runner_harness._begin_yaml_validation(Path("examples"))
+            started_at, _ = runner_harness._begin_yaml_validation(
+                Path("examples")
+            )
 
+        self.assertEqual(1.0, started_at)
         self.assertEqual(["time", "validation"], events)
 
     def test_timer_end_follows_scorecard_comparison(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_example_runner` orders scorecard comparison, `timer end`, and duration calculation.
+        `agent_review_example_runner` ensures `timer end` occurs after scorecard comparison completes.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         mock.patch replaces scorecard comparison, time.time, and duration calculation to record their call order.
-        Event log records comparison before time and duration.
+        `_finish_yaml_evaluation` produces duration `3.0`.
+        Duration calculation receives `timer end` value `4.0`.
+        Call order is `comparison`, then `time`, then `duration`.
         """
 
         events: list[str] = []
+        completed_values: list[float] = []
 
         def compare_scorecards(*args: object, **kwargs: object) -> list[str]:
             events.append("comparison")
@@ -218,6 +225,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             completed_at: float,
         ) -> float:
             events.append("duration")
+            completed_values.append(completed_at)
             return 3.0
 
         with (
@@ -233,13 +241,15 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 side_effect=calculate_duration,
             ),
         ):
-            runner_harness._finish_yaml_evaluation(
+            _, duration = runner_harness._finish_yaml_evaluation(
                 mismatches=[],
                 tested_cases_by_criterion={},
                 baseline_path=Path("baseline.json"),
                 start_path=Path("review-started-at"),
             )
 
+        self.assertEqual(3.0, duration)
+        self.assertEqual([4.0], completed_values)
         self.assertEqual(["comparison", "time", "duration"], events)
 
     def test_runner_overwrites_jsonl_proof(self) -> None:
