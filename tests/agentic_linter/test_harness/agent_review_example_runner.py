@@ -7,6 +7,7 @@ import textwrap
 import time
 from pathlib import Path
 
+from agentic_tdd_linter.version import __version__
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
     _agent_md_file_is_stale,
     determine_agent_md_status,
@@ -29,12 +30,15 @@ from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import
 
 from .agent_review_examples import (
     _ScorecardMismatch,
+    _read_scorecard_attestations,
     _record_review_start,
     _review_duration_seconds,
+    _scorecard_attestation_is_current,
     _scorecard_mismatch_message,
     _scorecard_mismatches,
     _scorecard_regressions,
     _scorecard_results,
+    _write_scorecard_attestations,
     _write_scorecard_sidecar,
 )
 
@@ -48,6 +52,12 @@ SCORECARD_BASELINE_PATH = (
     / "tests"
     / "agentic_linter"
     / "test_agent_review_example_runner.json"
+)
+SCORECARD_ATTESTATION_PATH = (
+    REPO_ROOT
+    / "tests"
+    / "agentic_linter"
+    / "test_agent_review_example_runner.jsonl"
 )
 
 
@@ -64,6 +74,8 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
     pending_packets: list[Path] = []
     fixture_errors: list[str] = []
     mismatches = []
+    completed_attestations: list[dict[str, object]] = []
+    attestations = _read_scorecard_attestations(SCORECARD_ATTESTATION_PATH)
     titles = criterion_titles_from_template()
     examples = [
         example
@@ -92,29 +104,67 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
             fixture_errors.append(f"{example.name}: fixture contains no tests")
             continue
         for test in tests:
+            expected_scorecard = {
+                number: expectation.result
+                for number, expectation in example.expected_scorecard.items()
+            }
+            attestation = attestations.get((example.name, test.name))
+            attestation_is_current = _scorecard_attestation_is_current(
+                attestation,
+                source_sha256=digest,
+                expected_scorecard=expected_scorecard,
+            )
             artifact_path = map_test_function_to_agent_md_file(
                 source_path, REPO_ROOT, ARTIFACT_ROOT, test.name
             )
-            if not artifact_path.exists() or _agent_md_file_is_stale(
-                source_path, artifact_path
-            ):
-                _record_review_start(REVIEW_START_PATH, invocation_started_at)
-                render_agent_md_file(
-                    source_path, test, REPO_ROOT, ARTIFACT_ROOT
-                )
-            artifact_text = artifact_path.read_text(encoding="utf-8")
-            if determine_agent_md_status(artifact_text) == "pending":
-                pending_packets.append(artifact_path)
-                continue
+            if attestation_is_current:
+                actual_scorecard = {
+                    int(number): str(result)
+                    for number, result in attestation["actual_scorecard"].items()
+                }
+                reviewer = attestation["reviewer"]
+            else:
+                if not artifact_path.exists() or _agent_md_file_is_stale(
+                    source_path, artifact_path
+                ):
+                    _record_review_start(REVIEW_START_PATH, invocation_started_at)
+                    render_agent_md_file(
+                        source_path, test, REPO_ROOT, ARTIFACT_ROOT
+                    )
+                artifact_text = artifact_path.read_text(encoding="utf-8")
+                if determine_agent_md_status(artifact_text) == "pending":
+                    pending_packets.append(artifact_path)
+                    continue
+                all_actual_results = _scorecard_results(artifact_text)
+                actual_scorecard = {
+                    number: all_actual_results[number]
+                    for number in expected_scorecard
+                }
+                reviewer = {"model": reviewer_model}
+            completed_attestations.append(
+                {
+                    "yaml_case": example.name,
+                    "test": test.name,
+                    "scorecard_scope": "expected_criteria",
+                    "source_sha256": digest,
+                    "linter_version": __version__,
+                    "reviewer": reviewer,
+                    "expected_scorecard": {
+                        str(number): result
+                        for number, result in sorted(expected_scorecard.items())
+                    },
+                    "actual_scorecard": {
+                        str(number): result
+                        for number, result in sorted(actual_scorecard.items())
+                    },
+                }
+            )
             mismatches.extend(
                 _scorecard_mismatches(
                     example_name=example.name,
                     test_name=test.name,
-                    expected_scorecard={
-                        number: expectation.result
-                        for number, expectation in example.expected_scorecard.items()
-                    },
-                    actual_scorecard=_scorecard_results(artifact_text),
+                    expected_scorecard=expected_scorecard,
+                    actual_scorecard=actual_scorecard,
                 )
             )
     if pending_packets:
@@ -132,6 +182,10 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
         tested_cases_by_criterion=tested_cases_by_criterion,
         baseline_path=SCORECARD_BASELINE_PATH,
         start_path=REVIEW_START_PATH,
+    )
+    _write_scorecard_attestations(
+        SCORECARD_ATTESTATION_PATH,
+        completed_attestations,
     )
     _write_scorecard_sidecar(
         sidecar_path=SCORECARD_BASELINE_PATH,
