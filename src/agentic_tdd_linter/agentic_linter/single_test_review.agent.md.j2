@@ -15,7 +15,9 @@ Review the shared vocabulary under `## File Docstring` and the structured test d
 Update every row in `## Review Scorecard` according to the criteria under `## Review Criteria`.
 Set each result to `pass` or `fail`, and provide concrete notes for every failure.
 
-Evaluate each criterion in a fresh subagent. Provide only this Markdown file as the review packet.
+Use one fresh isolated reviewer for this Markdown packet. Provide only this Markdown file as the review packet.
+The reviewer shall evaluate every criterion and update every scorecard row.
+Evaluate each criterion independently; a failure under one criterion shall not imply failure under another criterion.
 Do not inspect repository files, manifests, outer unit tests, prior conversation, or expected assertions.
 If context is missing from this file, fail with notes asking the test to include it.
 
