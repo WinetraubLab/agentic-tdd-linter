@@ -43,9 +43,9 @@ class ClassificationTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Deeper coverage — The current test isolates acceptance of the `happy path` classification. The higher test validates that classification inside a complete Python test docstring.
+          Justification: Diagnostic completeness — The current test isolates whether `happy path` alone is accepted. The higher test combines that classification with three other required Python docstring fields.
         - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Deeper coverage — The current test isolates acceptance of the `happy path` classification. The higher test validates that classification inside a complete TypeScript test docstring.
+          Justification: Diagnostic completeness — The current test isolates whether `happy path` alone is accepted. The higher test combines that classification with three other required TypeScript docstring fields.
         """
 
         rules = _lint_classification_source(
@@ -116,9 +116,9 @@ class ClassificationTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Deeper coverage — The current test isolates acceptance of public function output. The higher test validates that method inside a complete Python test docstring.
+          Justification: Diagnostic completeness — The current test isolates whether public function output alone is accepted. The higher test combines that method with three other required Python docstring fields.
         - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Deeper coverage — The current test isolates acceptance of public function output. The higher test validates that method inside a complete TypeScript test docstring.
+          Justification: Diagnostic completeness — The current test isolates whether public function output alone is accepted. The higher test combines that method with three other required TypeScript docstring fields.
         """
 
         rules = _lint_classification_source(
