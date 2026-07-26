@@ -257,7 +257,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Requirement Tested:
         `agent_review_example_runner` replaces `runner JSONL` after every completed YAML-example evaluation with its expected and actual scorecards.
-        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSONL` records different expected and actual scorecards.
+        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSONL` contains different expected and actual scorecards.
 
         Verification Method: verify private function output
 
@@ -265,11 +265,11 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Harness applies mock.patch to complete one successful and one regressing evaluation.
         1. Harness initializes `runner JSONL` with seed text.
         2. Harness completes a successful evaluation.
-        3. Successful proof records equal expected and actual scorecards.
+        3. Successful proof contains equal expected and actual scorecards.
         4. Harness initializes `runner JSONL` with new seed text.
         5. Harness completes a regressing evaluation.
-        6. Regressing proof records different expected and actual scorecards.
-        Both seed values are absent from the resulting proof.
+        6. Regressing proof contains different expected and actual scorecards.
+        The resulting proof excludes both seed values.
         """
 
         example = SimpleNamespace(
@@ -315,7 +315,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Requirement Tested:
         `agent_review_example_runner` replaces `runner JSON` after every completed YAML-example evaluation with its failing YAML cases.
-        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSON` names the failing YAML case.
+        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSON` identifies the failing YAML case.
 
         Verification Method: verify private function output
 
@@ -327,7 +327,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         4. Harness initializes `runner JSON` with new seed text.
         5. Harness completes a regressing evaluation.
         6. Regressing report contains the failing YAML case.
-        Both seed values are absent from the resulting report.
+        The resulting report excludes both seed values.
         """
 
         example = SimpleNamespace(
