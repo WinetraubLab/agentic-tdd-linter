@@ -2,7 +2,8 @@
 `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
 
 Terms:
-- `runner JSON`: Runner JSON is the `agent_review_example_runner` output at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
+- `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
+- `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. For example, current proof lets CI evaluate YAML examples without `.agent.md` files.
 - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
 - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
 - `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
@@ -11,6 +12,7 @@ Terms:
 from __future__ import annotations
 
 import contextlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -36,13 +38,13 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
+        Harness applies mock.patch to provide an empty artifact directory.
         1. Runner examines the `YAML fixture catalog`.
-        2. Runner invokes anonymous harness.
-        3. Reviewers complete files that `agent_review_example_runner` creates.
-        4. Runner compares scorecards with YAML expectations.
-        Review runner produces no value.
+        2. Runner parses committed `runner JSONL`.
+        3. Every attestation corresponds to its current YAML source and expected scorecard.
+        4. Artifact directory contains zero '.agent.md' files.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
-        The orchestration test provides its catalog path, reviewer model, and expected result.
+        The orchestration test provides its catalog path and reviewer model.
 
         Similar Coverage:
         - Lower Level Test: `test_agent_review_yaml_fixture_contract.py::test_result_requires_explanation`
@@ -68,9 +70,23 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         expected_result = None
         examples_path = REPO_ROOT / examples_relative_path
 
-        result = run_agent_review_examples(
-            examples_path=examples_path,
-            reviewer_model=reviewer_model,
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            anonymous_root = Path(temporary_directory) / "agent_review_examples"
+            artifact_root = anonymous_root / "agentic_review_artifacts"
+            with mock.patch.multiple(
+                runner_harness,
+                ANONYMOUS_ROOT=anonymous_root,
+                ARTIFACT_ROOT=artifact_root,
+                REVIEW_START_PATH=anonymous_root / ".review_started_at",
+            ):
+                run_agent_review_examples(
+                    examples_path=examples_path,
+                    reviewer_model=reviewer_model,
+                )
+                packets = list(artifact_root.glob("*.agent.md"))
+
+        self.assertEqual([], packets)
+
         )
 
         self.assertEqual(expected_result, result)
