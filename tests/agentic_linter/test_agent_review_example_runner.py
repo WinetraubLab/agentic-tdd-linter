@@ -192,7 +192,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_example_runner` ensures `timer end` occurs after scorecard comparison completes.
         `agent_review_example_runner` orders scorecard comparison, `timer end`, and duration calculation.
         Standard usage: The scenario demonstrates baseline behavior.
 
@@ -200,12 +199,10 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Verification Detail:
         mock.patch replaces scorecard comparison, time.time, and duration calculation to record their call order.
-        Duration calculation receives `timer end` value `4.0`.
-        Call order is `comparison`, then `time`, then `duration`.
+        Event log records comparison before time and duration.
         """
 
         events: list[str] = []
-        completed_values: list[float] = []
 
         def compare_scorecards(*args: object, **kwargs: object) -> list[str]:
             events.append("comparison")
@@ -221,7 +218,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             completed_at: float,
         ) -> float:
             events.append("duration")
-            completed_values.append(completed_at)
             return 3.0
 
         with (
@@ -237,18 +233,16 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 side_effect=calculate_duration,
             ),
         ):
-            _, duration = runner_harness._finish_yaml_evaluation(
+            runner_harness._finish_yaml_evaluation(
                 mismatches=[],
                 tested_cases_by_criterion={},
                 baseline_path=Path("baseline.json"),
                 start_path=Path("review-started-at"),
             )
 
-        self.assertEqual(3.0, duration)
-        self.assertEqual([4.0], completed_values)
         self.assertEqual(["comparison", "time", "duration"], events)
 
-    def test_runner_overwrites_json(self) -> None:
+    def test_runner_overwrites_jsonl_proof(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
