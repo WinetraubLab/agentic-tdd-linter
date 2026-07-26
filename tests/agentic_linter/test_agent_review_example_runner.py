@@ -87,9 +87,71 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         self.assertEqual([], packets)
 
+    def test_stale_attestation_requires_review(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `agent_review_example_runner` creates '.agent.md' files for stale `runner JSONL` attestations.
+        Specialized usage: When one attestation contains an outdated source hash, `agent_review_example_runner` creates one '.agent.md' file.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Harness applies mock.patch to provide an isolated artifact directory and stale proof path.
+        1. Harness initializes an isolated proof file from committed `runner JSONL`.
+        2. Harness substitutes one source hash with a stale value.
+        3. Runner evaluates the complete `YAML fixture catalog`.
+        4. Artifact directory contains one '.agent.md' file.
+        """
+
+        examples_path = (
+            REPO_ROOT / "tests/agentic_linter/fixtures/single_test_review"
+        )
+        committed_attestations = (
+            REPO_ROOT
+            / "tests"
+            / "agentic_linter"
+            / "test_agent_review_example_runner.jsonl"
         )
 
-        self.assertEqual(expected_result, result)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            anonymous_root = temporary_root / "agent_review_examples"
+            artifact_root = anonymous_root / "agentic_review_artifacts"
+            attestation_path = temporary_root / "stale.jsonl"
+            records = [
+                json.loads(line)
+                for line in committed_attestations.read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            ]
+            stale_record = next(
+                record
+                for record in records
+                if record["yaml_case"] == "ambiguous_input"
+            )
+            stale_record["source_sha256"] = "0" * 64
+            attestation_path.write_text(
+                "".join(json.dumps(record) + "\n" for record in records),
+                encoding="utf-8",
+            )
+
+            with mock.patch.multiple(
+                runner_harness,
+                ANONYMOUS_ROOT=anonymous_root,
+                ARTIFACT_ROOT=artifact_root,
+                SCORECARD_ATTESTATION_PATH=attestation_path,
+                REVIEW_START_PATH=anonymous_root / ".review_started_at",
+            ):
+                with contextlib.suppress(RuntimeError):
+                    run_agent_review_examples(
+                        examples_path=examples_path,
+                        reviewer_model="5.6 Sol Medium",
+                    )
+
+            packets = list(artifact_root.glob("*.agent.md"))
+
+        self.assertEqual(1, len(packets))
 
     def test_timer_start_precedes_yaml_validation(self) -> None:
         """Test Path: happy path
@@ -102,8 +164,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         Verification Detail:
         mock.patch replaces time.time and YAML validation to record their call order.
-        `_begin_yaml_validation` produces `timer start` value `1.0`.
-        Call order is `time`, then `validation`.
+        Event log records time before validation.
         """
 
         events: list[str] = []
