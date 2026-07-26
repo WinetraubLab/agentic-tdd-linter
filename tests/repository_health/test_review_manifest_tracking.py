@@ -19,14 +19,14 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_manifest_tracking` requires source control to track `YAML-example lint report`.
+        `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.json`.
-        `_tracked_result` exit code equals `0`.
+        `_tracked_result` produces exit code `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -43,14 +43,14 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_manifest_tracking` requires source control to track `YAML-example lint proof`.
+        `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.jsonl`.
-        `_tracked_result` exit code equals `0`.
+        `_tracked_result` produces exit code `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -67,14 +67,14 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_manifest_tracking` requires source control to track `self-lint review record`.
+        `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
         Git index contains `tests/agentic_review_manifest.jsonl`.
-        `_tracked_result` exit code equals `0`.
+        `_tracked_result` produces exit code `0`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
