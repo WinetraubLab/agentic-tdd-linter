@@ -20,6 +20,7 @@ Do not silently invoke this skill. Include the current skill step number in ever
 Work from the repository root. Preserve YAML fixtures, criteria, source files, and unrelated changes.
 
 Remove every `.agent.md` file under `temporary_fixtures/agent_review_examples/agentic_review_artifacts/`.
+Remove `tests/agentic_linter/test_agent_review_example_runner.jsonl` so committed attestations cannot satisfy this fresh run.
 
 ## Step 2: Generate all YAML reviews
 
@@ -54,7 +55,7 @@ After reviewers complete every generated `.agent.md`, run the same unittest comm
   -v
 ```
 
-This invocation compares completed scorecards with YAML expectations and updates `tests/agentic_linter/test_agent_review_example_runner.json`, even when comparison failures make the test exit nonzero. Do not edit YAML or criterion wording during this run.
+This invocation compares completed scorecards with YAML expectations and updates `tests/agentic_linter/test_agent_review_example_runner.json` and `tests/agentic_linter/test_agent_review_example_runner.jsonl`, even when comparison failures make the test exit nonzero. Do not edit YAML or criterion wording during this run.
 
 ## Step 5: Analyze history
 
