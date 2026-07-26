@@ -38,11 +38,11 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Harness applies mock.patch to provide an empty artifact directory.
-        1. Runner examines the `YAML fixture catalog`.
-        2. Runner parses committed `runner JSONL`.
-        3. Every attestation corresponds to its current YAML source and expected scorecard.
-        4. Artifact directory contains zero '.agent.md' files.
+        1. Harness records existing '.agent.md' paths in the persistent artifact directory.
+        2. Runner examines the `YAML fixture catalog`.
+        3. Runner parses committed `runner JSONL`.
+        4. Every attestation corresponds to its current YAML source and expected scorecard.
+        5. Persistent artifact directory gains zero '.agent.md' files.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
         The orchestration test provides its catalog path and reviewer model.
 
@@ -69,22 +69,14 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         reviewer_model = "5.6 Sol Medium"
         examples_path = REPO_ROOT / examples_relative_path
 
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            anonymous_root = Path(temporary_directory) / "agent_review_examples"
-            artifact_root = anonymous_root / "agentic_review_artifacts"
-            with mock.patch.multiple(
-                runner_harness,
-                ANONYMOUS_ROOT=anonymous_root,
-                ARTIFACT_ROOT=artifact_root,
-                REVIEW_START_PATH=anonymous_root / ".review_started_at",
-            ):
-                run_agent_review_examples(
-                    examples_path=examples_path,
-                    reviewer_model=reviewer_model,
-                )
-                packets = list(artifact_root.glob("*.agent.md"))
+        packets_before = set(runner_harness.ARTIFACT_ROOT.glob("*.agent.md"))
+        run_agent_review_examples(
+            examples_path=examples_path,
+            reviewer_model=reviewer_model,
+        )
+        packets_after = set(runner_harness.ARTIFACT_ROOT.glob("*.agent.md"))
 
-        self.assertEqual([], packets)
+        self.assertEqual(packets_before, packets_after)
 
     def test_stale_attestation_requires_review(self) -> None:
         """Test Path: failure path

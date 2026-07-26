@@ -43,7 +43,7 @@ Review every generated `.agent.md` file by following its instructions:
 
 ## Step 4: Rerun all YAML tests
 
-After reviewers complete every generated `.agent.md`, run the harness command again:
+After reviewers complete every generated `.agent.md`, run the same unittest command again:
 
 ```bash
 .venv/bin/python -m unittest \
