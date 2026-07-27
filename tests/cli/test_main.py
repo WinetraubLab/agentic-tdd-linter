@@ -47,7 +47,7 @@ class CliTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        `CLI output` contains the text `generated 1 agent review packets`.
+        `CLI output` contains the text `generated 2 agent review packets` for one single-test packet and one cross-test packet.
 
         Similar Coverage:
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
@@ -102,7 +102,7 @@ class CliTests(unittest.TestCase):
                     ]
                 )
 
-        self.assertIn("generated 1 agent review packets", stdout.getvalue())
+        self.assertIn("generated 2 agent review packets", stdout.getvalue())
 
 
 class ReviewProofFlowTests(unittest.TestCase):
