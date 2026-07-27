@@ -601,9 +601,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             extra_agent_md.write_text("extra .agent.md file\n", encoding="utf-8")
 
             _run_cli(repo_root, "create-agent-md", "--fresh")
-            rebuilt_files = _packet_paths(repo_root)
-
-        self.assertNotIn(extra_agent_md, rebuilt_files)
+            self.assertFalse(extra_agent_md.exists())
 
 if __name__ == "__main__":
     unittest.main()
