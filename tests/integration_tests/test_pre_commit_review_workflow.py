@@ -320,7 +320,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         7. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         8. Edited-test and cross-test '.agent.md' files contain `| pending | Replace with review evidence. |`.
         9. Unchanged-test '.agent.md' content retains `approved before source edit`.
-        10. Edited-test and cross-test '.agent.md' files contain no `approved before source edit`.
+        10. Cross-test '.agent.md' contains `tests/test_first.py` and excludes `tests/test_second.py`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
