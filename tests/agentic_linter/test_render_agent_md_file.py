@@ -74,6 +74,27 @@ class AgenticMarkdownTests(unittest.TestCase):
             "Use one fresh isolated reviewer for this Markdown packet",
             markdown,
         )
+
+    def test_requires_complete_review(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_agent_md_file` requires the reviewer to evaluate every criterion in each `single-test packet`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `render_agent_md_file` output contains `The reviewer shall evaluate every criterion`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = 'def test_adds_values() -> None:\n    """Test Path: happy path"""\n    assert 1 + 1 == 2\n'
+            test_file = Path(directory) / "test_sample.py"
+            test_file.write_text(source, encoding="utf-8")
+
+            markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
+
         self.assertIn(
             "The reviewer shall evaluate every criterion",
             markdown,
