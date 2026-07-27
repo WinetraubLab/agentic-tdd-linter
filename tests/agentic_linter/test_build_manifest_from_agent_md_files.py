@@ -305,10 +305,16 @@ class AgentReviewManifestTests(unittest.TestCase):
                 json.loads(line)
                 for line in result_path.read_text(encoding="utf-8").splitlines()
             ]
+            expected_source_hash = _source_sha256(test_file)
 
         self.assertEqual(
             ["tests/test_sample.py"],
             [record["path"] for record in records],
+        )
+        self.assertEqual(["pass"], [record["status"] for record in records])
+        self.assertEqual(
+            [expected_source_hash],
+            [record["source_sha256"] for record in records],
         )
 
     def test_pending_review_is_not_recorded(self) -> None:
