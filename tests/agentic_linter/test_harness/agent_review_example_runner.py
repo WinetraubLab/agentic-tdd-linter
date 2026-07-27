@@ -61,7 +61,11 @@ SCORECARD_ATTESTATION_PATH = (
 )
 
 
-def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> None:
+def run_agent_review_examples(
+    *,
+    examples_path: Path,
+    reviewer_model: str,
+) -> tuple[Path, ...]:
     """Run every YAML example in one fixture folder through agentic review."""
 
     reviewer_model = reviewer_model.strip()
@@ -72,6 +76,7 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
         raise ValueError("\n".join(schema_errors))
 
     pending_packets: list[Path] = []
+    created_packets: list[Path] = []
     fixture_errors: list[str] = []
     mismatches = []
     completed_attestations: list[dict[str, object]] = []
@@ -128,8 +133,13 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
                     source_path, artifact_path
                 ):
                     _record_review_start(REVIEW_START_PATH, invocation_started_at)
-                    render_agent_md_file(
-                        source_path, test, REPO_ROOT, ARTIFACT_ROOT
+                    created_packets.append(
+                        render_agent_md_file(
+                            source_path,
+                            test,
+                            REPO_ROOT,
+                            ARTIFACT_ROOT,
+                        )
                     )
                 artifact_text = artifact_path.read_text(encoding="utf-8")
                 if determine_agent_md_status(artifact_text) == "pending":
@@ -207,6 +217,7 @@ def run_agent_review_examples(*, examples_path: Path, reviewer_model: str) -> No
             + "New failures exceed the committed scorecard baseline:\n"
             + "\n".join(regressions)
         )
+    return tuple(sorted(set(created_packets)))
 
 
 def _begin_yaml_validation(examples_path: Path) -> tuple[float, list[str]]:
