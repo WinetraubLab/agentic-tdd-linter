@@ -16,6 +16,8 @@ from pathlib import Path
 from tests.integration_tests.test_harness.usage_scenarios import (
     complete_packets as _complete_packets,
     manifest_records as _manifest_records,
+    packet_contents as _packet_contents,
+    packet_exists as _packet_exists,
     packet_paths as _packet_paths,
     run_cli as _run_cli,
     write_source as _write_source,
@@ -113,15 +115,16 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits missing_required_agent_md when a valid test has no `.agent.md`.
-        Specialized usage: Caller invokes lint for the unreviewed test before create-agent-md instead of after packet creation.
+        `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test.
+        Specialized usage: Caller invokes lint before create-agent-md, so `pre-commit review workflow` emits missing_required_agent_md guidance naming create-agent-md.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
         3. `pre-commit review workflow` output contains missing_required_agent_md.
+        4. `pre-commit review workflow` output contains create-agent-md guidance.
         """
 
         test_source = textwrap.dedent(
@@ -155,6 +158,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint")
 
         self.assertIn("missing_required_agent_md", lint.stdout)
+        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
 
     def test_classic_linter_errors_scenario(self) -> None:
         """Test Path: failure path
