@@ -442,25 +442,20 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` generates every single-test and cross-test '.agent.md' scorecard anew with only pending evidence when create-agent-md receives --fresh.
-        Specialized usage: Both artifact types contain completed evidence instead of pending evidence before refresh, so `pre-commit review workflow` replaces every completed scorecard.
+        `pre-commit review workflow` regenerates every selected single-test and cross-test `.agent.md` when create-agent-md receives --fresh.
+        Specialized usage: Every test has current manifest proof, but --fresh replaces all completed scorecards with pending scorecards.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness classifies every review as successful.
-        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Refresh creates exactly `3` packets: two single-test packets and one cross-test packet.
-        6. Every regenerated single-test and cross-test scorecard contains only pending evidence.
-        `pre-commit review workflow` output comprises `single` and `cross` types.
-        Every file from `pre-commit review workflow` contains `| pending | Replace with review evidence. |`.
-        No file from `pre-commit review workflow` contains prior completed evidence.
-
-        Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves fresh regeneration for every single-test and cross-test packet.
+        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:refresh-reviewer`.
+        5. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
+        6. Command reports exactly `3` generated packets.
+        7. Both single-test scorecards and the cross-test scorecard contain only pending evidence.
+        8. No regenerated scorecard retains completed evidence.
         """
 
         first_source = textwrap.dedent(
