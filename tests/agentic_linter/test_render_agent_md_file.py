@@ -53,7 +53,7 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_agent_md_file` requires one fresh reviewer for each `single-test packet`.
+        `render_agent_md_file` requires one fresh isolated reviewer for each `single-test packet`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
