@@ -247,6 +247,38 @@ def _find_tests_requiring_agent_review(
     }
 
 
+def _find_files_with_new_source_sha256(
+    files: Iterable[Path],
+    repo_root: Path,
+    manifest_path: Path | None = None,
+) -> list[Path]:
+    """Return files whose current source SHA256 is absent from the manifest."""
+
+    root = Path(repo_root).resolve()
+    selected_files = sorted({Path(file).resolve() for file in files})
+    manifest = _agent_review_manifest_path(root, manifest_path)
+    records, parse_issues = _read_manifest_records(manifest, root, missing_is_issue=False)
+    if parse_issues:
+        return selected_files
+
+    recorded_hashes_by_path: dict[str, set[str]] = {}
+    for record in records:
+        path = record.values.get("path", "")
+        source_sha256 = record.values.get("source_sha256", "")
+        if path and source_sha256:
+            recorded_hashes_by_path.setdefault(path, set()).add(source_sha256)
+
+    return [
+        test_file
+        for test_file in selected_files
+        if _source_sha256(test_file)
+        not in recorded_hashes_by_path.get(
+            _relative_path(test_file, root).as_posix(),
+            set(),
+        )
+    ]
+
+
 def _lint_agent_review_manifest(
     files: Iterable[Path],
     repo_root: Path,
