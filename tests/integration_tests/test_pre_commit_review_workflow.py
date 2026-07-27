@@ -210,19 +210,18 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits failed reviews: 'agent_review_failed' plus `.agent.md` regeneration instructions.
-        Specialized usage: When one '.agent.md' scorecard fails and another passes, `pre-commit review workflow` emits both messages.
+        `pre-commit review workflow` emits agent_review_failed plus `.agent.md` regeneration instructions when one review fails.
+        Specialized usage: One `.agent.md` scorecard fails and another passes instead of every scorecard passing.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness classifies one review as successful and another as unsuccessful.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. `pre-commit review workflow` output contains `agent_review_failed`.
-        Lint output emits `agent_review_failed`.
-        Lint output contains `Regenerate the selected packets once`.
+        5. `_run_cli` output contains `agent_review_failed`.
+        6. `_run_cli` output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
