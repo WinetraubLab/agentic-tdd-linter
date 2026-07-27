@@ -113,8 +113,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits missing_required_agent_md when caller invokes lint before `.agent.md` creation.
-        Specialized usage: Caller invokes lint before create-agent-md instead of after it, so `pre-commit review workflow` emits missing_required_agent_md.
+        `pre-commit review workflow` emits missing_required_agent_md when a valid test has no `.agent.md`.
+        Specialized usage: Caller invokes lint for the unreviewed test before create-agent-md instead of after packet creation.
 
         Verification Method: verify public function output
 
