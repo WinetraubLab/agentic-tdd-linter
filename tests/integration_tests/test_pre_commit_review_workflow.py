@@ -547,10 +547,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` removes an '.agent.md' file when that file lacks a corresponding test during create-agent-md --fresh.
-        Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
+        `pre-commit review workflow` removes an `.agent.md` file when that file lacks a corresponding test during create-agent-md --fresh.
+        Specialized usage: An extra `.agent.md` file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
