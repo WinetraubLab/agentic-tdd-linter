@@ -213,7 +213,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` emits failed reviews: 'agent_review_failed' plus `.agent.md` regeneration instructions.
         Specialized usage: When one '.agent.md' scorecard fails and another passes, `pre-commit review workflow` emits both messages.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
