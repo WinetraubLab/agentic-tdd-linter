@@ -23,19 +23,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.print_help()
         return 2
 
-    if args.all:
-        print(
-            "agentic-tdd-linter: --all is deprecated; use --fresh",
-            file=sys.stderr,
-        )
-
     repo_root = args.repo_root.resolve() if args.repo_root else _find_repo_root(Path.cwd())
     try:
         common_arguments = {
             "repo_root": repo_root,
             "test_root": args.test_root,
             "paths": args.paths,
-            "force_fresh": args.fresh or args.all,
+            "force_fresh": args.fresh,
             "manifest_path": args.manifest,
         }
         if args.command == "create-agent-md":
@@ -176,17 +170,11 @@ def _add_file_selection_arguments(parser: argparse.ArgumentParser) -> None:
         "--fresh",
         action="store_true",
         help=(
-            "ignore previous review proof and regenerate every packet in the selected "
-            "scope, including the cross-test packet; without paths, use the whole test root"
+            "ignore previous review proof and regenerate every single-test packet plus "
+            "the cross-test packet in the selected scope; without paths, use the whole "
+            "test root"
         ),
     )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="deprecated alias for --fresh",
-    )
-
-
 def _add_shared_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--format",
