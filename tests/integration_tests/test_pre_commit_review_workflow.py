@@ -214,8 +214,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits agent_review_failed plus `.agent.md` regeneration instructions when one review fails.
-        Specialized usage: One `.agent.md` scorecard fails and another passes instead of every scorecard passing.
+        `pre-commit review workflow` emits an agent_review_failed response requiring a full-scorecard check before editors apply a fix.
+        Specialized usage: One review fails instead of every review passing, so editors check every criterion before one regeneration.
 
         Verification Method: verify private function output
 
@@ -225,7 +225,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         3. Harness classifies one review as successful and another as unsuccessful.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
         5. `_run_cli` output contains `agent_review_failed`.
-        6. `_run_cli` output contains `Regenerate the selected packets once`.
+        6. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
+        7. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion.
+        8. `_run_cli` output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
         - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
@@ -302,6 +304,14 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
+        self.assertIn(
+            "read the complete scorecard in each failed `.agent.md` packet",
+            lint.stdout,
+        )
+        self.assertIn(
+            "evaluate the proposed test and docstring against every criterion",
+            lint.stdout,
+        )
         self.assertIn("Regenerate the selected packets once", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
