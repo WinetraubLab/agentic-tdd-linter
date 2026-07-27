@@ -83,11 +83,14 @@ def _next_action(
             (
                 "Next action:",
                 "1. Collect every failure from every selected packet before editing.",
-                "2. Make one consolidated source edit that addresses all collected failures.",
-                "3. Run the affected unit tests and finish all source edits before review.",
-                "4. Regenerate the selected packets once with "
+                "2. Before applying a fix, read the complete scorecard in each failed "
+                "`.agent.md` packet and evaluate the proposed test and docstring against "
+                "every criterion, including criteria that passed.",
+                "3. Make one consolidated source edit that addresses all collected failures.",
+                "4. Run the affected unit tests and finish all source edits before review.",
+                "5. Regenerate the selected packets once with "
                 "`agentic-tdd-linter create-agent-md --fresh`.",
-                "5. Do not retry an unchanged criterion to obtain a different result; "
+                "6. Do not retry an unchanged criterion to obtain a different result; "
                 "report a workflow conflict.",
             )
         )
