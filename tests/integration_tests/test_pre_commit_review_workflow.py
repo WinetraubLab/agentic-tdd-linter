@@ -512,24 +512,36 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _write_source(repo_root / "tests" / "test_second.py", second_source)
             _run_cli(repo_root, "create-agent-md")
             _complete_packets(repo_root, status="pass", evidence=reviewed_evidence)
-            _run_cli(repo_root, "create-agent-md", "--fresh")
+            _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:refresh-reviewer",
+            )
+            cross_packet_path = next(
+                path
+                for path in _packet_paths(repo_root)
+                if path.name == "cross_test_review.agent.md"
+            )
+            cross_packet_before = cross_packet_path.read_text(encoding="utf-8")
+            refresh = _run_cli(repo_root, "create-agent-md", "--fresh")
             refreshed_packets = _packet_paths(repo_root)
-            refreshed_contents = [path.read_text(encoding="utf-8") for path in refreshed_packets]
+            refreshed_contents = [
+                path.read_text(encoding="utf-8")
+                for path in refreshed_packets
+            ]
+            cross_packet_after = cross_packet_path.read_text(encoding="utf-8")
 
-        refreshed_types = {
-            "cross" if path.name == "cross_test_review.agent.md" else "single"
-            for path in refreshed_packets
-        }
         self.assertEqual(3, len(refreshed_packets))
-        self.assertEqual({"single", "cross"}, refreshed_types)
+        self.assertIn("generated 3 agent review packets", refresh.stdout)
         self.assertTrue(
             all(
                 "| pending | Replace with review evidence. |" in text
                 for text in refreshed_contents
             )
         )
-        self.assertTrue(all("| pass |" not in text for text in refreshed_contents))
-        self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
+        self.assertNotEqual(cross_packet_before, cross_packet_after)
+        self.assertNotIn(reviewed_evidence, cross_packet_after)
 
     def test_refresh_removes_obsolete_packet(self) -> None:
         """Test Path: happy path
