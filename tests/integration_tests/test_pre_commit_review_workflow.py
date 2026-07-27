@@ -561,7 +561,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
-          Justification: Comparable coverage — The lower test removes manifest proof for a deleted test file. The current test removes an obsolete `.agent.md` file through the CLI refresh workflow.
+          Justification: Deeper coverage — The lower test isolates manifest-proof removal after test-file deletion. The current test verifies obsolete `.agent.md` removal through the CLI refresh workflow.
         """
 
         test_source = textwrap.dedent(
