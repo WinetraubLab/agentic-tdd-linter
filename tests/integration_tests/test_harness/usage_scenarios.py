@@ -54,6 +54,17 @@ def packet_paths(repo_root: Path) -> list[Path]:
     )
 
 
+def packet_contents(repo_root: Path) -> dict[Path, str]:
+    return {
+        packet_path: packet_path.read_text(encoding="utf-8")
+        for packet_path in packet_paths(repo_root)
+    }
+
+
+def packet_exists(packet_path: Path) -> bool:
+    return packet_path.is_file()
+
+
 def complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
     for packet_path in packet_paths(repo_root):
         packet = packet_path.read_text(encoding="utf-8")
