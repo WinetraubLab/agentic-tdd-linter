@@ -82,7 +82,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `agent_review_example_runner` creates '.agent.md' files for stale `runner JSONL` attestations.
+        `agent_review_example_runner` creates '.agent.md' files when `runner JSONL` attestations are stale.
         Specialized usage: When one attestation contains an outdated source hash, `agent_review_example_runner` creates one '.agent.md' file.
 
         Verification Method: verify public function output
