@@ -322,7 +322,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row.
-        Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file remains absent.
+        Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file stays absent.
 
         Verification Method: verify public function output
 
