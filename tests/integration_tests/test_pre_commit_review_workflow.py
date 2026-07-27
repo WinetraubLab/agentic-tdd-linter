@@ -113,10 +113,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
+        `pre-commit review workflow` emits missing_required_agent_md when caller invokes lint before `.agent.md` creation.
         Specialized usage: Caller invokes lint before create-agent-md instead of after it, so `pre-commit review workflow` emits missing_required_agent_md.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
