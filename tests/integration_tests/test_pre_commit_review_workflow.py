@@ -435,6 +435,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             cross_packet_after,
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
+        self.assertIn("tests/test_first.py", cross_packet_after)
+        self.assertNotIn("tests/test_second.py", cross_packet_after)
 
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
