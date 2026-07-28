@@ -229,21 +229,26 @@ class AgentReviewManifestTests(unittest.TestCase):
             )
 
             _lint_agent_review_manifest([test_file], root)
-            manifest_text = manifest_path.read_text(encoding="utf-8")
+            records = [
+                json.loads(line)
+                for line in manifest_path.read_text(encoding="utf-8").splitlines()
+            ]
 
-        self.assertEqual("", manifest_text)
+        self.assertEqual(["test_adds_values"], [record["test"] for record in records])
 
     def test_recording_keeps_current_proof(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` retains `manifest proof` during `orphaned record` cleanup.
-        Specialized usage: When the manifest contains an orphaned record alongside a current record, cleanup removes only the orphaned record.
+        `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content.
+        Specialized usage: The manifest contains one `orphaned record` alongside current `manifest proof` instead of containing only current `manifest proof`.
 
         Verification Method: verify public function output
 
         Verification Detail:
         `build_manifest_from_agent_md_files` output contains only `tests/test_sample.py`.
+        Retained `manifest proof` has status `pass`.
+        Retained source SHA256 equals the current `test_adds_values` content SHA256.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
@@ -279,7 +284,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             manifest_path = _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             orphan_record = _manifest_record(
@@ -305,7 +310,7 @@ class AgentReviewManifestTests(unittest.TestCase):
                 json.loads(line)
                 for line in result_path.read_text(encoding="utf-8").splitlines()
             ]
-            expected_source_hash = _source_sha256(test_file)
+            expected_source_hash = _test_hash(test_file, root)
 
         self.assertEqual(
             ["tests/test_sample.py"],
