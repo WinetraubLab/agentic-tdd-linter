@@ -258,8 +258,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `agent_review_example_runner` replaces `runner JSONL` after every completed YAML-example evaluation with its expected and actual scorecards.
-        Specialized usage: When the second evaluation detects a scorecard mismatch, `runner JSONL` contains different expected and actual scorecards.
+        `agent_review_example_runner` replaces prior `runner JSONL` contents with one valid JSON record after both successful and failed YAML-example evaluations.
+        Specialized usage: The second evaluation detects a scorecard mismatch instead of succeeding, but `agent_review_example_runner` still replaces the prior contents.
 
         Verification Method: verify private function output
 
