@@ -338,10 +338,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
           Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves which packets regenerate after a source edit and which packet remains unchanged.
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_invalidates_manifest_proof`
-          Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. The current test proves selective regeneration after an existing function is edited.
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
-          Justification: Deeper coverage — The lower test proves file-wide `manifest proof` invalidation after function deletion. The current test proves selective packet regeneration after an approved test is edited.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Justification: Deeper coverage — The lower test isolates proof preservation after adding a function. The current test proves selective packet regeneration after editing one function.
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_function_removes_only_its_proof`
+          Justification: Deeper coverage — The lower test isolates proof cleanup after deleting a function. The current test proves selective packet regeneration after editing one function.
         """
 
         first_source = textwrap.dedent(
