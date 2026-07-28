@@ -138,15 +138,20 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 SCORECARD_ATTESTATION_PATH=attestation_path,
                 REVIEW_START_PATH=anonymous_root / ".review_started_at",
             ):
-                with contextlib.suppress(RuntimeError):
+                with self.assertRaises(RuntimeError) as raised:
                     run_agent_review_examples(
                         examples_path=examples_path,
                         reviewer_model="5.6 Sol Medium",
                     )
 
-            packets = list(artifact_root.glob("*.agent.md"))
+            error_text = str(raised.exception)
+            reported_packets = [
+                line
+                for line in error_text.splitlines()
+                if line.startswith("- ") and line.endswith(".agent.md")
+            ]
 
-        self.assertEqual(1, len(packets))
+        self.assertEqual(1, len(reported_packets))
 
     def test_timer_start_precedes_yaml_validation(self) -> None:
         """Test Path: happy path
