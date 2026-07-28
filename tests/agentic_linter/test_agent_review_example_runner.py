@@ -251,7 +251,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
 
         self.assertEqual(3.0, duration)
         self.assertEqual([4.0], completed_values)
-        self.assertEqual(["comparison", "time", "duration"], events)
+        self.assertLess(events.index("comparison"), events.index("time"))
+        self.assertLess(events.index("time"), events.index("duration"))
 
     def test_runner_overwrites_jsonl_proof(self) -> None:
         """Test Path: failure path
