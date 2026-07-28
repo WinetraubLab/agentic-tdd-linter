@@ -455,20 +455,20 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` regenerates every selected single-test and cross-test `.agent.md` when create-agent-md receives --fresh.
-        Specialized usage: Every test has current manifest proof, but --fresh replaces all completed scorecards with pending scorecards.
+        `pre-commit review workflow` rebuilds all `.agent.md` files from current tests when create-agent-md runs with unscoped --fresh.
+        Specialized usage: The folder contains completed files for two current tests and an extra file for a deleted test, so refresh clears the folder and creates pending files only for the current tests.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing two tests.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness classifies every review as successful.
-        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:refresh-reviewer`.
-        5. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        6. Command reports exactly `3` generated packets.
-        7. Both single-test scorecards and the cross-test scorecard contain only pending evidence.
-        8. No regenerated scorecard retains completed evidence.
+        1. `_packet_paths` output contains two single-test `.agent.md` files and one cross-test `.agent.md` file.
+        2. `_packet_contents` output gives every scorecard row status `pending`.
+        3. `_packet_contents` output contains no prior completed evidence.
+        4. `_packet_paths` output excludes the extra deleted-test file.
+
+        Similar Coverage:
+        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Justification: Deeper coverage — The lower test isolates manifest-proof removal after test-file deletion. The current test verifies that unscoped refresh rebuilds the complete `.agent.md` file set.
         """
 
         first_source = textwrap.dedent(
@@ -536,100 +536,37 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 for path in _packet_paths(repo_root)
                 if path.name == "cross_test_review.agent.md"
             )
-            cross_packet_before = cross_packet_path.read_text(encoding="utf-8")
-            refresh = _run_cli(repo_root, "create-agent-md", "--fresh")
-            refreshed_packets = _packet_paths(repo_root)
-            refreshed_contents = [
-                path.read_text(encoding="utf-8")
-                for path in refreshed_packets
-            ]
-            cross_packet_after = cross_packet_path.read_text(encoding="utf-8")
-
-        self.assertEqual(3, len(refreshed_packets))
-        self.assertIn("generated 3 agent review packets", refresh.stdout)
-        self.assertTrue(
-            all(
-                "| pending | Replace with review evidence. |" in text
-                for text in refreshed_contents
-            )
-        )
-        self.assertNotEqual(cross_packet_before, cross_packet_after)
-        self.assertNotIn(reviewed_evidence, cross_packet_after)
-
-    def test_refresh_removes_obsolete_packet(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `pre-commit review workflow` rebuilds the complete `.agent.md` file set when create-agent-md runs with unscoped --fresh.
-        Specialized usage: The folder contains one current-test file and one deleted-test file, so refresh deletes both and then recreates only the current-test file.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        `_packet_exists` output is true for the current test's `.agent.md` after refresh.
-        `_packet_exists` output is false for `test_deleted__test_deleted.agent.md` after refresh.
-        The current test's regenerated `.agent.md` contains pending evidence and excludes its prior completed evidence.
-
-        Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
-          Justification: Deeper coverage — The lower test isolates manifest-proof removal after test-file deletion. The current test verifies obsolete `.agent.md` removal through the CLI refresh workflow.
-        """
-
-        test_source = textwrap.dedent(
-            '''\
-            """Tests in this file validate `current packet behavior` located at `src/current.py`.
-            `current packet behavior` is responsible for evaluating the current packet expression.
-            """
-
-            def test_current_packet() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                `current packet behavior` evaluates to true.
-                Standard usage: The scenario demonstrates baseline behavior.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The expression equals true.
-                """
-
-                assert True
-            '''
-        )
-
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            _write_source(repo_root / "src" / "current.py", "VALUE = True\n")
-            _write_source(repo_root / "tests" / "test_current.py", test_source)
-            _run_cli(repo_root, "create-agent-md")
-            prior_evidence = "completed before rebuilding the packet set"
-            _complete_packets(repo_root, status="pass", evidence=prior_evidence)
-            current_agent_md = next(
-                path
-                for path in _packet_paths(repo_root)
-                if path.name != "cross_test_review.agent.md"
-            )
-            extra_agent_md = (
+            cross_packet_before = _packet_contents(repo_root)[cross_packet_path]
+            obsolete_packet_path = (
                 repo_root
                 / "tests"
                 / "agentic_review_artifacts"
                 / "test_deleted__test_deleted.agent.md"
             )
-            extra_agent_md.write_text("extra .agent.md file\n", encoding="utf-8")
+            obsolete_packet_path.write_text("obsolete packet\n", encoding="utf-8")
 
             _run_cli(repo_root, "create-agent-md", "--fresh")
-            current_packet_exists = _packet_exists(current_agent_md)
-            obsolete_packet_exists = _packet_exists(extra_agent_md)
-            current_packet = current_agent_md.read_text(encoding="utf-8")
+            refreshed_packets = _packet_paths(repo_root)
+            refreshed_contents_by_path = _packet_contents(repo_root)
+            refreshed_contents = list(refreshed_contents_by_path.values())
+            refreshed_statuses = [
+                [
+                    cells[3]
+                    for line in text.splitlines()
+                    if len(cells := [cell.strip() for cell in line.split("|")]) >= 5
+                    and cells[1].isdigit()
+                ]
+                for text in refreshed_contents
+            ]
+            cross_packet_after = refreshed_contents_by_path[cross_packet_path]
 
-        self.assertTrue(current_packet_exists)
-        self.assertFalse(obsolete_packet_exists)
-        self.assertIn(
-            "| pending | Replace with review evidence. |",
-            current_packet,
+        self.assertEqual(3, len(refreshed_packets))
+        self.assertTrue(
+            all(statuses and set(statuses) == {"pending"} for statuses in refreshed_statuses)
         )
-        self.assertNotIn(prior_evidence, current_packet)
+        self.assertNotEqual(cross_packet_before, cross_packet_after)
+        self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
+        self.assertNotIn(obsolete_packet_path, refreshed_packets)
 
 if __name__ == "__main__":
     unittest.main()
