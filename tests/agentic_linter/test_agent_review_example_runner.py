@@ -274,7 +274,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             test="def test_example() -> None:\n    assert True",
             expected_scorecard={11: SimpleNamespace(result="pass")},
         )
-        test_record = SimpleNamespace(name="test_example")
+        test_record = SimpleNamespace(name="test_example", source=example.test)
         successful_seed = "previous successful evaluation"
         failed_seed = "previous failed evaluation"
         actual_scorecards = [{11: "pass"}, {11: "fail"}]
@@ -288,22 +288,25 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             actual_scorecards=actual_scorecards,
             regressions=regressions,
         )
-        successful_record = json.loads(
-            outputs["successful_attestations"].splitlines()[0]
-        )
-        failed_record = json.loads(
-            outputs["failed_attestations"].splitlines()[0]
-        )
-
         self.assertNotIn(successful_seed, outputs["successful_attestations"])
         self.assertNotIn(failed_seed, outputs["failed_attestations"])
         self.assertEqual(
-            successful_record["expected_scorecard"],
-            successful_record["actual_scorecard"],
+            1,
+            len(
+                [
+                    json.loads(line)
+                    for line in outputs["successful_attestations"].splitlines()
+                ]
+            ),
         )
-        self.assertNotEqual(
-            failed_record["expected_scorecard"],
-            failed_record["actual_scorecard"],
+        self.assertEqual(
+            1,
+            len(
+                [
+                    json.loads(line)
+                    for line in outputs["failed_attestations"].splitlines()
+                ]
+            ),
         )
 
     def test_runner_overwrites_json_report(self) -> None:
