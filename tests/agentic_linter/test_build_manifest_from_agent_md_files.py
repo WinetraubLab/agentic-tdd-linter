@@ -1,6 +1,6 @@
 """Tests in this file validate `build_manifest_from_agent_md_files` located at `src/agentic_tdd_linter/agentic_linter/build_manifest_from_agent_md_files.py`.
-`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test files can skip another agent review.
-Changing a test file invalidates the proof for every test in that file.
+`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test content can skip another agent review.
+Changing one test invalidates only that test's proof.
 
 Terms:
 - `manifest proof`: Manifest proof records a completed review for a test. For example, current passing proof allows lint to accept that test without another review.
