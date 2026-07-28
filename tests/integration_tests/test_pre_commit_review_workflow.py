@@ -17,7 +17,6 @@ from tests.integration_tests.test_harness.usage_scenarios import (
     complete_packets as _complete_packets,
     manifest_records as _manifest_records,
     packet_contents as _packet_contents,
-    packet_exists as _packet_exists,
     packet_paths as _packet_paths,
     run_cli as _run_cli,
     write_source as _write_source,
@@ -93,7 +92,6 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _write_source(repo_root / expected_test_path, test_source)
 
             _run_cli(repo_root, "create-agent-md")
-            packets = _packet_paths(repo_root)
             _complete_packets(repo_root, status="pass", evidence="nominal review passed")
             _run_cli(repo_root, "lint", "--reviewer", expected_reviewer)
             records = _manifest_records(repo_root)
@@ -214,8 +212,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits an agent_review_failed response requiring a full-scorecard check before editors apply a fix.
-        Specialized usage: One review fails instead of every review passing, so editors check every criterion before one regeneration.
+        `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review.
+        Specialized usage: One of two completed `.agent.md` reviews fails, so lint reports agent_review_failed and provides the full-scorecard correction steps.
 
         Verification Method: verify private function output
 
@@ -312,6 +310,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             "evaluate the proposed test and docstring against every criterion",
             lint.stdout,
         )
+        self.assertIn("including criteria that passed", lint.stdout)
         self.assertIn("Regenerate the selected packets once", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
@@ -344,17 +343,17 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Justification: Deeper coverage — The lower test isolates proof cleanup after deleting a function. The current test proves selective packet regeneration after editing one function.
         """
 
-        first_source = textwrap.dedent(
+        original_source = textwrap.dedent(
             '''\
-            """Tests in this file validate `first truth example` located at `src/first_truth.py`.
-            `first truth example` is responsible for evaluating the first boolean expression.
+            """Tests in this file validate `truth example` located at `src/truth.py`.
+            `truth example` is responsible for evaluating documented boolean expressions.
             """
 
             def test_first_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                `first truth example` evaluates to true.
+                `truth example` evaluates the first expression as true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -364,23 +363,12 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 """
 
                 assert True
-            '''
-        )
-        edited_first_source = first_source.replace(
-            "`first truth example` evaluates to true.",
-            "`first truth example` evaluates the documented boolean expression.",
-        )
-        second_source = textwrap.dedent(
-            '''\
-            """Tests in this file validate `second truth example` located at `src/second_truth.py`.
-            `second truth example` is responsible for evaluating the second boolean expression.
-            """
 
             def test_second_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                `second truth example` evaluates to true.
+                `truth example` evaluates the second expression as true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -392,64 +380,66 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 assert True
             '''
         )
+        edited_source = original_source.replace(
+            "`truth example` evaluates the first expression as true.",
+            "`truth example` evaluates the documented first expression.",
+        )
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
-            first_file = repo_root / "tests" / "test_first.py"
-            second_file = repo_root / "tests" / "test_second.py"
-            _write_source(repo_root / "src" / "first_truth.py", "VALUE = True\n")
-            _write_source(repo_root / "src" / "second_truth.py", "VALUE = True\n")
-            _write_source(first_file, first_source)
-            _write_source(second_file, second_source)
+            test_file = repo_root / "tests" / "test_truth.py"
+            _write_source(repo_root / "src" / "truth.py", "VALUE = True\n")
+            _write_source(test_file, original_source)
             _run_cli(repo_root, "create-agent-md")
             _complete_packets(repo_root, status="pass", evidence="approved before source edit")
 
-            approved_lint = _run_cli(
+            _run_cli(
                 repo_root,
                 "lint",
                 "--reviewer",
                 "integration:approved-reviewer",
             )
-            approved_manifest_paths = {
-                record["path"] for record in _manifest_records(repo_root)
-            }
             single_packets = [
                 path
                 for path in _packet_paths(repo_root)
                 if path.name != "cross_test_review.agent.md"
             ]
-            first_packet = next(path for path in single_packets if "test_first" in path.name)
-            second_packet = next(path for path in single_packets if "test_second" in path.name)
+            first_packet = next(
+                path for path in single_packets if "test_first_truth" in path.name
+            )
+            second_packet = next(
+                path for path in single_packets if "test_second_truth" in path.name
+            )
             cross_packet = next(
                 path
                 for path in _packet_paths(repo_root)
                 if path.name == "cross_test_review.agent.md"
             )
-            unchanged_packet_before = second_packet.read_text(encoding="utf-8")
 
-            _write_source(first_file, edited_first_source)
-            stale_lint = _run_cli(repo_root, "lint")
-            stale_manifest_paths = {
-                record["path"] for record in _manifest_records(repo_root)
-            }
+            _write_source(test_file, edited_source)
+            _run_cli(repo_root, "lint")
             _run_cli(repo_root, "create-agent-md")
-            edited_packet_after = first_packet.read_text(encoding="utf-8")
-            unchanged_packet_after = second_packet.read_text(encoding="utf-8")
-            cross_packet_after = cross_packet.read_text(encoding="utf-8")
+            contents_after = _packet_contents(repo_root)
+            edited_packet_after = contents_after[first_packet]
+            unchanged_packet_after = contents_after[second_packet]
+            cross_packet_after = contents_after[cross_packet]
 
         self.assertIn(
             "| pending | Replace with review evidence. |",
             edited_packet_after,
         )
         self.assertNotIn("approved before source edit", edited_packet_after)
-        self.assertEqual(unchanged_packet_before, unchanged_packet_after)
+        self.assertIn("approved before source edit", unchanged_packet_after)
+        self.assertNotIn(
+            "| pending | Replace with review evidence. |",
+            unchanged_packet_after,
+        )
         self.assertIn(
             "| pending | Replace with review evidence. |",
             cross_packet_after,
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
-        self.assertIn("tests/test_first.py", cross_packet_after)
-        self.assertNotIn("tests/test_second.py", cross_packet_after)
+        self.assertIn("tests/test_truth.py", cross_packet_after)
 
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
