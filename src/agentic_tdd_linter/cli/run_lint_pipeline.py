@@ -161,11 +161,7 @@ def create_agent_md_files(
         force_all=force_fresh,
     )
     if force_fresh and not paths:
-        _remove_orphaned_agent_md_files(
-            tests_by_file,
-            root,
-            artifact_root,
-        )
+        _clear_agent_md_files(artifact_root)
 
     generated: list[Path] = []
     for test_file, tests in pending_by_file.items():
@@ -200,27 +196,11 @@ def create_agent_md_files(
     )
 
 
-def _remove_orphaned_agent_md_files(
-    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
-    repo_root: Path,
-    artifact_root: Path,
-) -> None:
+def _clear_agent_md_files(artifact_root: Path) -> None:
     if not artifact_root.exists():
         return
-    expected_paths = {
-        map_test_function_to_agent_md_file(
-            test_file,
-            repo_root,
-            artifact_root,
-            test.name,
-        ).resolve()
-        for test_file, tests in tests_by_file.items()
-        for test in tests
-    }
-    expected_paths.add((artifact_root / "cross_test_review.agent.md").resolve())
     for artifact_path in artifact_root.glob("*.agent.md"):
-        if artifact_path.resolve() not in expected_paths:
-            artifact_path.unlink()
+        artifact_path.unlink()
 
 
 def _run_conventional_checks(
