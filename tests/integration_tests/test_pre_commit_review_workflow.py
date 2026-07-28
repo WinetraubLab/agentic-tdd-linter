@@ -35,10 +35,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates repository. Harness creates one test.
-        2. Harness invokes create-agent-md.
-        3. Harness classifies reviews as successful.
-        4. Harness invokes lint.
+        1. Harness creates a temporary repository containing one test.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness marks every generated `.agent.md` scorecard as pass.
+        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
         5. Manifest contains path `tests/test_arithmetic.py`.
         6. Manifest contains test `test_adds_two_numbers`.
         7. Manifest contains status `pass`.
