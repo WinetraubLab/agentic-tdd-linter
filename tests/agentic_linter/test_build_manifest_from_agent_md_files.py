@@ -207,13 +207,17 @@ class AgentReviewManifestTests(unittest.TestCase):
             manifest_path = _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             deleted_record = _manifest_record(
                 root,
                 path="tests/test_sample.py",
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(
+                    test_file,
+                    root,
+                    test_name="test_subtracts_values",
+                ),
                 status="pass",
             )
             deleted_record["test"] = "test_subtracts_values"
