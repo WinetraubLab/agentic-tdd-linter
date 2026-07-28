@@ -5,7 +5,7 @@ Changing a test file invalidates the proof for every test in that file.
 Terms:
 - `manifest proof`: Manifest proof records a completed review for a test. For example, current passing proof allows lint to accept that test without another review.
 - `review contract`: The review contract includes the linter criteria and repository review documentation. For example, changing README.md changes the contract.
-- `stale record`: A stale record no longer matches its complete test file or review contract. For example, adding another test function makes the file's existing records stale.
+- `stale record`: A stale record no longer matches its test content or review contract. For example, editing a reviewed test function makes its record stale.
 - `orphaned record`: An orphaned record identifies a test file or function that no longer exists. For example, deleting a reviewed function leaves an orphaned record for cleanup.
 """
 
@@ -31,7 +31,10 @@ from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import
     build_manifest_from_agent_md_files,
 )
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
-    _source_sha256,
+    _test_content_sha256,
+)
+from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
+    extract_tests_from_file,
 )
 from agentic_tdd_linter.version import __version__
 
@@ -40,21 +43,21 @@ REVIEWER = "codex:gpt-5.5"
 
 
 class AgentReviewManifestTests(unittest.TestCase):
-    def test_added_function_invalidates_manifest_proof(self) -> None:
+    def test_added_function_preserves_existing_proof(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes all `manifest proof` for a reviewed test file when a new test function appears in that file.
-        Specialized usage: A new test function appears in an already reviewed file, so agentic linter removes all `manifest proof` for that file.
+        `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file.
+        Specialized usage: A new test lacks proof, but the existing test content still matches its `manifest proof`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Manifest contains no records.
+        Manifest retains only `test_adds_values`.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test verifies file-wide invalidation after adding a function. Higher test verifies selective regeneration after caller modifies an existing function.
+          Justification: Deeper coverage — The current test isolates manifest preservation after adding a function. The higher test verifies selective packet regeneration after caller modifies one existing function.
         """
 
         with tempfile.TemporaryDirectory() as directory:
