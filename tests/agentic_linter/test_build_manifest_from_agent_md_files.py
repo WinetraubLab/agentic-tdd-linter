@@ -182,8 +182,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes all file-wide `manifest proof`, including `manifest proof` for the surviving function, after test-function deletion.
-        Specialized usage: Caller erases one reviewed function instead of retaining both functions, so agentic linter removes `manifest proof` for both functions.
+        `build_manifest_from_agent_md_files` removes `manifest proof` for a deleted test while preserving proof for an unchanged test in the same file.
+        Specialized usage: Caller erases one reviewed function, so agentic linter removes only that function's proof.
 
         Verification Method: verify private function output
 
