@@ -6,6 +6,7 @@ import hashlib
 import textwrap
 import time
 from pathlib import Path
+from typing import NamedTuple
 
 from agentic_tdd_linter.version import __version__
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
@@ -61,11 +62,15 @@ SCORECARD_ATTESTATION_PATH = (
 )
 
 
+class _AgentReviewRunResult(NamedTuple):
+    agent_md_files: tuple[Path, ...]
+
+
 def run_agent_review_examples(
     *,
     examples_path: Path,
     reviewer_model: str,
-) -> tuple[Path, ...]:
+) -> _AgentReviewRunResult:
     """Run every YAML example in one fixture folder through agentic review."""
 
     reviewer_model = reviewer_model.strip()
@@ -76,7 +81,6 @@ def run_agent_review_examples(
         raise ValueError("\n".join(schema_errors))
 
     pending_packets: list[Path] = []
-    created_packets: list[Path] = []
     fixture_errors: list[str] = []
     mismatches = []
     completed_attestations: list[dict[str, object]] = []
@@ -130,16 +134,15 @@ def run_agent_review_examples(
                 reviewer = attestation["reviewer"]
             else:
                 if not artifact_path.exists() or _agent_md_file_is_stale(
-                    source_path, artifact_path
+                    test.source,
+                    artifact_path,
                 ):
                     _record_review_start(REVIEW_START_PATH, invocation_started_at)
-                    created_packets.append(
-                        render_agent_md_file(
-                            source_path,
-                            test,
-                            REPO_ROOT,
-                            ARTIFACT_ROOT,
-                        )
+                    render_agent_md_file(
+                        source_path,
+                        test,
+                        REPO_ROOT,
+                        ARTIFACT_ROOT,
                     )
                 artifact_text = artifact_path.read_text(encoding="utf-8")
                 if determine_agent_md_status(artifact_text) == "pending":
@@ -217,7 +220,9 @@ def run_agent_review_examples(
             + "New failures exceed the committed scorecard baseline:\n"
             + "\n".join(regressions)
         )
-    return tuple(sorted(set(created_packets)))
+    return _AgentReviewRunResult(
+        agent_md_files=tuple(sorted(ARTIFACT_ROOT.glob("*.agent.md")))
+    )
 
 
 def _begin_yaml_validation(examples_path: Path) -> tuple[float, list[str]]:
