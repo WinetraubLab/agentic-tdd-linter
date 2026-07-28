@@ -28,10 +28,13 @@ from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import
     _review_contract_sha256,
 )
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
-    _source_sha256,
+    _test_content_sha256,
 )
 from agentic_tdd_linter.agentic_linter.map_test_function_to_agent_md_file import (
     map_test_function_to_agent_md_file,
+)
+from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
+    extract_tests_from_file,
 )
 from agentic_tdd_linter.version import __version__
 
@@ -271,6 +274,15 @@ def _valid_test_function_source(name: str) -> str:
     )
 
 
+def _test_hash(test_file: Path, root: Path) -> str:
+    test = next(
+        test
+        for test in extract_tests_from_file(test_file, root)
+        if test.name == "test_adds_values"
+    )
+    return _test_content_sha256(test.source)
+
+
 def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
     artifact_path = map_test_function_to_agent_md_file(test_file, root, test_name="test_adds_values")
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
@@ -280,7 +292,7 @@ def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
             # Agentic Test Docstring Review
 
             Test file: `tests/test_sample.py`
-            Source SHA256: `{_source_sha256(test_file)}`
+            Test Content SHA256: `{_test_hash(test_file, root)}`
 
             ### `test_adds_values`
 
