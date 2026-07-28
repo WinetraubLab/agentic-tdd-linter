@@ -77,7 +77,8 @@ An exact name or value that defines the contract itself remains in `Requirement 
 `Verification Detail` shall state the evidence that proves the requirement rather than only naming mechanics, fixtures, constants, assertions, commands, tags, or test names.
 
 #### 23. Verification Method Matches Exercised Interface
-`Verification Method` shall identify the interface whose result the test body directly obtains and asserts.
+`Verification Method` shall classify the exercised interface with one supported value: `verify public function output`, `verify private function output`, or `visual inspection by user`.
+`Verification Detail` shall name the exact function, command, file operation, or visual interface whose result the test body directly obtains and asserts.
 Fail `verify public function output` when the asserted result comes only from a private helper or private function.
 
 ### 3x. Sentence Structure and Logic
