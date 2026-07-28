@@ -318,10 +318,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` regenerates `.agent.md` files only for an edited test file and the cross-test review.
-        Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale `.agent.md` files.
+        `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships.
+        Specialized usage: Two tests in the same file have approved `.agent.md` files, but caller edits one test, so its `.agent.md` and `cross_test_review.agent.md` become pending while the unchanged test's `.agent.md` stays approved.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
