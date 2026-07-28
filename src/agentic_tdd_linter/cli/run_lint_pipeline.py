@@ -8,7 +8,7 @@ from typing import Mapping, Sequence
 
 from ..agentic_linter.build_manifest_from_agent_md_files import (
     build_manifest_from_agent_md_files,
-    _find_files_with_new_source_sha256,
+    _find_files_with_changed_test_content,
     _find_tests_requiring_agent_review,
 )
 from ..agentic_linter.determine_agent_md_status import (
@@ -143,6 +143,16 @@ def create_agent_md_files(
     issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    cross_review_files = (
+        review_files
+        if force_fresh
+        else _find_files_with_changed_test_content(
+            review_files,
+            root,
+            manifest_path,
+            tests_by_file=tests_by_file,
+        )
+    )
     pending_by_file = _find_tests_requiring_agent_review(
         review_files,
         root,
@@ -169,18 +179,9 @@ def create_agent_md_files(
             if (
                 force_fresh
                 or not artifact_path.exists()
-                or _agent_md_file_is_stale(test_file, artifact_path)
+                or _agent_md_file_is_stale(test.source, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    cross_review_files = (
-        review_files
-        if force_fresh
-        else _find_files_with_new_source_sha256(
-            review_files,
-            root,
-            manifest_path,
-        )
-    )
     if cross_review_files and (
         force_fresh
         or cross_test_agent_md_file_is_stale(
@@ -297,7 +298,10 @@ def _missing_required_artifact_issues(
                 artifact_root,
                 test.name,
             )
-            if not artifact_path.exists() or _agent_md_file_is_stale(test_file, artifact_path):
+            if not artifact_path.exists() or _agent_md_file_is_stale(
+                test.source,
+                artifact_path,
+            ):
                 command = "agentic-tdd-linter create-agent-md"
                 if force_fresh:
                     command += " --fresh"
@@ -332,6 +336,7 @@ def _lint_agent_review_artifacts(
                     repo_root=repo_root,
                     artifact_root=artifact_root,
                     test_name=test.name,
+                    test_source=test.source,
                 )
             )
     return issues

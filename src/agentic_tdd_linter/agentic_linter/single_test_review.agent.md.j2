@@ -5,7 +5,7 @@ Inputs:
 - file_docstring: Module docstring shared by tests in the source file.
 - test: Complete test source exactly as extracted from the source file.
 - scenario_type: `happy path` or `failure path` value extracted from `Test Path` in the structured test docstring.
-- source_sha256: Invalidates this review packet when the complete source test file changes.
+- test_content_sha256: Invalidates this review packet when this test's extracted content changes.
 -#}
 # Agentic Test Review
 
@@ -212,4 +212,4 @@ Values observed from the system under test are evidence, not synthetic test valu
 | 52 | Input Checks Are Tagged | pending | Replace with review evidence. |
 | 53 | Test Values Are Local | pending | Replace with review evidence. |
 
-Source SHA256: `{{ source_sha256 }}`
+Test Content SHA256: `{{ test_content_sha256 }}`

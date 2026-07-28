@@ -12,7 +12,7 @@ from typing import Iterable, Mapping, Sequence
 from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
 from .determine_agent_md_status import (
     _lint_agent_md_file,
-    _source_sha256,
+    _test_content_sha256,
     determine_agent_md_status,
 )
 from ..conventional_linter.run_conventional_linter import LintIssue
@@ -118,6 +118,7 @@ def build_manifest_from_agent_md_files(
                 repo_root=root,
                 artifact_root=artifact_root,
                 test_name=test.name,
+                test_source=test.source,
             )
             if artifact_issues:
                 issues.extend(artifact_issues)
@@ -134,7 +135,7 @@ def build_manifest_from_agent_md_files(
                 {
                     "path": _relative_path(test_file, root).as_posix(),
                     "test": test.name,
-                    "source_sha256": _source_sha256(test_file),
+                    "source_sha256": _test_content_sha256(test.source),
                     "status": status,
                     "linter_version": __version__,
                     "review_contract_sha256": contract_hash,
@@ -221,19 +222,24 @@ def _find_tests_requiring_agent_review(
         return selected_tests
 
     contract_hash = _review_contract_sha256(root)
+    selected_tests_by_key = {
+        (_relative_path(test_file, root).as_posix(), test.name): test
+        for test_file, tests in selected_tests.items()
+        for test in tests
+    }
     approved_keys: set[tuple[str, str]] = set()
     for record in records:
         values = record.values
         path = values.get("path", "")
         test_name = values.get("test", "")
-        test_file = (root / path).resolve()
+        test = selected_tests_by_key.get((path, test_name))
         if (
             set(values) == set(REQUIRED_FIELDS)
             and values.get("status") == "pass"
             and values.get("review_contract_sha256") == contract_hash
             and values.get("linter_version") == __version__
-            and test_file.is_file()
-            and values.get("source_sha256") == _source_sha256(test_file)
+            and test is not None
+            and values.get("source_sha256") == _test_content_sha256(test.source)
         ):
             approved_keys.add((path, test_name))
 
@@ -247,12 +253,14 @@ def _find_tests_requiring_agent_review(
     }
 
 
-def _find_files_with_new_source_sha256(
+def _find_files_with_changed_test_content(
     files: Iterable[Path],
     repo_root: Path,
     manifest_path: Path | None = None,
+    *,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
 ) -> list[Path]:
-    """Return files whose current source SHA256 is absent from the manifest."""
+    """Return files whose current test contents differ from the manifest."""
 
     root = Path(repo_root).resolve()
     selected_files = sorted({Path(file).resolve() for file in files})
@@ -261,22 +269,24 @@ def _find_files_with_new_source_sha256(
     if parse_issues:
         return selected_files
 
-    recorded_hashes_by_path: dict[str, set[str]] = {}
+    recorded_hashes_by_path: dict[str, dict[str, str]] = {}
     for record in records:
         path = record.values.get("path", "")
+        test_name = record.values.get("test", "")
         source_sha256 = record.values.get("source_sha256", "")
-        if path and source_sha256:
-            recorded_hashes_by_path.setdefault(path, set()).add(source_sha256)
+        if path and test_name and source_sha256:
+            recorded_hashes_by_path.setdefault(path, {})[test_name] = source_sha256
 
-    return [
-        test_file
-        for test_file in selected_files
-        if _source_sha256(test_file)
-        not in recorded_hashes_by_path.get(
-            _relative_path(test_file, root).as_posix(),
-            set(),
-        )
-    ]
+    changed_files: list[Path] = []
+    for test_file in selected_files:
+        relative_path = _relative_path(test_file, root).as_posix()
+        current_hashes = {
+            test.name: _test_content_sha256(test.source)
+            for test in _tests_for_file(test_file, root, tests_by_file)
+        }
+        if current_hashes != recorded_hashes_by_path.get(relative_path, {}):
+            changed_files.append(test_file)
+    return changed_files
 
 
 def _lint_agent_review_manifest(
@@ -408,7 +418,7 @@ def _lint_agent_review_manifest(
                 continue
 
             values = record.values
-            expected_hash = _source_sha256(test_file)
+            expected_hash = _test_content_sha256(test.source)
             if values.get("source_sha256") != expected_hash:
                 stale_record_lines.add(record.line)
                 issues.append(
@@ -417,7 +427,7 @@ def _lint_agent_review_manifest(
                         root,
                         record.line,
                         "stale_agent_review_attestation",
-                        f"review attestation for {identity} must match the current test file SHA256",
+                        f"review attestation for {identity} must match the current test-content SHA256",
                     )
                 )
 

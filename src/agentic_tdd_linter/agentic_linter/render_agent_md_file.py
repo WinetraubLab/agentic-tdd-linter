@@ -8,7 +8,7 @@ from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined, Template
 
-from .determine_agent_md_status import _source_sha256
+from .determine_agent_md_status import _test_content_sha256
 from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
 from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
 from ..indexing_test_functions.extracted_test_record import ExtractedTestRecord
@@ -39,10 +39,9 @@ def _render_agent_md(
 ) -> str:
     """Return an agent-review prompt for one test."""
 
-    absolute_path = Path(test_file_path).resolve()
     return _agentic_review_template().render(
         file_docstring=test.file_docstring or "",
-        source_sha256=_source_sha256(absolute_path),
+        test_content_sha256=_test_content_sha256(test.source),
         test=test.source or "<missing test source>",
         scenario_type=_scenario_type(test),
     ).rstrip() + "\n"

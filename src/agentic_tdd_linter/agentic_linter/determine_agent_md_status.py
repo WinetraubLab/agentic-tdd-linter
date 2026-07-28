@@ -24,15 +24,21 @@ def _source_sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def _agent_md_file_is_stale(test_file_path: Path, artifact_path: Path) -> bool:
-    """Return whether an artifact was generated for an old test file."""
+def _test_content_sha256(test_source: str) -> str:
+    """Return the SHA256 digest for one extracted test's content."""
+
+    return hashlib.sha256(test_source.encode("utf-8")).hexdigest()
+
+
+def _agent_md_file_is_stale(test_source: str, artifact_path: Path) -> bool:
+    """Return whether an artifact was generated for old test content."""
 
     try:
         artifact_text = Path(artifact_path).read_text(encoding="utf-8")
     except OSError:
         return False
-    review_hash = _backtick_value(artifact_text, "Source SHA256")
-    return not review_hash or review_hash != _source_sha256(test_file_path)
+    review_hash = _backtick_value(artifact_text, "Test Content SHA256")
+    return not review_hash or review_hash != _test_content_sha256(test_source)
 
 
 def determine_agent_md_status(artifact_text: str) -> str:
@@ -55,6 +61,7 @@ def _lint_agent_md_file(
     repo_root: Path | None = None,
     artifact_root: Path | None = None,
     test_name: str | None = None,
+    test_source: str = "",
 ) -> list[LintIssue]:
     """Return issues when one test's review artifact is missing or stale."""
 
@@ -81,8 +88,8 @@ def _lint_agent_md_file(
         ]
 
     issues: list[LintIssue] = []
-    expected_hash = _source_sha256(test_file)
-    review_hash = _backtick_value(artifact_text, "Source SHA256")
+    expected_hash = _test_content_sha256(test_source)
+    review_hash = _backtick_value(artifact_text, "Test Content SHA256")
     scorecard_rows = _scorecard_rows(artifact_text)
     status = determine_agent_md_status(artifact_text)
 
@@ -91,7 +98,7 @@ def _lint_agent_md_file(
             _issue(
                 relative_artifact,
                 "stale_agent_review_artifact",
-                "agent review artifact must include the current source SHA256 value",
+                "agent review artifact must include the current test-content SHA256 value",
             )
         )
 
