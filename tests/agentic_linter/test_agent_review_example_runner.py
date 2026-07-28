@@ -264,14 +264,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Harness applies mock.patch to complete one successful and one regressing evaluation.
-        1. Harness initializes `runner JSONL` with seed text.
-        2. Harness completes a successful evaluation.
-        3. Successful proof contains equal expected and actual scorecards.
-        4. Harness initializes `runner JSONL` with new seed text.
-        5. Harness completes a regressing evaluation.
-        6. Regressing proof contains different expected and actual scorecards.
-        The resulting proof excludes both seed values.
+        1. After the `mock.patch`-controlled successful evaluation, `runner JSONL` excludes `previous successful evaluation` and contains one valid JSON record.
+        2. After the `mock.patch`-controlled failed evaluation, `runner JSONL` excludes `previous failed evaluation` and contains one valid JSON record.
         """
 
         example = SimpleNamespace(
