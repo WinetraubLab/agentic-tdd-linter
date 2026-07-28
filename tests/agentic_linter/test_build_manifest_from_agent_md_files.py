@@ -392,6 +392,20 @@ def _with_file_docstring(source: str) -> str:
     ).strip() + "\n\n" + source
 
 
+def _test_hash(
+    test_file: Path,
+    root: Path,
+    *,
+    test_name: str = "test_adds_values",
+) -> str:
+    test = next(
+        test
+        for test in extract_tests_from_file(test_file, root)
+        if test.name == test_name
+    )
+    return _test_content_sha256(test.source)
+
+
 def _write_artifact(
     root: Path,
     test_file: Path,
@@ -407,7 +421,7 @@ def _write_artifact(
             # Agentic Test Docstring Review
 
             Test file: `tests/test_sample.py`
-            Source SHA256: `{_source_sha256(test_file)}`
+            Test Content SHA256: `{_test_hash(test_file, root, test_name=test_name)}`
 
             ### `{test_name}`
 
