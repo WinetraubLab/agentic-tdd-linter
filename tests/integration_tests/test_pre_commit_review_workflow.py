@@ -222,11 +222,11 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness classifies one review as successful and another as unsuccessful.
+        3. Harness marks one generated `.agent.md` review as pass and the other as fail.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
         5. `_run_cli` output contains `agent_review_failed`.
         6. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
-        7. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion.
+        7. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
         8. `_run_cli` output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
