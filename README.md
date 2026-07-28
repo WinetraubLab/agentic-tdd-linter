@@ -111,10 +111,12 @@ Without a path, `--fresh` applies to the complete test root. With a path, it ref
 every test in that file or directory and rebuilds the cross-test packet from that
 selected scope while leaving unrelated single-test packets alone. Without `--fresh`,
 packet creation preserves current proof, writes only missing or stale single-test
-packets, and includes only files with a new source SHA256 in the cross-test packet.
+packets, and includes only files with added, deleted, or edited test content in the
+cross-test packet.
 
-Each single-test packet records its source SHA256, so a source edit regenerates the
-affected review packet. Manifest proof records the linter version and review contract
+Each single-test packet records the SHA256 of its extracted test content. Editing one
+test therefore regenerates only that test's packet while preserving reviews for other
+tests in the same file. Manifest proof records the linter version and review contract
 so lint rejects reviews produced under an older policy.
 
 ## Install It On GitHub Actions On Your Project
