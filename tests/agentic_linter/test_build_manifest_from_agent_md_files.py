@@ -64,7 +64,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             test_file.write_text(
@@ -74,11 +74,14 @@ class AgentReviewManifestTests(unittest.TestCase):
             )
 
             _lint_agent_review_manifest([test_file], root)
-            manifest_text = _agent_review_manifest_path(root).read_text(
-                encoding="utf-8"
-            )
+            records = [
+                json.loads(line)
+                for line in _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()
+            ]
 
-        self.assertEqual("", manifest_text)
+        self.assertEqual(["test_adds_values"], [record["test"] for record in records])
 
     def test_review_contract_changes_with_documentation(self) -> None:
         """Test Path: happy path
@@ -133,7 +136,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
                 review_contract_hash="0" * 64,
             )
@@ -166,7 +169,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             test_file.unlink()
@@ -192,7 +195,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test proves file-wide `manifest proof` invalidation after function deletion. The higher test proves selective packet regeneration after an approved test is edited.
+          Justification: Deeper coverage — The current test isolates manifest cleanup after function deletion. The higher test proves selective packet regeneration after an approved test is edited.
         """
 
         with tempfile.TemporaryDirectory() as directory:
