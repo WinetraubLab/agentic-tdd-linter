@@ -560,17 +560,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` removes an `.agent.md` file when that file lacks a corresponding test during create-agent-md --fresh.
-        Specialized usage: An extra `.agent.md` file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
+        `pre-commit review workflow` rebuilds the complete `.agent.md` file set when create-agent-md runs with unscoped --fresh.
+        Specialized usage: The folder contains one current-test file and one deleted-test file, so refresh deletes both and then recreates only the current-test file.
 
-        Verification Method: verify public function output
+        Verification Method: verify private function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing one valid test.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
-        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Rebuilt packet paths exclude `test_deleted__test_deleted.agent.md`.
+        `_packet_exists` output is true for the current test's `.agent.md` after refresh.
+        `_packet_exists` output is false for `test_deleted__test_deleted.agent.md` after refresh.
+        The current test's regenerated `.agent.md` contains pending evidence and excludes its prior completed evidence.
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
@@ -605,6 +603,13 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _write_source(repo_root / "src" / "current.py", "VALUE = True\n")
             _write_source(repo_root / "tests" / "test_current.py", test_source)
             _run_cli(repo_root, "create-agent-md")
+            prior_evidence = "completed before rebuilding the packet set"
+            _complete_packets(repo_root, status="pass", evidence=prior_evidence)
+            current_agent_md = next(
+                path
+                for path in _packet_paths(repo_root)
+                if path.name != "cross_test_review.agent.md"
+            )
             extra_agent_md = (
                 repo_root
                 / "tests"
@@ -614,7 +619,17 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             extra_agent_md.write_text("extra .agent.md file\n", encoding="utf-8")
 
             _run_cli(repo_root, "create-agent-md", "--fresh")
-            self.assertFalse(extra_agent_md.exists())
+            current_packet_exists = _packet_exists(current_agent_md)
+            obsolete_packet_exists = _packet_exists(extra_agent_md)
+            current_packet = current_agent_md.read_text(encoding="utf-8")
+
+        self.assertTrue(current_packet_exists)
+        self.assertFalse(obsolete_packet_exists)
+        self.assertIn(
+            "| pending | Replace with review evidence. |",
+            current_packet,
+        )
+        self.assertNotIn(prior_evidence, current_packet)
 
 if __name__ == "__main__":
     unittest.main()
