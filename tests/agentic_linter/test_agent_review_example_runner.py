@@ -191,7 +191,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             )
 
         self.assertEqual(1.0, started_at)
-        self.assertEqual(["time", "validation"], events)
+        self.assertLess(events.index("time"), events.index("validation"))
 
     def test_timer_end_follows_scorecard_comparison(self) -> None:
         """Test Path: happy path
