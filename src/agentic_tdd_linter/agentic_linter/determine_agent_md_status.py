@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 from ..conventional_linter.run_conventional_linter import LintIssue
+from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
 from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
 
 
@@ -61,7 +62,7 @@ def _lint_agent_md_file(
     repo_root: Path | None = None,
     artifact_root: Path | None = None,
     test_name: str | None = None,
-    test_source: str = "",
+    test_source: str | None = None,
 ) -> list[LintIssue]:
     """Return issues when one test's review artifact is missing or stale."""
 
@@ -69,6 +70,15 @@ def _lint_agent_md_file(
         raise ValueError("repo_root is required")
 
     test_file = Path(test_file_path).resolve()
+    if test_source is None:
+        test_source = next(
+            (
+                test.source
+                for test in extract_tests_from_file(test_file, repo_root)
+                if test.name == test_name
+            ),
+            "",
+        )
     artifact = (
         Path(artifact_path)
         if artifact_path is not None
