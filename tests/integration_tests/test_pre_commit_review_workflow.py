@@ -173,7 +173,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         1. Harness creates a temporary repository containing a test whose docstring lacks Requirement Tested.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `missing_requirement`.
-        Packet list contains zero paths.
+        4. Packet list contains zero `.agent.md` paths.
 
         Similar Coverage:
         - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
