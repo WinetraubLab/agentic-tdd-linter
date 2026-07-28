@@ -19,12 +19,6 @@ SCORECARD_ROW_PATTERN = re.compile(
 )
 
 
-def _source_sha256(path: Path) -> str:
-    """Return the SHA256 digest for a file."""
-
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
 def _test_content_sha256(test_source: str) -> str:
     """Return the SHA256 digest for one extracted test's content."""
 
