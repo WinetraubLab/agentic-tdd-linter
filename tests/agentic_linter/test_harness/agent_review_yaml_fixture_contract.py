@@ -127,11 +127,17 @@ def read_agent_review_examples(
         section = ""
 
     for line_number, line in enumerate(lines, start=1):
-        if not line or line.lstrip().startswith("#"):
+        if not line:
             if section == "file_docstring" and example_name:
                 file_docstring_lines.append("")
             elif section == "test" and example_name:
                 test_lines.append("")
+            continue
+        if line.lstrip().startswith("#"):
+            if section == "file_docstring" and example_name and line.startswith("    "):
+                file_docstring_lines.append(line[4:])
+            elif section == "test" and example_name and line.startswith("    "):
+                test_lines.append(line[4:])
             continue
         if not line.startswith(" ") and line.endswith(":"):
             finish_example()
