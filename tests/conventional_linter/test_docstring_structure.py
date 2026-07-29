@@ -193,13 +193,13 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` omits image paths.
-        Specialized usage: `Verification Detail` omits image path instead of providing it, so conventional linter emits missing_visual_inspection_artifact.
+        `conventional_linter` emits missing_visual_inspection_artifact when a visual-inspection test's `Verification Detail` omits image paths.
+        Specialized usage: When `Verification Detail` omits image paths, `conventional_linter` emits missing_visual_inspection_artifact.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When details omit image paths, _lint_docstring_source contains `missing_visual_inspection_artifact`.
+        The `_lint_docstring_source` output rules contain `missing_visual_inspection_artifact`.
         """
 
         rules = _lint_docstring_source(
