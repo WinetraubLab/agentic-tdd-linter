@@ -26,7 +26,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Requirement Tested:
         `render_cross_test_agent_md_file` creates `cross-test packet` containing every unique selected path exactly once.
-        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` includes the duplicated path once.
+        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` writes the duplicated path once.
 
         Verification Method: verify public function output
 
