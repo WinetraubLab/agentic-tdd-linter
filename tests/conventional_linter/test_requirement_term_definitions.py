@@ -75,13 +75,13 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` requires colon separators in file glossary definitions.
-        Specialized usage: Definition has hyphen separator instead of colon separator, so conventional linter emits undefined_requirement_term.
+        `conventional_linter` emits `undefined_requirement_term` when a file glossary definition lacks a colon separator.
+        Specialized usage: When a definition has a hyphen separator instead of a colon separator, `conventional_linter` emits `undefined_requirement_term`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rules contain `undefined_requirement_term`.
+        The `_lint_requirement_term_source` output contains `undefined_requirement_term`.
         """
 
         rules = _lint_requirement_term_source(
