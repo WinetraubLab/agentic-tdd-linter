@@ -105,7 +105,7 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` includes public function output in `supported methods`.
+        `conventional_linter` accepts public function output among `supported methods`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
