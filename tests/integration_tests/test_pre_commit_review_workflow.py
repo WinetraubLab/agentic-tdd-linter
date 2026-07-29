@@ -217,7 +217,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review.
         Specialized usage: One of two completed `.agent.md` reviews fails, so lint reports agent_review_failed and provides the full-scorecard correction steps.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
@@ -322,7 +322,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships.
         Specialized usage: Two tests in the same file have approved `.agent.md` files, but caller edits one test, so its `.agent.md` and `cross_test_review.agent.md` become pending while the unchanged test's `.agent.md` stays approved.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
