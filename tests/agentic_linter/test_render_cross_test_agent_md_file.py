@@ -27,7 +27,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         `render_cross_test_agent_md_file` retains every unique selected path exactly once.
         Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` retains the duplicated path once.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         Packet contains path `tests/test_alpha.py`.
