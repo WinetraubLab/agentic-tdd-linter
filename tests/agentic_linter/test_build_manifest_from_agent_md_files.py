@@ -53,7 +53,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Manifest retains only `test_adds_values`.
+        `_lint_agent_review_manifest` updates the manifest file.
+        The manifest file contains only the `test_adds_values` record.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
