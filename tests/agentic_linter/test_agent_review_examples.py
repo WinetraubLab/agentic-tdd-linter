@@ -123,7 +123,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Detail:
         Total row contains `3` mismatches.
         Total row contains `10` tested cases.
-        Total row contains `70%`.
+        Total row reports a `70%` pass rate.
 
         Similar Coverage:
         - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
