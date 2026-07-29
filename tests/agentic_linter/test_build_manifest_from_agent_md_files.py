@@ -189,13 +189,14 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes `manifest proof` for a deleted test while preserving proof for an unchanged test in the same file.
-        Specialized usage: Caller erases one reviewed function, so agentic linter removes only that function's proof.
+        `build_manifest_from_agent_md_files` removes `manifest proof` when a reviewed test is deleted while preserving `manifest proof` for an unchanged test in the same file.
+        Specialized usage: When caller erases one reviewed function, `build_manifest_from_agent_md_files` removes only that function's `manifest proof`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Manifest contains zero records, including `manifest proof` for the surviving function.
+        Manifest records contain only `test_adds_values`.
+        Manifest records exclude `test_subtracts_values`.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
