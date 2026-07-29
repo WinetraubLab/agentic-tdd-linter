@@ -38,8 +38,9 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        The mocked artifact directory excludes persistent artifacts.
+        Mocking replaces the artifact roots with isolated filesystem paths.
         The `agent_review_example_runner` result contains no .agent.md paths.
+        The isolated artifact directory contains no .agent.md files.
         Committed `runner JSONL` corresponds to every current YAML source and expected scorecard.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
 
@@ -79,8 +80,10 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                     examples_path=examples_path,
                     reviewer_model=reviewer_model,
                 )
+                generated_packets = tuple(artifact_root.glob("*.agent.md"))
 
         self.assertEqual((), result.agent_md_files)
+        self.assertEqual((), generated_packets)
 
     def test_stale_attestation_requires_review(self) -> None:
         """Test Path: failure path
