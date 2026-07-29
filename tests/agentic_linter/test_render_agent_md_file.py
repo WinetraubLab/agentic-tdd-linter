@@ -103,14 +103,14 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_agent_md_file` creates `single-test packet` with exactly 25 pending scorecard rows.
+        `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 25 pending scorecard rows.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         Filesystem contains `render_agent_md_file` output path.
-        File contains the supplied test source exactly once.
+        File contains the test source supplied to `render_agent_md_file` exactly once.
         File contains 25 pending rows.
 
         Similar Coverage:
