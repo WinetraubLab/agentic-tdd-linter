@@ -5,6 +5,7 @@ Terms:
 - `renderer`: The renderer creates a cross-test review packet from selected paths. For example, it writes one packet for two test files.
 - `cross-test packet`: A cross-test packet contains review context for relationships among tests. For example, it lists test files and Similar Coverage instructions.
 - `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
+- `coverage reference formats`: Coverage reference formats are ``Higher Level Test: `<file.py>::<test_name>```, ``Lower Level Test: `<file.py>::<test_name>```, and `Justification: <classification> — <specific coverage difference>`. For example, cross-test instructions display all three formats.
 """
 
 from __future__ import annotations
@@ -24,15 +25,14 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` retains every unique selected path exactly once.
-        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` retains the duplicated path once.
+        `render_cross_test_agent_md_file` creates `cross-test packet` containing every unique selected path exactly once.
+        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` includes the duplicated path once.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Packet contains path `tests/test_alpha.py`.
-        Packet contains path `tests/test_beta.py`.
-        Packet contains each path once.
+        `cross-test packet` contains path `tests/test_alpha.py` once.
+        `cross-test packet` contains path `tests/test_beta.py` once.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -44,13 +44,14 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             first.write_text(source, encoding="utf-8")
             second.write_text(source, encoding="utf-8")
 
-            scope = _build_cross_test_review_scope(
+            artifact = render_cross_test_agent_md_file(
                 [first, second, first],
                 root,
             )
+            artifact_text = artifact.read_text(encoding="utf-8")
 
-        self.assertCountEqual(["tests/test_alpha.py", "tests/test_beta.py"], scope)
-        self.assertEqual(2, len(scope))
+        self.assertEqual(1, artifact_text.count("tests/test_alpha.py"))
+        self.assertEqual(1, artifact_text.count("tests/test_beta.py"))
 
     def test_instructions_limit_review_to_packet(self) -> None:
         """Test Path: happy path
@@ -120,7 +121,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` requires `relationship fields` to identify both tests in each higher-level/lower-level pair.
+        `render_cross_test_agent_md_file` requires `relationship fields` in each higher-level/lower-level pair to make each test reference the other.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -150,7 +151,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` provides exact higher-level, lower-level, and justification placeholders in `relationship fields`.
+        `render_cross_test_agent_md_file` provides exact `coverage reference formats` in `relationship fields`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
