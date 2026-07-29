@@ -23,7 +23,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_linter_results` creates a `formatted result` containing each lint issue's rule and message.
+        `format_linter_results` creates a `formatted result` containing each lint finding's rule and message.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
