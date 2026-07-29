@@ -31,7 +31,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version.
         Specialized usage: The manifest contains a modified linter version instead of the installed linter version, so `CI/CD linter` emits missing_required_agent_md.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
@@ -102,7 +102,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` accepts current manifest proof.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
@@ -167,7 +167,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` creates no `.agent.md` files when current manifest proof exists.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
