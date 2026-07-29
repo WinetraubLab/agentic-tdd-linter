@@ -95,7 +95,7 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing.
-        Specialized usage: Docstring contains empty `Requirement Tested` instead of populated content, so conventional linter emits missing_requirement.
+        Specialized usage: When a docstring contains empty `Requirement Tested`, `conventional_linter` emits missing_requirement.
 
         Verification Method: verify private function output
 
