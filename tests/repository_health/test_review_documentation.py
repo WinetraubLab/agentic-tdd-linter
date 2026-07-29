@@ -27,7 +27,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        `Path.read_text` returns README contents.
+        `Path.read_text` provides README contents.
         README contents contain `### Pre-commit review workflow`.
         README contents contain `### CI/CD validation workflow`.
         """
@@ -48,7 +48,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `_readme_review_command_args` output supplies the README command arguments.
+        `_readme_review_command_args` output provides the README command arguments.
         README command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
 
         Similar Coverage:
@@ -71,7 +71,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        `Path.read_text` returns README contents.
+        `Path.read_text` provides README contents.
         README contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
         README contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
 
