@@ -79,13 +79,13 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
-        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error when a YAML example contains any field outside `supported fields`.
+        Specialized usage: When one YAML example contains an owner field instead of only `supported fields`, `test_agent_review_yaml_fixture_contract` emits the unsupported-field error.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Validation errors contain "unsupported field `owner`".
+        `lint_agent_review_examples` output contains "unsupported field `owner`".
 
         Similar Coverage:
         - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
