@@ -57,13 +57,16 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_source_module_structure` restricts every `source module` to at most two public functions unless it is a `data-only module`.
-        Standard usage: The scenario demonstrates baseline behavior.
+        `test_source_module_structure` requires every `source module` to expose one or two public functions unless it is a `data-only module`.
+        Specialized usage: For data-only exemptions, two declared `data-only module` paths replace the baseline empty exemption set.
 
         Verification Method: verify private function output
 
         Verification Detail:
         `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
+        `_public_api_violations` reports controlled modules with zero or three public functions.
+        `_public_api_violations` accepts a controlled module with two public functions.
+        `_public_api_violations` accepts a controlled three-function `data-only module`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -72,9 +75,45 @@ class SourceModuleStructureTests(unittest.TestCase):
             Path("indexing_test_functions/extracted_test_record.py"),
             Path("version.py"),
         }
+        repository_violations = _public_api_violations(
+            package_root,
+            data_only_modules,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            (controlled_root / "empty.py").write_text("", encoding="utf-8")
+            (controlled_root / "valid.py").write_text(
+                "def first(): pass\ndef second(): pass\n",
+                encoding="utf-8",
+            )
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "excess.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+            (controlled_root / "data.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                {Path("data.py")},
+            )
+
+        self.assertEqual([], repository_violations)
         self.assertEqual(
-            [],
-            _public_api_violations(package_root, data_only_modules),
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
         )
 
 
