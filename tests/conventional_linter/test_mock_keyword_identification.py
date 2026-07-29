@@ -31,8 +31,8 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits mocking_detail_missing when `Mock` appears without mock details.
-        Specialized usage: Test documentation omits mock detail instead of providing it, so conventional linter emits mocking_detail_missing.
+        `conventional_linter` emits `mocking_detail_missing` when test code invokes `Mock` and its documentation omits mock details.
+        Specialized usage: When test code invokes `Mock` without documented mock details, `conventional_linter` emits `mocking_detail_missing`.
 
         Verification Method: verify private function output
 
