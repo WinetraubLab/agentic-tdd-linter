@@ -62,8 +62,8 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_test_path when docstrings omit `Test Path`.
-        Specialized usage: Docstring omits `Test Path` instead of providing it, so conventional linter emits missing_test_path.
+        `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`.
+        Specialized usage: When a test docstring omits `Test Path`, `conventional_linter` emits missing_test_path.
 
         Verification Method: verify private function output
 
