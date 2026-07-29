@@ -30,7 +30,7 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` allows multiple tests in one Python file.
+        `conventional_linter` validates every extracted test independently when one Python file contains multiple tests.
         Specialized usage: One Python file contains two tests rather than one test.
 
         Verification Method: verify private function output
