@@ -68,7 +68,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        The `_lint_docstring_source` output rules contain `missing_test_path`.
+        The `_lint_docstring_source` rules contain `missing_test_path`.
         """
 
         rules = _lint_docstring_source(
