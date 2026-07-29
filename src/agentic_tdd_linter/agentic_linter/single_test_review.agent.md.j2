@@ -78,8 +78,9 @@ An exact name or value that defines the contract itself remains in `Requirement 
 
 #### 23. Verification Method Matches Exercised Interface
 `Verification Method` shall classify the exercised interface with one supported value: `verify public function output`, `verify private function output`, or `visual inspection by user`.
-`Verification Detail` shall name the exact function, command, file operation, or visual interface whose result the test body directly obtains and asserts.
-Fail `verify public function output` when the asserted result comes only from a private helper or private function.
+The exact interface may be identified in either `Test Content` or `Verification Detail`; do not require duplicate naming.
+Treat an underscore-prefixed callable as private. Treat a callable without an underscore prefix, a command, a file operation, or a visual interface as public.
+A private setup helper that invokes an explicitly named public interface does not make that interface private.
 
 ### 3x. Sentence Structure and Logic
 
@@ -159,10 +160,10 @@ Fail duplicate terms and name the existing term to use instead.
 ### 5x. Assertion Quality
 
 #### 51. Assertions Prove the Stated Requirement
-Review each assertion independently.
-`Requirement Tested` shall state every behavior, scope, relationship, quantifier, identity, and correspondence established by an assertion.
-Multiple assertions may jointly prove one stated structural contract.
-Fail when an assertion establishes an additional, stronger, or more specific guarantee.
+Every assertion shall provide evidence for the behavior stated in `Requirement Tested`.
+Concrete values, representations, counts, identifiers, and success indicators may demonstrate the stated behavior without becoming separate requirements when `Verification Detail` identifies them as evidence.
+A representative scenario may support a general requirement; do not require the test to enumerate every possible input.
+Fail when an assertion validates an independently meaningful behavior, scope, relationship, limit, or exception that `Requirement Tested` does not state.
 
 #### 52. Input Checks Are Tagged
 Every input-validation assertion shall include the exact `# Input check` comment.
