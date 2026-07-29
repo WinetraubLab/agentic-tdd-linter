@@ -37,7 +37,8 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        When code invokes `Mock`, _lint_requirement_source contains `mocking_detail_missing`.
+        Test code invokes `Mock`.
+        The `_lint_requirement_source` output contains `mocking_detail_missing`.
         """
 
         rules = _lint_requirement_source(
