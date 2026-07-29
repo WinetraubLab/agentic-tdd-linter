@@ -528,7 +528,7 @@ class DocstringStructureTests(unittest.TestCase):
         The test contains `Requirement Tested`.
         The test contains `Verification Method`.
         The test contains `Verification Detail`.
-        Rules contain zero issues.
+        The `_lint_docstring_source` output rules contain zero issues.
 
         Similar Coverage:
         - Lower Level Test: `test_classification.py::test_accepts_happy_path`
