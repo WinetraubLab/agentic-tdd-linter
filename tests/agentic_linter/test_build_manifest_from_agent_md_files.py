@@ -153,8 +153,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` eliminates `orphaned record` after caller erases reviewed file.
-        Specialized usage: Source deletion replaces an existing source file, so agentic linter empties the manifest.
+        `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists.
+        Specialized usage: When a deleted reviewed file leaves one `orphaned record`, `build_manifest_from_agent_md_files` removes that record.
 
         Verification Method: verify private function output
 
