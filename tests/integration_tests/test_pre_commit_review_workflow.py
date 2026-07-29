@@ -32,17 +32,18 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` persists an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one test.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness marks every generated `.agent.md` scorecard as pass.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
-        5. Manifest contains path `tests/test_arithmetic.py`.
-        6. Manifest contains test `test_adds_two_numbers`.
-        7. Manifest contains status `pass`.
-        8. Manifest contains reviewer `integration:nominal-reviewer`.
+        5. `_manifest_records` output supplies the asserted manifest fields.
+        6. Manifest contains path `tests/test_arithmetic.py`.
+        7. Manifest contains test `test_adds_two_numbers`.
+        8. Manifest contains status `pass`.
+        9. Manifest contains reviewer `integration:nominal-reviewer`.
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
@@ -117,7 +118,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test.
         Specialized usage: Caller invokes lint before create-agent-md, so `pre-commit review workflow` emits missing_required_agent_md guidance naming create-agent-md.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
@@ -163,10 +164,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` prevents '.agent.md' creation when conventional linter emits missing_requirement.
+        `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement.
         Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero `.agent.md` files.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing a test whose docstring lacks Requirement Tested.
