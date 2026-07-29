@@ -29,7 +29,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` creates a `packet set` from a discovered `.py` test file.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates `src/parser.py` and `tests/test_parser.py`.
@@ -124,7 +124,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` creates a `packet set` from a discovered `.test.ts` test file.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates `src/parser.ts` and `tests/parser.test.ts`.
@@ -220,7 +220,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation.
         Specialized usage: The `.py` file contains a documented test but omits its file docstring, so `create-agent-md` emits missing_file_docstring.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a `.py` file containing one fully documented test and no file docstring.
@@ -262,7 +262,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation.
         Specialized usage: The `.test.ts` file contains documented test JSDoc but omits file-level JSDoc, so `create-agent-md` emits missing_file_docstring.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a `.test.ts` file containing one fully documented test and no file-level JSDoc.
@@ -308,7 +308,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` requires every test requirement to identify the module declared by its test file.
         Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits multiple_modules_in_test_file.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates one file declaring `parser` and containing a requirement that does not identify parser.
@@ -370,7 +370,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` instructs the caller to create one test file per declared module when a test file contains tests that declare multiple modules.
         Specialized usage: One test requirement identifies formatter instead of the declared parser, so `create-agent-md` prescribes one module per test file.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates one file declaring `parser` and containing parser and formatter tests.
@@ -435,7 +435,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist.
         Specialized usage: The declaration identifies src/parser.py, but that file does not exist, so `create-agent-md` emits missing_test_module.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a test file declaring `src/parser.py` without creating that module.
