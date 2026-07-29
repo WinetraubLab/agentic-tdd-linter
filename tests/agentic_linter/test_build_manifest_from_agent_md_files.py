@@ -72,6 +72,11 @@ class AgentReviewManifestTests(unittest.TestCase):
                 source_hash=_test_hash(test_file, root),
                 status="pass",
             )
+            original_record = json.loads(
+                _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()[0]
+            )
             test_file.write_text(
                 test_file.read_text(encoding="utf-8")
                 + "\ndef test_subtracts_values() -> None:\n    assert 2 - 1 == 1\n",
@@ -86,7 +91,7 @@ class AgentReviewManifestTests(unittest.TestCase):
                 .splitlines()
             ]
 
-        self.assertEqual(["test_adds_values"], [record["test"] for record in records])
+        self.assertEqual([original_record], records)
 
     def test_review_contract_changes_with_documentation(self) -> None:
         """Test Path: happy path
