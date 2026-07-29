@@ -447,10 +447,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` rebuilds all `.agent.md` files from current tests when create-agent-md runs with unscoped --fresh.
-        Specialized usage: The folder contains completed files for two current tests and an extra file for a deleted test, so refresh clears the folder and creates pending files only for the current tests.
+        `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh.
+        Specialized usage: For refresh of a populated folder instead of an empty folder, `pre-commit review workflow` removes completed and obsolete files before creating the pending current-test set.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. `_packet_paths` output contains two single-test `.agent.md` files and one cross-test `.agent.md` file.
