@@ -11,6 +11,7 @@ Terms:
 from __future__ import annotations
 
 import ast
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -20,7 +21,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_source_module_structure` requires every `test module` in the four mirrored repository folders to have a same-basename `source module` or `test-harness module`.
+        `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
