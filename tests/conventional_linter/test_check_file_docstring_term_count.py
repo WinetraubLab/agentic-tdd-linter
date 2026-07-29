@@ -23,8 +23,8 @@ class FileDocstringTermCountTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
-        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
+        `conventional_linter` emits too_many_file_docstring_terms when a file docstring exceeds `glossary limit`.
+        Specialized usage: The file glossary contains more defined terms than permitted, so `conventional_linter` emits too_many_file_docstring_terms.
 
         Verification Method: verify public function output
 
