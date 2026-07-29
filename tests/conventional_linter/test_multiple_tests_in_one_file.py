@@ -31,14 +31,14 @@ class MultiTestsInOneFileTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` allows multiple tests in one Python file.
-        Specialized usage: For Python aggregation, one file contains multiple tests instead of one test.
+        Specialized usage: One Python file contains two tests rather than one test.
 
         Verification Method: verify private function output
 
         Verification Detail:
         Both tests contain docstrings.
         Both tests contain assertions.
-        Rules contain zero issues.
+        `_lint_multi_python_source` output contains zero issues.
 
         Similar Coverage:
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
