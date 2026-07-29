@@ -113,7 +113,7 @@ class ReviewProofFlowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CLI` limits `CLI output` to the caller-selected test-file path.
+        `CLI` restricts `CLI output` to the caller-selected test-file path.
         Specialized usage: Caller selects one test-file path rather than the full test scope.
 
         Verification Method: verify public function output
@@ -183,6 +183,7 @@ class ReviewProofFlowTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
+        `main(["lint", "--repo-root", str(root)])` processes the lint request.
         Manifest proof has status `pass` and reviewer `codex:gpt-5.5`.
         The `.agent.md` scorecard has status `pass`.
         The lint request contains no `reviewer identity`.
