@@ -48,7 +48,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file.
-        Specialized usage: A new test lacks proof, but the existing test content still matches its `manifest proof`.
+        Specialized usage: When a new test lacks proof, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof` and excludes the new test.
 
         Verification Method: verify private function output
 
