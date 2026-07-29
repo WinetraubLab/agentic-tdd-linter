@@ -181,7 +181,8 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        `mock.patch.dict` clears environment entries.
+        Mocking establishes an environment without `AGENT_REVIEW_MODEL`.
+        The environment lacks `AGENT_REVIEW_MODEL`.
         `RuntimeError` identifies `AGENT_REVIEW_MODEL`.
         """
 
