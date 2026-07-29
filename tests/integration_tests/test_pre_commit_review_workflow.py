@@ -37,9 +37,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Detail:
         1. Harness creates a temporary repository containing one test.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness marks every generated `.agent.md` scorecard as pass.
+        3. Harness classifies every generated `.agent.md` scorecard as pass.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
-        5. `_manifest_records` output supplies the asserted manifest fields.
+        5. `_manifest_records` output provides the asserted manifest fields.
         6. Manifest contains path `tests/test_arithmetic.py`.
         7. Manifest contains test `test_adds_two_numbers`.
         8. Manifest contains status `pass`.
