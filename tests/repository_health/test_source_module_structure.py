@@ -64,7 +64,7 @@ class SourceModuleStructureTests(unittest.TestCase):
 
         Verification Detail:
         `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
-        `_public_api_violations` reports controlled modules with zero or three public functions.
+        `_public_api_violations` identifies controlled modules with zero or three public functions.
         `_public_api_violations` accepts a controlled module with two public functions.
         `_public_api_violations` accepts a controlled three-function `data-only module`.
         """
