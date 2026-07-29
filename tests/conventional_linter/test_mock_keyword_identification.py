@@ -115,7 +115,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        The supplied test documentation describes `Mock`.
+        The test documentation describes `Mock`.
         `_lint_requirement_source` output omits `mocking_detail_missing`.
         """
 
