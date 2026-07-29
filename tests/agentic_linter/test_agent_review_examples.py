@@ -176,7 +176,7 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         Requirement Tested:
         `agent_review_examples` throws RuntimeError that identifies `AGENT_REVIEW_MODEL` when `AGENT_REVIEW_MODEL` is absent.
-        Specialized usage: When model identity is absent, `agent_review_examples` throws RuntimeError.
+        Specialized usage: When `AGENT_REVIEW_MODEL` is absent, `agent_review_examples` throws RuntimeError.
 
         Verification Method: verify private function output
 
