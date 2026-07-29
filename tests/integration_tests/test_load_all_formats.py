@@ -121,7 +121,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `create-agent-md` creates a `packet set` from a discovered `.test.ts` test file.
+        `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
