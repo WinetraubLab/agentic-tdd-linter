@@ -20,14 +20,14 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+        `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README contains heading `Pre-commit review workflow`.
-        README contains heading `CI/CD validation workflow`.
+        README contents contain `### Pre-commit review workflow`.
+        README contents contain `### CI/CD validation workflow`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -123,13 +123,13 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the agentic-tdd-linter create-agent-md command.
+        `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the create-agent-md command.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The guide contains no `agentic-tdd-linter create-agent-md` command.
+        GitHub Actions guide contents contain no `agentic-tdd-linter create-agent-md` command.
 
         Similar Coverage:
         - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`

@@ -122,7 +122,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
         3. `pre-commit review workflow` output contains missing_required_agent_md.
-        4. `pre-commit review workflow` output contains create-agent-md guidance.
+        4. `pre-commit review workflow` output contains `agentic-tdd-linter create-agent-md`.
         """
 
         test_source = textwrap.dedent(

@@ -79,7 +79,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error when any field is outside `supported fields`.
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
         Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
 
         Verification Method: verify public function output
