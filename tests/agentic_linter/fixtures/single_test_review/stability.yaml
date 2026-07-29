@@ -1,0 +1,957 @@
+# Test-source examples for agent review.
+# Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+# Criteria omitted from `expected_scorecard` are ignored during comparison.
+# Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+# Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+readme_workflows_head:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_readme_names_both_workflows(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires README headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README contains heading `Pre-commit review workflow`.
+            README contains heading `CI/CD validation workflow`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+            self.assertIn("### Pre-commit review workflow", readme)
+            self.assertIn("### CI/CD validation workflow", readme)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+loads_python_tests_head:
+  file_docstring: |
+    """Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+    `create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
+
+    Terms:
+    - `.py`: This suffix identifies a Python test file. For example, `test_parser.py` contains Python tests discovered by the CLI.
+    - `.test.ts`: This suffix identifies a TypeScript test file. For example, `parser.test.ts` contains TypeScript tests discovered by the CLI.
+    - `packet set`: A packet set contains one single-test and one cross-test `.agent.md` file populated with a discovered test's documentation and source.
+    """
+  test: |
+    def test_loads_python_tests(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `create-agent-md` creates a `packet set` from a discovered `.py` test file.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates `src/parser.py` and `tests/test_parser.py`.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
+        3. Command produces exit code `0`.
+        4. Artifact directory contains one single-test packet.
+        5. Artifact directory contains one cross-test packet.
+        6. Single-test packet contains `test_returns_stored_text`.
+        7. Single-test packet contains `Tests in this file validate `parser` located at `src/parser.py`.`.
+        8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
+        9. Single-test packet contains `` `parser` provides stored text.``.
+        10. Single-test packet contains `def test_returns_stored_text`.
+        11. Cross-test packet contains `tests/test_parser.py`.
+        12. Cross-test packet contains `def test_returns_stored_text`.
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves Python discovery, extraction, and complete packet content.
+        - Lower Level Test: `test_main.py::test_test_root_reports_generated_packet`
+          Justification: Deeper coverage — The lower test proves packet-count reporting for a nondefault test root. The current test proves complete Python packet loading.
+        - Lower Level Test: `test_multiple_tests_in_one_file.py::test_python_multiple_tests_pass`
+          Justification: Deeper coverage — The lower test isolates conventional validation for multiple Python tests in one file. The current test loads Python tests through complete packet generation.
+        - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
+          Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by Python packet generation. The current test loads those fields into complete Python packets.
+        - Lower Level Test: `test_map_test_function_to_agent_md_file.py::test_round_trip_preserves_test_identity`
+          Justification: Deeper coverage — The lower test directly verifies round-trip recovery of the test path and function name. The current test uses the mapping during complete Python packet loading without isolating its reverse mapping.
+        - Lower Level Test: `test_docstring_structure.py::test_python_docstring_passes`
+          Justification: Deeper coverage — The lower test directly validates every required Python docstring field. The current test loads that documentation into complete Python packets without isolating conventional docstring validation.
+        """
+
+        python_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `parser` located at `src/parser.py`.
+            `parser` is responsible for returning stored text.
+            """
+
+            def test_returns_stored_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `parser` provides stored text.
+                Standard usage: The parser receives stored text.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Parser output equals `stored text`.
+                """
+
+                assert parse() == "stored text"
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_parser.py"
+            _write_source(repo_root / "src" / "parser.py", "def parse(): return 'stored text'\n")
+            _write_source(test_file, python_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+            packets = _packet_paths(repo_root)
+            cross_packet_path = next(
+                path
+                for path in packets
+                if path.name == "cross_test_review.agent.md"
+            )
+            single_packet_path = next(
+                path
+                for path in packets
+                if path.name != "cross_test_review.agent.md"
+            )
+            single_packet = single_packet_path.read_text(encoding="utf-8")
+            cross_packet = cross_packet_path.read_text(encoding="utf-8")
+
+        self.assertEqual(0, creation.returncode, creation.stdout + creation.stderr)
+        self.assertEqual(2, len(packets), packets)
+        self.assertIn("test_returns_stored_text", single_packet)
+        self.assertIn(
+            "Tests in this file validate `parser` located at `src/parser.py`.",
+            single_packet,
+        )
+        self.assertIn("`parser` is responsible for returning stored text.", single_packet)
+        self.assertIn("`parser` provides stored text.", single_packet)
+        self.assertIn("def test_returns_stored_text", single_packet)
+        self.assertIn("tests/test_parser.py", cross_packet)
+        self.assertIn("def test_returns_stored_text", cross_packet)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+unsupported_fields_head:
+  file_docstring: |
+    """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+
+    Terms:
+    - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
+    """
+  test: |
+    def test_rejects_unsupported_fields(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error when any field is outside `supported fields`.
+        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation errors contain "unsupported field `owner`".
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates unsupported-field validation. The higher test runs the complete YAML fixture catalog.
+        """
+
+        invalid_source = textwrap.dedent(
+            '''
+            # Test-source examples for agent review.
+            # Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+            # Criteria omitted from `expected_scorecard` are ignored during comparison.
+            # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+            # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+            unsupported_owner:
+              owner: parser
+              test: |
+                def test_example() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Addition calculates sums.
+                    When operands contain integers, addition calculates sums.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The expression produces `2`.
+                    """
+
+                    assert 1 + 1 == 2
+              expected_scorecard:
+                11: # First Sentence Describes Behavior
+                  pass # The requirement states the calculation behavior.
+            '''
+        ).lstrip()
+        with tempfile.TemporaryDirectory() as directory:
+            example_file = Path(directory) / "invalid.yaml"
+            example_file.write_text(invalid_source, encoding="utf-8")
+            errors = lint_agent_review_examples(examples_path=example_file)
+
+        matching_errors = [
+            error for error in errors if "unsupported field `owner`" in error
+        ]
+        self.assertTrue(matching_errors)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+unsupported_fields_working_copy:
+  file_docstring: |
+    """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+
+    Terms:
+    - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
+    """
+  test: |
+    def test_rejects_unsupported_fields(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
+        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation errors contain "unsupported field `owner`".
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates unsupported-field validation. The higher test runs the complete YAML fixture catalog.
+        """
+
+        invalid_source = textwrap.dedent(
+            '''
+            # Test-source examples for agent review.
+            # Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+            # Criteria omitted from `expected_scorecard` are ignored during comparison.
+            # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+            # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+            unsupported_owner:
+              owner: parser
+              test: |
+                def test_example() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Addition calculates sums.
+                    When operands contain integers, addition calculates sums.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The expression produces `2`.
+                    """
+
+                    assert 1 + 1 == 2
+              expected_scorecard:
+                11: # First Sentence Describes Behavior
+                  pass # The requirement states the calculation behavior.
+            '''
+        ).lstrip()
+        with tempfile.TemporaryDirectory() as directory:
+            example_file = Path(directory) / "invalid.yaml"
+            example_file.write_text(invalid_source, encoding="utf-8")
+            errors = lint_agent_review_examples(examples_path=example_file)
+
+        matching_errors = [
+            error for error in errors if "unsupported field `owner`" in error
+        ]
+        self.assertTrue(matching_errors)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+readme_workflows_working_copy:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_readme_names_both_workflows(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README contents contain `### Pre-commit review workflow`.
+            README contents contain `### CI/CD validation workflow`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+            self.assertIn("### Pre-commit review workflow", readme)
+            self.assertIn("### CI/CD validation workflow", readme)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+github_actions_omits_packet_creation_head:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_github_actions_omits_packet_creation(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the agentic-tdd-linter create-agent-md command.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            The guide contains no `agentic-tdd-linter create-agent-md` command.
+
+            Similar Coverage:
+            - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+              Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' files at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            guide = (
+                repo_root / "docs" / "workflows" / "github-actions.md"
+            ).read_text(
+                encoding="utf-8"
+            )
+
+            self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+github_actions_omits_packet_creation_working_copy:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_github_actions_omits_packet_creation(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the create-agent-md command.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            GitHub Actions guide contents contain no `agentic-tdd-linter create-agent-md` command.
+
+            Similar Coverage:
+            - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+              Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' files at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            guide = (
+                repo_root / "docs" / "workflows" / "github-actions.md"
+            ).read_text(
+                encoding="utf-8"
+            )
+
+            self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+cicd_accepts_current_proof_head:
+  file_docstring: |
+    """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+    `CI/CD linter` is responsible for validating committed review proof without creating review packets.
+
+    Terms:
+    - `CI/CD linter`: CI/CD linter runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
+    - `.agent.md`: An .agent.md file contains a review scorecard that create-agent-md generates for a test. For example, CI validates committed manifest proof without recreating these files.
+    """
+  test: |
+    def test_cicd_accepts_current_proof(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `CI/CD linter` accepts current manifest proof.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        1. Harness creates a temporary repository containing one valid test.
+        2. Harness completes its review.
+        3. Harness persists current passing proof in the manifest.
+        4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
+        5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
+
+        Similar Coverage:
+        - Higher Level Test: `test_repository_self_lint.py::test_self_lint_validates_repository_tests`
+          Justification: Deeper coverage — The current test isolates current-proof acceptance in a temporary repository. The higher test validates current proof for this complete repository.
+        - Higher Level Test: `test_review_documentation.py::test_github_actions_shows_ci`
+          Justification: Deeper coverage — The current test executes CI lint against current proof. The higher test verifies that GitHub Actions guidance documents that validation.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `approved behavior` located at `src/approved.py`.
+            `approved behavior` is responsible for evaluating an approved boolean expression.
+            """
+
+            def test_approved_packet_behavior() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `approved behavior` evaluates to true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "approved.py", "VALUE = True\n")
+            _write_source(repo_root / "tests" / "test_approved.py", test_source)
+            _record_approved_manifest(
+                repo_root,
+                reviewer="integration:ci-reviewer",
+                review_status="pass",
+                review_evidence="approved packetless CI fixture",
+            )
+            lint = _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:ci-reviewer",
+            )
+
+        self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
+
+reports_excess_term_rule_head:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
+    `conventional_linter` is responsible for enforcing the test-file glossary limit.
+
+    Terms:
+    - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
+    """
+  test: |
+    def test_reports_excess_term_rule(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
+        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        File docstring defines six terms: alpha, beta, gamma, delta, epsilon, and zeta.
+        Issue list contains `too_many_file_docstring_terms`.
+        """
+
+        term_names = ("alpha", "beta", "gamma", "delta", "epsilon", "zeta")
+        definitions = "\n".join(
+            f"- `{term}`: The {term} term has a definition." for term in term_names
+        )
+        test = ExtractedTestRecord(
+            path=Path("tests/test_example.py"),
+            name="test_example",
+            line=1,
+            node=None,
+            docstring="",
+            file_docstring=f"Verify examples.\n\nTerms:\n{definitions}",
+        )
+
+        issues = check_file_docstring_term_count(test)
+
+        self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
+  expected_scorecard:
+    11: # First Sentence Describes Behavior
+      pass # This is a good eungh test and should pass all criteria.
+    12: # Second Sentence Describes a Scenario
+      pass # This is a good eungh test and should pass all criteria.
+    13: # Requirement Is Specific
+      pass # This is a good eungh test and should pass all criteria.
+    14: # Requirement Is Atomic
+      pass # This is a good eungh test and should pass all criteria.
+    15: # Requirement Begins with the Behavior Owner
+      pass # This is a good eungh test and should pass all criteria.
+    16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    21: # Expected Results Appear in Verification Detail
+      pass # This is a good eungh test and should pass all criteria.
+    22: # Verification Detail Describes Evidence
+      pass # This is a good eungh test and should pass all criteria.
+    23: # Verification Method Matches Exercised Interface
+      pass # This is a good eungh test and should pass all criteria.
+    31: # Sentence Avoids Double Negation
+      pass # This is a good eungh test and should pass all criteria.
+    32: # Sentence Uses Subject-Verb-Object Order
+      pass # This is a good eungh test and should pass all criteria.
+    33: # Subject and Object Are Concise
+      pass # This is a good eungh test and should pass all criteria.
+    34: # Main Verb Is Unambiguous
+      pass # This is a good eungh test and should pass all criteria.
+    35: # Conditions Are Explicit
+      pass # This is a good eungh test and should pass all criteria.
+    36: # Relative Clauses Are Complete
+      pass # This is a good eungh test and should pass all criteria.
+    37: # Sentence Expresses One Concept
+      pass # This is a good eungh test and should pass all criteria.
+    38: # Behavior Uses Active Voice
+      pass # This is a good eungh test and should pass all criteria.
+    39: # Subject Is Not This, That, These, or Those
+      pass # This is a good eungh test and should pass all criteria.
+    42: # Domain Terms Are Defined
+      pass # This is a good eungh test and should pass all criteria.
+    43: # Data-Flow Terms Name an Owner
+      pass # This is a good eungh test and should pass all criteria.
+    44: # Wording Is Concrete
+      pass # This is a good eungh test and should pass all criteria.
+    46: # Terms Reuse Shared Vocabulary
+      pass # This is a good eungh test and should pass all criteria.
+    51: # Assertions Prove the Stated Requirement
+      pass # This is a good eungh test and should pass all criteria.
+    52: # Input Checks Are Tagged
+      pass # This is a good eungh test and should pass all criteria.
+    53: # Test Values Are Local
+      pass # This is a good eungh test and should pass all criteria.
