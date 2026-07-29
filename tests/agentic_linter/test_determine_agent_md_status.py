@@ -1,5 +1,9 @@
 """Tests in this file validate `determine_agent_md_status` located at `src/agentic_tdd_linter/agentic_linter/determine_agent_md_status.py`.
 `determine_agent_md_status` is responsible for deriving one status from the review results in a `.agent.md` scorecard.
+
+Terms:
+- `.agent.md`: An .agent.md file contains one agent-review scorecard. For example, each criterion row has one review result.
+- `invalid_review_scorecard`: invalid_review_scorecard identifies a malformed agent-review scorecard. For example, one result cell containing both pass and fail is invalid.
 """
 
 from __future__ import annotations
