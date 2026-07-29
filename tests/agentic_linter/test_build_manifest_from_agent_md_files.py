@@ -195,7 +195,7 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes `manifest proof` when a reviewed test is deleted while preserving `manifest proof` for an unchanged test in the same file.
+        `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file.
         Specialized usage: When caller erases one reviewed function, `build_manifest_from_agent_md_files` removes only that function's `manifest proof`.
 
         Verification Method: verify private function output
