@@ -60,7 +60,6 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         `render_agent_md_file` output contains `Use one fresh isolated reviewer for this Markdown packet`.
-        `render_agent_md_file` output requires that reviewer to evaluate every criterion.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -111,6 +110,7 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         Filesystem contains `render_agent_md_file` output path.
+        File contains the supplied test source exactly once.
         File contains 25 pending rows.
 
         Similar Coverage:
@@ -142,6 +142,7 @@ class AgenticMarkdownTests(unittest.TestCase):
             artifact_text = artifact_path.read_text(encoding="utf-8")
 
         self.assertTrue(artifact_exists)
+        self.assertEqual(1, artifact_text.count(source))
         self.assertEqual(25, artifact_text.count("| pending |"))
 
 if __name__ == "__main__":
