@@ -5,6 +5,7 @@ Terms:
 - `mismatch diagnostics`: Mismatch diagnostics format YAML expectation mismatches with criterion metrics and recovery guidance. Criterion metrics contain failure count, enforced-check count, and pass rate. For example, two failures among five checks produce a 60% pass rate and a calibration recommendation.
 - `calibration skill`: The calibration skill tests generalized review-criterion wording through blind experiments. For example, `$calibrate-agent-review-criteria` diagnoses a YAML scorecard mismatch.
 - `pass rate`: Pass rate is the percentage of tested YAML expectations that match reviewer results. For example, seven matches among ten expectations produce a 70% pass rate.
+- `AGENT_REVIEW_MODEL`: AGENT_REVIEW_MODEL identifies the model that reviews YAML examples. For example, the runner rejects an absent AGENT_REVIEW_MODEL value.
 """
 
 from __future__ import annotations
@@ -174,8 +175,8 @@ class AgentReviewExampleTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `agent_review_examples` raises RuntimeError that identifies AGENT_REVIEW_MODEL when AGENT_REVIEW_MODEL is absent.
-        Specialized usage: Model loading receives no AGENT_REVIEW_MODEL identity instead of configured identity, so model loading raises RuntimeError.
+        `agent_review_examples` throws RuntimeError that identifies `AGENT_REVIEW_MODEL` when `AGENT_REVIEW_MODEL` is absent.
+        Specialized usage: When model identity is absent, `agent_review_examples` throws RuntimeError.
 
         Verification Method: verify private function output
 
