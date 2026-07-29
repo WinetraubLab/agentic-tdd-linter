@@ -46,7 +46,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        README review command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
+        README command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
 
         Similar Coverage:
         - Lower Level Test: `test_main.py::test_lint_requires_reviewer`
@@ -62,16 +62,16 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires `pre-commit review workflow` in README: '.agent.md' creation through 'agentic-tdd-linter create-agent-md', scorecard completion, and manifest recording through 'agentic-tdd-linter lint --reviewer'.
+        `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then record them through reviewer-authenticated lint.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README presents these steps in order:
-        1. `create-agent-md` creates the scorecards.
-        2. Reviewers complete every scorecard.
-        3. `lint --reviewer` persists the completed reviews in the manifest.
+        README contents list these markers in order:
+        1. `agentic-tdd-linter create-agent-md`.
+        2. `Review the generated files`.
+        3. `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
 
         Similar Coverage:
         - Lower Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
