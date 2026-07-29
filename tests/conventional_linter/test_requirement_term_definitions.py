@@ -60,7 +60,7 @@ class RequirementTermDefinitionTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Rules contain `undefined_requirement_term`.
+        The `_lint_requirement_term_source` output contains `undefined_requirement_term`.
         """
 
         rules = _lint_requirement_term_source(
