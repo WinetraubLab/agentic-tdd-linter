@@ -48,13 +48,14 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file.
-        Specialized usage: When a new test lacks proof, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof` and excludes the new test.
+        Specialized usage: When a new test lacks `manifest proof`, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof`.
+        The new test remains excluded from the manifest.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_lint_agent_review_manifest` updates the manifest file.
         The manifest file contains only the `test_adds_values` record.
+        The surviving record preserves its original proof fields.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
