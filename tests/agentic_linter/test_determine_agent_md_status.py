@@ -119,13 +119,14 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` emits invalid_review_scorecard when criteria contain multiple results.
-        Specialized usage: One criterion contains pass/fail ambiguity instead of one result, so agentic linter emits invalid_review_scorecard.
+        `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results.
+        Specialized usage: When one result cell contains both pass and fail instead of one result, `determine_agent_md_status` emits `invalid_review_scorecard`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rules contain `invalid_review_scorecard`.
+        One scorecard result cell contains `pass/fail`.
+        The `_lint_agent_md_file` output contains `invalid_review_scorecard`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
