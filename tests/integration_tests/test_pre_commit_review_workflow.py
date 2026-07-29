@@ -4,6 +4,7 @@
 Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
 - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
+- `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among changed tests. For example, editing one test regenerates the cross-test review for that change.
 """
 
 from __future__ import annotations
