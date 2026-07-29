@@ -27,6 +27,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
+        `Path.read_text` returns README contents.
         README contents contain `### Pre-commit review workflow`.
         README contents contain `### CI/CD validation workflow`.
         """
@@ -47,6 +48,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        `_readme_review_command_args` output supplies the README command arguments.
         README command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
 
         Similar Coverage:
@@ -69,10 +71,9 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        README contents list these markers in order:
-        1. `agentic-tdd-linter create-agent-md`.
-        2. `Review the generated files`.
-        3. `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
+        `Path.read_text` returns README contents.
+        README contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
+        README contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
 
         Similar Coverage:
         - Lower Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
