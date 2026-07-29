@@ -20,13 +20,13 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_source_module_structure` requires every `test module` to have a same-basename `source module` or `test-harness module`.
+        `test_source_module_structure` requires every `test module` in the four mirrored repository folders to have a same-basename `source module` or `test-harness module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Every `test module` has a permitted counterpart.
+        `_unmatched_test_paths` produces `[]` for agentic_linter, cli, conventional_linter, and indexing_test_functions.
 
         Similar Coverage:
         - Lower Level Test: `test_load_all_formats.py::test_rejects_missing_module`
@@ -62,7 +62,7 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Every checked `source module` exposes at most two public functions unless it is a `data-only module`.
+        `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
