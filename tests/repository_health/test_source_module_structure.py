@@ -53,7 +53,7 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-    def test_requires_one_or_two_public_functions(self) -> None:
+    def test_enforces_public_function_limit(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -98,7 +98,7 @@ class SourceModuleStructureTests(unittest.TestCase):
             controlled_violations,
         )
 
-    def test_exempts_data_only_modules_from_public_function_limit(self) -> None:
+    def test_exempts_data_only_modules(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
