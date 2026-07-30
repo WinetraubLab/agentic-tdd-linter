@@ -24,10 +24,18 @@ Remove `tests/agentic_linter/test_agent_review_example_runner.jsonl` so committe
 
 ## Step 2: Generate all YAML reviews
 
+Use `node_repl` to read `nodeRepl.requestMeta["x-codex-turn-metadata"]`.
+Record its exact `model` and `reasoning_effort` values as
+`AGENT_REVIEW_MODEL="<model> <reasoning_effort>"`. Do not infer either value
+from an earlier report. Use this same reviewer configuration for every
+isolated reviewer in the cycle. If runtime metadata is unavailable, stop and
+request the actual model and reasoning effort instead of guessing.
+
 Run:
 
 ```bash
-.venv/bin/python -m unittest \
+AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
+  .venv/bin/python -m unittest \
   tests.agentic_linter.test_agent_review_example_runner.AgentReviewExampleRunnerTests.test_anonymous_agent_review_examples \
   -v
 ```
@@ -46,12 +54,15 @@ Review every generated `.agent.md` file by following its instructions:
 After reviewers complete every generated `.agent.md`, run the same unittest command again:
 
 ```bash
-.venv/bin/python -m unittest \
+AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
+  .venv/bin/python -m unittest \
   tests.agentic_linter.test_agent_review_example_runner.AgentReviewExampleRunnerTests.test_anonymous_agent_review_examples \
   -v
 ```
 
 This invocation compares completed scorecards with YAML expectations and updates `tests/agentic_linter/test_agent_review_example_runner.json` and `tests/agentic_linter/test_agent_review_example_runner.jsonl`, even when comparison failures make the test exit nonzero. Do not edit YAML or criterion wording during this run.
+Verify that the JSON report and every newly written JSONL attestation identify
+the recorded `AGENT_REVIEW_MODEL`.
 
 ## Step 5: Analyze history
 

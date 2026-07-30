@@ -33,6 +33,11 @@ Do not apply it to retries after conventional-linter corrections or to later cyc
 Work from the repository root.
 Record `git status --short` and preserve every pre-existing change.
 Do not revert or overwrite user edits. Re-read a file immediately before editing it, and ask before replacing concurrent changes whose intent is unclear.
+Use `node_repl` to read `nodeRepl.requestMeta["x-codex-turn-metadata"]`.
+Record its exact `model` and `reasoning_effort` values. Use the same
+configuration for every isolated reviewer, and form the manifest reviewer
+identity as `codex:<model>:<reasoning_effort>`. If runtime metadata is
+unavailable, stop and request the actual values instead of guessing.
 Initialize a wall-clock timer immediately before Step 1.
 
 ## Run each cycle
@@ -86,6 +91,16 @@ After all reviews finish:
 Record failed scorecard rows and unique impacted tests as separate values.
 When a cross-test failure cannot be mapped reliably, report the unmapped cross-test packet count beside the impacted-test value rather than guessing.
 
+When no scorecard row is pending or failed, record the completed reviews with:
+
+```bash
+.venv/bin/agentic-tdd-linter lint --repo-root . \
+  --reviewer 'codex:<model>:<reasoning_effort>'
+```
+
+Verify that any manifest records written in this cycle use that exact reviewer
+identity. Never reuse a reviewer identity from an earlier run.
+
 ### Step 4: Apply corrections
 
 If Step 3 found failures:
@@ -126,4 +141,5 @@ After the final requested cycle, state whether:
 - conventional lint passed;
 - any `.agent.md` rows remain pending;
 - the last review still contains failures; and
+- any passing reviews recorded in this run use the current model and reasoning effort;
 - another cycle is required to review corrections made during the final cycle.
