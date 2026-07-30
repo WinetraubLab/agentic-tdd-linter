@@ -33,6 +33,7 @@ from .agent_review_examples import (
     _ScorecardMismatch,
     _read_scorecard_attestations,
     _record_review_start,
+    _reviewer_model_from_environment,
     _review_duration_seconds,
     _scorecard_attestation_is_current,
     _scorecard_mismatch_message,
@@ -69,13 +70,10 @@ class _AgentReviewRunResult(NamedTuple):
 def run_agent_review_examples(
     *,
     examples_path: Path,
-    reviewer_model: str,
 ) -> _AgentReviewRunResult:
     """Run every YAML example in one fixture folder through agentic review."""
 
-    reviewer_model = reviewer_model.strip()
-    if not reviewer_model:
-        raise ValueError("reviewer model is required")
+    reviewer_model = ""
     invocation_started_at, schema_errors = _begin_yaml_validation(examples_path)
     if schema_errors:
         raise ValueError("\n".join(schema_errors))
@@ -153,6 +151,8 @@ def run_agent_review_examples(
                     number: all_actual_results[number]
                     for number in expected_scorecard
                 }
+                if not reviewer_model:
+                    reviewer_model = _reviewer_model_from_environment()
                 reviewer = {"model": reviewer_model}
             completed_attestations.append(
                 {
@@ -200,13 +200,26 @@ def run_agent_review_examples(
         SCORECARD_ATTESTATION_PATH,
         completed_attestations,
     )
+    reviewer_models: set[str] = set()
+    for attestation in completed_attestations:
+        reviewer = attestation.get("reviewer")
+        if isinstance(reviewer, dict) and reviewer.get("model"):
+            reviewer_models.add(str(reviewer["model"]))
+    sorted_reviewer_models = sorted(reviewer_models)
+    if not sorted_reviewer_models:
+        raise ValueError("completed attestations require reviewer model")
+    report_reviewer_model = (
+        sorted_reviewer_models[0]
+        if len(sorted_reviewer_models) == 1
+        else f"multiple: {', '.join(sorted_reviewer_models)}"
+    )
     _write_scorecard_sidecar(
         sidecar_path=SCORECARD_BASELINE_PATH,
         mismatches=mismatches,
         tested_cases_by_criterion=tested_cases_by_criterion,
         yaml_case_count=len(examples),
         review_duration_seconds=review_duration_seconds,
-        reviewer_model=reviewer_model,
+        reviewer_model=report_reviewer_model,
     )
     if review_duration_seconds is not None:
         REVIEW_START_PATH.unlink()

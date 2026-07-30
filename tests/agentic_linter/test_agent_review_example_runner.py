@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -64,7 +65,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         examples_relative_path = Path(
             "tests/agentic_linter/fixtures/single_test_review"
         )
-        reviewer_model = "5.6 Sol Medium"
         examples_path = REPO_ROOT / examples_relative_path
 
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -78,7 +78,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             ):
                 result = run_agent_review_examples(
                     examples_path=examples_path,
-                    reviewer_model=reviewer_model,
                 )
                 generated_packets = tuple(artifact_root.glob("*.agent.md"))
 
@@ -144,7 +143,6 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError) as raised:
                     run_agent_review_examples(
                         examples_path=examples_path,
-                        reviewer_model="5.6 Sol Medium",
                     )
 
             error_text = str(raised.exception)
@@ -267,8 +265,8 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        1. After the `mock.patch`-controlled successful evaluation, `runner JSONL` excludes `previous successful evaluation` and contains one valid JSON record.
-        2. After the `mock.patch`-controlled failed evaluation, `runner JSONL` excludes `previous failed evaluation` and contains one valid JSON record.
+        1. After the `mock.patch`-controlled successful evaluation, `runner JSONL` excludes `previous successful evaluation` and contains one valid JSON record with reviewer model `gpt-test ultra`.
+        2. After the `mock.patch`-controlled failed evaluation, `runner JSONL` excludes `previous failed evaluation` and contains one valid JSON record with reviewer model `gpt-test ultra`.
         """
 
         example = SimpleNamespace(
@@ -291,25 +289,25 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
             actual_scorecards=actual_scorecards,
             regressions=regressions,
         )
+        successful_records = [
+            json.loads(line)
+            for line in outputs["successful_attestations"].splitlines()
+        ]
+        failed_records = [
+            json.loads(line)
+            for line in outputs["failed_attestations"].splitlines()
+        ]
         self.assertNotIn(successful_seed, outputs["successful_attestations"])
         self.assertNotIn(failed_seed, outputs["failed_attestations"])
+        self.assertEqual(1, len(successful_records))
+        self.assertEqual(1, len(failed_records))
         self.assertEqual(
-            1,
-            len(
-                [
-                    json.loads(line)
-                    for line in outputs["successful_attestations"].splitlines()
-                ]
-            ),
+            {"model": "gpt-test ultra"},
+            successful_records[0]["reviewer"],
         )
         self.assertEqual(
-            1,
-            len(
-                [
-                    json.loads(line)
-                    for line in outputs["failed_attestations"].splitlines()
-                ]
-            ),
+            {"model": "gpt-test ultra"},
+            failed_records[0]["reviewer"],
         )
 
     def test_runner_overwrites_json_report(self) -> None:
@@ -324,9 +322,9 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Detail:
         Before each evaluation, the mocked `runner JSON` contains its named seed.
         1. After the `mock.patch`-controlled successful evaluation, `runner JSON` excludes `previous successful evaluation`.
-        2. Successful `runner JSON` contains a populated report.
+        2. Successful `runner JSON` contains a populated report with reviewer model `gpt-test ultra`.
         3. After the `mock.patch`-controlled failed evaluation, `runner JSON` excludes `previous failed evaluation`.
-        4. Failed `runner JSON` contains a populated report.
+        4. Failed `runner JSON` contains a populated report with reviewer model `gpt-test ultra`.
         """
 
         example = SimpleNamespace(
@@ -351,8 +349,18 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         )
         self.assertNotIn(successful_seed, outputs["successful_report"])
         self.assertNotIn(failed_seed, outputs["failed_report"])
-        self.assertTrue(json.loads(outputs["successful_report"]))
-        self.assertTrue(json.loads(outputs["failed_report"]))
+        successful_report = json.loads(outputs["successful_report"])
+        failed_report = json.loads(outputs["failed_report"])
+        self.assertTrue(successful_report)
+        self.assertTrue(failed_report)
+        self.assertEqual(
+            {"model": "gpt-test ultra"},
+            successful_report["reviewer"],
+        )
+        self.assertEqual(
+            {"model": "gpt-test ultra"},
+            failed_report["reviewer"],
+        )
 
 
 def _run_completed_evaluations(
@@ -378,6 +386,10 @@ def _run_completed_evaluations(
         start_path = temporary_root / ".review_started_at"
 
         with (
+            mock.patch.dict(
+                os.environ,
+                {"AGENT_REVIEW_MODEL": "gpt-test ultra"},
+            ),
             mock.patch.multiple(
                 runner_harness,
                 ANONYMOUS_ROOT=anonymous_root,
@@ -448,7 +460,6 @@ def _run_completed_evaluations(
 
             runner_harness.run_agent_review_examples(
                 examples_path=temporary_root,
-                reviewer_model="reviewer",
             )
             successful_report = sidecar_path.read_text(encoding="utf-8")
             successful_attestations = attestation_path.read_text(
@@ -462,7 +473,6 @@ def _run_completed_evaluations(
             with contextlib.suppress(AssertionError):
                 runner_harness.run_agent_review_examples(
                     examples_path=temporary_root,
-                    reviewer_model="reviewer",
                 )
             failed_report = sidecar_path.read_text(encoding="utf-8")
             failed_attestations = attestation_path.read_text(
