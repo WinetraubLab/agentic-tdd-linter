@@ -54,8 +54,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        The manifest file contains only the `test_adds_values` record.
-        The surviving record preserves its original proof fields.
+        The manifest contains only the original `test_adds_values` record.
+        The surviving record equals the original record.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
@@ -136,7 +136,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Similar Coverage:
         - Higher Level Test: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
-          Justification: Diagnostic completeness — The current test isolates the stale review-contract rule. The higher test exercises rejection of proof carrying outdated linter metadata through CI lint.
+          Justification: Deeper coverage — The current test isolates stale review-contract metadata. The higher test exercises outdated linter-version rejection through CI lint.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -168,8 +168,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Manifest contains no records.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_removes_obsolete_packet`
-          Justification: Comparable coverage — The current test removes manifest proof for a deleted test file. The higher test removes an obsolete `.agent.md` file through the CLI refresh workflow.
+        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Justification: Deeper coverage — The current test removes manifest proof for a deleted test file. The higher test rebuilds the complete `.agent.md` set through the CLI refresh workflow.
         """
 
         with tempfile.TemporaryDirectory() as directory:
