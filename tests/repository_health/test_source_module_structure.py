@@ -53,32 +53,19 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-    def test_limits_module_public_functions(self) -> None:
-        """Test Path: happy path
+    def test_requires_one_or_two_public_functions(self) -> None:
+        """Test Path: failure path
 
         Requirement Tested:
-        `test_source_module_structure` requires every `source module` to expose one or two public functions unless it is a `data-only module`.
-        Specialized usage: For data-only exemptions, two declared `data-only module` paths replace the baseline empty exemption set.
+        `test_source_module_structure` reports a `source module` that exposes fewer than one or more than two public functions.
+        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` reports it.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
         `_public_api_violations` identifies controlled modules with zero or three public functions.
         `_public_api_violations` accepts a controlled module with two public functions.
-        `_public_api_violations` accepts a controlled three-function `data-only module`.
         """
-
-        repo_root = Path(__file__).resolve().parents[2]
-        package_root = repo_root / "src" / "agentic_tdd_linter"
-        data_only_modules = {
-            Path("indexing_test_functions/extracted_test_record.py"),
-            Path("version.py"),
-        }
-        repository_violations = _public_api_violations(
-            package_root,
-            data_only_modules,
-        )
 
         with tempfile.TemporaryDirectory() as directory:
             controlled_root = Path(directory)
@@ -96,6 +83,53 @@ class SourceModuleStructureTests(unittest.TestCase):
                 three_functions,
                 encoding="utf-8",
             )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                set(),
+            )
+
+        self.assertEqual(
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
+        )
+
+    def test_exempts_data_only_modules_from_public_function_limit(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit.
+        Specialized usage: A declared `data-only module` exposes three public functions instead of at most two, so `test_source_module_structure` accepts it.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
+        `_public_api_violations` accepts a controlled three-function `data-only module`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        data_only_modules = {
+            Path("indexing_test_functions/extracted_test_record.py"),
+            Path("version.py"),
+        }
+        repository_violations = _public_api_violations(
+            package_root,
+            data_only_modules,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
             (controlled_root / "data.py").write_text(
                 three_functions,
                 encoding="utf-8",
@@ -107,14 +141,7 @@ class SourceModuleStructureTests(unittest.TestCase):
             )
 
         self.assertEqual([], repository_violations)
-        self.assertEqual(
-            [
-                "empty.py: expected 1-2 public functions, found []",
-                "excess.py: expected 1-2 public functions, "
-                "found ['first', 'second', 'third']",
-            ],
-            controlled_violations,
-        )
+        self.assertEqual([], controlled_violations)
 
 
 def _source_modules(package_root: Path) -> list[Path]:
