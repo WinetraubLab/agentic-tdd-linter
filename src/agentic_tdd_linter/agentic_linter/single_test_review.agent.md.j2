@@ -45,9 +45,9 @@ The second `Requirement Tested` sentence shall state one concrete failure scenar
 {% endif %}
 
 #### 13. Requirement Is Specific
-`Requirement Tested` shall explicitly state every material scope, quantifier, correspondence, trigger, and policy established by the test.
-Do not infer universal, repository-wide, or per-item guarantees from singular or generic wording.
-Fail wording that could describe several tests or be swapped onto another test with little change.
+Fail specificity only when omitted information changes the behavioral guarantee established by the test.
+Require material scope, quantifiers, correspondences, triggers, and policies.
+Do not require details that only identify where, how, or through which concrete result the test obtains evidence.
 
 #### 14. Requirement Is Atomic
 `Requirement Tested` shall express one independently meaningful requirement.
