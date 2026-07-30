@@ -306,7 +306,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Requirement Tested:
         `create-agent-md` requires every test requirement to identify the module declared by its test file.
-        Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits multiple_modules_in_test_file.
+        Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits a multiple_modules_in_test_file issue.
 
         Verification Method: verify public function output
 
