@@ -33,7 +33,7 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
         Verification Detail:
         The fixture declares `verify private function output`.
         The fixture invokes `helper(" value ")`.
-        Because `helper` lacks a leading underscore, _lint_private_verification_source contains `private_verification_missing_private_call`.
+        The lint result contains `private_verification_missing_private_call` because `helper` lacks a leading underscore.
         """
 
         rules = _lint_private_verification_source(
