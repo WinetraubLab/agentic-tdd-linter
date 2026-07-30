@@ -99,6 +99,31 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown,
         )
 
+    def test_prohibits_replacement_wording_in_failure_notes(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_agent_md_file` prohibits exact replacement wording in `single-test packet` failure notes to prevent contradictions with other review criteria.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `render_agent_md_file` output contains `Do not propose exact replacement wording`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = 'def test_adds_values() -> None:\n    """Test Path: happy path"""\n    assert 1 + 1 == 2\n'
+            test_file = Path(directory) / "test_sample.py"
+            test_file.write_text(source, encoding="utf-8")
+
+            markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
+
+        self.assertIn(
+            "Do not propose exact replacement wording",
+            markdown,
+        )
+
     def test_creates_pending_packet(self) -> None:
         """Test Path: happy path
 
