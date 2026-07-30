@@ -106,4 +106,13 @@ After the table, report:
 - whether any pending packet rows remain; and
 - the path to the updated JSON sidecar.
 
+At the end of every completed YAML review cycle, run:
+
+```bash
+date '+%Y-%m-%d %H:%M:%S %Z'
+```
+
+Print the result as `Cycle completed at (local time): <timestamp>`. Use the
+machine's local time from this command rather than inferring the time.
+
 Do not fix fixtures or criteria unless the user asks after reviewing this report.

@@ -97,6 +97,14 @@ If Step 3 found failures:
 
 If Step 3 found no failures, make no source edit.
 Stop the cycle timer after corrections and affected tests finish.
+Immediately after stopping the timer, run:
+
+```bash
+date '+%Y-%m-%d %H:%M:%S %Z'
+```
+
+Record the command output as the cycle's local completion time. Use the
+machine's local time from this command rather than inferring the time.
 
 ## Report after every cycle
 
@@ -106,6 +114,7 @@ After each cycle, show one cumulative table. Add the completed cycle as a new co
 |---|---:|---:|
 | Pending `.agent.md` files before review | `<count>` | `<count>` |
 | Cycle duration | `<duration>` | `<duration>` |
+| Cycle completed at (local time) | `<timestamp>` | `<timestamp>` |
 | Review failures | `<count>` | `<count>` |
 | Impacted tests | `<count>` | `<count>` |
 
