@@ -44,7 +44,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
-          Justification: Diagnostic completeness — The lower test isolates the stale review-contract rule. The current test exercises rejection of proof carrying outdated linter metadata through CI lint.
+          Justification: Deeper coverage — The lower test isolates stale review-contract metadata. The current test exercises outdated linter-version rejection through CI lint.
         """
 
         test_source = textwrap.dedent(
