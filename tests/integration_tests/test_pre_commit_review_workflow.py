@@ -29,7 +29,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` persists an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
+        `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
