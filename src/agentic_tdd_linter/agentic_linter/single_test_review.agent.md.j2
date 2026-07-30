@@ -14,6 +14,9 @@ Inputs:
 Review the shared vocabulary under `## File Docstring` and the structured test docstring and assertions under `## Test Content`.
 Update every row in `## Review Scorecard` according to the criteria under `## Review Criteria`.
 Set each result to `pass` or `fail`, and provide concrete notes for every failure.
+For each failure, identify the failed text and the constraint that it violates.
+State the property that a correction must satisfy.
+Do not propose exact replacement wording; the editor shall synthesize corrections after reviewing the complete scorecard.
 
 Use one fresh isolated reviewer for this Markdown packet. Provide only this Markdown file as the review packet.
 The reviewer shall evaluate every criterion and update every scorecard row.
