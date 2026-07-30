@@ -381,6 +381,84 @@ api_limit_and_exception_are_material:
     21: # Expected Results Appear in Verification Detail
       pass # The limit and exception define the contract, while Verification Detail states the observed absence of violations.
 
+module_public_function_limit_combines_two_requirements_head:
+  file_docstring: |
+    """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
+    `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
+    - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
+    """
+  test: |
+    def test_limits_module_public_functions(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_source_module_structure` requires every `source module` to expose one or two public functions unless it is a `data-only module`.
+        Specialized usage: For data-only exemptions, two declared `data-only module` paths replace the baseline empty exemption set.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
+        `_public_api_violations` identifies controlled modules with zero or three public functions.
+        `_public_api_violations` accepts a controlled module with two public functions.
+        `_public_api_violations` accepts a controlled three-function `data-only module`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        package_root = repo_root / "src" / "agentic_tdd_linter"
+        data_only_modules = {
+            Path("indexing_test_functions/extracted_test_record.py"),
+            Path("version.py"),
+        }
+        repository_violations = _public_api_violations(
+            package_root,
+            data_only_modules,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            (controlled_root / "empty.py").write_text("", encoding="utf-8")
+            (controlled_root / "valid.py").write_text(
+                "def first(): pass\ndef second(): pass\n",
+                encoding="utf-8",
+            )
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "excess.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+            (controlled_root / "data.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                {Path("data.py")},
+            )
+
+        self.assertEqual([], repository_violations)
+        self.assertEqual(
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
+        )
+  expected_scorecard:
+    14: # Requirement Is Atomic
+      fail # The test combines the ordinary public-function limit with the independent data-only-module exemption; these behaviors should be tested separately.
+
 workflow_baseline_omits_repository_policy:
   file_docstring: |
     """Tests in this file validate `unit_test_workflow` located at `src/examples/unit_test_workflow.py`.
