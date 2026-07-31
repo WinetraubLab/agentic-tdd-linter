@@ -141,6 +141,13 @@ def create_agent_md_files(
     issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    _remove_obsolete_single_test_agent_md_files(
+        artifact_root,
+        root,
+        files,
+        tests_by_file,
+        remove_all=not paths,
+    )
     pending_by_file = _find_tests_requiring_agent_review(
         review_files,
         root,
@@ -182,6 +189,38 @@ def _clear_agent_md_files(artifact_root: Path) -> None:
         return
     for artifact_path in artifact_root.glob("*.agent.md"):
         artifact_path.unlink()
+
+
+def _remove_obsolete_single_test_agent_md_files(
+    artifact_root: Path,
+    repo_root: Path,
+    selected_files: Sequence[Path],
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+    *,
+    remove_all: bool,
+) -> None:
+    if not artifact_root.exists():
+        return
+    current_artifacts = {
+        map_test_function_to_agent_md_file(
+            test_file,
+            repo_root,
+            artifact_root,
+            test.name,
+        ).resolve()
+        for test_file, tests in tests_by_file.items()
+        for test in tests
+    }
+    selected_prefixes = tuple(
+        f"{Path(test_file).stem}__" for test_file in selected_files
+    )
+    for artifact_path in artifact_root.glob("*.agent.md"):
+        if artifact_path.name == "cross_test_review.agent.md":
+            continue
+        if artifact_path.resolve() in current_artifacts:
+            continue
+        if remove_all or artifact_path.name.startswith(selected_prefixes):
+            artifact_path.unlink()
 
 
 def _run_conventional_checks(
