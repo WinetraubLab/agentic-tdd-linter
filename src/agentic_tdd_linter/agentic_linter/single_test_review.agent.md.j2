@@ -3,6 +3,7 @@ Instructions for reviewing a single test.
 
 Inputs:
 - file_docstring: Module docstring shared by tests in the source file.
+- score_only: When true, stop after the initial score.
 - test: Complete test source exactly as extracted from the source file.
 - scenario_type: `happy path` or `failure path` value extracted from `Test Path` in the structured test docstring.
 - test_content_sha256: Invalidates this review packet when this test's extracted content changes.
@@ -12,13 +13,34 @@ Inputs:
 ## Instructions
 
 Review the shared vocabulary under `## File Docstring` and the structured test docstring and assertions under `## Test Content`.
-Update every row in `## Review Scorecard` according to the criteria under `## Review Criteria`.
-Set each result to `pass` or `fail`, and provide concrete notes for every failure.
-For each failure, identify the failed text and the constraint that it violates.
-State the property that a correction must satisfy.
-Do not propose exact replacement wording; the editor shall synthesize corrections after reviewing the complete scorecard.
+{% if score_only %}
+Score the current `Test Content` once against every criterion, update `## Review Scorecard`, and stop.
+Do not propose or score revisions.
+Set each result to `pass` or `fail`.
+For each failure, identify the failed text, the violated constraint, and the property that a correction must satisfy.
+{% else %}
+Use this bounded iterative review procedure:
+
+1. Score the original `Test Content` against every criterion. Record every initial failure in `## Review Iteration Record`.
+2. If the original has failures, propose one concrete revision that addresses the complete failure set without changing the tested behavior.
+3. Score the revision against every criterion and record every remaining or newly introduced failure.
+4. Produce and score a second revision using the complete preceding scorecard. Use a third revision only when the second still fails and a materially different correction is available.
+5. When failures show that the test proves multiple independently meaningful behaviors, stop revising wording. Recommend splitting the test and fail the original with that reason.
+6. When the remaining failures concern only formulation, including sentence structure, verb choice, terminology, or reference wording, compare the latest revision with the original for behavioral precision and clarity:
+   - If the revision is significantly clearer while preserving the exact requirement, recommend it and leave the corresponding rows failed for the original.
+   - If the revision is about as clear as or less clear than the original, keep the original and pass the corresponding formulation rows, even when the revision follows a prescriptive wording rule more literally.
+   - `Significantly clearer` means that the original permits a materially different interpretation of the behavior, condition, scope, or evidence. Shorter wording, a grammatical preference, or moving details that are already unambiguous elsewhere in the test docstring is not a significant clarity improvement.
+   - When the original requirement and verification detail together communicate the same contract and evidence unambiguously, keep the original. When uncertain whether the improvement is significant, keep the original.
+7. Do not use the clarity comparison to waive missing or incorrect behavior, material scope, triggers, evidence, atomicity, module ownership, or coverage relationships.
+8. Complete `## Review Iteration Record`, then update every row in `## Review Scorecard`.
+
+The final scorecard always evaluates the original `Test Content`, because that is the source content eligible for manifest proof.
+A hypothetical revision cannot make the original pass when the reviewer recommends changing or splitting it.
+Set each final result to `pass` or `fail`, and provide concrete notes for every final failure.
+{% endif %}
 
 Use one fresh isolated reviewer for this Markdown packet. Provide only this Markdown file as the review packet.
+Do not delegate any criterion or revision pass to another reviewer.
 The reviewer shall evaluate every criterion and update every scorecard row.
 Evaluate each criterion independently; a failure under one criterion shall not imply failure under another criterion.
 Do not inspect repository files, manifests, outer unit tests, prior conversation, or expected assertions.
@@ -138,11 +160,11 @@ Allow these words when they modify a named noun or are not the subject, such as 
 ### 4x. Terminology and Reference Clarity
 
 #### 42. Domain Terms Are Defined
-Backticks in `Requirement Tested` declare shared local or domain-specific terms.
+Only text literally enclosed by backtick characters inside `Requirement Tested` declares a shared local or domain-specific term.
 The module name in the opening `File Docstring` declaration is defined by that declaration.
-Every other declared term shall exactly match a `Terms:` entry in `File Docstring`.
+Every other literally backticked term shall exactly match a `Terms:` entry in `File Docstring`.
+Plain words and identifiers, including snake_case identifiers, are outside this criterion.
 Backticks elsewhere identify code or literal values, not shared glossary terms.
-Do not infer glossary terms from plain, unbackticked wording.
 For example, "The parser applies `normalization`." requires a `normalization` glossary entry.
 
 #### 43. Data-Flow Terms Name an Owner
@@ -188,6 +210,38 @@ Values observed from the system under test are evidence, not synthetic test valu
 {{ test }}
 ```
 
+{% if not score_only %}
+## Review Iteration Record
+
+Do not edit `Test Content`. Record the reasoning used to reach the final scorecard.
+Use `none` when a score has no failures and `not needed` when a later revision is unnecessary.
+
+### Initial Score
+
+- Failures: Replace with every initial failed criterion and reason, or `none`.
+
+### Revision 1
+
+- Proposed solution: Replace with the first concrete revision, or `not needed`.
+- Failures after scoring: Replace with every failed criterion and reason, or `none`.
+
+### Revision 2
+
+- Proposed solution: Replace with the second concrete revision, or `not needed`.
+- Failures after scoring: Replace with every failed criterion and reason, or `none`.
+
+### Revision 3
+
+- Proposed solution: Replace with the third concrete revision, or `not needed`.
+- Failures after scoring: Replace with every failed criterion and reason, or `none`.
+
+### Final Assessment
+
+- Scope: Replace with `focused` or explain why the test proves independently meaningful behaviors and should be split.
+- Clarity: Replace with a comparison of the original and final revision, or `original passed`.
+- Recommendation: Replace with `keep original`, `apply revision`, or `split test`, followed by the reason.
+
+{% endif %}
 ## Review Scorecard
 
 | # | Criterion | Result | Notes |
