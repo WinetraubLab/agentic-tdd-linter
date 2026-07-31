@@ -158,7 +158,7 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Detail:
         mock.patch replaces time.time and YAML validation to record their call order.
         `_begin_yaml_validation` produces `timer start` value `1.0`.
-        Call order is `time`, then `validation`.
+        The event list contains `time` before `validation`.
         """
 
         events: list[str] = []
