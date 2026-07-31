@@ -34,9 +34,6 @@ class SelfLintTests(unittest.TestCase):
         Repository lint produces exit code `0`.
         Repository lint output contains `no issues found`.
 
-        Similar Coverage:
-        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
-          Justification: Deeper coverage — The lower test isolates current-proof acceptance in a temporary repository. The current test validates current proof for this complete repository.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
