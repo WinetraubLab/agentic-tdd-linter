@@ -2,8 +2,8 @@
 `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
 
 Terms:
-- `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
-- `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
+- `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. It contains evaluation results and the reviewer model. For example, every completed YAML-example evaluation overwrites this file.
+- `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Each record contains its reviewer model. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
 - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
 - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
 - `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
@@ -12,9 +12,11 @@ Terms:
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
 import tempfile
+import textwrap
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -25,6 +27,11 @@ from tests.agentic_linter.test_harness.agent_review_example_runner import (
     REPO_ROOT,
     SCORECARD_BASELINE_PATH,
     run_agent_review_examples,
+)
+from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import (
+    agent_review_example_files,
+    criterion_titles_from_template,
+    read_agent_review_examples,
 )
 
 
