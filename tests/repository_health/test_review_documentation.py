@@ -64,7 +64,7 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then record them through reviewer-authenticated lint.
+        `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -76,6 +76,8 @@ class ReviewDocumentationTests(unittest.TestCase):
         Similar Coverage:
         - Lower Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Justification: Deeper coverage — The lower test executes the review lifecycle. The current test verifies that README documents the same ordered lifecycle.
+        - Lower Level Test: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Justification: Deeper coverage — The lower test enforces create-agent-md before lint when a caller violates the order. The current test verifies that README documents the same ordered workflow.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
