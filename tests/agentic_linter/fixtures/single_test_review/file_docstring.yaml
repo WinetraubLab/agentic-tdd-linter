@@ -65,3 +65,48 @@ interchangeable_file_terms:
       pass # Source-to-implementation identification belongs to module mapping.
     46: # Terms Reuse Shared Vocabulary
       fail # Implementation module duplicates source module, so the requirement should reuse source module.
+
+unused_duplicate_file_term:
+  file_docstring: |
+    """Tests in this file validate `discover_test_files` located at `src/agentic_tdd_linter/indexing_test_functions/discover_test_files.py`.
+    `discover_test_files` is responsible for finding supported test files under a selected path.
+
+    Terms:
+    - `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
+    - `candidate file`: A candidate file is a test path considered for discovery before selection. For example, `tests/temporary_fixtures/test_generated.py` is a candidate that default discovery excludes.
+    - `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
+    - `temporary_fixtures`: This directory contains tests that the test harness generates. For example, repository discovery ignores `tests/temporary_fixtures/test_generated.py`.
+    """
+  test: |
+    def test_ignores_temporary_fixtures(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `discover_test_files` excludes each `candidate file` under `temporary_fixtures` during all-mode discovery of the default test root.
+        Specialized usage: `discover_test_files` considers a `candidate file` under `temporary_fixtures` instead of directly under the selected test root.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `discover_test_files` evaluates mode `all` under selected root `tests`.
+        `discover_test_files` produces `[]` for `tests/temporary_fixtures/test_generated.py`.
+
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            tests_root = repo_root / "tests"
+            fixture = tests_root / "temporary_fixtures" / "test_generated.py"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text("def test_generated(): pass\n", encoding="utf-8")
+
+            discovered = discover_test_files(
+                repo_root,
+                mode="all",
+                test_root=tests_root,
+            )
+
+        self.assertEqual([], discovered)
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `discovered file` and `candidate file` duplicate the same test-discovery concept, so the glossary should keep one term.
