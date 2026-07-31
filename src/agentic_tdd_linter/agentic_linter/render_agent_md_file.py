@@ -19,6 +19,8 @@ TEMPLATE_PATH = "agentic_linter/single_test_review.agent.md.j2"
 def _render_agent_md_files_for_test_file(
     test_file_path: Path,
     repo_root: Path | None = None,
+    *,
+    score_only: bool = False,
 ) -> list[tuple[ExtractedTestRecord, str]]:
     """Return one agent-review prompt for each test in a file."""
 
@@ -28,7 +30,14 @@ def _render_agent_md_files_for_test_file(
         repo_root if repo_root is not None else absolute_path.parent,
     )
     return [
-        (test, _render_agent_md(test_file_path=absolute_path, test=test))
+        (
+            test,
+            _render_agent_md(
+                test_file_path=absolute_path,
+                test=test,
+                score_only=score_only,
+            ),
+        )
         for test in tests
     ]
 
@@ -36,11 +45,14 @@ def _render_agent_md_files_for_test_file(
 def _render_agent_md(
     test_file_path: Path,
     test: ExtractedTestRecord,
+    *,
+    score_only: bool = False,
 ) -> str:
     """Return an agent-review prompt for one test."""
 
     return _agentic_review_template().render(
         file_docstring=test.file_docstring or "",
+        score_only=score_only,
         test_content_sha256=_test_content_sha256(test.source),
         test=test.source or "<missing test source>",
         scenario_type=_scenario_type(test),
@@ -101,10 +113,16 @@ def render_agent_md_file(
     test: ExtractedTestRecord,
     repo_root: Path,
     artifact_root: Path | None = None,
+    *,
+    score_only: bool = False,
 ) -> Path:
     """Write the agent-review artifact for one test."""
 
-    markdown = _render_agent_md(test_file_path=test_file_path, test=test)
+    markdown = _render_agent_md(
+        test_file_path=test_file_path,
+        test=test,
+        score_only=score_only,
+    )
     return _write_agent_md_file(
         test_file_path,
         test,
