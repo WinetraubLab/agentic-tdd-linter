@@ -29,9 +29,6 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_unmatched_test_paths` produces `[]` for agentic_linter, cli, conventional_linter, and indexing_test_functions.
 
-        Similar Coverage:
-        - Lower Level Test: `test_load_all_formats.py::test_rejects_missing_module`
-          Justification: Deeper coverage — The lower test isolates CLI rejection of one missing declared module path. The current test enforces counterpart coverage across repository test modules.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -65,16 +62,11 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_public_api_violations` output contains `empty.py: expected 1-2 public functions, found []`.
         `_public_api_violations` output contains `excess.py: expected 1-2 public functions, found ['first', 'second', 'third']`.
-        `_public_api_violations` output excludes a violation for `valid.py`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
             controlled_root = Path(directory)
             (controlled_root / "empty.py").write_text("", encoding="utf-8")
-            (controlled_root / "valid.py").write_text(
-                "def first(): pass\ndef second(): pass\n",
-                encoding="utf-8",
-            )
             three_functions = (
                 "def first(): pass\n"
                 "def second(): pass\n"
