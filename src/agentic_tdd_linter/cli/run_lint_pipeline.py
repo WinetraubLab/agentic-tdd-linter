@@ -8,7 +8,6 @@ from typing import Mapping, Sequence
 
 from ..agentic_linter.build_manifest_from_agent_md_files import (
     build_manifest_from_agent_md_files,
-    _find_files_with_changed_test_content,
     _find_tests_requiring_agent_review,
 )
 from ..agentic_linter.determine_agent_md_status import (
@@ -20,7 +19,6 @@ from ..agentic_linter.map_test_function_to_agent_md_file import (
 )
 from ..agentic_linter.render_agent_md_file import render_agent_md_file
 from ..agentic_linter.render_cross_test_agent_md_file import (
-    cross_test_agent_md_file_is_stale,
     render_cross_test_agent_md_file,
 )
 from ..conventional_linter.check_file_docstring_term_count import (
@@ -143,16 +141,6 @@ def create_agent_md_files(
     issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
-    cross_review_files = (
-        review_files
-        if force_fresh
-        else _find_files_with_changed_test_content(
-            review_files,
-            root,
-            manifest_path,
-            tests_by_file=tests_by_file,
-        )
-    )
     pending_by_file = _find_tests_requiring_agent_review(
         review_files,
         root,
@@ -178,16 +166,9 @@ def create_agent_md_files(
                 or _agent_md_file_is_stale(test.source, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    if cross_review_files and (
-        force_fresh
-        or cross_test_agent_md_file_is_stale(
-            cross_review_files,
-            root,
-            artifact_root,
-        )
-    ):
+    if force_fresh and review_files:
         generated.append(
-            render_cross_test_agent_md_file(cross_review_files, root, artifact_root)
+            render_cross_test_agent_md_file(review_files, root, artifact_root)
         )
     return LintPipelineResult(
         files=tuple(files),
