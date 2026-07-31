@@ -17,24 +17,40 @@ from pathlib import Path
 
 
 class ReviewDocumentationTests(unittest.TestCase):
-    def test_readme_names_both_workflows(self) -> None:
+    def test_readme_names_pre_commit_workflow(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+        `test_review_documentation` requires README to include a level-three `pre-commit review workflow` heading.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         README contents contain `### Pre-commit review workflow`.
-        README contents contain `### CI/CD validation workflow`.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
         readme = (repo_root / "README.md").read_text(encoding="utf-8")
 
         self.assertIn("### Pre-commit review workflow", readme)
+
+    def test_readme_names_cicd_workflow(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_review_documentation` requires README to include a level-three `CI/CD validation workflow` heading.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        README contents contain `### CI/CD validation workflow`.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
         self.assertIn("### CI/CD validation workflow", readme)
 
     def test_readme_includes_reviewer(self) -> None:
@@ -50,9 +66,6 @@ class ReviewDocumentationTests(unittest.TestCase):
         `_readme_review_command_args` output provides the README command arguments.
         README command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
 
-        Similar Coverage:
-        - Lower Level Test: `test_main.py::test_lint_requires_reviewer`
-          Justification: Deeper coverage — The lower test proves runtime enforcement when reviewer identity is absent. The current test verifies that README supplies reviewer identity in the lint command.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -73,11 +86,6 @@ class ReviewDocumentationTests(unittest.TestCase):
         README contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
         README contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
 
-        Similar Coverage:
-        - Lower Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The lower test executes the review lifecycle. The current test verifies that README documents the same ordered lifecycle.
-        - Lower Level Test: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
-          Justification: Deeper coverage — The lower test enforces create-agent-md before lint when a caller violates the order. The current test verifies that README documents the same ordered workflow.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -105,9 +113,6 @@ class ReviewDocumentationTests(unittest.TestCase):
         GitHub Actions guide contents contain `GitHub Actions verifies committed agent-review proof`.
         GitHub Actions guide contents contain `committed tests and manifest proof`.
 
-        Similar Coverage:
-        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
-          Justification: Deeper coverage — The lower test executes CI lint against current proof. The current test verifies that GitHub Actions guidance documents that validation.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -133,9 +138,6 @@ class ReviewDocumentationTests(unittest.TestCase):
         Verification Detail:
         GitHub Actions guide contents contain no `agentic-tdd-linter create-agent-md` command.
 
-        Similar Coverage:
-        - Lower Level Test: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
-          Justification: Deeper coverage — The lower test proves that CI lint creates no '.agent.md' files at runtime. The current test proves that the GitHub Actions guide describes the same constraint.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
