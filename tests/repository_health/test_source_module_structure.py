@@ -57,14 +57,15 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `test_source_module_structure` reports a `source module` that exposes fewer than one or more than two public functions.
-        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` reports it.
+        `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions.
+        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_public_api_violations` identifies controlled modules with zero or three public functions.
-        `_public_api_violations` accepts a controlled module with two public functions.
+        `_public_api_violations` output contains `empty.py: expected 1-2 public functions, found []`.
+        `_public_api_violations` output contains `excess.py: expected 1-2 public functions, found ['first', 'second', 'third']`.
+        `_public_api_violations` output excludes a violation for `valid.py`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
