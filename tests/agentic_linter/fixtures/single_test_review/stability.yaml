@@ -2946,3 +2946,130 @@ enforces_public_function_limit_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
+
+plain_multiple_modules_issue_is_not_a_term:
+  file_docstring: |
+    """Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+    `create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
+
+    Terms:
+    - `.py`: This suffix identifies a Python test file. For example, `test_parser.py` contains Python tests discovered by the CLI.
+    - `.test.ts`: This suffix identifies a TypeScript test file. For example, `parser.test.ts` contains TypeScript tests discovered by the CLI.
+    - `packet set`: A packet set contains one single-test and one cross-test `.agent.md` file populated with a discovered test's documentation and source.
+    """
+  test: |
+    def test_rejects_requirement_without_declared_module(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `create-agent-md` requires every test requirement to identify the module declared by its test file.
+        Specialized usage: The file declares parser, but one test requirement does not identify parser, so `create-agent-md` emits a multiple_modules_in_test_file issue.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. Harness creates one file declaring `parser` and containing a requirement that does not identify parser.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Command output contains `multiple_modules_in_test_file`.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `parser` located at `src/parser.py`.
+            `parser` is responsible for returning stored text.
+            """
+
+            def test_parses_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `parser` returns stored text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Parser output equals `stored text`.
+                """
+
+                assert parse() == "stored text"
+
+            def test_formats_text() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                Formatting text returns formatted text.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Formatter output equals `formatted text`.
+                """
+
+                assert format_text() == "formatted text"
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "parser.py", "def parse(): return 'stored text'\n")
+            _write_source(repo_root / "tests" / "test_parser.py", test_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("multiple_modules_in_test_file", creation.stdout)
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      pass # The plain multiple_modules_in_test_file identifier is not a backticked requirement term.
+
+plain_private_verification_issue_is_not_a_term:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+    `conventional_linter` is responsible for validating evidence declared as private-function output."""
+  test: |
+    def test_private_verification_without_private_call(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers.
+        Specialized usage: For private-function output, test invokes helper instead of private function, so conventional linter emits private_verification_missing_private_call.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The fixture declares `verify private function output`.
+        The fixture invokes `helper(" value ")`.
+        The lint result contains `private_verification_missing_private_call` because `helper` lacks a leading underscore.
+
+        Similar Coverage:
+        - Lower Level Test: `test_classification.py::test_accepts_private_output`
+          Justification: Deeper coverage — The lower test isolates acceptance of the private-function output method. The current test additionally enforces that the test invokes a private function.
+        """
+
+        rules = _lint_private_verification_source(
+            """
+            def helper(value: str) -> str:
+                return value.strip()
+
+
+            def test_strips_value() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested:
+                helper returns text without surrounding whitespace.
+
+                Verification Method: verify private function output
+
+                Verification Detail:
+                Helper output equals expected stripped string.
+                \"\"\"
+
+                assert helper(" value ") == "value"
+            """
+        )
+
+        self.assertIn("private_verification_missing_private_call", rules)
+  expected_scorecard:
+    42: # Domain Terms Are Defined
+      pass # The plain private_verification_missing_private_call identifier is not a backticked requirement term.
