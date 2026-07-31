@@ -4,7 +4,9 @@
 Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
 - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
-- `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among changed tests. For example, editing one test regenerates the cross-test review for that change.
+- `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among the complete selected test set. For example, create-agent-md --fresh regenerates the cross-test review.
+- `agent_review_failed`: The agent_review_failed issue identifies a completed review containing failed criteria. For example, lint emits this issue with correction instructions.
+- `failed-review correction procedure`: A failed-review correction procedure tells editors to read the complete scorecard in every failed .agent.md, evaluate the test and docstring against every criterion including passing criteria, and regenerate the selected packets once. For example, agent_review_failed output provides this procedure.
 """
 
 from __future__ import annotations
