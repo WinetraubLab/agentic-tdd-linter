@@ -14,7 +14,9 @@ Create one `## Review Scorecard` for each test, and update every row for the tes
 Set each result to exactly one of `pass` or `fail`.
 For every failure, provide concrete notes naming the relevant tests.
 
-Evaluate each criterion in a fresh subagent.
+Use one fresh isolated reviewer for this Markdown packet.
+Do not delegate any listed test or criterion to another reviewer.
+That reviewer shall evaluate every criterion for every listed test.
 Review context is limited to this packet and the listed test files.
 The packet embeds every listed test file below, including each test definition, docstring, and `Similar Coverage` section.
 Treat manifests, other repository files, prior conversation, and unlisted tests as outside the review scope.
@@ -34,6 +36,9 @@ Evaluate intentional cross-level overlap under criteria 21 through 23.
 #### 21. Cross-Level Pairs Are Identified
 Identify every test pair that verifies the same or a substantially similar requirement at different levels.
 Examples include a private-function test paired with a public-function test, or a unit test paired with an integration test.
+A cross-level pair exists only when both tests directly assert materially overlapping behavior, conditions, and outcomes.
+Do not infer a pair merely because one test transitively uses implementation covered by another test, multiple diagnostics pass through the same generic formatter, two tests mention or manipulate the same artifact for different purposes, or tests share fixtures or vocabulary.
+For example, a CLI test that checks one diagnostic substring is not higher-level coverage of a generic text formatter unless that CLI test directly asserts the formatter's output contract.
 When the scope contains zero cross-level pairs, set the result to `pass` and state that the review found zero pairs.
 
 #### 22. Cross-Level Pairs Reference Each Other
