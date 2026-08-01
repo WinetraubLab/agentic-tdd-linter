@@ -100,7 +100,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        When `Requirement Tested` contains nothing, _lint_docstring_source contains `missing_requirement`.
+        When `Requirement Tested` contains nothing, `_lint_docstring_source` output contains `missing_requirement`.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
@@ -131,7 +131,7 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`.
-        Specialized usage: Docstring omits `Verification Method` instead of providing it, so conventional linter emits missing_verification_method.
+        Specialized usage: Docstring omits `Verification Method` instead of providing it, so `conventional_linter` emits missing_verification_method.
 
         Verification Method: verify private function output
 
