@@ -177,9 +177,9 @@ per_source_test_pairing_is_unstated:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Source-to-test module coverage belongs to repository validation.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # The standard-usage sentence uses the exact baseline-behavior classification.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       fail # Requiring at least one test module omits the per-source correspondence enforced across the repository.
     51: # Assertions Prove the Stated Requirement
       fail # The assertion enforces one matching test path for every source module, which is stronger than requiring at least one test module.

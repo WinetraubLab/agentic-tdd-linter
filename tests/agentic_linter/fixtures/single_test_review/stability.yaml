@@ -36,17 +36,19 @@ readme_workflows_head:
             self.assertIn("### Pre-commit review workflow", readme)
             self.assertIn("### CI/CD validation workflow", readme)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -75,8 +77,6 @@ readme_workflows_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -121,17 +121,19 @@ accepts_defined_requirement_term_head:
 
         self.assertNotIn("undefined_requirement_term", rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -160,8 +162,6 @@ accepts_defined_requirement_term_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -256,17 +256,19 @@ stale_attestation_requires_review_head:
 
         self.assertEqual(1, len(reported_packets))
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -295,8 +297,6 @@ stale_attestation_requires_review_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -352,17 +352,19 @@ reports_same_line_requirement_head:
 
         self.assertIn("invalid_requirement_format", rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -391,8 +393,6 @@ reports_same_line_requirement_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -448,17 +448,19 @@ reports_same_line_requirement_working_copy:
 
         self.assertIn("invalid_requirement_format", rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -487,8 +489,6 @@ reports_same_line_requirement_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -546,17 +546,19 @@ typescript_fields_need_blank_lines_head:
 
         self.assertIn("invalid_field_spacing", rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -585,8 +587,6 @@ typescript_fields_need_blank_lines_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -703,17 +703,19 @@ loads_python_tests_head:
         self.assertIn("tests/test_parser.py", cross_packet)
         self.assertIn("def test_returns_stored_text", cross_packet)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -742,8 +744,6 @@ loads_python_tests_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -806,7 +806,7 @@ unsupported_fields_head:
 
                     assert 1 + 1 == 2
               expected_scorecard:
-                11: # First Sentence Describes Behavior
+                11: # First Line States a General Behavioral Rule
                   pass # The requirement states the calculation behavior.
             '''
         ).lstrip()
@@ -820,17 +820,19 @@ unsupported_fields_head:
         ]
         self.assertTrue(matching_errors)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -859,8 +861,6 @@ unsupported_fields_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -923,7 +923,7 @@ unsupported_fields_working_copy:
 
                     assert 1 + 1 == 2
               expected_scorecard:
-                11: # First Sentence Describes Behavior
+                11: # First Line States a General Behavioral Rule
                   pass # The requirement states the calculation behavior.
             '''
         ).lstrip()
@@ -937,17 +937,19 @@ unsupported_fields_working_copy:
         ]
         self.assertTrue(matching_errors)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -976,8 +978,6 @@ unsupported_fields_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1020,17 +1020,19 @@ readme_workflows_working_copy:
             self.assertIn("### Pre-commit review workflow", readme)
             self.assertIn("### CI/CD validation workflow", readme)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1059,8 +1061,6 @@ readme_workflows_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1114,17 +1114,19 @@ github_actions_shows_ci_head:
         self.assertIn("agentic-tdd-linter lint", guide)
         self.assertIn("committed tests and manifest proof", guide)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1153,8 +1155,6 @@ github_actions_shows_ci_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1203,17 +1203,19 @@ github_actions_omits_packet_creation_head:
 
             self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1242,8 +1244,6 @@ github_actions_omits_packet_creation_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1292,17 +1292,19 @@ github_actions_omits_packet_creation_working_copy:
 
             self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1331,8 +1333,6 @@ github_actions_omits_packet_creation_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1418,17 +1418,19 @@ cicd_accepts_current_proof_head:
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1457,8 +1459,6 @@ cicd_accepts_current_proof_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1544,17 +1544,19 @@ cicd_accepts_current_proof_working_copy:
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1583,8 +1585,6 @@ cicd_accepts_current_proof_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1648,17 +1648,19 @@ accepts_public_output_head:
 
         self.assertEqual(set(), rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1687,8 +1689,6 @@ accepts_public_output_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1752,17 +1752,19 @@ accepts_public_output_working_copy:
 
         self.assertEqual(set(), rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1791,8 +1793,6 @@ accepts_public_output_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1874,17 +1874,19 @@ lint_requires_reviewer_head:
 
         self.assertIn("missing_reviewer", stdout.getvalue())
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -1913,8 +1915,6 @@ lint_requires_reviewer_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -1996,17 +1996,19 @@ lint_requires_reviewer_working_copy:
 
         self.assertIn("missing_reviewer", stdout.getvalue())
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2035,8 +2037,6 @@ lint_requires_reviewer_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2089,17 +2089,19 @@ requires_reciprocal_references_head:
             artifact_text,
         )
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2128,8 +2130,6 @@ requires_reciprocal_references_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2182,17 +2182,19 @@ requires_reciprocal_references_working_copy:
             artifact_text,
         )
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2221,8 +2223,6 @@ requires_reciprocal_references_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2275,17 +2275,19 @@ mismatch_aggregates_total_rate_head:
 
         self.assertIn("| **Total** | **3** | **10** | **70%** | |", message)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2314,8 +2316,6 @@ mismatch_aggregates_total_rate_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2368,17 +2368,19 @@ mismatch_aggregates_total_rate_working_copy:
 
         self.assertIn("| **Total** | **3** | **10** | **70%** | |", message)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2407,8 +2409,6 @@ mismatch_aggregates_total_rate_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2489,17 +2489,19 @@ anonymous_agent_review_examples_head:
         self.assertEqual((), result.agent_md_files)
         self.assertEqual((), generated_packets)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2528,8 +2530,6 @@ anonymous_agent_review_examples_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2589,17 +2589,19 @@ reports_empty_requirement_working_copy:
 
         self.assertIn("missing_requirement", rules)
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2628,8 +2630,6 @@ reports_empty_requirement_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2680,17 +2680,19 @@ reports_excess_term_rule_head:
 
         self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2719,8 +2721,6 @@ reports_excess_term_rule_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2788,17 +2788,19 @@ enforces_public_function_limit_head:
             controlled_violations,
         )
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2827,8 +2829,6 @@ enforces_public_function_limit_head:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
@@ -2896,17 +2896,19 @@ enforces_public_function_limit_working_copy:
             controlled_violations,
         )
   expected_scorecard:
-    11: # First Sentence Describes Behavior
+    11: # First Line States a General Behavioral Rule
       pass # This is a good eungh test and should pass all criteria.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Is Specific
+    13: # Requirement Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     14: # Requirement Is Atomic
       pass # This is a good eungh test and should pass all criteria.
     15: # Requirement Begins with the Behavior Owner
       pass # This is a good eungh test and should pass all criteria.
     16: # Requirement Fits Declared Module Responsibility
+      pass # This is a good eungh test and should pass all criteria.
+    17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
     21: # Expected Results Appear in Verification Detail
       pass # This is a good eungh test and should pass all criteria.
@@ -2935,8 +2937,6 @@ enforces_public_function_limit_working_copy:
     42: # Domain Terms Are Defined
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    44: # Wording Is Concrete
       pass # This is a good eungh test and should pass all criteria.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.

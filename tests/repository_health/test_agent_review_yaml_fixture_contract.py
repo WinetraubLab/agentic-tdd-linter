@@ -59,7 +59,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
                     assert 1 + 1 == 2
               expected_scorecard:
-                11: # First Sentence Describes Behavior
+                11: # First Line States a General Behavioral Rule
                   fail
             '''
         ).lstrip()
@@ -112,7 +112,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
                     assert 1 + 1 == 2
               expected_scorecard:
-                11: # First Sentence Describes Behavior
+                11: # First Line States a General Behavioral Rule
                   pass # The requirement states the calculation behavior.
             '''
         ).lstrip()

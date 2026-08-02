@@ -49,17 +49,18 @@ If context is missing from this file, fail with notes asking the test to include
 ## Review Criteria
 
 ### 1x. Requirement Formulation
+The criteria below evaluate whether `Requirement Tested` formulates the behavioral contract.
 
-#### 11. First Sentence Describes Behavior
-The first `Requirement Tested` sentence shall state a general behavioral rule from the perspective of a system architect.
-The rule shall apply beyond the particular inputs exercised by the test.
-Exact contract entities, relationships, limits, and exceptions may remain when they define the rule.
-A list of named input-to-outcome examples is not a general rule.
+#### 11. First Line States a General Behavioral Rule
+The first `Requirement Tested` line shall state one general behavioral rule allocated to the declared module.
+The rule shall describe the contract exercised by the test and shall apply to all inputs, entities, or states within its stated scope, not only to the particular examples used by the test.
+Exact contract entities, relationships, quantifiers, limits, and exceptions may remain when they define the behavioral rule.
+Fail a sentence that merely enumerates test inputs, operations, or observed outputs without stating the rule that governs them.
 
-#### 12. Second Sentence Describes a Scenario
+#### 12. Second Line Describes a Scenario
 {% if scenario_type == "happy path" %}
 For this happy-path test, apply only the happy-path rules below. Do not require an invalid condition or failure behavior.
-The second `Requirement Tested` sentence shall make the concrete scenario immediately clear.
+The second `Requirement Tested` line shall make the concrete scenario immediately clear.
 Classify the test inputs with exactly one prefix:
 - `Standard usage:` when the test exercises baseline behavior without modifying an input, configuration, or precondition. Use the exact sentence `Standard usage: The scenario demonstrates baseline behavior.` No further description is required.
 - `Specialized usage:` identifies behavior involving a modified input, configuration, or precondition. State the use case directly, name the changed item, and contrast its specialized value or state with its baseline value or state.
@@ -69,9 +70,13 @@ For example, `Specialized usage: Immediate retries set timeout to zero rather th
 The second `Requirement Tested` sentence shall state one concrete failure scenario directly: the existing invalid condition and the system behavior it triggers.
 {% endif %}
 
-#### 13. Requirement Is Specific
-Fail specificity only when omitted information changes the behavioral guarantee established by the test.
-Require material scope, quantifiers, correspondences, triggers, and policies.
+#### 13. Requirement Has the Appropriate Specificity
+The first `Requirement Tested` line shall include all information that materially defines the behavioral guarantee and shall exclude details that only describe the particular test example, implementation, setup, or evidence mechanism. A detail is material when changing or omitting it would change which system behaviors satisfy the requirement. Require material scope, quantifiers, correspondences, triggers, and policies.
+
+Fail a requirement as too generic when it omits material information needed to distinguish compliant behavior from noncompliant behavior.
+
+Fail a requirement as too specific only when it includes a test-case detail that is not justified as part of the behavioral contract. A concrete value may match the value exercised by the test when the requirement explains why that value is contractually required.
+
 Do not require details that only identify where, how, or through which concrete result the test obtains evidence.
 
 #### 14. Requirement Is Atomic
@@ -80,23 +85,32 @@ Treat multiple properties as one atomic requirement when they collectively defin
 Fail wording that combines behaviors with independent purposes that should be specified and tested separately.
 
 #### 15. Requirement Begins with the Behavior Owner
-The first `Requirement Tested` sentence shall begin with the behavior owner as its grammatical subject.
+The first `Requirement Tested` line shall begin with the behavior owner as its grammatical subject.
 It shall begin with neither a scenario condition such as `When`, `If`, or `Unless`, nor a query, helper, or command used only to obtain evidence.
 
 #### 16. Requirement Fits Declared Module Responsibility
 Use the single module and its responsibility stated at the start of `File Docstring` as review context.
-The first `Requirement Tested` sentence shall begin with that exact backticked module name as its grammatical subject, and the behavior assigned to it shall fall within the declared responsibility.
-Fail when the sentence omits the declared module, names another owner, or assigns behavior outside that responsibility.
+The first `Requirement Tested` line shall begin with that exact backticked module name as its grammatical subject, and the behavior assigned to it shall fall within the declared responsibility.
+Fail when the line omits the declared module, names another owner, or assigns behavior outside that responsibility.
 When another module owns the behavior, tell the author to move the test into or split it into a test file for that module.
 Do not judge whether the declaration is true of repository source; repository files are outside this review.
 
+#### 17. Scenario Has the Appropriate Specificity
+The second `Requirement Tested` line shall include all information that materially distinguishes the exercised scenario and shall exclude details that only reproduce the particular test setup, representation, or evidence mechanism. A detail is material when changing or omitting it would make the line describe a materially different scenario.
+Fail a scenario as too generic when it omits material information needed to distinguish the exercised case from other cases governed by the same behavioral rule.
+Fail a scenario as too specific only when it includes a test-case detail that is not needed to distinguish the exercised case. A concrete value may match the value exercised by the test when that value or contrast materially defines the scenario.
+
+When the second line is exactly `Standard usage: The scenario demonstrates baseline behavior.`, pass this criterion. Do not require or evaluate any additional scenario detail under criterion 17.
+Do not require details that only identify where, how, or through which concrete result the test obtains evidence.
+
 ### 2x. Verification Formulation
+The criteria below assume that `Requirement Tested` is complete and correct, and evaluate whether the verification accurately and sufficiently demonstrates it.
 
 #### 21. Expected Results Appear in Verification Detail
-`Requirement Tested` shall state every material contract relationship, limit, scope, and exception established by the test.
-`Verification Detail` shall state the concrete observations and values that prove that contract.
-An exact value that merely exemplifies the contract belongs in `Verification Detail`.
-An exact name or value that defines the contract itself remains in `Requirement Tested`.
+`Verification Detail` shall state the concrete observations, values, and correspondences through which the test demonstrates the behavioral guarantee stated in `Requirement Tested`.
+Include every observed result that is material to proving the requirement, including applicable output values, counts, identities, states, ordering, limits, and exceptions.
+An exact value that merely exemplifies the contract shall appear in `Verification Detail`, even when the generalized relationship or limit remains in `Requirement Tested`.
+Fail this criterion when `Verification Detail` omits evidence needed to show that the test proves the stated requirement, or when it describes only test actions without stating the resulting observations.
 
 #### 22. Verification Detail Describes Evidence
 `Verification Detail` shall state the evidence that proves the requirement rather than only naming mechanics, fixtures, constants, assertions, commands, tags, or test names.
@@ -108,6 +122,7 @@ Treat an underscore-prefixed callable as private. Treat a callable without an un
 A private setup helper that invokes an explicitly named public interface does not make that interface private.
 
 ### 3x. Sentence Structure and Logic
+These criteria evaluate wording clarity, not the substance of `Requirement Tested` or `Verification Detail`.
 
 #### 31. Sentence Avoids Double Negation
 Each sentence shall avoid double negation.
@@ -158,6 +173,7 @@ For example, fail `This applies to the repository manifest.`; prefer `The rule a
 Allow these words when they modify a named noun or are not the subject, such as `higher than this test`.
 
 ### 4x. Terminology and Reference Clarity
+These criteria evaluate wording clarity, not the substance of `Requirement Tested` or `Verification Detail`.
 
 #### 42. Domain Terms Are Defined
 Only text literally enclosed by backtick characters inside `Requirement Tested` declares a shared local or domain-specific term.
@@ -172,17 +188,13 @@ In `Requirement Tested` and `Verification Detail`, ambiguous data-flow words suc
 Do not apply this criterion to the fixed `Verification Method` classification values.
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
-#### 44. Wording Is Concrete
-Review wording shall name the property established by the evidence.
-When a query, check, or observation supplies evidence about a state or relationship, state that underlying property rather than the evidence-gathering action.
-Fail wording that is weaker or less precise than the property the test establishes.
-
 #### 46. Terms Reuse Shared Vocabulary
 `Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
 Use a new term only for a different concept.
 Fail duplicate terms and name the existing term to use instead.
 
 ### 5x. Assertion Quality
+The criteria below evaluate implementation conformance: whether the test implementation and assertions conform to `Requirement Tested` and `Verification Detail`.
 
 #### 51. Assertions Prove the Stated Requirement
 Every assertion shall provide evidence for the behavior stated in `Requirement Tested`.
@@ -246,12 +258,13 @@ Use `none` when a score has no failures and `not needed` when a later revision i
 
 | # | Criterion | Result | Notes |
 |---:|---|---|---|
-| 11 | First Sentence Describes Behavior | pending | Replace with review evidence. |
-| 12 | Second Sentence Describes a Scenario | pending | Replace with review evidence. |
-| 13 | Requirement Is Specific | pending | Replace with review evidence. |
+| 11 | First Line States a General Behavioral Rule | pending | Replace with review evidence. |
+| 12 | Second Line Describes a Scenario | pending | Replace with review evidence. |
+| 13 | Requirement Has the Appropriate Specificity | pending | Replace with review evidence. |
 | 14 | Requirement Is Atomic | pending | Replace with review evidence. |
 | 15 | Requirement Begins with the Behavior Owner | pending | Replace with review evidence. |
 | 16 | Requirement Fits Declared Module Responsibility | pending | Replace with review evidence. |
+| 17 | Scenario Has the Appropriate Specificity | pending | Replace with review evidence. |
 | 21 | Expected Results Appear in Verification Detail | pending | Replace with review evidence. |
 | 22 | Verification Detail Describes Evidence | pending | Replace with review evidence. |
 | 23 | Verification Method Matches Exercised Interface | pending | Replace with review evidence. |
@@ -266,7 +279,6 @@ Use `none` when a score has no failures and `not needed` when a later revision i
 | 39 | Subject Is Not This, That, These, or Those | pending | Replace with review evidence. |
 | 42 | Domain Terms Are Defined | pending | Replace with review evidence. |
 | 43 | Data-Flow Terms Name an Owner | pending | Replace with review evidence. |
-| 44 | Wording Is Concrete | pending | Replace with review evidence. |
 | 46 | Terms Reuse Shared Vocabulary | pending | Replace with review evidence. |
 | 51 | Assertions Prove the Stated Requirement | pending | Replace with review evidence. |
 | 52 | Input Checks Are Tagged | pending | Replace with review evidence. |

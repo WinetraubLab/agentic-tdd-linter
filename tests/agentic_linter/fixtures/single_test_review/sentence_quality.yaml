@@ -433,7 +433,7 @@ demonstrative_subject_omits_referent:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Keeping review manifests in source control belongs to review-manifest policy.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       fail # The happy-path scenario omits the required Standard usage or Specialized usage prefix.
     34: # Main Verb Is Unambiguous
       fail # `reports` has a common noun use in contemporary technical prose.
@@ -531,7 +531,7 @@ specialized_usage_marks_condition_explicitly:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Sending immediate-retry requests belongs to the client.
-    12: # Second Sentence Describes a Scenario
+    12: # Second Line Describes a Scenario
       pass # The specialized scenario uses criterion 12's exact use-case and modified-input format.
     15: # Requirement Begins with the Behavior Owner
       pass # The first requirement sentence begins with the declared `client`, which owns the behavior.
