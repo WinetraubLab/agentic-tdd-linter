@@ -238,12 +238,19 @@ def _render_table(
         )
         grouped: dict[str, list[str]] = {}
         for case in checked_cases:
+            current_outcome = "fail" if case in failures else "pass"
             category = _classification(
                 criterion=criterion,
                 case=case,
-                current_outcome="fail" if case in failures else "pass",
+                current_outcome=current_outcome,
                 snapshots=snapshots,
             )
+            if category == "Flaky":
+                category = (
+                    "Flaky failing right now"
+                    if current_outcome == "fail"
+                    else "Flaky passing right now"
+                )
             grouped.setdefault(category, []).append(case)
         classified_count = sum(len(cases) for cases in grouped.values())
         enforced_checks = row.get("enforced_checks")
@@ -260,7 +267,8 @@ def _render_table(
         order = (
             "New test pass",
             "New test fail",
-            "Flaky",
+            "Flaky passing right now",
+            "Flaky failing right now",
             "Fails in HEAD",
             "Regression",
             "Stable pass",
@@ -271,8 +279,8 @@ def _render_table(
             cases = grouped.get(category, [])
             if not cases:
                 continue
-            if category == "Stable pass":
-                parts.append(f"Stable pass ({len(cases)})")
+            if category in {"Flaky passing right now", "Stable pass"}:
+                parts.append(f"{category} ({len(cases)})")
                 continue
             parts.append(
                 f"{category} ({len(cases)}): "
