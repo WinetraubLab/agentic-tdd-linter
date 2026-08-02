@@ -307,102 +307,6 @@ stale_attestation_requires_review_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-reports_same_line_requirement_head:
-  file_docstring: |
-    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
-    `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
-
-    Terms:
-    - `Test Path`: Test Path is the structured field naming a test's scenario category. For example, Test Path can contain happy path.
-    - `Requirement Tested`: Requirement Tested is the structured field stating behavior and scenario. For example, it says that a parser accepts valid text.
-    - `Verification Method`: Verification Method is the structured field naming the observation approach. For example, it can say verify public function output.
-    - `Verification Detail`: Verification Detail is the structured field stating exact evidence. For example, it says that `_add_values` output equals three.
-    - `Inspection Instructions`: Inspection Instructions is the structured field that authorizes source inspection when linter issues cannot describe visual evidence. For example, it can name a specific module to inspect.
-    """
-  test: |
-    def test_reports_same_line_requirement(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline.
-        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so conventional linter emits invalid_requirement_format.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        When requirement text remains inline, _lint_docstring_source contains `invalid_requirement_format`.
-        """
-
-        rules = _lint_docstring_source(
-            """
-            def test_adds_values() -> None:
-                \"\"\"Test Path: happy path
-
-                Requirement Tested: addition returns the expected sum.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                Addition output equals expected numeric total.
-                \"\"\"
-
-                assert 1 + 1 == 2
-            """
-        )
-
-        self.assertIn("invalid_requirement_format", rules)
-  expected_scorecard:
-    11: # First Line States a General Behavioral Rule
-      pass # This is a good eungh test and should pass all criteria.
-    12: # Second Line Describes a Scenario
-      pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    14: # Requirement Is Atomic
-      pass # This is a good eungh test and should pass all criteria.
-    15: # Requirement Begins with the Behavior Owner
-      pass # This is a good eungh test and should pass all criteria.
-    16: # Requirement Fits Declared Module Responsibility
-      pass # This is a good eungh test and should pass all criteria.
-    17: # Scenario Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    21: # Verification Detail States Material Outcomes
-      pass # This is a good eungh test and should pass all criteria.
-    22: # Verification Detail Describes Evidence
-      pass # This is a good eungh test and should pass all criteria.
-    23: # Verification Method Matches Exercised Interface
-      pass # This is a good eungh test and should pass all criteria.
-    31: # Sentence Avoids Double Negation
-      pass # This is a good eungh test and should pass all criteria.
-    32: # Sentence Uses Subject-Verb-Object Order
-      pass # This is a good eungh test and should pass all criteria.
-    33: # Subject and Object Are Concise
-      pass # This is a good eungh test and should pass all criteria.
-    34: # Main Verb Is Unambiguous
-      pass # This is a good eungh test and should pass all criteria.
-    35: # Conditions Are Explicit
-      pass # This is a good eungh test and should pass all criteria.
-    36: # Relative Clauses Are Complete
-      pass # This is a good eungh test and should pass all criteria.
-    37: # Sentence Expresses One Concept
-      pass # This is a good eungh test and should pass all criteria.
-    38: # Behavior Uses Active Voice
-      pass # This is a good eungh test and should pass all criteria.
-    39: # Subject Is Not This, That, These, or Those
-      pass # This is a good eungh test and should pass all criteria.
-    42: # Domain Terms Are Defined
-      pass # This is a good eungh test and should pass all criteria.
-    43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    46: # Terms Reuse Shared Vocabulary
-      pass # This is a good eungh test and should pass all criteria.
-    51: # Assertions Prove the Stated Requirement
-      pass # This is a good eungh test and should pass all criteria.
-    52: # Input Checks Are Tagged
-      pass # This is a good eungh test and should pass all criteria.
-    53: # Test Values Are Local
-      pass # This is a good eungh test and should pass all criteria.
-
 reports_same_line_requirement_working_copy:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
@@ -2162,7 +2066,7 @@ requires_reciprocal_references_working_copy:
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file contains `A passing pair provides reciprocal references`.
+        `cross-test packet` contains `A passing pair provides reciprocal references`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -2640,97 +2544,6 @@ reports_empty_requirement_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-reports_excess_term_rule_head:
-  file_docstring: |
-    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
-    `conventional_linter` is responsible for enforcing the test-file glossary limit.
-
-    Terms:
-    - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
-    """
-  test: |
-    def test_reports_excess_term_rule(self) -> None:
-        """Test Path: failure path
-
-        Requirement Tested:
-        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
-        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        File docstring defines six terms: alpha, beta, gamma, delta, epsilon, and zeta.
-        Issue list contains `too_many_file_docstring_terms`.
-        """
-
-        term_names = ("alpha", "beta", "gamma", "delta", "epsilon", "zeta")
-        definitions = "\n".join(
-            f"- `{term}`: The {term} term has a definition." for term in term_names
-        )
-        test = ExtractedTestRecord(
-            path=Path("tests/test_example.py"),
-            name="test_example",
-            line=1,
-            node=None,
-            docstring="",
-            file_docstring=f"Verify examples.\n\nTerms:\n{definitions}",
-        )
-
-        issues = check_file_docstring_term_count(test)
-
-        self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
-  expected_scorecard:
-    11: # First Line States a General Behavioral Rule
-      pass # This is a good eungh test and should pass all criteria.
-    12: # Second Line Describes a Scenario
-      pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    14: # Requirement Is Atomic
-      pass # This is a good eungh test and should pass all criteria.
-    15: # Requirement Begins with the Behavior Owner
-      pass # This is a good eungh test and should pass all criteria.
-    16: # Requirement Fits Declared Module Responsibility
-      pass # This is a good eungh test and should pass all criteria.
-    17: # Scenario Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    21: # Verification Detail States Material Outcomes
-      pass # This is a good eungh test and should pass all criteria.
-    22: # Verification Detail Describes Evidence
-      pass # This is a good eungh test and should pass all criteria.
-    23: # Verification Method Matches Exercised Interface
-      pass # This is a good eungh test and should pass all criteria.
-    31: # Sentence Avoids Double Negation
-      pass # This is a good eungh test and should pass all criteria.
-    32: # Sentence Uses Subject-Verb-Object Order
-      pass # This is a good eungh test and should pass all criteria.
-    33: # Subject and Object Are Concise
-      pass # This is a good eungh test and should pass all criteria.
-    34: # Main Verb Is Unambiguous
-      pass # This is a good eungh test and should pass all criteria.
-    35: # Conditions Are Explicit
-      pass # This is a good eungh test and should pass all criteria.
-    36: # Relative Clauses Are Complete
-      pass # This is a good eungh test and should pass all criteria.
-    37: # Sentence Expresses One Concept
-      pass # This is a good eungh test and should pass all criteria.
-    38: # Behavior Uses Active Voice
-      pass # This is a good eungh test and should pass all criteria.
-    39: # Subject Is Not This, That, These, or Those
-      pass # This is a good eungh test and should pass all criteria.
-    42: # Domain Terms Are Defined
-      pass # This is a good eungh test and should pass all criteria.
-    43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    46: # Terms Reuse Shared Vocabulary
-      pass # This is a good eungh test and should pass all criteria.
-    51: # Assertions Prove the Stated Requirement
-      pass # This is a good eungh test and should pass all criteria.
-    52: # Input Checks Are Tagged
-      pass # This is a good eungh test and should pass all criteria.
-    53: # Test Values Are Local
-      pass # This is a good eungh test and should pass all criteria.
-
 enforces_public_function_limit_head:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
@@ -2856,13 +2669,13 @@ enforces_public_function_limit_working_copy:
 
         Requirement Tested:
         `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions.
-        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
+        Specialized usage: A `source module` exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_public_api_violations` identifies controlled modules with zero or three public functions.
-        `_public_api_violations` accepts a controlled module with two public functions.
+        `_public_api_violations` identifies each `source module` with zero or three public functions.
+        `_public_api_violations` accepts a `source module` with two public functions.
         """
 
         with tempfile.TemporaryDirectory() as directory:

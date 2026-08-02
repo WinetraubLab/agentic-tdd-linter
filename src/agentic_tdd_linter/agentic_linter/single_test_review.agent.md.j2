@@ -189,9 +189,11 @@ Do not apply this criterion to the fixed `Verification Method` classification va
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
 #### 46. Terms Reuse Shared Vocabulary
-`Requirement Tested` shall reuse a term from `File Docstring` when it already names the same concept.
-Use a new term only for a different concept.
-Fail duplicate terms and name the existing term to use instead.
+`File Docstring` shall establish one canonical term for each underlying entity or concept.
+Treat terms as naming the same concept when they can refer to the same underlying entity, even when they describe different states, stages, roles, representations, environments, or test-control conditions.
+`Requirement Tested` and `Verification Detail` shall reproduce the canonical term verbatim whenever they refer to that entity or concept. Synonyms and differences in spelling, spacing, capitalization, grammatical number, or formatting are alternate terms rather than reuse.
+Permit different terms only when they identify independently meaningful entities or concepts, not merely different descriptions of the same referent.
+Fail each conflict and name the canonical term to use.
 
 ### 5x. Assertion Quality
 The criteria below evaluate implementation conformance: whether the test implementation and assertions conform to `Requirement Tested` and `Verification Detail`.

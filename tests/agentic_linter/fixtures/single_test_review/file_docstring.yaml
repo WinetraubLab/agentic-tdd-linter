@@ -32,7 +32,7 @@ defined_distinctive_file_terms:
     16: # Requirement Fits Declared Module Responsibility
       pass # Test-to-implementation module identification belongs to module mapping.
     46: # Terms Reuse Shared Vocabulary
-      pass # Unit module and implementation module name different roles, so neither term duplicates the other.
+      fail # `unit module` and `implementation module` rename the same underlying module concept according to its role.
 
 interchangeable_file_terms:
   file_docstring: |
@@ -110,3 +110,199 @@ unused_duplicate_file_term:
   expected_scorecard:
     46: # Terms Reuse Shared Vocabulary
       fail # `discovered file` and `candidate file` duplicate the same test-discovery concept, so the glossary should keep one term.
+
+alternate_spelling_of_file_term:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
+    `conventional_linter` is responsible for enforcing the test-file glossary limit.
+
+    Terms:
+    - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
+    """
+  test: |
+    def test_reports_excess_term_rule(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
+        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        File docstring defines six terms: alpha, beta, gamma, delta, epsilon, and zeta.
+        Issue list contains `too_many_file_docstring_terms`.
+        """
+
+        term_names = ("alpha", "beta", "gamma", "delta", "epsilon", "zeta")
+        definitions = "\n".join(
+            f"- `{term}`: The {term} term has a definition." for term in term_names
+        )
+        test = ExtractedTestRecord(
+            path=Path("tests/test_example.py"),
+            name="test_example",
+            line=1,
+            node=None,
+            docstring="",
+            file_docstring=f"Verify examples.\n\nTerms:\n{definitions}",
+        )
+
+        issues = check_file_docstring_term_count(test)
+
+        self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `glossary limits` duplicates the established `glossary limit` term instead of reusing the same term.
+
+alternate_spelling_of_declared_component:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+    `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
+
+    Terms:
+    - `Test Path`: Test Path is the structured field naming a test's scenario category. For example, Test Path can contain happy path.
+    - `Requirement Tested`: Requirement Tested is the structured field stating behavior and scenario. For example, it says that a parser accepts valid text.
+    - `Verification Method`: Verification Method is the structured field naming the observation approach. For example, it can say verify public function output.
+    - `Verification Detail`: Verification Detail is the structured field stating exact evidence. For example, it says that `_add_values` output equals three.
+    - `Inspection Instructions`: Inspection Instructions is the structured field that authorizes source inspection when linter issues cannot describe visual evidence. For example, it can name a specific module to inspect.
+    """
+  test: |
+    def test_reports_same_line_requirement(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline.
+        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so conventional linter emits invalid_requirement_format.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When requirement text remains inline, _lint_docstring_source contains `invalid_requirement_format`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested: addition returns the expected sum.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Addition output equals expected numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("invalid_requirement_format", rules)
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `conventional linter` duplicates the established `conventional_linter` term with different spelling.
+
+alternate_artifact_name_for_cross_test_packet:
+  file_docstring: |
+    """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
+    `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
+
+    Terms:
+    - `renderer`: The renderer creates a cross-test review packet from selected paths. For example, it writes one packet for two test files.
+    - `cross-test packet`: A cross-test packet contains review context for relationships among tests. For example, it lists test files and Similar Coverage instructions.
+    - `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
+    - `coverage reference formats`: Coverage reference formats are ``Higher Level Test: `<file.py>::<test_name>```, ``Lower Level Test: `<file.py>::<test_name>```, and `Justification: <classification> — <specific coverage difference>`. For example, cross-test instructions display all three formats.
+    """
+  test: |
+    def test_requires_reciprocal_references(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` requires each test in a higher-level/lower-level pair to reference the other.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Cross-test file contains `A passing pair provides reciprocal references`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "A passing pair provides reciprocal references",
+            artifact_text,
+        )
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `Cross-test file` renames the established `cross-test packet` according to its physical representation.
+
+alternate_context_name_for_source_module:
+  file_docstring: |
+    """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
+    `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
+    - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
+    """
+  test: |
+    def test_enforces_public_function_limit(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions.
+        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` identifies controlled modules with zero or three public functions.
+        `_public_api_violations` accepts a controlled module with two public functions.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            (controlled_root / "empty.py").write_text("", encoding="utf-8")
+            (controlled_root / "valid.py").write_text(
+                "def first(): pass\ndef second(): pass\n",
+                encoding="utf-8",
+            )
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "excess.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                set(),
+            )
+
+        self.assertEqual(
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
+        )
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `controlled module` renames the established `source module` according to its test context.
