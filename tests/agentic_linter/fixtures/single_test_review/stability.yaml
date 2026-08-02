@@ -2257,7 +2257,7 @@ mismatch_aggregates_total_rate_head:
         Verification Detail:
         Total row contains `3` mismatches.
         Total row contains `10` tested cases.
-        Total row displays a `70%` pass rate.
+        The total row contains a `70%` pass rate.
 
         Similar Coverage:
         - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
@@ -2350,7 +2350,7 @@ mismatch_aggregates_total_rate_working_copy:
         Verification Detail:
         Total row contains `3` mismatches.
         Total row contains `10` tested cases.
-        Total row displays a `70%` pass rate.
+        The total row contains a `70%` pass rate.
 
         Similar Coverage:
         - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
