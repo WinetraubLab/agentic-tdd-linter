@@ -66,7 +66,7 @@ exact_expected_value_is_evidence:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Adding positive numbers belongs to the calculator's arithmetic responsibility.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # The exact result exemplifies the addition contract and belongs in Verification Detail.
     51: # Assertions Prove the Stated Requirement
       pass # The exact observed sum proves the stated addition contract without creating another requirement.

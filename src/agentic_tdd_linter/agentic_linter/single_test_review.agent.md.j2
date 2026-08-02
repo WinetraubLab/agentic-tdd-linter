@@ -106,11 +106,11 @@ Do not require details that only identify where, how, or through which concrete 
 ### 2x. Verification Formulation
 The criteria below assume that `Requirement Tested` is complete and correct, and evaluate whether the verification accurately and sufficiently demonstrates it.
 
-#### 21. Expected Results Appear in Verification Detail
-`Verification Detail` shall state the concrete observations, values, and correspondences through which the test demonstrates the behavioral guarantee stated in `Requirement Tested`.
-Include every observed result that is material to proving the requirement, including applicable output values, counts, identities, states, ordering, limits, and exceptions.
-An exact value that merely exemplifies the contract shall appear in `Verification Detail`, even when the generalized relationship or limit remains in `Requirement Tested`.
-Fail this criterion when `Verification Detail` omits evidence needed to show that the test proves the stated requirement, or when it describes only test actions without stating the resulting observations.
+#### 21. Verification Detail States Material Outcomes
+`Verification Detail` shall state each behaviorally meaningful observation or relationship needed to demonstrate `Requirement Tested`.
+A semantic description may summarize exact assertion values or representations when it preserves the property established by the evidence.
+Require an exact value, identity, string, or collection only when that detail materially distinguishes sufficient evidence from insufficient evidence. Do not require repetition of setup inputs or literal assertion formatting.
+Fail when `Verification Detail` omits a distinct outcome or relationship needed to demonstrate the requirement.
 
 #### 22. Verification Detail Describes Evidence
 `Verification Detail` shall state the evidence that proves the requirement rather than only naming mechanics, fixtures, constants, assertions, commands, tags, or test names.
@@ -265,7 +265,7 @@ Use `none` when a score has no failures and `not needed` when a later revision i
 | 15 | Requirement Begins with the Behavior Owner | pending | Replace with review evidence. |
 | 16 | Requirement Fits Declared Module Responsibility | pending | Replace with review evidence. |
 | 17 | Scenario Has the Appropriate Specificity | pending | Replace with review evidence. |
-| 21 | Expected Results Appear in Verification Detail | pending | Replace with review evidence. |
+| 21 | Verification Detail States Material Outcomes | pending | Replace with review evidence. |
 | 22 | Verification Detail Describes Evidence | pending | Replace with review evidence. |
 | 23 | Verification Method Matches Exercised Interface | pending | Replace with review evidence. |
 | 31 | Sentence Avoids Double Negation | pending | Replace with review evidence. |

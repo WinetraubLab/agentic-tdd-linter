@@ -41,7 +41,7 @@ availability_without_behavior:
       fail # The requirement combines independent availability behaviors for two organizations.
     15: # Requirement Begins with the Behavior Owner
       fail # The first requirement sentence begins with the `When` scenario condition instead of the behavior owner.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       fail # Verification Detail says only expected time ranges instead of naming the observed 09:00–12:00 inclusion.
     51: # Assertions Prove the Stated Requirement
       fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
@@ -338,7 +338,7 @@ version_relationship_is_material:
       pass # Equality between project and runtime versions belongs to package metadata.
     11: # First Line States a General Behavioral Rule
       pass # The equality between the project metadata version and runtime version is the architectural contract proved by the test.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # The equality relationship defines the contract, while Verification Detail states the concrete observations that prove it.
 
 api_limit_and_exception_are_material:
@@ -380,7 +380,7 @@ api_limit_and_exception_are_material:
       pass # Public-interface limits belong to source-module policy.
     11: # First Line States a General Behavioral Rule
       pass # The API limit and data-only exception are material parts of the architectural policy proved by the test.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # The limit and exception define the contract, while Verification Detail states the observed absence of violations.
 
 module_public_function_limit_combines_two_requirements_head:
@@ -779,7 +779,7 @@ ordered_review_stages_form_one_workflow:
       pass # The requirement names all three stages and explicitly requires their order.
     14: # Requirement Is Atomic
       pass # Packet creation, scorecard completion, and proof recording collectively define one review workflow.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # The requirement names conceptual stages while Verification Detail contains the exact commands and README wording.
     33: # Subject and Object Are Concise
       pass # `review_documentation` is the one-term subject and review stages is the two-word direct object; the colon defines those stages.

@@ -50,7 +50,7 @@ readme_workflows_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -135,7 +135,7 @@ accepts_defined_requirement_term_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -270,7 +270,7 @@ stale_attestation_requires_review_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -366,7 +366,7 @@ reports_same_line_requirement_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -462,7 +462,7 @@ reports_same_line_requirement_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -560,7 +560,7 @@ typescript_fields_need_blank_lines_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -717,7 +717,7 @@ loads_python_tests_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -834,7 +834,7 @@ unsupported_fields_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -951,7 +951,7 @@ unsupported_fields_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1034,7 +1034,7 @@ readme_workflows_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1128,7 +1128,7 @@ github_actions_shows_ci_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1217,7 +1217,7 @@ github_actions_omits_packet_creation_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1306,7 +1306,7 @@ github_actions_omits_packet_creation_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1432,7 +1432,7 @@ cicd_accepts_current_proof_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1558,7 +1558,7 @@ cicd_accepts_current_proof_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1662,7 +1662,7 @@ accepts_public_output_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1766,7 +1766,7 @@ accepts_public_output_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -1888,7 +1888,7 @@ lint_requires_reviewer_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2010,7 +2010,7 @@ lint_requires_reviewer_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2103,7 +2103,7 @@ requires_reciprocal_references_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2196,7 +2196,7 @@ requires_reciprocal_references_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2289,7 +2289,7 @@ mismatch_aggregates_total_rate_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2382,7 +2382,7 @@ mismatch_aggregates_total_rate_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2503,7 +2503,7 @@ anonymous_agent_review_examples_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2603,7 +2603,7 @@ reports_empty_requirement_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2694,7 +2694,7 @@ reports_excess_term_rule_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2802,7 +2802,7 @@ enforces_public_function_limit_head:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
@@ -2910,7 +2910,7 @@ enforces_public_function_limit_working_copy:
       pass # This is a good eungh test and should pass all criteria.
     17: # Scenario Has the Appropriate Specificity
       pass # This is a good eungh test and should pass all criteria.
-    21: # Expected Results Appear in Verification Detail
+    21: # Verification Detail States Material Outcomes
       pass # This is a good eungh test and should pass all criteria.
     22: # Verification Detail Describes Evidence
       pass # This is a good eungh test and should pass all criteria.
