@@ -108,7 +108,7 @@ Put every category on a separate line inside the table cell by separating catego
 The category counts for each criterion must equal that criterion's total enforced YAML checks.
 Also state whether a criterion with a current failure changed in the inspected history.
 
-After presenting the focused table, ask whether the user wants the full table containing unchanged criteria. If the user says yes, return every row from the analyzer output already produced. Do not rerun the analyzer, YAML reviews, or history collection.
+After presenting the focused table, ask whether the user wants the full table containing unchanged criteria. If the user says yes, return every row from the analyzer output already produced. Sort the full table by the numeric pass percentage in `# Passing / # Total (%)` in ascending order. Break equal percentages by criterion number in ascending order. Do not rerun the analyzer, YAML reviews, or history collection.
 
 After the table, report:
 
