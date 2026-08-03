@@ -53,8 +53,10 @@ class CliTests(unittest.TestCase):
         `CLI output` contains the text `generated 2 agent review packets` for one single-test packet and one cross-test packet.
 
         Similar Coverage:
-        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — The current test proves packet-count reporting for a nondefault test root. The higher test proves complete Python packet loading.
+        - Scenario Difference: `test_main.py::test_lint_reports_only_selected_file`
+          Explanation: The current test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root. The named test verifies `CLI` restricts `CLI output` to the caller-selected test-file path; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root. The named test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -122,6 +124,10 @@ class ReviewProofFlowTests(unittest.TestCase):
         Harness invokes lint with `test_first.py` as the selected path.
         `CLI output` contains the selected `test_first.py` file.
         `CLI output` omits the other `test_second.py` file.
+
+        Similar Coverage:
+        - Scenario Difference: `test_main.py::test_test_root_reports_generated_packet`
+          Explanation: The current test verifies `CLI` restricts `CLI output` to the caller-selected test-file path. The named test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -190,10 +196,10 @@ class ReviewProofFlowTests(unittest.TestCase):
         `CLI output` contains `missing_reviewer`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves lint rejects completed reviews without reviewer identity. The higher test proves reviewer-authenticated lint records completed reviews through the full workflow.
-        - Higher Level Test: `test_review_documentation.py::test_readme_includes_reviewer`
-          Justification: Deeper coverage — The current test proves runtime enforcement when reviewer identity is absent. The higher test verifies that README supplies reviewer identity in the lint command.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_includes_reviewer`
+          Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `test_review_documentation` requires README to provide exact `lint arguments`; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
