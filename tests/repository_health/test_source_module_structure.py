@@ -29,6 +29,9 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_unmatched_test_paths` produces `[]` for agentic_linter, cli, conventional_linter, and indexing_test_functions.
 
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`. The named test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist; the current test is happy path, while the named test is failure path.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -62,6 +65,10 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_public_api_violations` output contains `empty.py: expected 1-2 public functions, found []`.
         `_public_api_violations` output contains `excess.py: expected 1-2 public functions, found ['first', 'second', 'third']`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_source_module_structure.py::test_exempts_data_only_modules`
+          Explanation: The current test verifies `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions. The named test verifies `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -103,6 +110,10 @@ class SourceModuleStructureTests(unittest.TestCase):
         Verification Detail:
         `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
         `_public_api_violations` accepts a controlled three-function `data-only module`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_source_module_structure.py::test_enforces_public_function_limit`
+          Explanation: The current test verifies `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit. The named test verifies `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions; the current test is happy path, while the named test is failure path.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
