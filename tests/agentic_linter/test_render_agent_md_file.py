@@ -99,7 +99,6 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown,
         )
 
-    def test_prohibits_replacement_wording_in_failure_notes(self) -> None:
     def test_iterative_review_records_revision_attempts(self) -> None:
         """Test Path: happy path
 
