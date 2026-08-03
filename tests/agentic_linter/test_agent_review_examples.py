@@ -43,8 +43,13 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        Mocking makes scorecard regression comparison return no regressions.
         The evaluator receives zero calls.
         The review result contains zero packet paths.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_agent_review_examples.py::test_stale_attestation_reports_pending_packet`
+          Explanation: The current test verifies `agent_review_examples` does not evaluate a review packet when a matching `JSONL attestation` exists for the case. The named test verifies `agent_review_examples` emits a pending-packet error when a `JSONL attestation` has an outdated source digest and packet evaluation remains incomplete; the current test is happy path, while the named test is failure path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -84,7 +89,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         self.assertFalse(evaluated)
         self.assertEqual((), result.agent_md_files)
 
-    def test_stale_jsonl_attestation_reports_pending_packet(self) -> None:
+    def test_stale_attestation_reports_pending_packet(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -96,6 +101,10 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Detail:
         The RuntimeError contains `example.agent.md`.
         The RuntimeError contains `run the YAML skill`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_agent_review_examples.py::test_current_jsonl_attestation_skips_evaluation`
+          Explanation: The current test verifies `agent_review_examples` emits a pending-packet error when a `JSONL attestation` has an outdated source digest and packet evaluation remains incomplete. The named test verifies `agent_review_examples` does not evaluate a review packet when a matching `JSONL attestation` exists for the case; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -133,7 +142,12 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        Mocking records the YAML-review timer call before validation.
         Recorded event order is timer followed by validation.
+
+        Similar Coverage:
+        - Scenario Difference: `test_agent_review_examples.py::test_evaluation_timer_ends_after_comparison`
+          Explanation: The current test verifies `agent_review_examples` starts YAML-review timing before fixture validation. The named test verifies `agent_review_examples` ends YAML-review timing after scorecard comparison and uses that time to calculate duration; both use happy path, but exercise materially different scenarios.
         """
 
         events: list[str] = []
@@ -162,7 +176,12 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        Mocking records scorecard comparison, timer completion, and duration calculation.
         Recorded event order is comparison, timer, then duration; returned duration is `3.0`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_agent_review_examples.py::test_validation_timer_starts_before_linting`
+          Explanation: The current test verifies `agent_review_examples` ends YAML-review timing after scorecard comparison and uses that time to calculate duration. The named test verifies `agent_review_examples` starts YAML-review timing before fixture validation; both use happy path, but exercise materially different scenarios.
         """
 
         events: list[str] = []
@@ -215,6 +234,7 @@ class AgentReviewExampleTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        Mocking supplies the reviewer model and successful then failed scorecard comparisons.
         The JSON report excludes its seed after each review.
         The JSONL attestation excludes its seed after each review.
         Both outputs identify reviewer model `gpt-test ultra`.
@@ -289,8 +309,14 @@ class AgentReviewExampleTests(unittest.TestCase):
         The message contains `$calibrate-agent-review-criteria`.
 
         Similar Coverage:
-        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
-          Justification: Diagnostic completeness — The current test isolates calibration guidance for mismatches. The higher test runs the complete YAML scorecard comparison workflow.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`. The named test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
+          Explanation: The current test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`. The named test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`. The named test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
+          Explanation: The current test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`. The named test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
         """
 
         mismatch = _ScorecardMismatch(
@@ -319,8 +345,14 @@ class AgentReviewExampleTests(unittest.TestCase):
         One diagnostic connects `example` to expected `fail` and actual `pass`.
 
         Similar Coverage:
-        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
-          Justification: Diagnostic completeness — The current test isolates case-level mismatch evidence. The higher test runs the complete YAML scorecard comparison workflow.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`. The named test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
+          Explanation: The current test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`. The named test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`. The named test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
+          Explanation: The current test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`. The named test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
         """
 
         mismatch = _ScorecardMismatch(
@@ -350,8 +382,14 @@ class AgentReviewExampleTests(unittest.TestCase):
         Criterion 51 produces `| 51 | 1 | 5 | 80% |`.
 
         Similar Coverage:
-        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
-          Justification: Diagnostic completeness — The current test isolates per-criterion mismatch aggregation. The higher test runs the complete YAML scorecard comparison workflow.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
+          Explanation: The current test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`. The named test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`. The named test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
+          Explanation: The current test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`. The named test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
+          Explanation: The current test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`. The named test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
         """
 
         message = _scorecard_mismatch_message(
@@ -381,8 +419,14 @@ class AgentReviewExampleTests(unittest.TestCase):
         Total row displays a `70%` pass rate.
 
         Similar Coverage:
-        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
-          Justification: Diagnostic completeness — The current test isolates aggregate pass-rate calculation. The higher test runs the complete YAML scorecard comparison workflow.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases. The named test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases. The named test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
+          Explanation: The current test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases. The named test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
+          Explanation: The current test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases. The named test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
         """
 
         message = _scorecard_mismatch_message(
@@ -410,8 +454,14 @@ class AgentReviewExampleTests(unittest.TestCase):
         Criterion 32 contains `missing_object` with expected `fail` and actual `pass`.
 
         Similar Coverage:
-        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
-          Justification: Diagnostic completeness — The current test isolates criterion-specific case listings. The higher test runs the complete YAML scorecard comparison workflow.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
+          Explanation: The current test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`. The named test verifies `agent_review_examples` quantifies each criterion's failure count, enforced-check count, and `pass rate` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
+          Explanation: The current test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`. The named test verifies `agent_review_examples` calculates aggregate `pass rate` from all mismatches and tested cases; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
+          Explanation: The current test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`. The named test verifies `agent_review_examples` connects one YAML expectation to one reviewer result in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
+          Explanation: The current test verifies `agent_review_examples` enumerates every mismatched case with its expected and actual result in `mismatch diagnostics`. The named test verifies `agent_review_examples` recommends `calibration skill` in `mismatch diagnostics`; both use happy path, but exercise materially different scenarios.
         """
 
         message = _scorecard_mismatch_message(
