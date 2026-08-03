@@ -74,8 +74,8 @@ AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
 ```
 
 The test-relationship invocation should also stop with pending packets. Each
-packet contains two test docstrings and one scorecard per test. Treat that
-result as packet generation, not as the final YAML assessment.
+packet contains two test docstrings and one scorecard for their unordered pair.
+Treat that result as packet generation, not as the final YAML assessment.
 
 ## Step 3: Review every generated file
 
