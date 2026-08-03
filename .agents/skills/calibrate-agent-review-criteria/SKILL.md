@@ -16,33 +16,49 @@ Resolve scorecard mismatches without tailoring review rules to one fixture.
    - **Reviewer variance:** the fixture and criterion align, but isolated reviews disagree.
 3. Do not change YAML merely to force a passing comparison when it represents behavior the criterion should detect.
 
-## Propose fixes
+## Run Option A and audit contradictions
 
-- Show the user **Option A**, consisting of the criterion's existing heading and complete wording unchanged.
+1. Collect every YAML example that enforces the selected criterion, not only the initially mismatched case.
+2. Show **Option A**, consisting of the criterion's existing heading and complete wording unchanged.
+3. Prepare Option A with `--current` for every collected example. Preserve every packet and run a fresh isolated review of only the selected criterion.
+4. Compare every Option-A result with its YAML expectation.
+5. Before creating Options B through D, group the examples by the exact content that the criterion evaluates. Use only the sections and fields named by the criterion; ignore content outside its scope. For criterion 44, for example, compare `File Docstring` content because criterion 44 evaluates only that section.
+6. Treat opposite YAML expectations for identical criterion-scoped content as a contradiction. Similar content with a material scoped difference is not a contradiction.
+7. If contradictions exist, stop before proposing or running Options B through D. Present every contradiction to the user in a table containing:
+   - YAML file and case name;
+   - expected result;
+   - the identical criterion-scoped content or a precise summary and stable hash; and
+   - why no criterion wording can produce both outcomes.
+8. Do not edit the fixtures or choose an expectation. Ask the user to resolve the intended behavior, then restart Option A after the fixtures are aligned.
+9. If no contradictions exist, report the complete Option-A result and continue to proposing Options B through D.
+
+Example Option-A preparation:
+
+```bash
+.venv/bin/python \
+  .agents/skills/calibrate-agent-review-criteria/scripts/criterion_experiment.py \
+  prepare <case> <criterion> --current
+```
+
+## Propose fixes after the audit
+
 - For a fixture defect, propose the smallest YAML change that demonstrates the same general rule clearly.
 - For criterion ambiguity, propose exactly three reusable replacements labeled **Option B**, **Option C**, and **Option D** before editing Jinja.
 - Keep candidates domain-neutral. Do not copy fixture paths, identifiers, constants, function names, or domain language into a criterion.
 - Preserve the criterion's scope and avoid duplicating another criterion.
-- Show Options A through D to the user before running an experiment.
+- Show Options A through D to the user before running the B-through-D experiment.
 
-## Run a blind experiment
+## Run the B-through-D blind experiment
 
-1. Run the complete blind experiment separately for Options A, B, C, and D. Do not omit the unchanged baseline or test only the recommended replacement.
-2. Prepare Option A with the selected case, criterion number, and `--current`. This regenerates the anonymous packet while preserving the current criterion exactly:
-
-   ```bash
-   .venv/bin/python \
-     .agents/skills/calibrate-agent-review-criteria/scripts/criterion_experiment.py \
-     prepare <case> <criterion> --current
-   ```
-
+1. Run this experiment only after the Option-A contradiction audit passes.
+2. Preserve the complete Option-A packets and results as the unchanged baseline. Regenerate Option A only when a fixture or criterion changed after that baseline.
 3. Prepare Options B, C, and D separately with the selected case, criterion number, candidate title, and rule lines. This regenerates only that anonymous packet and changes only the experimental criterion.
 4. Preserve a separate packet for each option so experiments cannot overwrite or influence one another. Use option-labeled paths such as `a/`, `b/`, `c/`, and `d/`.
 5. Do not edit the YAML or Jinja template during the experiment.
 6. Start a fresh isolated reviewer with no conversation context for each option.
 7. Give the reviewer only that option's generated Markdown packet. Do not expose the YAML case name, expected result, other options, earlier reviews, diagnosis, or repository files.
 8. Ask the reviewer to evaluate only the experimental criterion, update only its scorecard row, and leave every other row unchanged.
-9. Run `scripts/criterion_experiment.py compare` separately for every reviewed option.
+9. Run `scripts/criterion_experiment.py compare` separately for the preserved Option-A baseline and every reviewed replacement.
 10. Show the user a side-by-side result containing Options A through D, their wording, expected result, actual result, reviewer reasoning, and mismatch status.
 11. Compare every replacement with Option A. Treat a replacement as an improvement only when it resolves a mismatch that Option A reproduces without regressing controls.
 
