@@ -126,17 +126,17 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         ]
         self.assertTrue(matching_errors)
 
-    def test_rejects_case_name_outside_filename_number_sequence(self) -> None:
+    def test_rejects_case_name_outside_filename_number_format(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with its three-digit sequence number and permits an optional three-word note.
-        Specialized usage: The first case in invalid.yaml uses a descriptive name instead of `invalid_001`, so YAML validation emits the case-name diagnostic.
+        `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with a three-digit number and permits an optional three-word note.
+        Specialized usage: The case in invalid.yaml uses a descriptive name instead of the filename-number format, so YAML validation emits the case-name diagnostic.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `lint_agent_review_examples` output requires the prefix `invalid_001`.
+        `lint_agent_review_examples` output requires the pattern `invalid_<three_digit_number>`.
         """
 
         invalid_source = textwrap.dedent(
@@ -177,7 +177,10 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
             errors = lint_agent_review_examples(examples_path=example_file)
 
         self.assertTrue(
-            any("must be named `invalid_001`" in error for error in errors)
+            any(
+                "must be named `invalid_<three_digit_number>`" in error
+                for error in errors
+            )
         )
 
 
