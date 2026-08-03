@@ -378,7 +378,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "A passing pair provides reciprocal references",
+            "A correctly documented pair provides reciprocal entries with the same "
+            "classification.",
             artifact_text,
         )
 
