@@ -325,12 +325,12 @@ stability_004_reports_same_line:
 
         Requirement Tested:
         `conventional_linter` emits the invalid_requirement_format rule when docstrings locate `Requirement Tested` inline.
-        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so conventional linter emits invalid_requirement_format.
+        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so `conventional_linter` emits invalid_requirement_format.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When requirement text remains inline, _lint_docstring_source contains `invalid_requirement_format`.
+        When `Requirement Tested` remains inline, _lint_docstring_source contains `invalid_requirement_format`.
         """
 
         rules = _lint_docstring_source(
@@ -421,7 +421,7 @@ stability_005_typescript_fields_need:
 
         Requirement Tested:
         `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent.
-        Specialized usage: TypeScript doc comment locates metadata fields adjacent instead of separating them with blank lines, so conventional linter emits invalid_field_spacing.
+        Specialized usage: TypeScript doc comment locates metadata fields adjacent instead of separating them with blank lines, so `conventional_linter` emits invalid_field_spacing.
 
         Verification Method: verify private function output
 
