@@ -33,6 +33,12 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Verification Detail:
         The packet's `## Test Docstrings` section contains path `tests/test_alpha.py` once.
         The packet's `## Test Docstrings` section contains path `tests/test_beta.py` once.
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing one docstring entry for every unique selected path. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_embeds_docstrings_without_test_implementation`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing one docstring entry for every unique selected path. The named test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing each test identifier and docstring without its implementation; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -72,6 +78,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Harness supplies three test files containing one test each.
         The packet contains exactly three `Replace with classification evidence.` rows.
         The packet contains the alpha-beta, alpha-gamma, and beta-gamma pairs.
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_overlap_result_preserves_freshness`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair. The named test verifies `render_cross_test_agent_md_file` preserves a completed `pair classification` when deciding whether packet inputs are stale; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -125,6 +135,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Harness renders a packet for two test files.
         Harness replaces the pending pair classification with yes, Module Difference, and review evidence.
         `cross_test_agent_md_file_is_stale` returns false.
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_lists_each_pair_once`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` preserves a completed `pair classification` when deciding whether packet inputs are stale. The named test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -166,8 +180,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Cross-test file contains `Review context is limited to this packet and the listed test docstrings.`
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_includes_review_isolation_instructions`
-          Justification: Deeper coverage — The lower test explicitly prohibits inspecting repository files, manifests, and outer unit tests. The current test limits cross-test review to its packet and listed test docstrings.
+        - Module Difference: `test_render_agent_md_file.py::test_includes_review_isolation_instructions`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` constrains `cross-test packet` context to the packet and listed test docstrings. The named test verifies `render_agent_md_file` constrains `single-test packet` review context to the packet itself; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -200,6 +214,12 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         The packet contains `tests/test_alpha.py::test_example`.
         The packet contains `Requirement Tested:` from the test docstring.
         The packet excludes the implementation marker `implementation is absent`.
+
+        Similar Coverage:
+        - Module Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing each test identifier and docstring without its implementation. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_deduplicates_cross_test_paths`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing each test identifier and docstring without its implementation. The named test verifies `render_cross_test_agent_md_file` creates `cross-test packet` containing one docstring entry for every unique selected path; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -242,10 +262,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         The packet assigns every criterion and listed test to that reviewer.
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_requires_fresh_reviewers`
-          Justification: Deeper coverage — The lower test verifies one fresh reviewer for a single-test packet. The current test additionally verifies that the same reviewer covers every criterion for every listed test in a cross-test packet.
-        - Lower Level Test: `test_render_agent_md_file.py::test_requires_complete_review`
-          Justification: Deeper coverage — The lower test verifies complete criterion coverage for one single-test packet. The current test additionally verifies complete criterion coverage for every listed test in a cross-test packet.
+        - Scenario Difference: `test_render_agent_md_file.py::test_requires_complete_review`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every pair classification in one `cross-test packet`. The named test verifies `render_agent_md_file` requires the reviewer to evaluate every criterion in each `single-test packet`; both use happy path, but exercise materially different scenarios.
+        - Module Difference: `test_render_agent_md_file.py::test_requires_fresh_reviewers`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every pair classification in one `cross-test packet`. The named test verifies `render_agent_md_file` requires one fresh isolated reviewer for each `single-test packet`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -284,6 +304,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         The `cross-test packet` contains the exact sentence `A correctly documented pair provides reciprocal entries with the same classification.`
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_instructions_show_similar_coverage_format`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` generates a `cross-test packet` stating that an overlapping pair provides reciprocal entries with the same difference classification. The named test verifies `render_cross_test_agent_md_file` shows the exact `Similar Coverage` format for every supported difference kind; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -318,6 +342,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Packet contains ``Scenario Difference: `<file.py>::<test_name>```.
         Packet contains ``Module Difference: `<file.py>::<test_name>```.
         Packet contains `Explanation: <specific difference between the two tests>`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_requires_reciprocal_references`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` shows the exact `Similar Coverage` format for every supported difference kind. The named test verifies `render_cross_test_agent_md_file` generates a `cross-test packet` stating that an overlapping pair provides reciprocal entries with the same difference classification; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
