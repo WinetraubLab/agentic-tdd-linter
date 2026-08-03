@@ -267,12 +267,11 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text,
         )
         self.assertIn(
-            "Do not delegate any listed test or criterion to another reviewer.",
+            "Do not delegate any listed pair or classification to another reviewer.",
             artifact_text,
         )
         self.assertIn(
-            "That reviewer shall evaluate every pair classification and every "
-            "scorecard criterion for every listed test.",
+            "That reviewer shall classify every pair's overlap and kind.",
             artifact_text,
         )
 
