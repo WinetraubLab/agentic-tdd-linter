@@ -157,7 +157,7 @@ to test-relationship checks.
 
 For **single-test** review, follow the historical-report procedure below.
 
-The analyzer produces the complete Markdown table. For the initial user-facing report, show only rows for criteria whose complete heading or rule text differs from Git HEAD. This is a presentation filter only: do not change the analyzer command, analysis, classifications, or generated table.
+The analyzer produces the complete Markdown table. When one or more criteria have a complete heading or rule text that differs from Git HEAD, show only those rows in the initial user-facing report. When no criteria differ from Git HEAD, show the complete analyzer table immediately, sorted by numeric pass percentage ascending and then by criterion number ascending. This is a presentation rule only: do not change the analyzer command, analysis, classifications, or generated table.
 
 Use exactly these columns:
 
@@ -177,7 +177,7 @@ Put every category on a separate line inside the table cell by separating catego
 The category counts for each criterion must equal that criterion's total enforced YAML checks.
 Also state whether a criterion with a current failure changed in the inspected history.
 
-After presenting the focused table, ask whether the user wants the full table containing unchanged criteria. If the user says yes, return every row from the analyzer output already produced. Sort the full table by the numeric pass percentage in `# Passing / # Total (%)` in ascending order. Break equal percentages by criterion number in ascending order. Do not rerun the analyzer, YAML reviews, or history collection.
+After presenting a focused table of edited criteria, ask whether the user wants the full table containing unchanged criteria. If the user says yes, return every row from the analyzer output already produced. Do not ask this question when the complete table was already shown because no criteria differ from Git HEAD. Sort every full table by the numeric pass percentage in `# Passing / # Total (%)` in ascending order. Break equal percentages by criterion number in ascending order. Do not rerun the analyzer, YAML reviews, or history collection.
 
 For **test-relationship** review, show the full table for all enforced criteria
 from the test-relationship JSON report. Use the same four columns, sort by
