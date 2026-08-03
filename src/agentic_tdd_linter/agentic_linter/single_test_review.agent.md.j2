@@ -190,10 +190,11 @@ For example, fail `The output contains errors.`; prefer `The parser output conta
 
 #### 46. Terms Reuse Shared Vocabulary
 `File Docstring` shall establish one canonical term for each underlying entity or concept.
-Treat terms as naming the same concept when they can refer to the same underlying entity, even when they describe different states, stages, roles, representations, environments, or test-control conditions.
-`Requirement Tested` and `Verification Detail` shall reproduce the canonical term verbatim whenever they refer to that entity or concept. Synonyms and differences in spelling, spacing, capitalization, grammatical number, or formatting are alternate terms rather than reuse.
-Permit different terms only when they identify independently meaningful entities or concepts, not merely different descriptions of the same referent.
-Fail each conflict and name the canonical term to use.
+For every noun phrase in `Requirement Tested` and `Verification Detail` prose, identify its referent. Require verbatim reuse when another `File Docstring` or review-text phrase names that same referent. State, lifecycle stage, role, environment, and test-control condition do not by themselves create a new referent.
+Treat exact literals and code expressions as evidence rather than vocabulary. A surrounding prose shorthand for an established filename, path, module, or concept remains an alternate term.
+Permit different terms when test evidence independently observes different referents, such as an object and its path, identifier, contents, or serialized value.
+Do not treat incidental descriptive wording inside a definition or example as a canonical name.
+Fail synonymous phrases and spelling, spacing, capitalization, number, or formatting variants; identify the canonical term or require `File Docstring` to establish one.
 
 ### 5x. Assertion Quality
 The criteria below evaluate implementation conformance: whether the test implementation and assertions conform to `Requirement Tested` and `Verification Detail`.
