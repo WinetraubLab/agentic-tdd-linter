@@ -347,8 +347,12 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "Every test in a cross-level pair shall justify the relationship "
-            "in `Similar Coverage`",
+            "Each explanation shall state what the current test verifies and "
+            "how the named test differs.",
+            artifact_text,
+        )
+        self.assertIn(
+            "explained only with generic evidence",
             artifact_text,
         )
 
