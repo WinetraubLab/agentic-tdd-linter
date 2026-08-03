@@ -2,11 +2,9 @@
 `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
 
 Terms:
-- `cross-test packet`: A cross-test packet contains review context for relationships among tests. For example, it lists test files and Similar Coverage instructions.
-- `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
-- `coverage reference formats`: Coverage reference formats are ``Higher Level Test: `<file.py>::<test_name>``` and ``Lower Level Test: `<file.py>::<test_name>```. For example, cross-test instructions display both formats.
-- `Similar Coverage`: Similar Coverage is the test-docstring section that records cross-level relationships. For example, each related test names its counterpart and justifies the coverage difference.
-- `pair classification`: A pair classification stores whether two Requirement Tested descriptions overlap. For example, identical wording for different modules is classified yes.
+- `cross-test packet`: A docstring-only review of relationships among tests.
+- `pair classification`: An unordered pair's requirement overlap and, when applicable, difference kind.
+- `Similar Coverage`: Docstring entries naming an overlapping test, difference kind, and explanation.
 """
 
 from __future__ import annotations
@@ -310,7 +308,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` provides exact `coverage reference formats` in `relationship fields`.
+        `render_cross_test_agent_md_file` shows the exact `Similar Coverage` format for every supported difference kind.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
