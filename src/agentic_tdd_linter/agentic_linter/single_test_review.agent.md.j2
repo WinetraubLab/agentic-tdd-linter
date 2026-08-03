@@ -189,12 +189,10 @@ Do not apply this criterion to the fixed `Verification Method` classification va
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
 #### 46. Terms Reuse Shared Vocabulary
-`File Docstring` shall establish one canonical term for each underlying entity or concept.
-For every noun phrase in `Requirement Tested` and `Verification Detail` prose, identify its referent. Require verbatim reuse when another `File Docstring` or review-text phrase names that same referent. State, lifecycle stage, role, environment, and test-control condition do not by themselves create a new referent.
-Treat exact literals and code expressions as evidence rather than vocabulary. A surrounding prose shorthand for an established filename, path, module, or concept remains an alternate term.
-Permit different terms when test evidence independently observes different referents, such as an object and its path, identifier, contents, or serialized value.
-Do not treat incidental descriptive wording inside a definition or example as a canonical name.
-Fail synonymous phrases and spelling, spacing, capitalization, number, or formatting variants; identify the canonical term or require `File Docstring` to establish one.
+Apply criterion 46 only to labels established by `File Docstring`: the declared module name, glossary labels, explicitly defined backticked terms, and distinctive responsibility-statement names not superseded by a glossary label.
+Do not infer canonical names from generic nouns or incidental wording in definitions, descriptions, and examples. A glossary label controls when it names the same referent as descriptive `File Docstring` wording.
+`Requirement Tested` and `Verification Detail` shall use an established name for that referent. Backticks are optional presentation; spelling, word boundaries, capitalization, and grammatical number remain part of the name.
+Different referents may use different names, including an entity versus a validation or operation involving it, and an artifact versus its path, identifier, contents, members, or representation. Exact literals and code expressions are outside this criterion.
 
 ### 5x. Assertion Quality
 The criteria below evaluate implementation conformance: whether the test implementation and assertions conform to `Requirement Tested` and `Verification Detail`.
