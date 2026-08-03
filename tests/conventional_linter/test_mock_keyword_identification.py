@@ -38,6 +38,7 @@ class MockKeywordIdentificationTests(unittest.TestCase):
 
         Verification Detail:
         Test code invokes `Mock`.
+        The test documentation contains no mock details.
         The `_lint_requirement_source` output contains `mocking_detail_missing`.
         """
 
