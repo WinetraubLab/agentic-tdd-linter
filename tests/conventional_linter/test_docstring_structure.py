@@ -162,12 +162,12 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing.
-        Specialized usage: Docstring contains empty `Verification Detail` instead of populated content, so conventional linter emits missing_verification_detail.
+        Specialized usage: When a docstring has an empty `Verification Detail`, `conventional_linter` emits missing_verification_detail.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When `Verification Detail` contains nothing, _lint_docstring_source contains `missing_verification_detail`.
+        When `Verification Detail` contains nothing, `_lint_docstring_source` output contains `missing_verification_detail`.
         """
 
         rules = _lint_docstring_source(
