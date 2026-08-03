@@ -1,5 +1,5 @@
 """Tests in this file validate `determine_agent_md_status` located at `src/agentic_tdd_linter/agentic_linter/determine_agent_md_status.py`.
-`determine_agent_md_status` is responsible for deriving one status from the review results in a `.agent.md` scorecard.
+`determine_agent_md_status` is responsible for deriving review status and reporting malformed `.agent.md` scorecards.
 
 Terms:
 - `.agent.md`: An .agent.md file contains one agent-review scorecard. For example, each criterion row has one review result.
