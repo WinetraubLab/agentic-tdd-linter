@@ -36,6 +36,10 @@ class TestRelationshipReviewExampleRunnerTests(unittest.TestCase):
         Every case identifies one unordered pair and records an overlap expectation.
         Each overlapping case records an allowed difference kind, while each nonoverlapping case omits the difference kind.
         Every case locates its packet under the supplied artifact root.
+
+        Similar Coverage:
+        - Module Difference: `test_agent_review_example_runner.py::test_builds_single_test_review_cases`
+          Explanation: The current test verifies `relationship_review_example_runner` converts the `relationship YAML catalog` into `relationship review case` records for the shared runner. The named test verifies `agent_review_example_runner` converts the `YAML fixture catalog` into `single-test review case` records for the shared runner; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         with tempfile.TemporaryDirectory() as directory:
