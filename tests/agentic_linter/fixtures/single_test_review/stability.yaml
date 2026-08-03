@@ -178,8 +178,8 @@ stability_003_stale_attestation_requires:
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
 
     Terms:
-    - `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
-    - `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
+    - `review report`: The review report is the readable `agent_review_example_runner` output at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
+    - `scorecard attestation ledger`: The scorecard attestation ledger is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
     - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
     - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
     - `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
@@ -189,14 +189,14 @@ stability_003_stale_attestation_requires:
         """Test Path: failure path
 
         Requirement Tested:
-        `agent_review_example_runner` creates '.agent.md' files when `runner JSONL` attestations are stale.
+        `agent_review_example_runner` creates '.agent.md' files when `scorecard attestation ledger` records are stale.
         Specialized usage: When one attestation contains an outdated source hash, `agent_review_example_runner` creates one '.agent.md' file.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Harness applies mock.patch to provide an isolated artifact directory and stale proof path.
-        1. Harness initializes an isolated proof file from committed `runner JSONL`.
+        Harness applies mock.patch to provide an isolated artifact directory and an isolated `scorecard attestation ledger` path.
+        1. Harness initializes an isolated `scorecard attestation ledger` from the committed `scorecard attestation ledger`.
         2. Harness substitutes one source hash with a stale value.
         3. Runner evaluates the complete `YAML fixture catalog`.
         4. Artifact directory contains one '.agent.md' file.
