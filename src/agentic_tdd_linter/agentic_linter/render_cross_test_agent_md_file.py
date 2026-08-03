@@ -16,10 +16,9 @@ from ..indexing_test_functions.extract_tests_from_file import extract_tests_from
 _TEMPLATE_PATH = "agentic_linter/test_relationship_review.agent.md.j2"
 _DEFAULT_ARTIFACT_ROOT = Path("tests") / "agentic_review_artifacts"
 _ARTIFACT_NAME = "cross_test_review.agent.md"
-_SCORECARD_HEADING = "\n## Review Scorecard\n"
 _PAIR_CLASSIFICATION_ROW_PATTERN = re.compile(
     r"^(\|\s*`[^`]+`\s*\|\s*`[^`]+`\s*\|)\s*"
-    r"(?:pending|yes|no)\s*\|[^|]*\|$",
+    r"(?:pending|yes|no)\s*\|[^|]*\|[^|]*\|$",
     re.MULTILINE,
 )
 
@@ -118,10 +117,9 @@ def _render_test_relationship_docstrings_agent_md(
 def _relationship_review_input_scope(text: str) -> str:
     """Return criteria and docstrings without editable review results."""
 
-    scope = text.partition(_SCORECARD_HEADING)[0]
     return _PAIR_CLASSIFICATION_ROW_PATTERN.sub(
-        r"\1 pending | Replace with overlap evidence. |",
-        scope,
+        r"\1 pending | pending | Replace with classification evidence. |",
+        text,
     )
 
 
