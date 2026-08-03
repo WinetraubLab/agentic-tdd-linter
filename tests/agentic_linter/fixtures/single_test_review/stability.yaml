@@ -526,10 +526,11 @@ stability_006_loads_python_tests:
 stability_007_unsupported_fields_head:
   file_docstring: |
     """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
-    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable `agent-review YAML examples`.
 
     Terms:
     - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
+    - `agent-review YAML examples`: Agent-review YAML examples are repository cases evaluated by the review runner. For example, each case supplies test documentation and expected scorecard results.
     """
   test: |
     def test_rejects_unsupported_fields(self) -> None:
@@ -537,7 +538,7 @@ stability_007_unsupported_fields_head:
 
         Requirement Tested:
         `test_agent_review_yaml_fixture_contract` emits an unsupported-field error when any field is outside `supported fields`.
-        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+        Specialized usage: One of the `agent-review YAML examples` contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
 
         Verification Method: verify public function output
 
