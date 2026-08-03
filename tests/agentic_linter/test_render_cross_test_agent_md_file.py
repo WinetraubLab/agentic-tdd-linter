@@ -72,7 +72,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         Harness supplies three test files containing one test each.
-        The packet contains exactly three `Replace with overlap evidence.` rows.
+        The packet contains exactly three `Replace with classification evidence.` rows.
         The packet contains the alpha-beta, alpha-gamma, and beta-gamma pairs.
         """
 
@@ -92,11 +92,11 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
             pair_section = artifact_text.partition(
                 "\n## Requirement Pair Classifications\n"
-            )[2].partition("\n## Review Scorecard\n")[0]
+            )[2]
 
         self.assertEqual(
             3,
-            pair_section.count("Replace with overlap evidence."),
+            pair_section.count("Replace with classification evidence."),
         )
         self.assertIn(
             "| `tests/test_alpha.py::test_example` | "
@@ -125,7 +125,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         Harness renders a packet for two test files.
-        Harness replaces the pending pair classification with yes and review evidence.
+        Harness replaces the pending pair classification with yes, Module Difference, and review evidence.
         `cross_test_agent_md_file_is_stale` returns false.
         """
 
@@ -143,8 +143,11 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
             artifact = render_cross_test_agent_md_file(test_files, root)
             completed_text = artifact.read_text(encoding="utf-8").replace(
-                "| pending | Replace with overlap evidence. |",
-                "| yes | Both requirements use the same formulation. |",
+                "| pending | pending | Replace with classification evidence. |",
+                (
+                    "| yes | Module Difference | Both requirements use the "
+                    "same formulation for different modules. |"
+                ),
             )
             artifact.write_text(completed_text, encoding="utf-8")
 
@@ -230,7 +233,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every criterion and every listed test in one `cross-test packet`.
+        `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every pair classification in one `cross-test packet`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
