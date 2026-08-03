@@ -191,6 +191,7 @@ For example, fail `The output contains errors.`; prefer `The parser output conta
 #### 44. File Docstring Uses One Label per Referent
 Within `File Docstring`, glossary labels and explicitly defined backticked labels shall use one canonical label for each underlying referent.
 Fail when peer labels name the same referent. A state, lifecycle stage, role, environment, representation, or test-control condition does not by itself create a different referent.
+Peer labels for different referents shall also be readily distinguishable. Fail labels that differ only by a visually subtle character or suffix when their similarity makes the referents ambiguous.
 Do not compare the declared module name with a glossary label that describes the module's role. Do not treat responsibility wording, definitions' descriptive prose, or examples as additional labels.
 For each conflict, identify the single label to retain.
 
