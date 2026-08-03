@@ -2242,7 +2242,6 @@ stability_024_enforces_public_function:
     - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
     - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
     - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
-    - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
     """
   test: |
     def test_enforces_public_function_limit(self) -> None:
@@ -2336,7 +2335,6 @@ stability_025_enforces_public_function:
     - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
     - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
     - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
-    - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
     """
   test: |
     def test_enforces_public_function_limit(self) -> None:
