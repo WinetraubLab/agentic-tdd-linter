@@ -27,14 +27,14 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` creates `cross-test packet` containing every unique selected path exactly once.
-        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` emits the duplicated path once.
+        `render_cross_test_agent_md_file` creates `cross-test packet` containing one docstring entry for every unique selected path.
+        Specialized usage: Selected paths contain one duplicate path instead of only unique paths, so `render_cross_test_agent_md_file` emits one docstring entry for the duplicated path.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `cross-test packet` contains path `tests/test_alpha.py` once.
-        `cross-test packet` contains path `tests/test_beta.py` once.
+        The packet's `## Test Docstrings` section contains path `tests/test_alpha.py` once.
+        The packet's `## Test Docstrings` section contains path `tests/test_beta.py` once.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -51,6 +51,12 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
                 root,
             )
             artifact_text = artifact.read_text(encoding="utf-8")
+            docstring_section = artifact_text.partition(
+                "\n## Test Docstrings\n"
+            )[2]
+            docstring_section = docstring_section.partition(
+                "\n## Requirement Pair Classifications\n"
+            )[0]
 
         self.assertEqual(1, docstring_section.count("tests/test_alpha.py"))
         self.assertEqual(1, docstring_section.count("tests/test_beta.py"))
@@ -150,17 +156,36 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` constrains `cross-test packet` context to the packet and listed files.
+        `render_cross_test_agent_md_file` constrains `cross-test packet` context to the packet and listed test docstrings.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file contains `Review context is limited to this packet and the listed test files.`
+        Cross-test file contains `Review context is limited to this packet and the listed test docstrings.`
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_includes_review_isolation_instructions`
-          Justification: Comparable coverage — The lower test constrains single-test review context. The current test applies the same isolation policy to cross-test review context.
+          Justification: Deeper coverage — The lower test explicitly prohibits inspecting repository files, manifests, and outer unit tests. The current test limits cross-test review to its packet and listed test docstrings.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "Review context is limited to this packet and the listed test docstrings.",
+            artifact_text,
+        )
+
     def test_embeds_docstrings_without_test_implementation(self) -> None:
         """Test Path: happy path
 
@@ -276,7 +301,20 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "Review context is limited to this packet and the listed test files.",
+            "Requirements with the same wording applied to different named "
+            "modules or contract subjects still have overlap and shall be "
+            "classified `yes`.",
+            artifact_text,
+        )
+        self.assertIn(
+            "This is a description-level classification, not a conclusion that "
+            "the tests verify the same behavioral contract.",
+            artifact_text,
+        )
+        self.assertIn(
+            "A cross-level pair exists only when both docstrings declare materially "
+            "overlapping behavior, conditions, and outcomes in `Requirement Tested` "
+            "and `Verification Detail`.",
             artifact_text,
         )
 
