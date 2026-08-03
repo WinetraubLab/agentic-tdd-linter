@@ -392,8 +392,10 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Packet contains ``Higher Level Test: `<file.py>::<test_name>```.
-        Packet contains ``Lower Level Test: `<file.py>::<test_name>```.
+        Packet contains ``Happy/Failure Path Difference: `<file.py>::<test_name>```.
+        Packet contains ``Scenario Difference: `<file.py>::<test_name>```.
+        Packet contains ``Module Difference: `<file.py>::<test_name>```.
+        Packet contains `Explanation: <specific difference between the two tests>`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -408,9 +410,22 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact = render_cross_test_agent_md_file([test_file], root)
             artifact_text = artifact.read_text(encoding="utf-8")
 
-        self.assertIn("Higher Level Test: `<file.py>::<test_name>`", artifact_text)
-        self.assertIn("Lower Level Test: `<file.py>::<test_name>`", artifact_text)
-
+        self.assertIn(
+            "Happy/Failure Path Difference: `<file.py>::<test_name>`",
+            artifact_text,
+        )
+        self.assertIn(
+            "Scenario Difference: `<file.py>::<test_name>`",
+            artifact_text,
+        )
+        self.assertIn(
+            "Module Difference: `<file.py>::<test_name>`",
+            artifact_text,
+        )
+        self.assertIn(
+            "Explanation: <specific difference between the two tests>",
+            artifact_text,
+        )
 
 if __name__ == "__main__":
     unittest.main()
