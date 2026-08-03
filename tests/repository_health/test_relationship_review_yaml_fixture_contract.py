@@ -8,14 +8,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tests.agentic_linter.test_harness.test_relationship_review_yaml_fixture_contract import (
+from tests.agentic_linter.test_harness.relationship_review_yaml_fixture_contract import (
     EXAMPLES,
     lint_test_relationship_review_examples,
 )
 
 
 class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
-    def test_rejects_case_name_outside_filename_number_sequence(self) -> None:
+    def test_rejects_invalid_case_sequence(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -30,7 +30,7 @@ class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
 
         source_path = EXAMPLES / "similar_coverage.yaml"
         invalid_source = source_path.read_text(encoding="utf-8").replace(
-            "similar_coverage_001_reciprocal_similar_coverage:",
+            "similar_coverage_001_happy_failure_difference:",
             "descriptive_name:",
             1,
         )
