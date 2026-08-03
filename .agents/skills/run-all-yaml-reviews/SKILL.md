@@ -40,15 +40,10 @@ catalogs in one run unless the user explicitly asks for both.
 
 Work from the repository root. Preserve YAML fixtures, criteria, source files, and unrelated changes.
 
-For **single-test** review:
+Remove the selected review type's previous artifacts:
 
-- Remove every `.agent.md` file under `temporary_fixtures/agent_review_examples/agentic_review_artifacts/`.
-- Remove `tests/agentic_linter/test_agent_review_example_runner.jsonl` so committed attestations cannot satisfy this fresh run.
-
-For **test-relationship** review:
-
-- Remove every `.agent.md` file under `temporary_fixtures/test_relationship_review_examples/agentic_review_artifacts/`.
-- Preserve the test-relationship YAML fixtures. They contain only test identifiers, docstrings, and expected relationship scorecards; test implementations are intentionally absent.
+- **Single-test:** Every `.agent.md` under `temporary_fixtures/agent_review_examples/agentic_review_artifacts/` and `tests/agentic_linter/test_agent_review_example_runner.jsonl`.
+- **Test-relationship:** Every `.agent.md` under `temporary_fixtures/test_relationship_review_examples/agentic_review_artifacts/` and `tests/agentic_linter/test_relationship_review_example_runner.jsonl`.
 
 ## Step 2: Generate all YAML reviews
 
