@@ -2033,11 +2033,8 @@ stability_022_anonymous_agent_review:
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
 
     Terms:
-    - `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
     - `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
     - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
-    - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
-    - `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
     """
   test: |
     def test_anonymous_agent_review_examples(self) -> None:
@@ -2055,22 +2052,6 @@ stability_022_anonymous_agent_review:
         The isolated artifact directory contains no .agent.md files.
         Committed `runner JSONL` corresponds to every current YAML source and expected scorecard.
         `agent_review_example_runner` evaluates the `YAML fixture catalog` as repository data rather than accepting case-specific synthetic values from this orchestration test.
-
-        Similar Coverage:
-        - Lower Level Test: `test_agent_review_yaml_fixture_contract.py::test_result_requires_explanation`
-          Justification: Diagnostic completeness — The lower test isolates missing failure-explanation validation. The current test runs the complete YAML fixture catalog.
-        - Lower Level Test: `test_agent_review_yaml_fixture_contract.py::test_rejects_unsupported_fields`
-          Justification: Diagnostic completeness — The lower test isolates unsupported-field validation. The current test runs the complete YAML fixture catalog.
-        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_message_recommends_calibration_skill`
-          Justification: Diagnostic completeness — The lower test isolates calibration guidance for mismatches. The current test runs the complete YAML scorecard comparison workflow.
-        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_message_includes_case_evidence`
-          Justification: Diagnostic completeness — The lower test isolates case-level mismatch evidence. The current test runs the complete YAML scorecard comparison workflow.
-        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_aggregates_criterion_cases`
-          Justification: Diagnostic completeness — The lower test isolates per-criterion mismatch aggregation. The current test runs the complete YAML scorecard comparison workflow.
-        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_aggregates_total_rate`
-          Justification: Diagnostic completeness — The lower test isolates aggregate pass-rate calculation. The current test runs the complete YAML scorecard comparison workflow.
-        - Lower Level Test: `test_agent_review_examples.py::test_mismatch_lists_criterion_cases`
-          Justification: Diagnostic completeness — The lower test isolates criterion-specific case listings. The current test runs the complete YAML scorecard comparison workflow.
         """
 
         examples_relative_path = Path(
