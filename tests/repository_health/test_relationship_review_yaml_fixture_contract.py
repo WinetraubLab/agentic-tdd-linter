@@ -1,5 +1,6 @@
 """Tests in this file validate `test_relationship_review_yaml_fixture_contract` located at `tests/repository_health/test_relationship_review_yaml_fixture_contract.py`.
 `test_relationship_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable test-relationship YAML examples.
+
 """
 
 from __future__ import annotations
@@ -20,12 +21,12 @@ class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
 
         Requirement Tested:
         `test_relationship_review_yaml_fixture_contract` requires every relationship YAML case name to combine its filename stem with its three-digit sequence number and permits an optional three-word note.
-        Specialized usage: The first case in similar_coverage.yaml uses a descriptive name instead of `similar_coverage_001`, so schema validation emits the case-name diagnostic.
+        Specialized usage: The first case in similar_coverage.yaml uses a descriptive name instead of the filename-number format, so schema validation emits the case-name diagnostic.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `lint_test_relationship_review_examples` output requires the name `similar_coverage_001`.
+        `lint_test_relationship_review_examples` output requires the pattern `similar_coverage_<three_digit_number>`.
         """
 
         source_path = EXAMPLES / "similar_coverage.yaml"
@@ -43,7 +44,10 @@ class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
             )
 
         self.assertTrue(
-            any("must be named `similar_coverage_001`" in error for error in errors)
+            any(
+                "must be named `similar_coverage_<three_digit_number>`" in error
+                for error in errors
+            )
         )
 
 

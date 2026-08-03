@@ -49,7 +49,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves Python discovery, extraction, and complete packet content.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 26 pending rows. The current test proves Python discovery, extraction, and complete packet content.
         - Lower Level Test: `test_main.py::test_test_root_reports_generated_packet`
           Justification: Deeper coverage — The lower test proves packet-count reporting for a nondefault test root. The current test proves complete Python packet loading.
         - Lower Level Test: `test_multiple_tests_in_one_file.py::test_python_multiple_tests_pass`
@@ -151,7 +151,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves TypeScript discovery, single-test source content, and cross-test docstring content.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 26 pending rows. The current test proves TypeScript discovery, single-test source content, and cross-test docstring content.
         - Lower Level Test: `test_multiple_tests_in_one_file.py::test_typescript_multiple_tests_pass`
           Justification: Deeper coverage — The lower test isolates conventional validation for multiple TypeScript tests in one file. The current test loads TypeScript tests through complete packet generation.
         - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`

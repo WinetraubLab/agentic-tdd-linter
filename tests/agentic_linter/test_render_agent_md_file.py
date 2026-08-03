@@ -191,7 +191,7 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 25 pending scorecard rows.
+        `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -199,13 +199,13 @@ class AgenticMarkdownTests(unittest.TestCase):
         Verification Detail:
         Filesystem contains `render_agent_md_file` output path.
         File contains the test source supplied to `render_agent_md_file` exactly once.
-        File contains 25 pending rows.
+        File contains 26 pending rows.
 
         Similar Coverage:
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_scenario`
-          Justification: Deeper coverage — The current test proves that one renderer output has exactly 25 pending rows. Higher test proves fresh regeneration of both '.agent.md' file types.
+          Justification: Deeper coverage — The current test proves that one renderer output has exactly 26 pending rows. Higher test proves fresh regeneration of both '.agent.md' file types.
         - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test proves that one renderer output has exactly 25 pending rows. Higher test proves selective pending regeneration after source edits.
+          Justification: Deeper coverage — The current test proves that one renderer output has exactly 26 pending rows. Higher test proves selective pending regeneration after source edits.
         - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
           Justification: Deeper coverage — The current test directly verifies pending scorecard initialization. `test_load_all_formats.py::test_loads_python_tests` verifies Python extraction and complete file content.
         - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
@@ -231,7 +231,7 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         self.assertTrue(artifact_exists)
         self.assertEqual(1, artifact_text.count(source))
-        self.assertEqual(25, artifact_text.count("| pending |"))
+        self.assertEqual(26, artifact_text.count("| pending |"))
 
 if __name__ == "__main__":
     unittest.main()
