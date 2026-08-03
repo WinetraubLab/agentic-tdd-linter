@@ -5,15 +5,23 @@ from __future__ import annotations
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
+import re
 from typing import Sequence
 
 from jinja2 import Environment, StrictUndefined, Template
 
+from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
 
-_TEMPLATE_PATH = "agentic_linter/cross_test_review.agent.md.j2"
+
+_TEMPLATE_PATH = "agentic_linter/test_relationship_review.agent.md.j2"
 _DEFAULT_ARTIFACT_ROOT = Path("tests") / "agentic_review_artifacts"
 _ARTIFACT_NAME = "cross_test_review.agent.md"
 _SCORECARD_HEADING = "\n## Review Scorecard\n"
+_PAIR_CLASSIFICATION_ROW_PATTERN = re.compile(
+    r"^(\|\s*`[^`]+`\s*\|\s*`[^`]+`\s*\|)\s*"
+    r"(?:pending|yes|no)\s*\|[^|]*\|$",
+    re.MULTILINE,
+)
 
 
 def render_cross_test_agent_md_file(
@@ -45,7 +53,7 @@ def cross_test_agent_md_file_is_stale(
     repo_root: Path,
     artifact_root: Path | None = None,
 ) -> bool:
-    """Return whether embedded criteria or test sources differ from current input."""
+    """Return whether embedded criteria or test docstrings differ from current input."""
 
     root = Path(repo_root).resolve()
     review_root = Path(artifact_root) if artifact_root is not None else _DEFAULT_ARTIFACT_ROOT
@@ -54,12 +62,12 @@ def cross_test_agent_md_file_is_stale(
     artifact_path = review_root / _ARTIFACT_NAME
     if not artifact_path.exists():
         return True
-    current_scope = artifact_path.read_text(encoding="utf-8").partition(
-        _SCORECARD_HEADING
-    )[0]
-    expected_scope = _render_cross_test_agent_md(test_file_paths, root).partition(
-        _SCORECARD_HEADING
-    )[0]
+    current_scope = _relationship_review_input_scope(
+        artifact_path.read_text(encoding="utf-8")
+    )
+    expected_scope = _relationship_review_input_scope(
+        _render_cross_test_agent_md(test_file_paths, root)
+    )
     return current_scope != expected_scope
 
 
@@ -68,14 +76,53 @@ def _render_cross_test_agent_md(
     repo_root: Path,
 ) -> str:
     scope = _build_cross_test_review_scope(test_file_paths, repo_root)
-    test_files = [
-        {
-            "path": relative_path,
-            "source": (repo_root / relative_path).read_text(encoding="utf-8"),
-        }
+    test_docstrings = [
+        (
+            f"{test.path.as_posix()}::{test.name}",
+            test.docstring or "<missing test docstring>",
+        )
         for relative_path in scope
+        for test in extract_tests_from_file(repo_root / relative_path, repo_root)
     ]
-    return _cross_test_review_template().render(test_files=test_files).rstrip() + "\n"
+    return _render_test_relationship_docstrings_agent_md(test_docstrings)
+
+
+def _render_test_relationship_docstrings_agent_md(
+    test_docstrings: Sequence[tuple[str, str]],
+) -> str:
+    """Render one test-relationship packet containing identifiers and docstrings."""
+
+    tests = [
+        {
+            "identifier": identifier,
+            "docstring": docstring,
+        }
+        for identifier, docstring in test_docstrings
+    ]
+    test_pairs = [
+        {
+            "first_identifier": first["identifier"],
+            "second_identifier": second["identifier"],
+        }
+        for index, first in enumerate(tests)
+        for second in tests[index + 1 :]
+    ]
+    return (
+        _test_relationship_review_template()
+        .render(tests=tests, test_pairs=test_pairs)
+        .rstrip()
+        + "\n"
+    )
+
+
+def _relationship_review_input_scope(text: str) -> str:
+    """Return criteria and docstrings without editable review results."""
+
+    scope = text.partition(_SCORECARD_HEADING)[0]
+    return _PAIR_CLASSIFICATION_ROW_PATTERN.sub(
+        r"\1 pending | Replace with overlap evidence. |",
+        scope,
+    )
 
 
 def _build_cross_test_review_scope(
@@ -110,7 +157,7 @@ def _build_cross_test_review_scope(
 
 
 @lru_cache(maxsize=1)
-def _cross_test_review_template() -> Template:
+def _test_relationship_review_template() -> Template:
     template_source = files("agentic_tdd_linter").joinpath(_TEMPLATE_PATH).read_text(
         encoding="utf-8"
     )
