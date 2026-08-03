@@ -322,13 +322,14 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` requires `relationship fields` to provide a coverage classification and a specific coverage-difference explanation.
+        `render_cross_test_agent_md_file` requires every test in each cross-level pair to justify the relationship in its `Similar Coverage` section.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file contains `Justification: <classification> — <specific coverage difference>`.
+        Cross-test file contains the instruction that every cross-level-pair test shall justify its relationship.
+        The instruction encloses `Similar Coverage` in inline-code delimiters.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -344,7 +345,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn(
-            "Justification: <classification> — <specific coverage difference>",
+            "Every test in a cross-level pair shall justify the relationship "
+            "in `Similar Coverage`",
             artifact_text,
         )
 
