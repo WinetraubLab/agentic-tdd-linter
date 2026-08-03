@@ -27,6 +27,10 @@ class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         `lint_test_relationship_review_examples` output contains a diagnostic requiring the pattern `similar_coverage_<three_digit_number>`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_agent_review_yaml_fixture_contract.py::test_rejects_invalid_case_name`
+          Explanation: The current test verifies `test_relationship_review_yaml_fixture_contract` requires every relationship YAML case name to begin with its filename stem, an underscore, and a three-digit number. The named test verifies `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with a three-digit number and permits an optional three-word note; both use failure path, but exercise materially different scenarios.
         """
 
         source_path = EXAMPLES / "similar_coverage.yaml"
