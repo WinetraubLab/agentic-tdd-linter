@@ -369,8 +369,8 @@ file_docstring_007_similar_artifact_names:
 
         self.assertEqual(1, len(reported_packets))
   expected_scorecard:
-    46: # Terms Reuse Shared Vocabulary
-      fail # `runner JSON` and `runner JSONL` are too similar.
+    44: # File Docstring Uses One Label per Referent
+      fail # `runner JSON` and `runner JSONL` differ by only one subtle suffix character and are not readily distinguishable.
 
 file_docstring_008_changed_canonical_phrase:
   file_docstring: |
@@ -438,6 +438,8 @@ file_docstring_008_changed_canonical_phrase:
         ]
         self.assertTrue(matching_errors)
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `One YAML example` omits the `agent-review` modifier and changes the established plural phrase `agent-review YAML examples` to singular.
 
@@ -473,5 +475,7 @@ file_docstring_009_readme_name_shorthand:
             self.assertIn("### Pre-commit review workflow", readme)
             self.assertIn("### CI/CD validation workflow", readme)
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `README` and `README contents` rename the canonical file name README.md instead of reproducing it verbatim.
