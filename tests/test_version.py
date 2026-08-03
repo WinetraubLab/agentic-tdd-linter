@@ -27,7 +27,6 @@ class VersionTests(unittest.TestCase):
 
         Verification Detail:
         Package metadata declares `project.version` equal to `__version__`.
-
         """
 
         repo_root = Path(__file__).resolve().parents[1]
