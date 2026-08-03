@@ -33,8 +33,8 @@ file_docstring_001_interchangeable_file_terms:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Source-to-implementation identification belongs to module mapping.
-    46: # Terms Reuse Shared Vocabulary
-      fail # Implementation module duplicates source module, so the requirement should reuse source module.
+    44: # File Docstring Uses One Label per Referent
+      fail # `implementation module` duplicates `source module` as a label for the same Python file.
 
 file_docstring_002_unused_duplicate_file:
   file_docstring: |
@@ -78,8 +78,8 @@ file_docstring_002_unused_duplicate_file:
 
         self.assertEqual([], discovered)
   expected_scorecard:
-    46: # Terms Reuse Shared Vocabulary
-      fail # `discovered file` and `candidate file` duplicate the same test-discovery concept, so the glossary should keep one term.
+    44: # File Docstring Uses One Label per Referent
+      fail # `candidate file` and `discovered file` name lifecycle stages of the same test file.
 
 file_docstring_003_alternate_spelling_of:
   file_docstring: |
@@ -121,6 +121,8 @@ file_docstring_003_alternate_spelling_of:
 
         self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `glossary limits` duplicates the established `glossary limit` term instead of reusing the same term.
 
@@ -169,6 +171,8 @@ file_docstring_004_alternate_spelling_of:
 
         self.assertIn("invalid_requirement_format", rules)
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `conventional linter` duplicates the established `conventional_linter` term with different spelling.
 
@@ -214,6 +218,8 @@ file_docstring_005_alternate_artifact_name:
             artifact_text,
         )
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `Cross-test file` renames the established `cross-test packet` according to its physical representation.
 
@@ -274,6 +280,8 @@ file_docstring_006_alternate_context_name:
             controlled_violations,
         )
   expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       fail # `controlled module` renames the established `source module` according to its test context.
 
