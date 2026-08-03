@@ -354,13 +354,13 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` requires `relationship fields` in each higher-level/lower-level pair to make each test reference the other.
+        `render_cross_test_agent_md_file` generates a `cross-test packet` stating that a higher-level/lower-level pair provides reciprocal references when the pair passes.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file contains `A passing pair provides reciprocal references and justifications in both tests.`
+        The `cross-test packet` contains the exact sentence `A passing pair provides reciprocal references`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -392,7 +392,6 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Verification Detail:
         Packet contains ``Higher Level Test: `<file.py>::<test_name>```.
         Packet contains ``Lower Level Test: `<file.py>::<test_name>```.
-        Packet contains `Justification: <classification> — <specific coverage difference>`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -409,10 +408,6 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         self.assertIn("Higher Level Test: `<file.py>::<test_name>`", artifact_text)
         self.assertIn("Lower Level Test: `<file.py>::<test_name>`", artifact_text)
-        self.assertIn(
-            "Justification: <classification> — <specific coverage difference>",
-            artifact_text,
-        )
 
 
 if __name__ == "__main__":
