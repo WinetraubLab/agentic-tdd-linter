@@ -58,8 +58,12 @@ class AgentReviewManifestTests(unittest.TestCase):
         The surviving record equals the original record.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test isolates manifest preservation after adding a function. The higher test verifies selective packet regeneration after caller modifies one existing function.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -105,6 +109,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Verification Detail:
         README.md edit produces a new digest.
         docs/workflow.md edit produces a new digest.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md. The named test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`; the current test is happy path, while the named test is failure path.
         """
 
         for relative_path in (Path("README.md"), Path("docs/workflow.md")):
@@ -135,8 +143,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Issue list contains `stale_review_contract_attestation`.
 
         Similar Coverage:
-        - Higher Level Test: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
-          Justification: Deeper coverage — The current test isolates stale review-contract metadata. The higher test exercises outdated linter-version rejection through CI lint.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_review_contract_changes_with_documentation`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -168,8 +178,12 @@ class AgentReviewManifestTests(unittest.TestCase):
         Manifest contains no records.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_scenario`
-          Justification: Deeper coverage — The current test removes manifest proof for a deleted test file. The higher test rebuilds the complete `.agent.md` set through the CLI refresh workflow.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -205,8 +219,14 @@ class AgentReviewManifestTests(unittest.TestCase):
         Manifest records exclude `test_subtracts_values`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test isolates manifest cleanup after function deletion. The higher test proves selective packet regeneration after an approved test is edited.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -269,8 +289,16 @@ class AgentReviewManifestTests(unittest.TestCase):
         Retained source SHA256 equals the current `test_adds_values` content SHA256.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves orphan cleanup preserves current `manifest proof`. The higher test proves the complete CLI review lifecycle.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `CI/CD linter` accepts current manifest proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -353,10 +381,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Filesystem contains no manifest file.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves pending scorecards leave manifest proof absent. The higher test proves completed scorecards create proof through the full workflow.
-        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pending_status`
-          Justification: Deeper coverage — The lower test isolates pending-status derivation. The current test applies pending status to manifest-recording policy.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
