@@ -22,7 +22,7 @@ from agentic_tdd_linter.agentic_linter.render_agent_md_file import (
 from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
     extract_tests_from_file,
 )
-from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import (
+from tests.agentic_linter.test_harness.single_test_review_yaml_fixture_contract import (
     agent_review_example_files,
     criterion_titles_from_template,
     lint_agent_review_examples,
@@ -141,6 +141,7 @@ def run_agent_review_examples(
                         test,
                         REPO_ROOT,
                         ARTIFACT_ROOT,
+                        score_only=True,
                     )
                 artifact_text = artifact_path.read_text(encoding="utf-8")
                 if determine_agent_md_status(artifact_text) == "pending":
