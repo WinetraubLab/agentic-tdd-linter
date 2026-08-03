@@ -159,6 +159,46 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_includes_review_isolation_instructions`
           Justification: Comparable coverage — The lower test constrains single-test review context. The current test applies the same isolation policy to cross-test review context.
+    def test_embeds_docstrings_without_test_implementation(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` creates `cross-test packet` containing each test identifier and docstring without its implementation.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The packet contains `tests/test_alpha.py::test_example`.
+        The packet contains `Requirement Tested:` from the test docstring.
+        The packet excludes the implementation marker `implementation is absent`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                'def test_example() -> None:\n'
+                '    """Test Path: happy path\n\n'
+                '    Requirement Tested:\n'
+                '    The example returns a value.\n'
+                '    Standard usage: The scenario demonstrates baseline behavior.\n\n'
+                '    Verification Method: verify public function output\n\n'
+                '    Verification Detail:\n'
+                '    The returned value is present.\n'
+                '    """\n\n'
+                '    assert "implementation is absent"\n',
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn("tests/test_alpha.py::test_example", artifact_text)
+        self.assertIn("Requirement Tested:", artifact_text)
+        self.assertNotIn("implementation is absent", artifact_text)
+
         """
 
         with tempfile.TemporaryDirectory() as directory:
