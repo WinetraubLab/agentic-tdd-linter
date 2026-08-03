@@ -313,14 +313,14 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` prohibits test names when they exceed five words.
+        `conventional_linter` prohibits test names longer than five words in every supported language.
         Specialized usage: For Python naming, a test name exceeds five words instead of staying within five, so `conventional_linter` emits test_name_too_long.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Conventional linter enforces a five-word limit.
-        When names contain seven words, _lint_docstring_source contains `test_name_too_long`.
+        The synthetic Python test name contains seven words.
+        `_lint_docstring_source` output contains `test_name_too_long`.
         """
 
         rules = _lint_docstring_source(
