@@ -31,7 +31,12 @@ class AgentReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
+        Mocking redirects runner output paths to the temporary artifact directory.
         Every case has one extracted test, source digest, pass/fail expectations, and packet path.
+
+        Similar Coverage:
+        - Module Difference: `test_relationship_review_example_runner.py::test_builds_relationship_review_cases`
+          Explanation: The current test verifies `agent_review_example_runner` converts the `YAML fixture catalog` into `single-test review case` records for the shared runner. The named test verifies `relationship_review_example_runner` converts the `relationship YAML catalog` into `relationship review case` records for the shared runner; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         examples_path = (
