@@ -26,7 +26,7 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers.
-        Specialized usage: For private-function output, test invokes helper instead of private function, so conventional linter emits private_verification_missing_private_call.
+        Specialized usage: For private-function output, the test invokes a helper instead of a private function, so `conventional_linter` emits private_verification_missing_private_call.
 
         Verification Method: verify private function output
 
