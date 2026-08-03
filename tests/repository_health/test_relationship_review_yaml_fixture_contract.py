@@ -20,13 +20,13 @@ class RelationshipReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `test_relationship_review_yaml_fixture_contract` requires every relationship YAML case name to combine its filename stem with its three-digit sequence number and permits an optional three-word note.
-        Specialized usage: The first case in similar_coverage.yaml uses a descriptive name instead of the filename-number format, so schema validation emits the case-name diagnostic.
+        `test_relationship_review_yaml_fixture_contract` requires every relationship YAML case name to begin with its filename stem, an underscore, and a three-digit number.
+        Specialized usage: When similar_coverage.yaml contains a case name without the required filename-number prefix, `test_relationship_review_yaml_fixture_contract` emits the case-name diagnostic.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `lint_test_relationship_review_examples` output requires the pattern `similar_coverage_<three_digit_number>`.
+        `lint_test_relationship_review_examples` output contains a diagnostic requiring the pattern `similar_coverage_<three_digit_number>`.
         """
 
         source_path = EXAMPLES / "similar_coverage.yaml"
