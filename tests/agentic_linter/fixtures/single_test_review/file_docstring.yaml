@@ -363,3 +363,107 @@ file_docstring_007_similar_artifact_names:
   expected_scorecard:
     46: # Terms Reuse Shared Vocabulary
       fail # `runner JSON` and `runner JSONL` are too similar.
+
+file_docstring_008_changed_canonical_phrase:
+  file_docstring: |
+    """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+
+    Terms:
+    - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
+    """
+  test: |
+    def test_rejects_unsupported_fields(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
+        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation errors contain "unsupported field `owner`".
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates unsupported-field validation. The higher test runs the complete YAML fixture catalog.
+        """
+
+        invalid_source = textwrap.dedent(
+            '''
+            # Test-source examples for agent review.
+            # Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+            # Criteria omitted from `expected_scorecard` are ignored during comparison.
+            # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+            # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+            unsupported_owner:
+              owner: parser
+              test: |
+                def test_example() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Addition calculates sums.
+                    When operands contain integers, addition calculates sums.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The expression produces `2`.
+                    """
+
+                    assert 1 + 1 == 2
+              expected_scorecard:
+                11: # First Line States a General Behavioral Rule
+                  pass # The requirement states the calculation behavior.
+            '''
+        ).lstrip()
+        with tempfile.TemporaryDirectory() as directory:
+            example_file = Path(directory) / "invalid.yaml"
+            example_file.write_text(invalid_source, encoding="utf-8")
+            errors = lint_agent_review_examples(examples_path=example_file)
+
+        matching_errors = [
+            error for error in errors if "unsupported field `owner`" in error
+        ]
+        self.assertTrue(matching_errors)
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `One YAML example` omits the `agent-review` modifier and changes the established plural phrase `agent-review YAML examples` to singular.
+
+file_docstring_009_readme_shorthand:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_readme_names_both_workflows(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README contents contain `### Pre-commit review workflow`.
+            README contents contain `### CI/CD validation workflow`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+            self.assertIn("### Pre-commit review workflow", readme)
+            self.assertIn("### CI/CD validation workflow", readme)
+  expected_scorecard:
+    46: # Terms Reuse Shared Vocabulary
+      fail # `README` and `README contents` rename the canonical file name README.md instead of reproducing it verbatim.

@@ -778,9 +778,10 @@ stability_007_unsupported_fields_head:
 stability_008_unsupported_fields_working:
   file_docstring: |
     """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
-    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for each maintainable `agent-review YAML example`.
 
     Terms:
+    - `agent-review YAML example`: An agent-review YAML example contains one test source and its expected scorecard. For example, unsupported_owner is an agent-review YAML example.
     - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
     """
   test: |
@@ -789,7 +790,7 @@ stability_008_unsupported_fields_working:
 
         Requirement Tested:
         `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
-        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+        Specialized usage: One `agent-review YAML example` contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
 
         Verification Method: verify public function output
 
@@ -908,14 +909,14 @@ stability_009_readme_workflows_working:
             """Test Path: happy path
 
             Requirement Tested:
-            `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            `test_review_documentation` requires README.md level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
             Standard usage: The scenario demonstrates baseline behavior.
 
             Verification Method: verify public function output
 
             Verification Detail:
-            README contents contain `### Pre-commit review workflow`.
-            README contents contain `### CI/CD validation workflow`.
+            README.md contains `### Pre-commit review workflow`.
+            README.md contains `### CI/CD validation workflow`.
             """
 
             repo_root = Path(__file__).resolve().parents[2]
