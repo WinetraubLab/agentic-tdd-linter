@@ -75,7 +75,7 @@ For **test-relationship** review, run:
 ```bash
 AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
   .venv/bin/python -m \
-  tests.agentic_linter.test_harness.test_relationship_review_example_runner
+  tests.agentic_linter.test_harness.relationship_review_example_runner
 ```
 
 The test-relationship invocation should also stop with pending packets. Each
