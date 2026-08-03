@@ -356,13 +356,13 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` generates a `cross-test packet` stating that a higher-level/lower-level pair provides reciprocal references when the pair passes.
+        `render_cross_test_agent_md_file` generates a `cross-test packet` stating that an overlapping pair provides reciprocal entries with the same difference classification.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The `cross-test packet` contains the exact sentence `A passing pair provides reciprocal references`.
+        The `cross-test packet` contains the exact sentence `A correctly documented pair provides reciprocal entries with the same classification.`
         """
 
         with tempfile.TemporaryDirectory() as directory:
