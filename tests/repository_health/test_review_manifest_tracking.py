@@ -27,6 +27,12 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.json`.
         `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_self_lint_record_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_proof_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -57,6 +63,12 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.jsonl`.
         `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_self_lint_record_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_report_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -87,6 +99,12 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         Verification Detail:
         Git index contains `tests/agentic_review_manifest.jsonl`.
         `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_proof_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_report_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
