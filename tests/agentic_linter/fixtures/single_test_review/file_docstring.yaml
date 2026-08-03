@@ -281,7 +281,7 @@ file_docstring_006_alternate_context_name:
         )
   expected_scorecard:
     44: # File Docstring Uses One Label per Referent
-      pass # File Docstring establishes only one label for each referent.
+      fail # `source module` and `data-only module` are too close to distinguish their referents clearly.
     46: # Terms Reuse Shared Vocabulary
       fail # `controlled module` renames the established `source module` according to its test context.
 
