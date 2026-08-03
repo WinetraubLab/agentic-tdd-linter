@@ -33,7 +33,6 @@ class SelfLintTests(unittest.TestCase):
         Verification Detail:
         Repository lint produces exit code `0`.
         Repository lint output contains `no issues found`.
-
         """
 
         repo_root = Path(__file__).resolve().parents[2]
