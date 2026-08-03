@@ -4,7 +4,7 @@
 Terms:
 - `.py`: This suffix identifies a Python test file. For example, `test_parser.py` contains Python tests discovered by the CLI.
 - `.test.ts`: This suffix identifies a TypeScript test file. For example, `parser.test.ts` contains TypeScript tests discovered by the CLI.
-- `packet set`: A packet set contains one single-test and one cross-test `.agent.md` file populated with a discovered test's documentation and source.
+- `packet set`: A packet set contains one single-test `.agent.md` file populated with a discovered test's documentation and source and one cross-test `.agent.md` file populated with test identifiers and docstrings.
 """
 
 from __future__ import annotations
