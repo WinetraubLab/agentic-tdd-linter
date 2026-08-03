@@ -27,20 +27,19 @@ TEMPLATE_PATH = (
 REQUIRED_FILE_DOCSTRING = "\n".join(
     (
         "# Test-relationship examples for agent review.",
-        "# Each example contains two test identifiers and docstrings, one expected pair classification, and expected scorecards.",
+        "# Each example contains two test identifiers and docstrings followed by one pair-level expected scorecard.",
         "# Test implementations are intentionally excluded because only docstring relationships are evaluated.",
-        "# Requirement-description overlap must be `yes` or `no` followed by an explanation comment.",
-        "# Criteria omitted from an expected scorecard are ignored during comparison.",
-        "# Criterion comments must match their titles in `test_relationship_review.agent.md.j2`.",
-        "# Each scorecard outcome must be `pass` or `fail` followed by an explanation comment.",
+        "# The expected scorecard contains requirement-description overlap set to `yes` or `no` with an explanation comment.",
+        "# An overlapping result requires one supported difference kind with an explanation comment.",
+        "# A non-overlapping result stops after requirement-description overlap and omits kind.",
     )
 )
 TEST_KEYS = ("test_1", "test_2")
-
-
-@dataclass(frozen=True)
-class ExpectedResult:
-    result: str
+DIFFERENCE_KINDS = (
+    "Happy/Failure Path Difference",
+    "Scenario Difference",
+    "Module Difference",
+)
 
 
 @dataclass(frozen=True)
@@ -48,7 +47,6 @@ class TestRelationshipDocstring:
     key: str
     identifier: str
     docstring: str
-    expected_scorecard: dict[int, ExpectedResult]
 
 
 @dataclass(frozen=True)
@@ -56,13 +54,13 @@ class TestRelationshipReviewExample:
     name: str
     tests: tuple[TestRelationshipDocstring, TestRelationshipDocstring]
     expected_requirement_overlap: str
+    expected_difference_kind: str | None
 
 
 def lint_test_relationship_review_examples(*, examples_path: Path) -> list[str]:
     """Return schema errors for every test-relationship example file."""
 
     errors: list[str] = []
-    criterion_titles = criterion_titles_from_template()
     try:
         files = relationship_review_example_files(Path(examples_path))
     except ValueError as error:
@@ -77,7 +75,7 @@ def lint_test_relationship_review_examples(*, examples_path: Path) -> list[str]:
         errors.extend(_example_spacing_errors(path, text))
         errors.extend(yaml_case_name_errors(path, text))
         try:
-            read_test_relationship_review_examples(path, criterion_titles)
+            read_test_relationship_review_examples(path)
         except ValueError as error:
             errors.append(str(error))
     return errors
@@ -89,27 +87,21 @@ def read_test_relationship_review_examples(
 ) -> list[TestRelationshipReviewExample]:
     """Parse validated test-relationship examples from one YAML fixture."""
 
-    criterion_titles = (
-        criterion_titles
-        if criterion_titles is not None
-        else criterion_titles_from_template()
-    )
+    del criterion_titles
     lines = path.read_text(encoding="utf-8").splitlines()
     examples: list[TestRelationshipReviewExample] = []
     example_name = ""
     section = ""
     current_test = ""
-    current_scorecard_test = ""
     identifiers: dict[str, str] = {}
     docstring_lines: dict[str, list[str]] = {}
     expected_requirement_overlap = ""
-    expected_scorecards: dict[str, dict[int, dict[str, str]]] = {}
-    criterion: int | None = None
+    expected_difference_kind: str | None = None
 
     def finish_example() -> None:
-        nonlocal example_name, section, current_test, current_scorecard_test
-        nonlocal identifiers, docstring_lines, expected_requirement_overlap
-        nonlocal expected_scorecards, criterion
+        nonlocal example_name, section, current_test
+        nonlocal identifiers, docstring_lines
+        nonlocal expected_requirement_overlap, expected_difference_kind
         if not example_name:
             return
         missing_tests = [key for key in TEST_KEYS if key not in identifiers]
@@ -121,34 +113,35 @@ def read_test_relationship_review_examples(
             raise ValueError(f"{path}: {example_name} test identifiers must be unique")
         if expected_requirement_overlap not in {"yes", "no"}:
             raise ValueError(
-                f"{path}: {example_name} expected_pair needs "
-                "requirement_description_overlap set to yes or no"
+                f"{path}: {example_name} expected_scorecards needs "
+                "requirement_description_overlap result set to yes or no"
+            )
+        if (
+            expected_requirement_overlap == "yes"
+            and expected_difference_kind not in DIFFERENCE_KINDS
+        ):
+            raise ValueError(
+                f"{path}: {example_name} overlapping expected_scorecards "
+                "needs one supported kind"
+            )
+        if (
+            expected_requirement_overlap == "no"
+            and expected_difference_kind is not None
+        ):
+            raise ValueError(
+                f"{path}: {example_name} non-overlapping expected_scorecards "
+                "must omit kind"
             )
         parsed_tests: list[TestRelationshipDocstring] = []
         for key in TEST_KEYS:
             docstring = "\n".join(docstring_lines.get(key, [])).rstrip() + "\n"
             if not docstring.strip():
                 raise ValueError(f"{path}: {example_name} {key} needs a docstring")
-            scorecard_values = expected_scorecards.get(key, {})
-            if not scorecard_values:
-                raise ValueError(
-                    f"{path}: {example_name} {key} needs an expected scorecard"
-                )
-            parsed_scorecard: dict[int, ExpectedResult] = {}
-            for number, values in scorecard_values.items():
-                result = values.get("result", "").lower()
-                if result not in {"pass", "fail"}:
-                    raise ValueError(
-                        f"{path}: {example_name} {key} criterion {number} "
-                        "needs pass or fail"
-                    )
-                parsed_scorecard[number] = ExpectedResult(result=result)
             parsed_tests.append(
                 TestRelationshipDocstring(
                     key=key,
                     identifier=identifiers[key],
                     docstring=docstring,
-                    expected_scorecard=parsed_scorecard,
                 )
             )
         examples.append(
@@ -156,17 +149,16 @@ def read_test_relationship_review_examples(
                 name=example_name,
                 tests=(parsed_tests[0], parsed_tests[1]),
                 expected_requirement_overlap=expected_requirement_overlap,
+                expected_difference_kind=expected_difference_kind,
             )
         )
         example_name = ""
         section = ""
         current_test = ""
-        current_scorecard_test = ""
         identifiers = {}
         docstring_lines = {}
         expected_requirement_overlap = ""
-        expected_scorecards = {}
-        criterion = None
+        expected_difference_kind = None
 
     for line_number, line in enumerate(lines, start=1):
         if not line:
@@ -183,72 +175,81 @@ def read_test_relationship_review_examples(
             raise ValueError(f"unsupported YAML at {path}:{line_number}")
         test_match = re.fullmatch(r"  (test_1|test_2):", line)
         if test_match:
-            if section in {
-                "expected_pair",
-                "pair_overlap",
-                "expected_scorecards",
-                "scorecard",
-            }:
+            if section in {"expected_scorecards", "expected_overlap"}:
                 raise ValueError(
-                    f"{path}:{line_number}: tests must precede expected_pair"
+                    f"{path}:{line_number}: tests must precede expected_scorecards"
                 )
             current_test = test_match.group(1)
             if current_test in identifiers or current_test in docstring_lines:
                 raise ValueError(f"{path}: {example_name} duplicates {current_test}")
             section = "test"
-            criterion = None
             continue
-        if line == "  expected_pair:":
-            if any(key not in docstring_lines for key in TEST_KEYS):
-                raise ValueError(
-                    f"{path}:{line_number}: expected_pair must follow both tests"
-                )
-            if expected_requirement_overlap:
-                raise ValueError(f"{path}: {example_name} duplicates expected_pair")
-            section = "expected_pair"
-            current_test = ""
-            criterion = None
-            continue
-        if (
-            line == "    requirement_description_overlap:"
-            and section == "expected_pair"
-        ):
-            section = "pair_overlap"
-            continue
-        pair_overlap_match = re.fullmatch(
-            r"      (yes|no)\s+#\s+(.+\S|\S)",
-            line,
-            re.IGNORECASE,
-        )
-        if section == "pair_overlap" and pair_overlap_match:
-            expected_requirement_overlap = pair_overlap_match.group(1).lower()
-            continue
-        pair_overlap_without_explanation = re.fullmatch(
-            r"      (yes|no)(?:\s+#\s*)?",
-            line,
-            re.IGNORECASE,
-        )
-        if section == "pair_overlap" and pair_overlap_without_explanation:
-            raise ValueError(
-                f"{path}:{line_number}: "
-                f"{pair_overlap_without_explanation.group(1).lower()} needs an "
-                "explanation comment"
-            )
         if line == "  expected_scorecards:":
             if any(key not in docstring_lines for key in TEST_KEYS):
                 raise ValueError(
                     f"{path}:{line_number}: expected_scorecards must follow both tests"
                 )
-            if expected_requirement_overlap not in {"yes", "no"}:
+            if expected_requirement_overlap:
                 raise ValueError(
-                    f"{path}:{line_number}: expected_scorecards must follow "
-                    "expected_pair"
+                    f"{path}: {example_name} duplicates expected_scorecards"
                 )
             section = "expected_scorecards"
             current_test = ""
-            current_scorecard_test = ""
-            criterion = None
             continue
+        if (
+            line == "    requirement_description_overlap:"
+            and section == "expected_scorecards"
+        ):
+            section = "expected_overlap"
+            continue
+        overlap_match = re.fullmatch(
+            r"      result:\s+(yes|no)\s+#\s+(.+\S|\S)",
+            line,
+            re.IGNORECASE,
+        )
+        if section == "expected_overlap" and overlap_match:
+            if expected_requirement_overlap:
+                raise ValueError(
+                    f"{path}: {example_name} duplicates overlap result"
+                )
+            expected_requirement_overlap = overlap_match.group(1).lower()
+            continue
+        overlap_without_explanation = re.fullmatch(
+            r"      result:\s+(yes|no)(?:\s+#\s*)?",
+            line,
+            re.IGNORECASE,
+        )
+        if section == "expected_overlap" and overlap_without_explanation:
+            raise ValueError(
+                f"{path}:{line_number}: overlap result needs an explanation comment"
+            )
+        kind_match = re.fullmatch(
+            r"      kind:\s+(.+?)\s+#\s+(.+\S|\S)",
+            line,
+        )
+        if section == "expected_overlap" and kind_match:
+            if not expected_requirement_overlap:
+                raise ValueError(
+                    f"{path}:{line_number}: kind must follow overlap result"
+                )
+            if expected_difference_kind is not None:
+                raise ValueError(f"{path}: {example_name} duplicates kind")
+            kind = kind_match.group(1).strip()
+            if kind not in DIFFERENCE_KINDS:
+                raise ValueError(
+                    f"{path}:{line_number}: kind must be one of "
+                    + ", ".join(DIFFERENCE_KINDS)
+                )
+            expected_difference_kind = kind
+            continue
+        kind_without_explanation = re.fullmatch(
+            r"      kind:\s+(.+?)(?:\s+#\s*)?",
+            line,
+        )
+        if section == "expected_overlap" and kind_without_explanation:
+            raise ValueError(
+                f"{path}:{line_number}: kind needs an explanation comment"
+            )
         identifier_match = re.fullmatch(r"    identifier:\s+`([^`]+)`", line)
         if section == "test" and current_test and identifier_match:
             if current_test in identifiers:
@@ -265,68 +266,6 @@ def read_test_relationship_review_examples(
             docstring_lines[current_test] = []
             section = "docstring"
             continue
-        scorecard_test_match = re.fullmatch(r"    (test_1|test_2):", line)
-        if section in {"expected_scorecards", "scorecard"} and scorecard_test_match:
-            current_scorecard_test = scorecard_test_match.group(1)
-            if current_scorecard_test in expected_scorecards:
-                raise ValueError(
-                    f"{path}: {example_name} duplicates "
-                    f"{current_scorecard_test} expected scorecard"
-                )
-            expected_scorecards[current_scorecard_test] = {}
-            section = "scorecard"
-            criterion = None
-            continue
-        criterion_match = re.fullmatch(r"      (\d+):\s+#\s+(.+)", line)
-        if section == "scorecard" and current_scorecard_test and criterion_match:
-            criterion = int(criterion_match.group(1))
-            title = criterion_match.group(2).strip()
-            expected_title = criterion_titles.get(criterion)
-            if expected_title is None:
-                raise ValueError(
-                    f"{path}:{line_number}: criterion {criterion} does not exist in "
-                    "test_relationship_review.agent.md.j2"
-                )
-            if title != expected_title:
-                raise ValueError(
-                    f"{path}:{line_number}: criterion {criterion} comment must be "
-                    f"`{expected_title}`"
-                )
-            scorecard = expected_scorecards[current_scorecard_test]
-            if criterion in scorecard:
-                raise ValueError(
-                    f"{path}: {example_name} {current_scorecard_test} duplicates "
-                    f"criterion {criterion}"
-                )
-            scorecard[criterion] = {}
-            continue
-        value_match = re.fullmatch(
-            r"        (pass|fail)\s+#\s+(.+\S|\S)", line, re.IGNORECASE
-        )
-        if (
-            section == "scorecard"
-            and current_scorecard_test
-            and criterion is not None
-            and value_match
-        ):
-            expected_scorecards[current_scorecard_test][criterion]["result"] = (
-                value_match.group(1)
-            )
-            continue
-        outcome_without_explanation = re.fullmatch(
-            r"        (pass|fail)(?:\s+#\s*)?", line, re.IGNORECASE
-        )
-        if (
-            section == "scorecard"
-            and current_scorecard_test
-            and criterion is not None
-            and outcome_without_explanation
-        ):
-            raise ValueError(
-                f"{path}:{line_number}: "
-                f"{outcome_without_explanation.group(1).lower()} needs an "
-                "explanation comment"
-            )
         if section == "docstring" and current_test and line.startswith("      "):
             docstring_lines[current_test].append(line[6:])
             continue
