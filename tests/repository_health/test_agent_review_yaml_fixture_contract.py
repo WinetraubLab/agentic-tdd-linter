@@ -12,7 +12,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from tests.agentic_linter.test_harness.agent_review_yaml_fixture_contract import (
+from tests.agentic_linter.test_harness.single_test_review_yaml_fixture_contract import (
     lint_agent_review_examples,
 )
 
