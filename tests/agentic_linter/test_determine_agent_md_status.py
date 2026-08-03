@@ -124,7 +124,7 @@ class AgentMdStatusTests(unittest.TestCase):
 
         Verification Detail:
         One scorecard result cell contains `pass/fail`.
-        The `_lint_agent_md_file` output contains `invalid_review_scorecard`.
+        The module's `_lint_agent_md_file` output contains `invalid_review_scorecard`.
         """
 
         with tempfile.TemporaryDirectory() as directory:
