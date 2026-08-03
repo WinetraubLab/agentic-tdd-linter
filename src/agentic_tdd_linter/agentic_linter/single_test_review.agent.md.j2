@@ -189,19 +189,17 @@ Do not apply this criterion to the fixed `Verification Method` classification va
 For example, fail `The output contains errors.`; prefer `The parser output contains errors.`
 
 #### 44. File Docstring Uses One Label per Referent
-Within `File Docstring`, glossary labels and explicitly defined backticked labels shall use one canonical label for each underlying referent.
-Fail when peer labels name the same referent. A state, lifecycle stage, role, environment, representation, or test-control condition does not by itself create a different referent.
-Peer labels for different referents shall also be readily distinguishable. Fail labels that differ only by a visually subtle character or suffix when their similarity makes the referents ambiguous.
-Do not compare the declared module name with a glossary label that describes the module's role. Do not treat responsibility wording, definitions' descriptive prose, or examples as additional labels.
+Compare peer labels introduced as `Terms:` entry labels or as subjects of standalone definition statements in `File Docstring`.
+Treat module declarations, responsibility statements, definition prose, and examples as context rather than peer labels, including backticked context.
+Fail peer labels that name the same concrete entity when their distinction is state, lifecycle stage, role, environment, or the entity's physical representation. Classify a separately defined schema, syntax, format, path, identifier, or contents as a distinct referent when its label names that object.
+Fail labels for different referents when they differ only by a visually subtle character or suffix.
 For each conflict, identify the single label to retain.
 
 #### 46. Terms Reuse Shared Vocabulary
-When `Requirement Tested` or `Verification Detail` uses a noun phrase as the name of a referent, it shall reuse the label established by `File Docstring`.
-Established labels are the declared module name, glossary labels, explicitly defined backticked labels, distinctive names in the responsibility statement, and exact filenames or paths stated in the module declaration or responsibility statement.
-Do not treat generic nouns or incidental wording in definitions, descriptions, and examples as established labels.
-Backticks are optional presentation. Preserve spelling, word boundaries, capitalization, grammatical number, and complete filename or path components.
-A generic noun phrase is an anaphoric reference, not a new label, when it plainly points back to an entity or invocation already identified in the requirement or a preceding verification step.
-Descriptions of an entity's operation, contents, members, identifier, path, or representation are distinct from the entity's label. Exact literals and code expressions are outside this criterion.
+`Requirement Tested` and `Verification Detail` shall not replace an established `File Docstring` label with a different label for the same concrete referent.
+Enforce this rule for declared module names, glossary labels, explicitly defined backticked labels, and exact filenames or paths. For a filename or path, enforce exact reuse only when the later phrase is presented as the artifact's filename or location.
+A phrase that names the same referent remains a replacement label when it retains distinctive head words from the established label but drops or changes its qualifiers, grammatical number, spelling, capitalization, word boundaries, or filename/path components.
+A phrase naming a separately identifiable operation, request, invocation, input, output, event, member, collection, contents, behavior, or purpose is a distinct referent rather than a replacement label. Generic anaphoric references are also descriptions. Backticks are optional; exact literals and code expressions are outside this criterion.
 
 ### 5x. Assertion Quality
 The criteria below evaluate implementation conformance: whether the test implementation and assertions conform to `Requirement Tested` and `Verification Detail`.
