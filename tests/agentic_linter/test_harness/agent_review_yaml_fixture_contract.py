@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from .yaml_case_name import yaml_case_name_errors
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EXAMPLES = (
@@ -63,6 +65,7 @@ def lint_agent_review_examples(*, examples_path: Path) -> list[str]:
                 "followed by one blank line"
             )
         errors.extend(_example_spacing_errors(path, text))
+        errors.extend(yaml_case_name_errors(path, text))
         try:
             read_agent_review_examples(path, criterion_titles)
         except ValueError as error:
