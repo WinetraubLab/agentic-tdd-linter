@@ -50,8 +50,99 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             )
             artifact_text = artifact.read_text(encoding="utf-8")
 
-        self.assertEqual(1, artifact_text.count("tests/test_alpha.py"))
-        self.assertEqual(1, artifact_text.count("tests/test_beta.py"))
+        self.assertEqual(1, docstring_section.count("tests/test_alpha.py"))
+        self.assertEqual(1, docstring_section.count("tests/test_beta.py"))
+
+    def test_lists_each_pair_once(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Harness supplies three test files containing one test each.
+        The packet contains exactly three `Replace with overlap evidence.` rows.
+        The packet contains the alpha-beta, alpha-gamma, and beta-gamma pairs.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_files = []
+            for name in ("alpha", "beta", "gamma"):
+                test_file = root / "tests" / f"test_{name}.py"
+                test_file.parent.mkdir(parents=True, exist_ok=True)
+                test_file.write_text(
+                    "def test_example():\n    assert True\n",
+                    encoding="utf-8",
+                )
+                test_files.append(test_file)
+
+            artifact = render_cross_test_agent_md_file(test_files, root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+            pair_section = artifact_text.partition(
+                "\n## Requirement Pair Classifications\n"
+            )[2].partition("\n## Review Scorecard\n")[0]
+
+        self.assertEqual(
+            3,
+            pair_section.count("Replace with overlap evidence."),
+        )
+        self.assertIn(
+            "| `tests/test_alpha.py::test_example` | "
+            "`tests/test_beta.py::test_example` |",
+            pair_section,
+        )
+        self.assertIn(
+            "| `tests/test_alpha.py::test_example` | "
+            "`tests/test_gamma.py::test_example` |",
+            pair_section,
+        )
+        self.assertIn(
+            "| `tests/test_beta.py::test_example` | "
+            "`tests/test_gamma.py::test_example` |",
+            pair_section,
+        )
+
+    def test_overlap_result_preserves_freshness(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` preserves a completed `pair classification` when deciding whether packet inputs are stale.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Harness renders a packet for two test files.
+        Harness replaces the pending pair classification with yes and review evidence.
+        `cross_test_agent_md_file_is_stale` returns false.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_files = []
+            for name in ("alpha", "beta"):
+                test_file = root / "tests" / f"test_{name}.py"
+                test_file.parent.mkdir(parents=True, exist_ok=True)
+                test_file.write_text(
+                    "def test_example():\n    assert True\n",
+                    encoding="utf-8",
+                )
+                test_files.append(test_file)
+
+            artifact = render_cross_test_agent_md_file(test_files, root)
+            completed_text = artifact.read_text(encoding="utf-8").replace(
+                "| pending | Replace with overlap evidence. |",
+                "| yes | Both requirements use the same formulation. |",
+            )
+            artifact.write_text(completed_text, encoding="utf-8")
+
+            is_stale = cross_test_agent_md_file_is_stale(test_files, root)
+
+        self.assertFalse(is_stale)
 
     def test_instructions_limit_review_to_packet(self) -> None:
         """Test Path: happy path
