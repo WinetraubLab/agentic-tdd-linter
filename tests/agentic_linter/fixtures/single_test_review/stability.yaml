@@ -20,14 +20,14 @@ stability_001_readme_workflows_head:
             """Test Path: happy path
 
             Requirement Tested:
-            `test_review_documentation` requires README headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            `test_review_documentation` requires README.md level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
             Standard usage: The scenario demonstrates baseline behavior.
 
             Verification Method: verify public function output
 
             Verification Detail:
-            README contains heading `Pre-commit review workflow`.
-            README contains heading `CI/CD validation workflow`.
+            README.md contains `### Pre-commit review workflow`.
+            README.md contains `### CI/CD validation workflow`.
             """
 
             repo_root = Path(__file__).resolve().parents[2]
@@ -198,7 +198,7 @@ stability_003_stale_attestation_requires:
         Harness applies mock.patch to provide an isolated artifact directory and an isolated `scorecard attestation ledger` path.
         1. Harness initializes an isolated `scorecard attestation ledger` from the committed `scorecard attestation ledger`.
         2. Harness substitutes one source hash with a stale value.
-        3. Runner evaluates the complete `YAML fixture catalog`.
+        3. `agent_review_example_runner` evaluates the complete `YAML fixture catalog`.
         4. Artifact directory contains one '.agent.md' file.
         """
 
@@ -893,90 +893,8 @@ stability_008_unsupported_fields_working:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_009_readme_workflows_working:
-  file_docstring: |
-    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
-    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
 
-    Terms:
-    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
-    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
-    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
-    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
-    """
-  test: |
-    def test_readme_names_both_workflows(self) -> None:
-            """Test Path: happy path
-
-            Requirement Tested:
-            `test_review_documentation` requires README.md level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
-            Standard usage: The scenario demonstrates baseline behavior.
-
-            Verification Method: verify public function output
-
-            Verification Detail:
-            README.md contains `### Pre-commit review workflow`.
-            README.md contains `### CI/CD validation workflow`.
-            """
-
-            repo_root = Path(__file__).resolve().parents[2]
-            readme = (repo_root / "README.md").read_text(encoding="utf-8")
-
-            self.assertIn("### Pre-commit review workflow", readme)
-            self.assertIn("### CI/CD validation workflow", readme)
-  expected_scorecard:
-    11: # First Line States a General Behavioral Rule
-      pass # This is a good eungh test and should pass all criteria.
-    12: # Second Line Describes a Scenario
-      pass # This is a good eungh test and should pass all criteria.
-    13: # Requirement Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    14: # Requirement Is Atomic
-      pass # This is a good eungh test and should pass all criteria.
-    15: # Requirement Begins with the Behavior Owner
-      pass # This is a good eungh test and should pass all criteria.
-    16: # Requirement Fits Declared Module Responsibility
-      pass # This is a good eungh test and should pass all criteria.
-    17: # Scenario Has the Appropriate Specificity
-      pass # This is a good eungh test and should pass all criteria.
-    21: # Verification Detail States Material Outcomes
-      pass # This is a good eungh test and should pass all criteria.
-    22: # Verification Detail Describes Evidence
-      pass # This is a good eungh test and should pass all criteria.
-    23: # Verification Method Matches Exercised Interface
-      pass # This is a good eungh test and should pass all criteria.
-    31: # Sentence Avoids Double Negation
-      pass # This is a good eungh test and should pass all criteria.
-    32: # Sentence Uses Subject-Verb-Object Order
-      pass # This is a good eungh test and should pass all criteria.
-    33: # Subject and Object Are Concise
-      pass # This is a good eungh test and should pass all criteria.
-    34: # Main Verb Is Unambiguous
-      pass # This is a good eungh test and should pass all criteria.
-    35: # Conditions Are Explicit
-      pass # This is a good eungh test and should pass all criteria.
-    36: # Relative Clauses Are Complete
-      pass # This is a good eungh test and should pass all criteria.
-    37: # Sentence Expresses One Concept
-      pass # This is a good eungh test and should pass all criteria.
-    38: # Behavior Uses Active Voice
-      pass # This is a good eungh test and should pass all criteria.
-    39: # Subject Is Not This, That, These, or Those
-      pass # This is a good eungh test and should pass all criteria.
-    42: # Domain Terms Are Defined
-      pass # This is a good eungh test and should pass all criteria.
-    43: # Data-Flow Terms Name an Owner
-      pass # This is a good eungh test and should pass all criteria.
-    46: # Terms Reuse Shared Vocabulary
-      pass # This is a good eungh test and should pass all criteria.
-    51: # Assertions Prove the Stated Requirement
-      pass # This is a good eungh test and should pass all criteria.
-    52: # Input Checks Are Tagged
-      pass # This is a good eungh test and should pass all criteria.
-    53: # Test Values Are Local
-      pass # This is a good eungh test and should pass all criteria.
-
-stability_010_github_actions_shows:
+stability_009_github_actions_shows:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1070,7 +988,7 @@ stability_010_github_actions_shows:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_011_github_actions_omits:
+stability_010_github_actions_omits:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1159,7 +1077,7 @@ stability_011_github_actions_omits:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_012_github_actions_omits:
+stability_011_github_actions_omits:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1248,7 +1166,7 @@ stability_012_github_actions_omits:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_013_cicd_accepts_current:
+stability_012_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `CI/CD linter` is responsible for validating `manifest proof`.
@@ -1373,7 +1291,7 @@ stability_013_cicd_accepts_current:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_014_cicd_accepts_current:
+stability_013_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `CI/CD linter` is responsible for validating `manifest proof`.
@@ -1500,7 +1418,7 @@ stability_014_cicd_accepts_current:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_015_accepts_public_output:
+stability_014_accepts_public_output:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating test-path and verification-method classifications.
@@ -1604,7 +1522,7 @@ stability_015_accepts_public_output:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_016_accepts_public_output:
+stability_015_accepts_public_output:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating test-path and verification-method classifications.
@@ -1708,7 +1626,7 @@ stability_016_accepts_public_output:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_017_lint_requires_reviewer:
+stability_016_lint_requires_reviewer:
   file_docstring: |
     """Tests in this file validate `CLI` located at `src/agentic_tdd_linter/cli/main.py`.
     `CLI` is responsible for providing the create-agent-md and lint command interface.
@@ -1830,7 +1748,7 @@ stability_017_lint_requires_reviewer:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_018_lint_requires_reviewer:
+stability_017_lint_requires_reviewer:
   file_docstring: |
     """Tests in this file validate `CLI` located at `src/agentic_tdd_linter/cli/main.py`.
     `CLI` is responsible for providing the create-agent-md and lint command interface.
@@ -1952,7 +1870,7 @@ stability_018_lint_requires_reviewer:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_019_requires_reciprocal_references:
+stability_018_requires_reciprocal_references:
   file_docstring: |
     """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
     `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
@@ -2045,7 +1963,7 @@ stability_019_requires_reciprocal_references:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_020_requires_reciprocal_references:
+stability_019_requires_reciprocal_references:
   file_docstring: |
     """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
     `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
@@ -2138,7 +2056,7 @@ stability_020_requires_reciprocal_references:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_021_mismatch_aggregates_total:
+stability_020_mismatch_aggregates_total:
   file_docstring: |
     """Tests in this file validate `agent_review_examples` located at `tests/agentic_linter/test_harness/agent_review_examples.py`.
     `agent_review_examples` is responsible for coordinating YAML-example reviews.
@@ -2231,7 +2149,7 @@ stability_021_mismatch_aggregates_total:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_022_mismatch_aggregates_total:
+stability_021_mismatch_aggregates_total:
   file_docstring: |
     """Tests in this file validate `agent_review_examples` located at `tests/agentic_linter/test_harness/agent_review_examples.py`.
     `agent_review_examples` is responsible for coordinating YAML-example reviews.
@@ -2324,7 +2242,7 @@ stability_022_mismatch_aggregates_total:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_023_anonymous_agent_review:
+stability_022_anonymous_agent_review:
   file_docstring: |
     """Tests in this file validate `agent_review_example_runner` located at `tests/agentic_linter/test_harness/agent_review_example_runner.py`.
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
@@ -2445,7 +2363,7 @@ stability_023_anonymous_agent_review:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_024_reports_empty_requirement:
+stability_023_reports_empty_requirement:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
@@ -2545,7 +2463,7 @@ stability_024_reports_empty_requirement:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_025_enforces_public_function:
+stability_024_enforces_public_function:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
@@ -2637,7 +2555,7 @@ stability_025_enforces_public_function:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_026_enforces_public_function:
+stability_025_enforces_public_function:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
@@ -2745,7 +2663,7 @@ stability_026_enforces_public_function:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stability_027_plain_multiple_modules:
+stability_026_plain_multiple_modules:
   file_docstring: |
     """Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
@@ -2821,7 +2739,7 @@ stability_027_plain_multiple_modules:
     42: # Domain Terms Are Defined
       pass # The plain multiple_modules_in_test_file identifier is not a backticked requirement term.
 
-stability_028_plain_private_verification:
+stability_027_plain_private_verification:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating evidence declared as private-function output."""
