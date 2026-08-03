@@ -604,8 +604,11 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 [
                     cells[3]
                     for line in text.splitlines()
-                    if len(cells := [cell.strip() for cell in line.split("|")]) >= 5
-                    and cells[1].isdigit()
+                    if len(cells := [cell.strip() for cell in line.split("|")]) >= 6
+                    and (
+                        cells[1].isdigit()
+                        or cells[1].startswith("`tests/")
+                    )
                 ]
                 for text in refreshed_contents
             ]
