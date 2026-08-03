@@ -199,6 +199,66 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         self.assertIn("Requirement Tested:", artifact_text)
         self.assertNotIn("implementation is absent", artifact_text)
 
+    def test_uses_one_reviewer_per_packet(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every criterion and every listed test in one `cross-test packet`.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The `cross-test packet` contains `Use one fresh isolated reviewer for this Markdown packet.`
+        The packet prohibits delegating listed tests or criteria to another reviewer.
+        The packet assigns every criterion and listed test to that reviewer.
+
+        Similar Coverage:
+        - Lower Level Test: `test_render_agent_md_file.py::test_requires_fresh_reviewers`
+          Justification: Deeper coverage — The lower test verifies one fresh reviewer for a single-test packet. The current test additionally verifies that the same reviewer covers every criterion for every listed test in a cross-test packet.
+        - Lower Level Test: `test_render_agent_md_file.py::test_requires_complete_review`
+          Justification: Deeper coverage — The lower test verifies complete criterion coverage for one single-test packet. The current test additionally verifies complete criterion coverage for every listed test in a cross-test packet.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "Use one fresh isolated reviewer for this Markdown packet.",
+            artifact_text,
+        )
+        self.assertIn(
+            "Do not delegate any listed test or criterion to another reviewer.",
+            artifact_text,
+        )
+        self.assertIn(
+            "That reviewer shall evaluate every pair classification and every "
+            "scorecard criterion for every listed test.",
+            artifact_text,
+        )
+
+    def test_separates_overlap_from_relationship(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` creates a `cross-test packet` that distinguishes requirement-description overlap from a cross-level behavioral relationship.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The packet classifies the same requirement wording for different modules as overlap.
+        The packet states that description-level overlap does not establish the same behavioral contract.
+        The packet requires materially overlapping behavior, conditions, and outcomes before identifying a cross-level pair.
         """
 
         with tempfile.TemporaryDirectory() as directory:
