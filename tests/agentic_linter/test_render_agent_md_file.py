@@ -100,6 +100,33 @@ class AgenticMarkdownTests(unittest.TestCase):
         )
 
     def test_prohibits_replacement_wording_in_failure_notes(self) -> None:
+    def test_iterative_review_records_revision_attempts(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_agent_md_file` creates an `iterative review` record with an initial score, three revision slots, and a final assessment.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The `render_agent_md_file` output contains initial, first-revision, second-revision, third-revision, and final-assessment records.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = 'def test_adds_values() -> None:\n    """Test Path: happy path"""\n    assert 1 + 1 == 2\n'
+            test_file = Path(directory) / "test_sample.py"
+            test_file.write_text(source, encoding="utf-8")
+
+            markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
+
+        self.assertIn("## Review Iteration Record", markdown)
+        self.assertIn("### Initial Score", markdown)
+        self.assertIn("### Revision 1", markdown)
+        self.assertIn("### Revision 2", markdown)
+        self.assertIn("### Revision 3", markdown)
+        self.assertIn("### Final Assessment", markdown)
+
         """Test Path: happy path
 
         Requirement Tested:
