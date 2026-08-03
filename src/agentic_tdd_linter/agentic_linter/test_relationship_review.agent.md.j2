@@ -1,0 +1,93 @@
+{#
+Instructions for reviewing relationships among tests.
+
+Inputs:
+- tests: Test identifiers and docstrings in the test-relationship review scope.
+- test_pairs: Every unordered pair of listed test identifiers.
+-#}
+# Agentic Test Relationship Review
+
+## Instructions
+
+The goal of this review is to evaluate every unordered pair in `## Requirement Pair Classifications`.
+First compare the pair's `Requirement Tested` descriptions and set requirement-description overlap to exactly `yes` or `no`.
+When the result is `no`, set Kind to `Not Applicable`, explain why the requirements differ, and stop reviewing that pair.
+When the result is `yes`, set Kind to exactly `Happy/Failure Path Difference`, `Scenario Difference`, or `Module Difference`.
+Replace the pair's notes with concrete evidence for the overlap and selected kind.
+
+Use one fresh isolated reviewer for this Markdown packet.
+Do not delegate any listed pair or classification to another reviewer.
+That reviewer shall classify every pair's overlap and kind.
+Review context is limited to this packet and the listed test docstrings.
+The packet intentionally embeds only each test identifier and docstring.
+Evaluate relationship declarations from `Test Path`, `Requirement Tested`, `Verification Method`, `Verification Detail`, and `Similar Coverage`.
+Do not require or infer test implementation that is absent from the packet.
+Treat manifests, other repository files, prior conversation, and unlisted tests as outside the review scope.
+
+## Classification Rules
+
+### 1x. Requirement Relationships
+
+#### 10. Requirement-Description Overlap Is Classified
+Compare the `Requirement Tested` lines for every unordered test pair exactly once.
+Set the pair's overlap result to `yes` when the requirements use materially similar descriptions of an action, state, relationship, condition, or outcome.
+This is a description-level classification, not a conclusion that the tests verify an identical scenario.
+Requirements with the same wording applied to different named modules or contract subjects still have overlap and shall be classified `yes`.
+Set the result to `no` when the requirement descriptions are materially different.
+Do not classify a pair as overlapping merely because both requirements use generic test vocabulary such as `returns`, `emits`, or `validates`.
+When the result is `no`, record concrete evidence and stop reviewing that pair.
+
+#### 11. Overlap Difference Is Classified and Explained
+For every pair classified `yes` under criterion 10, choose the first supported classification below whose condition is satisfied:
+
+1. `Happy/Failure Path Difference`: Use when one test declares `Test Path: happy path` and the other declares `Test Path: failure path`.
+2. `Scenario Difference`: Use when the tests declare the same test path but their requirement scenarios are materially different.
+3. `Module Difference`: Use when the tests declare the same test path and materially the same scenario, but test different named modules or contract subjects, or one test exercises a private interface while the other exercises a public interface.
+
+Use the scenario statement under `Requirement Tested` and the evidence under `Verification Detail` to decide whether scenarios materially differ.
+Apply the classifications in the stated order; once a condition matches, do not continue to a later classification.
+Each test in the overlapping pair shall name the other test in its own `Similar Coverage` section using the selected classification.
+Use exactly one of these entries:
+
+```text
+Similar Coverage:
+- Happy/Failure Path Difference: `<file.py>::<test_name>`
+  Explanation: <specific difference between the two tests>
+```
+
+```text
+Similar Coverage:
+- Scenario Difference: `<file.py>::<test_name>`
+  Explanation: <specific difference between the two tests>
+```
+
+```text
+Similar Coverage:
+- Module Difference: `<file.py>::<test_name>`
+  Explanation: <specific difference between the two tests>
+```
+
+A correctly documented pair provides reciprocal entries with the same classification.
+Each explanation shall state what the current test verifies and how the named test differs.
+Use the selected kind only when both entries are reciprocal, correctly classified, and concretely explained.
+Do not accept an entry explained only with generic evidence.
+
+## Test Docstrings
+
+{% for test in tests %}
+### `{{ test.identifier }}`
+
+````text
+{{ test.docstring.rstrip() }}
+````
+{% endfor %}
+
+## Requirement Pair Classifications
+
+| Test 1 | Test 2 | Requirement Overlap | Kind | Notes |
+|---|---|---|---|---|
+{% for pair in test_pairs -%}
+| `{{ pair.first_identifier }}` | `{{ pair.second_identifier }}` | pending | pending | Replace with classification evidence. |
+{% else -%}
+| — | — | no pairs | Not Applicable | Fewer than two tests are listed. |
+{% endfor %}
