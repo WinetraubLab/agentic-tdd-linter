@@ -36,6 +36,12 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Verification Detail:
         The `manifest proof` term satisfies glossary-definition validation.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_requirement_term_definitions.py::test_reports_undefined_requirement_term`
+          Explanation: The current test verifies `conventional_linter` accepts a backticked requirement term when the file glossary defines that term. The named test verifies `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_requirement_term_definitions.py::test_requires_colon_definition_format`
+          Explanation: The current test verifies `conventional_linter` accepts a backticked requirement term when the file glossary defines that term. The named test verifies `conventional_linter` emits `undefined_requirement_term` when a file glossary definition lacks a colon separator; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_requirement_term_source(
@@ -61,6 +67,12 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Verification Detail:
         The `_lint_requirement_term_source` output contains `undefined_requirement_term`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_requirement_term_definitions.py::test_accepts_defined_requirement_term`
+          Explanation: The current test verifies `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary. The named test verifies `conventional_linter` accepts a backticked requirement term when the file glossary defines that term; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_requirement_term_definitions.py::test_requires_colon_definition_format`
+          Explanation: The current test verifies `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary. The named test verifies `conventional_linter` emits `undefined_requirement_term` when a file glossary definition lacks a colon separator; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_requirement_term_source(
@@ -82,6 +94,12 @@ class RequirementTermDefinitionTests(unittest.TestCase):
 
         Verification Detail:
         The `_lint_requirement_term_source` output contains `undefined_requirement_term`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_requirement_term_definitions.py::test_accepts_defined_requirement_term`
+          Explanation: The current test verifies `conventional_linter` emits `undefined_requirement_term` when a file glossary definition lacks a colon separator. The named test verifies `conventional_linter` accepts a backticked requirement term when the file glossary defines that term; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_requirement_term_definitions.py::test_reports_undefined_requirement_term`
+          Explanation: The current test verifies `conventional_linter` emits `undefined_requirement_term` when a file glossary definition lacks a colon separator. The named test verifies `conventional_linter` emits undefined_requirement_term when a backticked requirement term is missing from the file glossary; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_requirement_term_source(
