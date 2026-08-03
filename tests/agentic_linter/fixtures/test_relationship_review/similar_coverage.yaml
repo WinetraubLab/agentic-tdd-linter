@@ -1,0 +1,157 @@
+# Test-relationship examples for agent review.
+# Each example contains two test identifiers and docstrings followed by one pair-level expected scorecard.
+# Test implementations are intentionally excluded because only docstring relationships are evaluated.
+# The expected scorecard contains requirement-description overlap set to `yes` or `no` with an explanation comment.
+# An overlapping result requires one supported difference kind with an explanation comment.
+# A non-overlapping result stops after requirement-description overlap and omits kind.
+
+similar_coverage_001_happy_failure_difference:
+  test_1:
+    identifier: `tests/unit/test_login.py::test_accepts_valid_credentials`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `authenticate` enforces the stored-credential matching requirement.
+      Standard usage: Supplied credentials match the stored credentials.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      Matching credentials produce an authenticated user.
+
+      Similar Coverage:
+      - Happy/Failure Path Difference: `tests/unit/test_login.py::test_rejects_invalid_credentials`
+        Explanation: The current test verifies acceptance when credentials match; the named test verifies rejection when they do not match.
+  test_2:
+    identifier: `tests/unit/test_login.py::test_rejects_invalid_credentials`
+    docstring: |
+      Test Path: failure path
+
+      Requirement Tested:
+      `authenticate` enforces the stored-credential matching requirement.
+      Specialized usage: Supplied credentials do not match the stored credentials.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      Nonmatching credentials produce an authentication failure.
+
+      Similar Coverage:
+      - Happy/Failure Path Difference: `tests/unit/test_login.py::test_accepts_valid_credentials`
+        Explanation: The current test verifies rejection when credentials do not match; the named test verifies acceptance when they match.
+  expected_scorecards:
+    requirement_description_overlap:
+      result: yes # Both tests describe the stored-credential matching requirement.
+      kind: Happy/Failure Path Difference # One test is happy path and the other is failure path.
+
+similar_coverage_002_scenario_path_difference:
+  test_1:
+    identifier: `tests/unit/test_shipping.py::test_prices_domestic_order`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `calculate_shipping` returns the shipping charge for an order.
+      Standard usage: The order has a domestic destination.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      A domestic order receives the domestic shipping charge.
+
+      Similar Coverage:
+      - Scenario Difference: `tests/unit/test_shipping.py::test_prices_international_order`
+        Explanation: The current test covers a domestic destination; the named test covers an international destination with a different rate schedule.
+  test_2:
+    identifier: `tests/unit/test_shipping.py::test_prices_international_order`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `calculate_shipping` returns the shipping charge for an order.
+      Specialized usage: The order has an international destination.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      An international order receives the international shipping charge.
+
+      Similar Coverage:
+      - Scenario Difference: `tests/unit/test_shipping.py::test_prices_domestic_order`
+        Explanation: The current test covers an international destination and rate schedule; the named test covers a domestic destination.
+  expected_scorecards:
+    requirement_description_overlap:
+      result: yes # Both tests describe the same shipping-charge requirement.
+      kind: Scenario Difference # Both are happy paths with materially different destination scenarios.
+
+similar_coverage_003_module_contract_difference:
+  test_1:
+    identifier: `tests/unit/test_user_cache.py::test_removes_expired_entries`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `user_cache` removes expired entries.
+      Standard usage: The cache contains one expired entry.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      The returned user-cache entries exclude the expired user entry.
+
+      Similar Coverage:
+      - Module Difference: `tests/unit/test_session_cache.py::test_removes_expired_entries`
+        Explanation: The current test verifies expired user entries in `user_cache`; the named test verifies expired session entries in `session_cache`.
+  test_2:
+    identifier: `tests/unit/test_session_cache.py::test_removes_expired_entries`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `session_cache` removes expired entries.
+      Standard usage: The cache contains one expired entry.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      The returned session-cache entries exclude the expired session entry.
+
+      Similar Coverage:
+      - Module Difference: `tests/unit/test_user_cache.py::test_removes_expired_entries`
+        Explanation: The current test verifies expired session entries in `session_cache`; the named test verifies expired user entries in `user_cache`.
+  expected_scorecards:
+    requirement_description_overlap:
+      result: yes # Both requirements use the same removes-expired-entries description.
+      kind: Module Difference # The path and scenario match, while the cache modules differ.
+
+similar_coverage_004_unrelated_requirements_stop:
+  test_1:
+    identifier: `tests/unit/test_config_parser.py::test_rejects_malformed_syntax`
+    docstring: |
+      Test Path: failure path
+
+      Requirement Tested:
+      `config_parser` rejects malformed configuration syntax.
+      Specialized usage: The configuration contains an unclosed section header.
+
+      Verification Method: verify public function output
+
+      Verification Detail:
+      The parser result contains a malformed-syntax diagnostic.
+  test_2:
+    identifier: `tests/integration/test_audit_archive.py::test_archives_completed_records`
+    docstring: |
+      Test Path: happy path
+
+      Requirement Tested:
+      `audit_archive` moves completed audit records into archival storage.
+      Standard usage: The audit record is complete.
+
+      Verification Method: verify public interface output
+
+      Verification Detail:
+      Archival storage contains the completed audit record.
+  expected_scorecards:
+    requirement_description_overlap:
+      result: no # Configuration-syntax rejection and completed-record archival are materially different requirements.
