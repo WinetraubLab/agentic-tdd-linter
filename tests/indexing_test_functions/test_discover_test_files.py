@@ -2,7 +2,6 @@
 `discover_test_files` is responsible for finding supported test files under a selected path.
 
 Terms:
-- `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
 - `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
 - `temporary_fixtures`: This directory contains tests that the test harness generates. For example, repository discovery ignores `tests/temporary_fixtures/test_generated.py`.
 """
@@ -27,12 +26,13 @@ class TestFileDiscoveryTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `discover_test_files` excludes each `discovered file` inside the `temporary_fixtures` directory.
-        Specialized usage: Discovery receives a test under `temporary_fixtures` instead of directly under the selected test root.
+        `discover_test_files` excludes test files under `temporary_fixtures` during all-mode discovery of the default test root.
+        Specialized usage: `discover_test_files` considers a test file under `temporary_fixtures` instead of directly under the selected test root.
 
         Verification Method: verify public function output
 
         Verification Detail:
+        `discover_test_files` evaluates mode `all` under selected root `tests`.
         `discover_test_files` produces `[]` for `tests/temporary_fixtures/test_generated.py`.
         """
 
