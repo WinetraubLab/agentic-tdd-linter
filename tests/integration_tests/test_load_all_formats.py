@@ -33,7 +33,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Verification Detail:
         1. Harness creates `src/parser.py` and `tests/test_parser.py`.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh` as a subprocess.
         3. Command produces exit code `0`.
         4. Artifact directory contains one single-test packet.
         5. Artifact directory contains one cross-test packet.
@@ -42,8 +42,10 @@ class LoadAllFormatsTests(unittest.TestCase):
         8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
         9. Single-test packet contains `` `parser` provides stored text.``.
         10. Single-test packet contains `def test_returns_stored_text`.
-        11. Cross-test packet contains `tests/test_parser.py`.
-        12. Cross-test packet contains `def test_returns_stored_text`.
+        11. Cross-test packet contains `tests/test_parser.py::test_returns_stored_text`.
+        12. Cross-test packet contains `## Test Docstrings`.
+        13. Cross-test packet contains `` `parser` provides stored text.``.
+        14. Cross-test packet excludes `def test_returns_stored_text`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
@@ -89,7 +91,7 @@ class LoadAllFormatsTests(unittest.TestCase):
             _write_source(repo_root / "src" / "parser.py", "def parse(): return 'stored text'\n")
             _write_source(test_file, python_source)
 
-            creation = _run_cli(repo_root, "create-agent-md")
+            creation = _run_cli(repo_root, "create-agent-md", "--fresh")
             packets = _packet_paths(repo_root)
             cross_packet_path = next(
                 path
@@ -114,8 +116,13 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertIn("`parser` is responsible for returning stored text.", single_packet)
         self.assertIn("`parser` provides stored text.", single_packet)
         self.assertIn("def test_returns_stored_text", single_packet)
-        self.assertIn("tests/test_parser.py", cross_packet)
-        self.assertIn("def test_returns_stored_text", cross_packet)
+        self.assertIn(
+            "tests/test_parser.py::test_returns_stored_text",
+            cross_packet,
+        )
+        self.assertIn("## Test Docstrings", cross_packet)
+        self.assertIn("`parser` provides stored text.", cross_packet)
+        self.assertNotIn("def test_returns_stored_text", cross_packet)
 
     def test_loads_typescript_tests(self) -> None:
         """Test Path: happy path
@@ -128,7 +135,7 @@ class LoadAllFormatsTests(unittest.TestCase):
 
         Verification Detail:
         1. Harness creates `src/parser.ts` and `tests/parser.test.ts`.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>` as a subprocess.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh` as a subprocess.
         3. Command produces exit code `0`.
         4. Artifact directory contains one single-test packet.
         5. Artifact directory contains one cross-test packet.
@@ -137,12 +144,14 @@ class LoadAllFormatsTests(unittest.TestCase):
         8. Single-test packet contains `` `parser` is responsible for returning stored text.``.
         9. Single-test packet contains `` `parser` provides stored text.``.
         10. Single-test packet contains `test("returns stored text"`.
-        11. Cross-test packet contains `tests/parser.test.ts`.
-        12. Cross-test packet contains `test("returns stored text"`.
+        11. Cross-test packet contains `tests/parser.test.ts::returns stored text`.
+        12. Cross-test packet contains `## Test Docstrings`.
+        13. Cross-test packet contains `` `parser` provides stored text.``.
+        14. Cross-test packet excludes `test("returns stored text"`.
 
         Similar Coverage:
         - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves TypeScript discovery, extraction, and complete packet content.
+          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves TypeScript discovery, single-test source content, and cross-test docstring content.
         - Lower Level Test: `test_multiple_tests_in_one_file.py::test_typescript_multiple_tests_pass`
           Justification: Deeper coverage — The lower test isolates conventional validation for multiple TypeScript tests in one file. The current test loads TypeScript tests through complete packet generation.
         - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
@@ -185,7 +194,7 @@ class LoadAllFormatsTests(unittest.TestCase):
             _write_source(repo_root / "src" / "parser.ts", "export const parse = () => 'stored text';\n")
             _write_source(test_file, typescript_source)
 
-            creation = _run_cli(repo_root, "create-agent-md")
+            creation = _run_cli(repo_root, "create-agent-md", "--fresh")
             packets = _packet_paths(repo_root)
             cross_packet_path = next(
                 path
@@ -210,8 +219,13 @@ class LoadAllFormatsTests(unittest.TestCase):
         self.assertIn("`parser` is responsible for returning stored text.", single_packet)
         self.assertIn("`parser` provides stored text.", single_packet)
         self.assertIn('test("returns stored text"', single_packet)
-        self.assertIn("tests/parser.test.ts", cross_packet)
-        self.assertIn('test("returns stored text"', cross_packet)
+        self.assertIn(
+            "tests/parser.test.ts::returns stored text",
+            cross_packet,
+        )
+        self.assertIn("## Test Docstrings", cross_packet)
+        self.assertIn("`parser` provides stored text.", cross_packet)
+        self.assertNotIn('test("returns stored text"', cross_packet)
 
     def test_rejects_python_without_file_docstring(self) -> None:
         """Test Path: failure path
