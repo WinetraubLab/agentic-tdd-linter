@@ -348,7 +348,7 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` prohibits TypeScript labels when they exceed five words.
-        Specialized usage: For TypeScript naming, test label exceeds five words instead of staying within five, so conventional linter emits test_name_too_long.
+        Specialized usage: For TypeScript naming, test label exceeds five words instead of staying within five, so `conventional_linter` emits test_name_too_long.
 
         Verification Method: verify private function output
 
