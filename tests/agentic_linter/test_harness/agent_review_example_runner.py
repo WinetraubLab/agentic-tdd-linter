@@ -4,11 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import textwrap
-import time
 from pathlib import Path
-from typing import NamedTuple
 
-from agentic_tdd_linter.version import __version__
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
     _agent_md_file_is_stale,
     determine_agent_md_status,
@@ -22,7 +19,11 @@ from agentic_tdd_linter.agentic_linter.render_agent_md_file import (
 from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
     extract_tests_from_file,
 )
+from agentic_tdd_linter.indexing_test_functions.extracted_test_record import (
+    ExtractedTestRecord,
+)
 from tests.agentic_linter.test_harness.single_test_review_yaml_fixture_contract import (
+    AgentReviewExample,
     agent_review_example_files,
     criterion_titles_from_template,
     lint_agent_review_examples,
@@ -30,18 +31,12 @@ from tests.agentic_linter.test_harness.single_test_review_yaml_fixture_contract 
 )
 
 from .agent_review_examples import (
-    _ScorecardMismatch,
-    _read_scorecard_attestations,
+    _AgentReviewCase,
+    _AgentReviewRunResult,
     _record_review_start,
-    _reviewer_model_from_environment,
-    _review_duration_seconds,
-    _scorecard_attestation_is_current,
-    _scorecard_mismatch_message,
-    _scorecard_mismatches,
-    _scorecard_regressions,
     _scorecard_results,
-    _write_scorecard_attestations,
-    _write_scorecard_sidecar,
+    _run_yaml_reviews,
+    _validate_yaml_examples,
 )
 
 
@@ -63,38 +58,79 @@ SCORECARD_ATTESTATION_PATH = (
 )
 
 
-class _AgentReviewRunResult(NamedTuple):
-    agent_md_files: tuple[Path, ...]
-
-
 def run_agent_review_examples(
     *,
     examples_path: Path,
 ) -> _AgentReviewRunResult:
     """Run every YAML example in one fixture folder through agentic review."""
 
-    reviewer_model = ""
-    invocation_started_at, schema_errors = _begin_yaml_validation(examples_path)
-    if schema_errors:
-        raise ValueError("\n".join(schema_errors))
+    invocation_started_at = _validate_yaml_examples(
+        examples_path,
+        lint_agent_review_examples,
+    )
+    examples, cases, review_inputs = _single_test_review_cases(examples_path)
 
-    pending_packets: list[Path] = []
+    def evaluate(case: _AgentReviewCase) -> dict[int, str] | None:
+        source_path, test = review_inputs[(case.yaml_case, case.test_name)]
+        if not case.artifact_path.exists() or _agent_md_file_is_stale(
+            test.source,
+            case.artifact_path,
+        ):
+            _record_review_start(REVIEW_START_PATH, invocation_started_at)
+            render_agent_md_file(
+                source_path,
+                test,
+                REPO_ROOT,
+                ARTIFACT_ROOT,
+                score_only=True,
+            )
+        artifact_text = case.artifact_path.read_text(encoding="utf-8")
+        if determine_agent_md_status(artifact_text) == "pending":
+            return None
+        results = _scorecard_results(artifact_text)
+        return {
+            criterion: results[criterion]
+            for criterion in case.expected_scorecard
+        }
+
+    return _run_yaml_reviews(
+        cases=cases,
+        yaml_case_count=len(examples),
+        artifact_root=ARTIFACT_ROOT,
+        attestation_path=SCORECARD_ATTESTATION_PATH,
+        report_path=SCORECARD_BASELINE_PATH,
+        review_start_path=REVIEW_START_PATH,
+        evaluate=evaluate,
+        pending_message=(
+            "anonymous agent-review examples are pending; review only these "
+            "Markdown packets, then rerun the test:"
+        ),
+        completion_instruction=(
+            "Run $run-all-yaml-reviews in single-test mode to complete this "
+            "review."
+        ),
+    )
+
+
+def _single_test_review_cases(
+    examples_path: Path,
+) -> tuple[
+    list[AgentReviewExample],
+    list[_AgentReviewCase],
+    dict[tuple[str, str], tuple[Path, ExtractedTestRecord]],
+]:
     fixture_errors: list[str] = []
-    mismatches = []
-    completed_attestations: list[dict[str, object]] = []
-    attestations = _read_scorecard_attestations(SCORECARD_ATTESTATION_PATH)
     titles = criterion_titles_from_template()
     examples = [
         example
         for path in agent_review_example_files(Path(examples_path))
         for example in read_agent_review_examples(path, titles)
     ]
-    tested_cases_by_criterion: dict[int, int] = {}
-    for example in examples:
-        for criterion in example.expected_scorecard:
-            tested_cases_by_criterion[criterion] = (
-                tested_cases_by_criterion.get(criterion, 0) + 1
-            )
+    cases: list[_AgentReviewCase] = []
+    review_inputs: dict[
+        tuple[str, str],
+        tuple[Path, ExtractedTestRecord],
+    ] = {}
     for example in examples:
         source = (
             textwrap.dedent(example.file_docstring).strip()
@@ -115,160 +151,20 @@ def run_agent_review_examples(
                 number: expectation.result
                 for number, expectation in example.expected_scorecard.items()
             }
-            attestation = attestations.get((example.name, test.name))
-            attestation_is_current = _scorecard_attestation_is_current(
-                attestation,
-                source_sha256=digest,
-                expected_scorecard=expected_scorecard,
-            )
             artifact_path = map_test_function_to_agent_md_file(
                 source_path, REPO_ROOT, ARTIFACT_ROOT, test.name
             )
-            if attestation_is_current:
-                actual_scorecard = {
-                    int(number): str(result)
-                    for number, result in attestation["actual_scorecard"].items()
-                }
-                reviewer = attestation["reviewer"]
-            else:
-                if not artifact_path.exists() or _agent_md_file_is_stale(
-                    test.source,
-                    artifact_path,
-                ):
-                    _record_review_start(REVIEW_START_PATH, invocation_started_at)
-                    render_agent_md_file(
-                        source_path,
-                        test,
-                        REPO_ROOT,
-                        ARTIFACT_ROOT,
-                        score_only=True,
-                    )
-                artifact_text = artifact_path.read_text(encoding="utf-8")
-                if determine_agent_md_status(artifact_text) == "pending":
-                    pending_packets.append(artifact_path)
-                    continue
-                all_actual_results = _scorecard_results(artifact_text)
-                actual_scorecard = {
-                    number: all_actual_results[number]
-                    for number in expected_scorecard
-                }
-                if not reviewer_model:
-                    reviewer_model = _reviewer_model_from_environment()
-                reviewer = {"model": reviewer_model}
-            completed_attestations.append(
-                {
-                    "yaml_case": example.name,
-                    "test": test.name,
-                    "scorecard_scope": "expected_criteria",
-                    "source_sha256": digest,
-                    "linter_version": __version__,
-                    "reviewer": reviewer,
-                    "expected_scorecard": {
-                        str(number): result
-                        for number, result in sorted(expected_scorecard.items())
-                    },
-                    "actual_scorecard": {
-                        str(number): result
-                        for number, result in sorted(actual_scorecard.items())
-                    },
-                }
+            case = _AgentReviewCase(
+                yaml_case=example.name,
+                test_name=test.name,
+                mismatch_name=example.name,
+                source_sha256=digest,
+                expected_scorecard=expected_scorecard,
+                completed_results=("pass", "fail"),
+                artifact_path=artifact_path,
             )
-            mismatches.extend(
-                _scorecard_mismatches(
-                    example_name=example.name,
-                    test_name=test.name,
-                    expected_scorecard=expected_scorecard,
-                    actual_scorecard=actual_scorecard,
-                )
-            )
-    if pending_packets:
-        packet_list = "\n".join(
-            f"- {_display_path(path)}" for path in sorted(set(pending_packets))
-        )
-        raise RuntimeError(
-            "anonymous agent-review examples are pending; review only these "
-            f"Markdown packets, then rerun the test:\n{packet_list}\n"
-            "Run $run-all-yaml-reviews in single-test mode to complete this "
-            "review."
-        )
+            cases.append(case)
+            review_inputs[(case.yaml_case, case.test_name)] = (source_path, test)
     if fixture_errors:
         raise AssertionError("\n".join(fixture_errors))
-    regressions, review_duration_seconds = _finish_yaml_evaluation(
-        mismatches=mismatches,
-        tested_cases_by_criterion=tested_cases_by_criterion,
-        baseline_path=SCORECARD_BASELINE_PATH,
-        start_path=REVIEW_START_PATH,
-    )
-    _write_scorecard_attestations(
-        SCORECARD_ATTESTATION_PATH,
-        completed_attestations,
-    )
-    reviewer_models: set[str] = set()
-    for attestation in completed_attestations:
-        reviewer = attestation.get("reviewer")
-        if isinstance(reviewer, dict) and reviewer.get("model"):
-            reviewer_models.add(str(reviewer["model"]))
-    sorted_reviewer_models = sorted(reviewer_models)
-    if not sorted_reviewer_models:
-        raise ValueError("completed attestations require reviewer model")
-    report_reviewer_model = (
-        sorted_reviewer_models[0]
-        if len(sorted_reviewer_models) == 1
-        else f"multiple: {', '.join(sorted_reviewer_models)}"
-    )
-    _write_scorecard_sidecar(
-        sidecar_path=SCORECARD_BASELINE_PATH,
-        mismatches=mismatches,
-        tested_cases_by_criterion=tested_cases_by_criterion,
-        yaml_case_count=len(examples),
-        review_duration_seconds=review_duration_seconds,
-        reviewer_model=report_reviewer_model,
-    )
-    if review_duration_seconds is not None:
-        REVIEW_START_PATH.unlink()
-    if regressions:
-        raise AssertionError(
-            _scorecard_mismatch_message(
-                mismatches,
-                tested_cases_by_criterion=tested_cases_by_criterion,
-            )
-            + "\n\n"
-            + "New failures exceed the committed scorecard baseline:\n"
-            + "\n".join(regressions)
-        )
-    return _AgentReviewRunResult(
-        agent_md_files=tuple(sorted(ARTIFACT_ROOT.glob("*.agent.md")))
-    )
-
-
-def _begin_yaml_validation(examples_path: Path) -> tuple[float, list[str]]:
-    invocation_started_at = time.time()
-    schema_errors = lint_agent_review_examples(examples_path=examples_path)
-    return invocation_started_at, schema_errors
-
-
-def _finish_yaml_evaluation(
-    *,
-    mismatches: list[_ScorecardMismatch],
-    tested_cases_by_criterion: dict[int, int],
-    baseline_path: Path,
-    start_path: Path,
-) -> tuple[list[str], float | None]:
-    regressions = _scorecard_regressions(
-        mismatches,
-        tested_cases_by_criterion=tested_cases_by_criterion,
-        baseline_path=baseline_path,
-    )
-    completed_at = time.time()
-    review_duration_seconds = _review_duration_seconds(
-        start_path,
-        completed_at=completed_at,
-    )
-    return regressions, review_duration_seconds
-
-
-def _display_path(path: Path) -> str:
-    try:
-        return path.resolve().relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        return str(path)
+    return examples, cases, review_inputs

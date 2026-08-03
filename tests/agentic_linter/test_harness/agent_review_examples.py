@@ -6,11 +6,14 @@ import json
 import math
 import os
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable, NamedTuple
 
 from agentic_tdd_linter.version import __version__
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SCORECARD_ROW_PATTERN = re.compile(
     r"^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|$",
     re.MULTILINE,
@@ -24,6 +27,188 @@ class _ScorecardMismatch:
     criterion: int
     expected: str
     actual: str
+
+
+@dataclass(frozen=True)
+class _AgentReviewCase:
+    yaml_case: str
+    test_name: str
+    mismatch_name: str
+    source_sha256: str
+    expected_scorecard: dict[int, str]
+    completed_results: tuple[str, ...]
+    artifact_path: Path
+
+
+class _AgentReviewRunResult(NamedTuple):
+    agent_md_files: tuple[Path, ...]
+
+
+def _validate_yaml_examples(
+    examples_path: Path,
+    lint_examples: Callable[..., list[str]],
+) -> float:
+    invocation_started_at = time.time()
+    schema_errors = lint_examples(examples_path=examples_path)
+    if schema_errors:
+        raise ValueError("\n".join(schema_errors))
+    return invocation_started_at
+
+
+def _run_yaml_reviews(
+    *,
+    cases: list[_AgentReviewCase],
+    yaml_case_count: int,
+    artifact_root: Path,
+    attestation_path: Path,
+    report_path: Path,
+    review_start_path: Path,
+    evaluate: Callable[[_AgentReviewCase], dict[int, str] | None],
+    pending_message: str,
+    completion_instruction: str,
+) -> _AgentReviewRunResult:
+    attestations = _read_scorecard_attestations(attestation_path)
+    pending_packets: list[Path] = []
+    mismatches: list[_ScorecardMismatch] = []
+    completed_attestations: list[dict[str, object]] = []
+    tested_cases_by_criterion: dict[int, int] = {}
+    reviewer_model = ""
+
+    for case in cases:
+        for criterion in case.expected_scorecard:
+            tested_cases_by_criterion[criterion] = (
+                tested_cases_by_criterion.get(criterion, 0) + 1
+            )
+        current_record = attestations.get((case.yaml_case, case.test_name))
+        if _scorecard_attestation_is_current(
+            current_record,
+            source_sha256=case.source_sha256,
+            expected_scorecard=case.expected_scorecard,
+            completed_results=case.completed_results,
+        ):
+            actual_scorecard = {
+                int(number): str(result)
+                for number, result in current_record["actual_scorecard"].items()
+            }
+            reviewer = current_record["reviewer"]
+        else:
+            actual_scorecard = evaluate(case)
+            if actual_scorecard is None:
+                pending_packets.append(case.artifact_path)
+                continue
+            if not reviewer_model:
+                reviewer_model = _reviewer_model_from_environment()
+            reviewer = {"model": reviewer_model}
+
+        completed_attestations.append(
+            {
+                "yaml_case": case.yaml_case,
+                "test": case.test_name,
+                "scorecard_scope": "expected_criteria",
+                "source_sha256": case.source_sha256,
+                "linter_version": __version__,
+                "reviewer": reviewer,
+                "expected_scorecard": {
+                    str(number): result
+                    for number, result in sorted(case.expected_scorecard.items())
+                },
+                "actual_scorecard": {
+                    str(number): result
+                    for number, result in sorted(actual_scorecard.items())
+                },
+            }
+        )
+        mismatches.extend(
+            _scorecard_mismatches(
+                example_name=case.mismatch_name,
+                test_name=case.test_name,
+                expected_scorecard=case.expected_scorecard,
+                actual_scorecard=actual_scorecard,
+            )
+        )
+
+    if pending_packets:
+        packet_list = "\n".join(
+            f"- {_display_path(path)}"
+            for path in sorted(set(pending_packets))
+        )
+        raise RuntimeError(
+            f"{pending_message}\n{packet_list}\n{completion_instruction}"
+        )
+
+    regressions, review_duration_seconds = _finish_yaml_evaluation(
+        mismatches=mismatches,
+        tested_cases_by_criterion=tested_cases_by_criterion,
+        baseline_path=report_path,
+        start_path=review_start_path,
+    )
+    _write_scorecard_attestations(attestation_path, completed_attestations)
+    _write_scorecard_sidecar(
+        sidecar_path=report_path,
+        mismatches=mismatches,
+        tested_cases_by_criterion=tested_cases_by_criterion,
+        yaml_case_count=yaml_case_count,
+        review_duration_seconds=review_duration_seconds,
+        reviewer_model=_reviewer_model(completed_attestations),
+    )
+    if review_duration_seconds is not None:
+        review_start_path.unlink()
+    if regressions:
+        raise AssertionError(
+            _scorecard_mismatch_message(
+                mismatches,
+                tested_cases_by_criterion=tested_cases_by_criterion,
+            )
+            + "\n\nNew failures exceed the committed scorecard baseline:\n"
+            + "\n".join(regressions)
+        )
+    return _AgentReviewRunResult(
+        agent_md_files=tuple(sorted(artifact_root.glob("*.agent.md")))
+    )
+
+
+def _finish_yaml_evaluation(
+    *,
+    mismatches: list[_ScorecardMismatch],
+    tested_cases_by_criterion: dict[int, int],
+    baseline_path: Path,
+    start_path: Path,
+) -> tuple[list[str], float | None]:
+    regressions = (
+        _scorecard_regressions(
+            mismatches,
+            tested_cases_by_criterion=tested_cases_by_criterion,
+            baseline_path=baseline_path,
+        )
+        if baseline_path.exists()
+        else []
+    )
+    review_duration_seconds = _review_duration_seconds(
+        start_path,
+        completed_at=time.time(),
+    )
+    return regressions, review_duration_seconds
+
+
+def _reviewer_model(records: list[dict[str, object]]) -> str:
+    reviewer_models = {
+        str(reviewer["model"])
+        for record in records
+        if isinstance((reviewer := record.get("reviewer")), dict)
+        and reviewer.get("model")
+    }
+    if not reviewer_models:
+        raise ValueError("completed attestations require reviewer model")
+    if len(reviewer_models) == 1:
+        return next(iter(reviewer_models))
+    return f"multiple: {', '.join(sorted(reviewer_models))}"
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def _scorecard_regressions(
