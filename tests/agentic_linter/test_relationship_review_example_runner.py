@@ -32,7 +32,10 @@ class TestRelationshipReviewExampleRunnerTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Every case has one unordered pair, source digest, overlap expectation, optional difference kind, and packet path.
+        The runner produces one case per catalog example and one review input per case.
+        Every case identifies one unordered pair and records an overlap expectation.
+        Each overlapping case records an allowed difference kind, while each nonoverlapping case omits the difference kind.
+        Every case locates its packet under the supplied artifact root.
         """
 
         with tempfile.TemporaryDirectory() as directory:
