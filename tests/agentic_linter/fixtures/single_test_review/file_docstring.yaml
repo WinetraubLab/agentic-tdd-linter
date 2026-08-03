@@ -433,7 +433,7 @@ file_docstring_008_changed_canonical_phrase:
     46: # Terms Reuse Shared Vocabulary
       fail # `One YAML example` omits the `agent-review` modifier and changes the established plural phrase `agent-review YAML examples` to singular.
 
-file_docstring_009_readme_shorthand:
+file_docstring_009_readme_name_shorthand:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
