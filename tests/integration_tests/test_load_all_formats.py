@@ -48,18 +48,16 @@ class LoadAllFormatsTests(unittest.TestCase):
         14. Cross-test packet excludes `def test_returns_stored_text`.
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 26 pending rows. The current test proves Python discovery, extraction, and complete packet content.
-        - Lower Level Test: `test_main.py::test_test_root_reports_generated_packet`
-          Justification: Deeper coverage — The lower test proves packet-count reporting for a nondefault test root. The current test proves complete Python packet loading.
-        - Lower Level Test: `test_multiple_tests_in_one_file.py::test_python_multiple_tests_pass`
-          Justification: Deeper coverage — The lower test isolates conventional validation for multiple Python tests in one file. The current test loads Python tests through complete packet generation.
-        - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
-          Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by Python packet generation. The current test loads those fields into complete Python packets.
-        - Lower Level Test: `test_map_test_function_to_agent_md_file.py::test_round_trip_preserves_test_identity`
-          Justification: Deeper coverage — The lower test directly verifies round-trip recovery of the test path and function name. The current test uses the mapping during complete Python packet loading without isolating its reverse mapping.
-        - Lower Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Deeper coverage — The lower test directly validates every required Python docstring field. The current test loads that documentation into complete Python packets without isolating conventional docstring validation.
+        - Scenario Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_main.py::test_test_root_reports_generated_packet`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_typescript_tests`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_python_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_typescript_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation; the current test is happy path, while the named test is failure path.
         """
 
         python_source = textwrap.dedent(
@@ -150,14 +148,14 @@ class LoadAllFormatsTests(unittest.TestCase):
         14. Cross-test packet excludes `test("returns stored text"`.
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 26 pending rows. The current test proves TypeScript discovery, single-test source content, and cross-test docstring content.
-        - Lower Level Test: `test_multiple_tests_in_one_file.py::test_typescript_multiple_tests_pass`
-          Justification: Deeper coverage — The lower test isolates conventional validation for multiple TypeScript tests in one file. The current test loads TypeScript tests through complete packet generation.
-        - Lower Level Test: `test_extracted_test_record.py::test_stores_required_fields`
-          Justification: Shared foundation — The lower test preserves language-neutral indexed fields reused by TypeScript packet generation. The current test loads those fields into complete TypeScript packets.
-        - Lower Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Deeper coverage — The lower test directly validates every required TypeScript JSDoc field. The current test loads that documentation into complete TypeScript packets without isolating conventional docstring validation.
+        - Scenario Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_python_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_typescript_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation; the current test is happy path, while the named test is failure path.
         """
 
         typescript_source = textwrap.dedent(
@@ -240,6 +238,14 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Harness creates a `.py` file containing one fully documented test and no file docstring.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `missing_file_docstring`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation. The named test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_loads_typescript_tests`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation. The named test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_typescript_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation. The named test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation; both use failure path, but exercise materially different scenarios.
         """
 
         python_source = textwrap.dedent(
@@ -282,6 +288,14 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Harness creates a `.test.ts` file containing one fully documented test and no file-level JSDoc.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `missing_file_docstring`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation. The named test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_loads_typescript_tests`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation. The named test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_python_without_file_docstring`
+          Explanation: The current test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation. The named test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation; both use failure path, but exercise materially different scenarios.
         """
 
         typescript_source = textwrap.dedent(
@@ -328,6 +342,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Harness creates one file declaring `parser` and containing a requirement that does not identify parser.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `multiple_modules_in_test_file`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_load_all_formats.py::test_instructs_split_for_multiple_modules`
+          Explanation: The current test verifies `create-agent-md` requires every test requirement to identify the module declared by its test file. The named test verifies `create-agent-md` instructs the caller to create one test file per declared module when a test file contains tests that declare multiple modules; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `create-agent-md` requires every test requirement to identify the module declared by its test file. The named test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist; both use failure path, but exercise materially different scenarios.
         """
 
         test_source = textwrap.dedent(
@@ -390,6 +410,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         1. Harness creates one file declaring `parser` and containing parser and formatter tests.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `split this test file so each file validates one module`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `create-agent-md` instructs the caller to create one test file per declared module when a test file contains tests that declare multiple modules. The named test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_requirement_without_declared_module`
+          Explanation: The current test verifies `create-agent-md` instructs the caller to create one test file per declared module when a test file contains tests that declare multiple modules. The named test verifies `create-agent-md` requires every test requirement to identify the module declared by its test file; both use failure path, but exercise materially different scenarios.
         """
 
         test_source = textwrap.dedent(
@@ -457,8 +483,12 @@ class LoadAllFormatsTests(unittest.TestCase):
         3. Command output contains `missing_test_module`.
 
         Similar Coverage:
-        - Higher Level Test: `test_source_module_structure.py::test_tests_have_source_or_harness`
-          Justification: Deeper coverage — The current test isolates CLI rejection of one missing declared module path. The higher test enforces counterpart coverage across repository test modules.
+        - Scenario Difference: `test_load_all_formats.py::test_instructs_split_for_multiple_modules`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist. The named test verifies `create-agent-md` instructs the caller to create one test file per declared module when a test file contains tests that declare multiple modules; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_requirement_without_declared_module`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist. The named test verifies `create-agent-md` requires every test requirement to identify the module declared by its test file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_source_module_structure.py::test_tests_have_source_or_harness`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist. The named test verifies `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`; the current test is failure path, while the named test is happy path.
         """
 
         test_source = textwrap.dedent(
