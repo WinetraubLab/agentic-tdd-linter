@@ -42,10 +42,14 @@ class ClassificationTests(unittest.TestCase):
         When paths correspond to `happy path`, rules contain zero issues.
 
         Similar Coverage:
-        - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Diagnostic completeness — The current test isolates whether `happy path` alone is accepted. The higher test combines that classification with three other required Python docstring fields.
-        - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Diagnostic completeness — The current test isolates whether `happy path` alone is accepted. The higher test combines that classification with three other required TypeScript docstring fields.
+        - Scenario Difference: `test_classification.py::test_accepts_failure_path`
+          Explanation: The current test verifies `conventional_linter` accepts `happy path` when parser input succeeds. The named test verifies `conventional_linter` accepts `failure path`; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` accepts `happy path` when parser input succeeds. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` accepts `happy path` when parser input succeeds. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` accepts `happy path` when parser input succeeds. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
         """
 
         rules = _lint_classification_source(
@@ -79,6 +83,12 @@ class ClassificationTests(unittest.TestCase):
 
         Verification Detail:
         When paths correspond to `failure path`, validator rules contain zero issues.
+
+        Similar Coverage:
+        - Scenario Difference: `test_classification.py::test_accepts_happy_path`
+          Explanation: The current test verifies `conventional_linter` accepts `failure path`. The named test verifies `conventional_linter` accepts `happy path` when parser input succeeds; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` accepts `failure path`. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_classification_source(
@@ -115,10 +125,18 @@ class ClassificationTests(unittest.TestCase):
         Rules equal an empty set.
 
         Similar Coverage:
-        - Higher Level Test: `test_docstring_structure.py::test_python_docstring_passes`
-          Justification: Diagnostic completeness — The current test isolates whether public function output alone is accepted. The higher test combines that method with three other required Python docstring fields.
-        - Higher Level Test: `test_docstring_structure.py::test_typescript_doc_comment_passes`
-          Justification: Diagnostic completeness — The current test isolates whether public function output alone is accepted. The higher test combines that method with three other required TypeScript docstring fields.
+        - Scenario Difference: `test_classification.py::test_accepts_private_output`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` includes private function output in `supported methods`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_private_function_verification.py::test_private_verification_without_private_call`
+          Explanation: The current test verifies `conventional_linter` accepts public function output among `supported methods`. The named test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_classification_source(
@@ -153,6 +171,16 @@ class ClassificationTests(unittest.TestCase):
         Verification Detail:
         The synthetic test declares `Verification Method: verify private function output`.
         Rules equal an empty set.
+
+        Similar Coverage:
+        - Scenario Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` includes private function output in `supported methods`. The named test verifies `conventional_linter` accepts public function output among `supported methods`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` includes private function output in `supported methods`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` includes private function output in `supported methods`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_private_function_verification.py::test_private_verification_without_private_call`
+          Explanation: The current test verifies `conventional_linter` includes private function output in `supported methods`. The named test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_classification_source(
@@ -194,6 +222,18 @@ class ClassificationTests(unittest.TestCase):
         The test docstring contains `tests/artifacts/addition.png`.
         The test docstring contains inspection instructions.
         The test source invokes `write_visual_inspection_artifact`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` accepts a `visual inspection contract`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_inspection_artifact`
+          Explanation: The current test verifies `conventional_linter` accepts a `visual inspection contract`. The named test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` accepts a `visual inspection contract`. The named test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` accepts a `visual inspection contract`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_visual_helper`
+          Explanation: The current test verifies `conventional_linter` accepts a `visual inspection contract`. The named test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_classification_source(
@@ -234,6 +274,20 @@ class ClassificationTests(unittest.TestCase):
 
         Verification Detail:
         `_lint_classification_source` output contains `invalid_verification_method` for `Verification Method: verify database state`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_private_output`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` includes private function output in `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` accepts public function output among `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_visual_inspection`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` accepts a `visual inspection contract`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` accepts only `supported methods` as Verification Method values. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_classification_source(
