@@ -444,6 +444,63 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
         self.assertIn("tests/test_truth.py", cross_packet_after)
+    def test_removes_obsolete_single_test_packet(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation.
+        """
+
+        initial_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `truth example` located at `src/truth.py`.
+            `truth example` is responsible for evaluating documented boolean expressions.
+            """
+
+            def test_current() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `truth example` evaluates the current expression as true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The current expression equals true.
+                """
+
+                assert True
+
+            '''
+        )
+        renamed_source = initial_source.replace("test_current", "test_renamed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_truth.py"
+            _write_source(repo_root / "src" / "truth.py", "VALUE = True\n")
+            _write_source(test_file, initial_source)
+            _run_cli(repo_root, "create-agent-md", "--fresh")
+            initial_packets = _packet_paths(repo_root)
+            obsolete_packets = [
+                path
+                for path in initial_packets
+                if path.name != "cross_test_review.agent.md"
+            ]
+            _write_source(test_file, renamed_source)
+            _run_cli(repo_root, "create-agent-md")
+            current_packets = _packet_paths(repo_root)
+            current_names = {path.name for path in current_packets}
+
+        self.assertEqual(
+            ["test_truth__test_current.agent.md"],
+            [path.name for path in obsolete_packets],
+        )
+        self.assertNotIn(
+            "test_truth__test_current.agent.md",
+            current_names,
+        )
 
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
