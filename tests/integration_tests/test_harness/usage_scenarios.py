@@ -68,9 +68,19 @@ def packet_exists(packet_path: Path) -> bool:
 def complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
     for packet_path in packet_paths(repo_root):
         packet = packet_path.read_text(encoding="utf-8")
+        packet = packet.replace(
+            "| pending | pending | Replace with classification evidence. |",
+            f"| yes | Module Difference | {evidence}. |",
+        )
         if status == "pass":
             packet = packet.replace(
                 "| pending | Replace with review evidence. |",
+                f"| pass | {evidence}. |",
+            ).replace(
+                (
+                    "| pending | Complete only when an overlapping pair "
+                    "involves this test. |"
+                ),
                 f"| pass | {evidence}. |",
             )
         else:
@@ -80,6 +90,19 @@ def complete_packets(repo_root: Path, *, status: str, evidence: str) -> None:
                 1,
             ).replace(
                 "| pending | Replace with review evidence. |",
+                f"| pass | {evidence}. |",
+            ).replace(
+                (
+                    "| pending | Complete only when an overlapping pair "
+                    "involves this test. |"
+                ),
+                f"| fail | {evidence}. |",
+                1,
+            ).replace(
+                (
+                    "| pending | Complete only when an overlapping pair "
+                    "involves this test. |"
+                ),
                 f"| pass | {evidence}. |",
             )
         packet_path.write_text(packet, encoding="utf-8")
