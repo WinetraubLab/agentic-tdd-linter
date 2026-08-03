@@ -190,6 +190,7 @@ def _scorecard_attestation_is_current(
     *,
     source_sha256: str,
     expected_scorecard: dict[int, str],
+    completed_results: tuple[str, ...] = ("pass", "fail"),
 ) -> bool:
     if record is None:
         return False
@@ -205,7 +206,7 @@ def _scorecard_attestation_is_current(
         and record.get("expected_scorecard") == expected
         and isinstance(actual, dict)
         and set(actual) == set(expected)
-        and all(result in ("pass", "fail") for result in actual.values())
+        and all(result in completed_results for result in actual.values())
         and bool(record.get("reviewer"))
     )
 
@@ -302,8 +303,9 @@ def _scorecard_mismatch_message(
             "",
             *rows,
             "",
-            "Use $calibrate-agent-review-criteria to diagnose the mismatch and "
-            "test generalized criterion wording.",
+            "Use $run-all-yaml-reviews to reproduce the YAML review from fresh "
+            "isolated packets. Use $calibrate-agent-review-criteria to diagnose "
+            "a reproduced mismatch and test generalized criterion wording.",
         ]
     )
 
