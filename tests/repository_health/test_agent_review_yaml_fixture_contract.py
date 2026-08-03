@@ -29,7 +29,6 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         Validation errors contain `fail needs an explanation comment`.
-
         """
 
         invalid_source = textwrap.dedent(
@@ -83,7 +82,6 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         `lint_agent_review_examples` output contains "unsupported field `owner`".
-
         """
 
         invalid_source = textwrap.dedent(
@@ -126,7 +124,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         ]
         self.assertTrue(matching_errors)
 
-    def test_rejects_case_name_outside_filename_number_format(self) -> None:
+    def test_rejects_invalid_case_name(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
@@ -137,6 +135,10 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
         Verification Detail:
         `lint_agent_review_examples` output requires the pattern `invalid_<three_digit_number>`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_relationship_review_yaml_fixture_contract.py::test_rejects_invalid_case_sequence`
+          Explanation: The current test verifies `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with a three-digit number and permits an optional three-word note. The named test verifies `test_relationship_review_yaml_fixture_contract` requires every relationship YAML case name to begin with its filename stem, an underscore, and a three-digit number; both use failure path, but exercise materially different scenarios.
         """
 
         invalid_source = textwrap.dedent(
