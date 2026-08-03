@@ -7,10 +7,9 @@ from pathlib import Path
 
 
 def yaml_case_name_errors(path: Path, text: str) -> list[str]:
-    """Return errors for top-level cases outside the filename-number sequence."""
+    """Return errors for top-level cases outside the filename-number format."""
 
     errors: list[str] = []
-    case_number = 0
     for line_number, line in enumerate(text.splitlines(), start=1):
         if (
             not line
@@ -19,14 +18,16 @@ def yaml_case_name_errors(path: Path, text: str) -> list[str]:
             or not line.endswith(":")
         ):
             continue
-        case_number += 1
         actual_name = line[:-1]
-        expected_prefix = f"{path.stem}_{case_number:03d}"
-        optional_note = r"(?:_[a-z0-9]+_[a-z0-9]+_[a-z0-9]+)?"
-        if not re.fullmatch(re.escape(expected_prefix) + optional_note, actual_name):
+        expected_name = f"{path.stem}_<three_digit_number>"
+        case_name = (
+            re.escape(path.stem)
+            + r"_[0-9]{3}(?:_[a-z0-9]+_[a-z0-9]+_[a-z0-9]+)?"
+        )
+        if not re.fullmatch(case_name, actual_name):
             errors.append(
-                f"{path}:{line_number}: YAML case {case_number} must be named "
-                f"`{expected_prefix}` or `{expected_prefix}_<three_word_note>`, "
+                f"{path}:{line_number}: YAML case must be named "
+                f"`{expected_name}` or `{expected_name}_<three_word_note>`, "
                 f"found `{actual_name}`"
             )
     return errors
