@@ -34,6 +34,12 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
         The fixture declares `verify private function output`.
         The fixture invokes `helper(" value ")`.
         The lint result contains `private_verification_missing_private_call` because `helper` lacks a leading underscore.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_private_output`
+          Explanation: The current test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers. The named test verifies `conventional_linter` includes private function output in `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers. The named test verifies `conventional_linter` accepts public function output among `supported methods`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_private_verification_source(
