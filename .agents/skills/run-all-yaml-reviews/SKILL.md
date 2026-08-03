@@ -113,11 +113,12 @@ AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
   tests.agentic_linter.test_harness.relationship_review_example_runner
 ```
 
-This invocation compares each test's completed relationship scorecard with its
-own YAML expectations and updates
-`tests/agentic_linter/test_relationship_review_example_runner.json`, even when
-comparison failures make the command exit nonzero. Verify that the report
-identifies the recorded `AGENT_REVIEW_MODEL`.
+This invocation compares each pair's completed relationship scorecard with its
+YAML expectations and updates
+`tests/agentic_linter/test_relationship_review_example_runner.json` and
+`tests/agentic_linter/test_relationship_review_example_runner.jsonl`, even when
+comparison failures make the command exit nonzero. Verify that both outputs
+identify the recorded `AGENT_REVIEW_MODEL`.
 
 ## Step 5: Analyze history
 
@@ -182,7 +183,7 @@ For **test-relationship** review, show the full table for all enforced criteria
 from the test-relationship JSON report. Use the same four columns, sort by
 numeric pass percentage ascending, and break ties by criterion number
 ascending. In `Result explanations`, list current failing test-relationship
-YAML case/test keys and summarize the count of passing checks. Do not label
+YAML case/pair keys and summarize the count of passing checks. Do not label
 test-relationship results as New test, Flaky, Fails in HEAD, Regression,
 Stable pass, or Fixed.
 
