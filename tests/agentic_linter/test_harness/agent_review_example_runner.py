@@ -187,7 +187,9 @@ def run_agent_review_examples(
         )
         raise RuntimeError(
             "anonymous agent-review examples are pending; review only these "
-            f"Markdown packets, then rerun the test:\n{packet_list}"
+            f"Markdown packets, then rerun the test:\n{packet_list}\n"
+            "Run $run-all-yaml-reviews in single-test mode to complete this "
+            "review."
         )
     if fixture_errors:
         raise AssertionError("\n".join(fixture_errors))
