@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-availability_without_behavior:
+requirement_formulation_001_availability_without_behavior:
   file_docstring: |
     """Tests in this file validate `availability_policy` located at `src/examples/availability_policy.py`.
     `availability_policy` is responsible for selecting availability windows for organizations.
@@ -46,7 +46,7 @@ availability_without_behavior:
     51: # Assertions Prove the Stated Requirement
       fail # The assertion checks only the home inclusion and does not prove the Y exclusion.
 
-assertions_without_behavior:
+requirement_formulation_002_assertions_without_behavior:
   file_docstring: |
     """Tests in this file validate `input_assertions` located at `src/examples/input_assertions.py`.
     `input_assertions` is responsible for validating test inputs.
@@ -75,7 +75,7 @@ assertions_without_behavior:
     51: # Assertions Prove the Stated Requirement
       fail # The arithmetic assertion does not prove the assertion-tag wording.
 
-swappable_requirement:
+requirement_formulation_003_swappable_requirement_case:
   file_docstring: |
     """Tests in this file validate `sentence_validator` located at `src/examples/sentence_validator.py`.
     `sentence_validator` is responsible for validating sentence structure.
@@ -102,7 +102,7 @@ swappable_requirement:
     13: # Requirement Has the Appropriate Specificity
       fail # Each requirement is generic enough to be swapped onto another sentence-validation test.
 
-ambiguous_input:
+requirement_formulation_004_ambiguous_input_case:
   file_docstring: |
     """Tests in this file validate `value_normalizer` located at `src/examples/value_normalizer.py`.
     `value_normalizer` is responsible for preparing values for validation.
@@ -129,7 +129,7 @@ ambiguous_input:
     43: # Data-Flow Terms Name an Owner
       fail # Input does not name the component or caller that owns it.
 
-ambiguous_output:
+requirement_formulation_005_ambiguous_output_case:
   file_docstring: |
     """Tests in this file validate `value_normalizer` located at `src/examples/value_normalizer.py`.
     `value_normalizer` is responsible for producing normalized values.
@@ -156,7 +156,7 @@ ambiguous_output:
     43: # Data-Flow Terms Name an Owner
       fail # Output does not name the component or operation that produces it.
 
-ambiguous_returns:
+requirement_formulation_006_ambiguous_returns_case:
   file_docstring: |
     """Tests in this file validate `value_provider` located at `src/examples/value_provider.py`.
     `value_provider` is responsible for supplying computed values.
@@ -185,7 +185,7 @@ ambiguous_returns:
     43: # Data-Flow Terms Name an Owner
       fail # Returns does not name the component or operation that owns the returned value.
 
-ambiguous_provided:
+requirement_formulation_007_ambiguous_provided_case:
   file_docstring: |
     """Tests in this file validate `artifact_table` located at `src/examples/artifact_table.py`.
     `artifact_table` is responsible for constructing artifact rows from templates.
@@ -212,7 +212,7 @@ ambiguous_provided:
     43: # Data-Flow Terms Name an Owner
       fail # Provided does not identify who supplies the activity name.
 
-missing_file_without_scenario:
+requirement_formulation_008_missing_file_without:
   file_docstring: |
     """Tests in this file validate `jinja_render_validation` located at `src/examples/jinja_render_validation.py`.
     `jinja_render_validation` is responsible for validating manifest-backed template rendering.
@@ -239,7 +239,7 @@ missing_file_without_scenario:
     12: # Second Line Describes a Scenario
       fail # Requirement Tested contains no second sentence describing a concrete missing-file scenario.
 
-unused_context_without_scenario:
+requirement_formulation_009_unused_context_without:
   file_docstring: |
     """Tests in this file validate `jinja_manifest_rendering` located at `src/examples/jinja_manifest_rendering.py`.
     `jinja_manifest_rendering` is responsible for rendering templates from manifest context.
@@ -270,7 +270,7 @@ unused_context_without_scenario:
     12: # Second Line Describes a Scenario
       fail # Requirement Tested contains no second sentence describing a concrete unused-context scenario.
 
-version_equality_described_as_identification:
+requirement_formulation_010_version_equality_described:
   file_docstring: |
     """Tests in this file validate `package_metadata` located at `src/examples/package_metadata.py`.
     `package_metadata` is responsible for exposing package version information.
@@ -305,7 +305,7 @@ version_equality_described_as_identification:
       fail # The assertion compares two version values, while the requirement claims only that metadata identifies one attribute.
            # Expected requirement: The package version exposed at runtime equals the project metadata version read by `_project_version`.
 
-version_relationship_is_material:
+requirement_formulation_011_version_relationship_is:
   file_docstring: |
     """Tests in this file validate `package_metadata` located at `src/examples/package_metadata.py`.
     `package_metadata` is responsible for exposing package version information.
@@ -341,7 +341,7 @@ version_relationship_is_material:
     21: # Verification Detail States Material Outcomes
       pass # The equality relationship defines the contract, while Verification Detail states the concrete observations that prove it.
 
-api_limit_and_exception_are_material:
+requirement_formulation_012_api_limit_and:
   file_docstring: |
     """Tests in this file validate `source_module_policy` located at `src/examples/source_module_policy.py`.
     `source_module_policy` is responsible for defining public interfaces for source modules.
@@ -383,7 +383,7 @@ api_limit_and_exception_are_material:
     21: # Verification Detail States Material Outcomes
       pass # The limit and exception define the contract, while Verification Detail states the observed absence of violations.
 
-module_public_function_limit_combines_two_requirements_head:
+requirement_formulation_013_module_public_function:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
@@ -461,7 +461,7 @@ module_public_function_limit_combines_two_requirements_head:
     14: # Requirement Is Atomic
       fail # The test combines the ordinary public-function limit with the independent data-only-module exemption; these behaviors should be tested separately.
 
-workflow_baseline_omits_repository_policy:
+requirement_formulation_014_workflow_baseline_omits:
   file_docstring: |
     """Tests in this file validate `unit_test_workflow` located at `src/examples/unit_test_workflow.py`.
     `unit_test_workflow` is responsible for running repository unit tests.
@@ -495,7 +495,7 @@ workflow_baseline_omits_repository_policy:
     13: # Requirement Has the Appropriate Specificity
       fail # Running tests omits the complete Python-suite scope established by unittest discovery under the tests directory.
 
-record_field_set_forms_one_schema_contract:
+requirement_formulation_015_record_field_set:
   file_docstring: |
     """Tests in this file validate `extracted_test_record` located at `src/examples/extracted_test_record.py`.
     `extracted_test_record` is responsible for storing language-neutral test data.
@@ -549,7 +549,7 @@ record_field_set_forms_one_schema_contract:
     51: # Assertions Prove the Stated Requirement
       pass # Each field assertion proves one property named by the record-schema requirement.
 
-module_identity_is_described_as_check_behavior:
+requirement_formulation_016_module_identity_is:
   file_docstring: |
     """Tests in this file validate `test_file_docstring_check` located at `src/examples/test_file_docstring_check.py`.
     `test_file_docstring_check` is responsible for validating test-file documentation.
@@ -595,7 +595,7 @@ module_identity_is_described_as_check_behavior:
     51: # Assertions Prove the Stated Requirement
       pass # The exact `<module>` issue name is concrete evidence that the check identifies module scope.
 
-repository_policy_described_as_git_query_requirement:
+requirement_formulation_017_repository_policy_described:
   file_docstring: |
     """Tests in this file validate `review_manifest_policy` located at `src/examples/review_manifest_policy.py`.
     `review_manifest_policy` is responsible for preserving review proof in source control.
@@ -633,7 +633,7 @@ repository_policy_described_as_git_query_requirement:
     13: # Requirement Has the Appropriate Specificity
       fail # The tracked-file query is an evidence mechanism rather than the material requirement that the manifest remains tracked in source control.
 
-source_test_pairing_formulation_negative:
+requirement_formulation_018_source_test_pairing:
   file_docstring: |
     """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
     `repository_validation` is responsible for validating repository module coverage.
@@ -684,7 +684,7 @@ source_test_pairing_formulation_negative:
     17: # Scenario Has the Appropriate Specificity
       fail # Test module absence does not identify the source module whose missing matching test module defines the exercised orphan-source scenario.
 
-source_test_pairing_formulation_positive:
+requirement_formulation_019_source_test_pairing:
   file_docstring: |
     """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
     `repository_validation` is responsible for validating repository module coverage.
@@ -735,7 +735,7 @@ source_test_pairing_formulation_positive:
     17: # Scenario Has the Appropriate Specificity
       pass # The second line identifies the orphan-source condition and the rejection behavior without incidental test-case details.
 
-ordered_review_stages_form_one_workflow:
+requirement_formulation_020_ordered_review_stages:
   file_docstring: |
     """Tests in this file validate `review_documentation` located at `src/examples/review_documentation.py`.
     `review_documentation` is responsible for describing the repository review workflow.
@@ -788,7 +788,7 @@ ordered_review_stages_form_one_workflow:
     37: # Sentence Expresses One Concept
       pass # The colon list defines the components of one review workflow rather than independent behaviors.
 
-requirement_omits_declared_module_owner:
+requirement_formulation_021_requirement_omits_declared:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -816,7 +816,7 @@ requirement_omits_declared_module_owner:
     16: # Requirement Fits Declared Module Responsibility
       fail # The requirement describes arithmetic behavior but omits the declared `calculator` module as its grammatical subject.
 
-requirement_outside_declared_module_responsibility:
+requirement_formulation_022_requirement_outside_declared:
   file_docstring: |
     """Tests in this file validate `parser` located at `src/examples/parser.py`.
     `parser` is responsible for converting text into records.
@@ -842,7 +842,7 @@ requirement_outside_declared_module_responsibility:
     16: # Requirement Fits Declared Module Responsibility
       fail # Sending account emails is outside the parser's declared text-conversion responsibility, so the test belongs in a separate module-specific test file.
 
-stale_attestation_uses_score_only_current:
+requirement_formulation_023_stale_attestation_uses:
   file_docstring: |
     """Tests in this file validate `agent_review_example_runner` located at `tests/agentic_linter/test_harness/agent_review_example_runner.py`.
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
@@ -866,7 +866,7 @@ stale_attestation_uses_score_only_current:
 
         Verification Detail:
         1. `SCORECARD_ATTESTATION_PATH` denotes the mocked attestation with one 64-zero source hash.
-        2. The `ambiguous_input` copy contains source_sha256 with 64 zero characters instead of its current `YAML fixture catalog` source hash.
+        2. The `requirement_formulation_004_ambiguous_input_case` copy contains source_sha256 with 64 zero characters instead of its current `YAML fixture catalog` source hash.
         3. RuntimeError contains exactly one bullet line beginning with `- `, containing `test_<current-source-hash>__`, and ending in '.agent.md'.
         4. The artifact directory contains exactly one generated '.agent.md'.
         5. The generated packet directs the reviewer to score once and stop.
@@ -901,7 +901,7 @@ stale_attestation_uses_score_only_current:
             stale_record = next(
                 record
                 for record in records
-                if record["yaml_case"] == "ambiguous_input"
+                if record["yaml_case"] == "requirement_formulation_004_ambiguous_input_case"
             )
             current_source_hash = stale_record["source_sha256"]
             stale_record["source_sha256"] = "0" * 64
@@ -946,7 +946,7 @@ stale_attestation_uses_score_only_current:
     51: # Assertions Prove the Stated Requirement
       pass # The assertions prove that stale proof generates and reports one current-hash score-only packet.
 
-changed_review_contract_names_readme_current:
+requirement_formulation_024_changed_review_contract:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `CI/CD linter` is responsible for validating committed review proof without creating review packets.

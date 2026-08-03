@@ -40,7 +40,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
             # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
             # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-            missing_comment:
+            invalid_001:
               file_docstring: |
                 """Document the example source file."""
               test: |
@@ -94,7 +94,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
             # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
             # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-            unsupported_owner:
+            invalid_001:
               owner: parser
               test: |
                 def test_example() -> None:
@@ -125,6 +125,60 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
             error for error in errors if "unsupported field `owner`" in error
         ]
         self.assertTrue(matching_errors)
+
+    def test_rejects_case_name_outside_filename_number_sequence(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with its three-digit sequence number and permits an optional three-word note.
+        Specialized usage: The first case in invalid.yaml uses a descriptive name instead of `invalid_001`, so YAML validation emits the case-name diagnostic.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `lint_agent_review_examples` output requires the prefix `invalid_001`.
+        """
+
+        invalid_source = textwrap.dedent(
+            '''
+            # Test-source examples for agent review.
+            # Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+            # Criteria omitted from `expected_scorecard` are ignored during comparison.
+            # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+            # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+            descriptive_name:
+              file_docstring: |
+                """Document the example source file."""
+              test: |
+                def test_example() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Addition calculates sums.
+                    Standard usage: The scenario demonstrates baseline behavior.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The expression produces `2`.
+                    """
+
+                    assert 1 + 1 == 2
+              expected_scorecard:
+                11: # First Line States a General Behavioral Rule
+                  pass # The requirement states the calculation behavior.
+            '''
+        ).lstrip()
+        with tempfile.TemporaryDirectory() as directory:
+            example_file = Path(directory) / "invalid.yaml"
+            example_file.write_text(invalid_source, encoding="utf-8")
+
+            errors = lint_agent_review_examples(examples_path=example_file)
+
+        self.assertTrue(
+            any("must be named `invalid_001`" in error for error in errors)
+        )
 
 
 if __name__ == "__main__":

@@ -51,7 +51,7 @@ Example:
 ```bash
 .venv/bin/python \
   .agents/skills/calibrate-agent-review-criteria/scripts/criterion_experiment.py \
-  prepare extra_assertion_proves_other_behavior 51 \
+  prepare assertion_quality_001_extra_assertion_proves 51 \
   --title "Assertions Prove the Stated Requirement" \
   --rule 'Every assertion shall prove the exact behavior stated in `Requirement Tested`.' \
   --rule 'Assertions that further validate related behavior require explicit descriptions in `Requirement Tested`.'

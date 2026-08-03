@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-public_method_receives_public_result:
+verification_method_001_public_method_receives:
   file_docstring: |
     """Tests in this file validate `linter` located at `src/examples/linter.py`.
     `linter` is responsible for validating tests.
@@ -34,7 +34,7 @@ public_method_receives_public_result:
     23: # Verification Method Matches Exercised Interface
       pass # The asserted evidence comes directly from the public `run_lint_pipeline` callable.
 
-public_method_receives_private_result:
+verification_method_002_public_method_receives:
   file_docstring: |
     """Tests in this file validate `linter` located at `src/examples/linter.py`.
     `linter` is responsible for validating tests.
@@ -64,7 +64,7 @@ public_method_receives_private_result:
     23: # Verification Method Matches Exercised Interface
       fail # The asserted evidence comes from the private `_run_lint` helper, not a public interface.
 
-private_method_receives_private_result:
+verification_method_003_private_method_receives:
   file_docstring: |
     """Tests in this file validate `linter` located at `src/examples/linter.py`.
     `linter` is responsible for validating tests.

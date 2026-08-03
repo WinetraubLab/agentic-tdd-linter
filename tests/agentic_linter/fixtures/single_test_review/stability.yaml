@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-readme_workflows_head:
+stability_001_readme_workflows_head:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -87,7 +87,7 @@ readme_workflows_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-accepts_defined_requirement_term_head:
+stability_002_accepts_defined_requirement:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating backticked requirement-term definitions.
@@ -172,7 +172,7 @@ accepts_defined_requirement_term_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-stale_attestation_requires_review_head:
+stability_003_stale_attestation_requires:
   file_docstring: |
     """Tests in this file validate `agent_review_example_runner` located at `tests/agentic_linter/test_harness/agent_review_example_runner.py`.
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
@@ -226,7 +226,7 @@ stale_attestation_requires_review_head:
             stale_record = next(
                 record
                 for record in records
-                if record["yaml_case"] == "ambiguous_input"
+                if record["yaml_case"] == "requirement_formulation_004_ambiguous_input_case"
             )
             stale_record["source_sha256"] = "0" * 64
             attestation_path.write_text(
@@ -307,7 +307,7 @@ stale_attestation_requires_review_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-reports_same_line_requirement_working_copy:
+stability_004_reports_same_line:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
@@ -403,7 +403,7 @@ reports_same_line_requirement_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-typescript_fields_need_blank_lines_head:
+stability_005_typescript_fields_need:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
@@ -501,7 +501,7 @@ typescript_fields_need_blank_lines_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-loads_python_tests_head:
+stability_006_loads_python_tests:
   file_docstring: |
     """Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
@@ -658,7 +658,7 @@ loads_python_tests_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-unsupported_fields_head:
+stability_007_unsupported_fields_head:
   file_docstring: |
     """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
     `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
@@ -775,7 +775,7 @@ unsupported_fields_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-unsupported_fields_working_copy:
+stability_008_unsupported_fields_working:
   file_docstring: |
     """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
     `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
@@ -892,7 +892,7 @@ unsupported_fields_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-readme_workflows_working_copy:
+stability_009_readme_workflows_working:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -975,7 +975,7 @@ readme_workflows_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-github_actions_shows_ci_head:
+stability_010_github_actions_shows:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1069,7 +1069,7 @@ github_actions_shows_ci_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-github_actions_omits_packet_creation_head:
+stability_011_github_actions_omits:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1158,7 +1158,7 @@ github_actions_omits_packet_creation_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-github_actions_omits_packet_creation_working_copy:
+stability_012_github_actions_omits:
   file_docstring: |
     """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
     `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
@@ -1247,7 +1247,7 @@ github_actions_omits_packet_creation_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-cicd_accepts_current_proof_head:
+stability_013_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `CI/CD linter` is responsible for validating committed review proof without creating review packets.
@@ -1373,7 +1373,7 @@ cicd_accepts_current_proof_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-cicd_accepts_current_proof_working_copy:
+stability_014_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `CI/CD linter` is responsible for validating committed review proof without creating review packets.
@@ -1499,7 +1499,7 @@ cicd_accepts_current_proof_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-accepts_public_output_head:
+stability_015_accepts_public_output:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating test-path and verification-method classifications.
@@ -1603,7 +1603,7 @@ accepts_public_output_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-accepts_public_output_working_copy:
+stability_016_accepts_public_output:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating test-path and verification-method classifications.
@@ -1707,7 +1707,7 @@ accepts_public_output_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-lint_requires_reviewer_head:
+stability_017_lint_requires_reviewer:
   file_docstring: |
     """Tests in this file validate `CLI` located at `src/agentic_tdd_linter/cli/main.py`.
     `CLI` is responsible for providing the create-agent-md and lint command interface.
@@ -1829,7 +1829,7 @@ lint_requires_reviewer_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-lint_requires_reviewer_working_copy:
+stability_018_lint_requires_reviewer:
   file_docstring: |
     """Tests in this file validate `CLI` located at `src/agentic_tdd_linter/cli/main.py`.
     `CLI` is responsible for providing the create-agent-md and lint command interface.
@@ -1951,7 +1951,7 @@ lint_requires_reviewer_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-requires_reciprocal_references_head:
+stability_019_requires_reciprocal_references:
   file_docstring: |
     """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
     `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
@@ -2044,7 +2044,7 @@ requires_reciprocal_references_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-requires_reciprocal_references_working_copy:
+stability_020_requires_reciprocal_references:
   file_docstring: |
     """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
     `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
@@ -2137,7 +2137,7 @@ requires_reciprocal_references_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-mismatch_aggregates_total_rate_head:
+stability_021_mismatch_aggregates_total:
   file_docstring: |
     """Tests in this file validate `agent_review_examples` located at `tests/agentic_linter/test_harness/agent_review_examples.py`.
     `agent_review_examples` is responsible for coordinating YAML-example reviews.
@@ -2230,7 +2230,7 @@ mismatch_aggregates_total_rate_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-mismatch_aggregates_total_rate_working_copy:
+stability_022_mismatch_aggregates_total:
   file_docstring: |
     """Tests in this file validate `agent_review_examples` located at `tests/agentic_linter/test_harness/agent_review_examples.py`.
     `agent_review_examples` is responsible for coordinating YAML-example reviews.
@@ -2323,7 +2323,7 @@ mismatch_aggregates_total_rate_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-anonymous_agent_review_examples_head:
+stability_023_anonymous_agent_review:
   file_docstring: |
     """Tests in this file validate `agent_review_example_runner` located at `tests/agentic_linter/test_harness/agent_review_example_runner.py`.
     `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
@@ -2444,7 +2444,7 @@ anonymous_agent_review_examples_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-reports_empty_requirement_working_copy:
+stability_024_reports_empty_requirement:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
@@ -2544,7 +2544,7 @@ reports_empty_requirement_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-enforces_public_function_limit_head:
+stability_025_enforces_public_function:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
@@ -2652,7 +2652,7 @@ enforces_public_function_limit_head:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-enforces_public_function_limit_working_copy:
+stability_026_enforces_public_function:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
@@ -2760,7 +2760,7 @@ enforces_public_function_limit_working_copy:
     53: # Test Values Are Local
       pass # This is a good eungh test and should pass all criteria.
 
-plain_multiple_modules_issue_is_not_a_term:
+stability_027_plain_multiple_modules:
   file_docstring: |
     """Tests in this file validate `create-agent-md` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
     `create-agent-md` is responsible for loading and validating Python and TypeScript tests before creating their review scorecards.
@@ -2836,7 +2836,7 @@ plain_multiple_modules_issue_is_not_a_term:
     42: # Domain Terms Are Defined
       pass # The plain multiple_modules_in_test_file identifier is not a backticked requirement term.
 
-plain_private_verification_issue_is_not_a_term:
+stability_028_plain_private_verification:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for validating evidence declared as private-function output."""

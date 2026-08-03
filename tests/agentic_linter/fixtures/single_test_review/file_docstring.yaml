@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-defined_distinctive_file_terms:
+file_docstring_001_defined_distinctive_file:
   file_docstring: |
     """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
     `module_mapping` is responsible for relating test modules to implementation modules.
@@ -34,7 +34,7 @@ defined_distinctive_file_terms:
     46: # Terms Reuse Shared Vocabulary
       fail # `unit module` and `implementation module` rename the same underlying module concept according to its role.
 
-interchangeable_file_terms:
+file_docstring_002_interchangeable_file_terms:
   file_docstring: |
     """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
     `module_mapping` is responsible for relating source modules to their implementations.
@@ -66,7 +66,7 @@ interchangeable_file_terms:
     46: # Terms Reuse Shared Vocabulary
       fail # Implementation module duplicates source module, so the requirement should reuse source module.
 
-unused_duplicate_file_term:
+file_docstring_003_unused_duplicate_file:
   file_docstring: |
     """Tests in this file validate `discover_test_files` located at `src/agentic_tdd_linter/indexing_test_functions/discover_test_files.py`.
     `discover_test_files` is responsible for finding supported test files under a selected path.
@@ -111,7 +111,7 @@ unused_duplicate_file_term:
     46: # Terms Reuse Shared Vocabulary
       fail # `discovered file` and `candidate file` duplicate the same test-discovery concept, so the glossary should keep one term.
 
-alternate_spelling_of_file_term:
+file_docstring_004_alternate_spelling_of:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
     `conventional_linter` is responsible for enforcing the test-file glossary limit.
@@ -154,7 +154,7 @@ alternate_spelling_of_file_term:
     46: # Terms Reuse Shared Vocabulary
       fail # `glossary limits` duplicates the established `glossary limit` term instead of reusing the same term.
 
-alternate_spelling_of_declared_component:
+file_docstring_005_alternate_spelling_of:
   file_docstring: |
     """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
     `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
@@ -202,7 +202,7 @@ alternate_spelling_of_declared_component:
     46: # Terms Reuse Shared Vocabulary
       fail # `conventional linter` duplicates the established `conventional_linter` term with different spelling.
 
-alternate_artifact_name_for_cross_test_packet:
+file_docstring_006_alternate_artifact_name:
   file_docstring: |
     """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
     `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
@@ -247,7 +247,7 @@ alternate_artifact_name_for_cross_test_packet:
     46: # Terms Reuse Shared Vocabulary
       fail # `Cross-test file` renames the established `cross-test packet` according to its physical representation.
 
-alternate_context_name_for_source_module:
+file_docstring_007_alternate_context_name:
   file_docstring: |
     """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
     `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.

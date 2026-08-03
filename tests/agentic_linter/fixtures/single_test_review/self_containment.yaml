@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-external_expected_value:
+self_containment_001_external_expected_value:
   file_docstring: |
     """Tests in this file validate `fun_a` located at `src/examples/fun_a.py`.
     `fun_a` is responsible for computing numeric results.
@@ -32,7 +32,7 @@ external_expected_value:
     53: # Test Values Are Local
       fail # The expected result comes from `EXPECTED_VALUE` outside the test body.
 
-external_argument_value:
+self_containment_002_external_argument_value:
   file_docstring: |
     """Tests in this file validate `fun_a` located at `src/examples/fun_a.py`.
     `fun_a` is responsible for computing numeric results.
@@ -59,7 +59,7 @@ external_argument_value:
     53: # Test Values Are Local
       fail # The function input comes from `EXPECTED_VALUE` outside the test body.
 
-imported_fact_list:
+self_containment_003_imported_fact_list:
   file_docstring: |
     """Tests in this file validate `fact_update_policy` located at `src/examples/fact_update_policy.py`.
     `fact_update_policy` is responsible for governing updates to externally owned facts.
@@ -92,7 +92,7 @@ imported_fact_list:
     53: # Test Values Are Local
       fail # Loop inputs come from the imported `ARTIFACT_BACKED_FACTS` list.
 
-external_requirement_helper:
+self_containment_004_external_requirement_helper:
   file_docstring: |
     """Tests in this file validate `requirement_linter` located at `src/examples/requirement_linter.py`.
     `requirement_linter` is responsible for validating requirement wording.
@@ -122,7 +122,7 @@ external_requirement_helper:
     53: # Test Values Are Local
       fail # The reviewed requirement value comes from a helper outside the test body.
 
-reviewed_artifact_helpers_realize_local_values:
+self_containment_005_reviewed_artifact_helpers:
   file_docstring: |
     """Tests in this file validate `review_status_lint` located at `src/examples/review_status_lint.py`.
     `review_status_lint` is responsible for validating completed review packets.

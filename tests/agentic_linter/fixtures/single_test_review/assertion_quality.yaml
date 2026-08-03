@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-extra_assertion_proves_other_behavior:
+assertion_quality_001_extra_assertion_proves:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -37,7 +37,7 @@ extra_assertion_proves_other_behavior:
     51: # Assertions Prove the Stated Requirement
       fail # Exact addition is outside the stated positive-result requirement.
 
-exact_expected_value_is_evidence:
+assertion_quality_002_exact_expected_value:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -73,7 +73,7 @@ exact_expected_value_is_evidence:
     53: # Test Values Are Local
       pass # The test body defines both inputs and the expected result.
 
-tagged_input_assertions:
+assertion_quality_003_tagged_input_assertions:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -105,7 +105,7 @@ tagged_input_assertions:
     52: # Input Checks Are Tagged
       pass # Both input-validation assertions use the exact `# Input check` comment.
 
-untagged_input_assertions:
+assertion_quality_004_untagged_input_assertions:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -137,7 +137,7 @@ untagged_input_assertions:
     52: # Input Checks Are Tagged
       fail # The input-validation assertions omit the exact `# Input check` comment.
 
-per_source_test_pairing_is_unstated:
+assertion_quality_005_per_source_test:
   file_docstring: |
     """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
     `repository_validation` is responsible for validating repository module coverage.

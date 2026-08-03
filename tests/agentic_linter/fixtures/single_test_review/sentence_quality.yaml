@@ -4,7 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-simple_sentence_structure:
+sentence_quality_001_simple_sentence_structure:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -31,7 +31,7 @@ simple_sentence_structure:
     37: # Sentence Expresses One Concept
       pass # The requirement and verification detail each express one idea.
 
-long_requirement_subject:
+sentence_quality_002_long_requirement_subject:
   file_docstring: |
     """Tests in this file validate `source_artifact` located at `src/examples/source_artifact.py`.
     `source_artifact` is responsible for emitting source-analysis diagnostics.
@@ -58,7 +58,7 @@ long_requirement_subject:
     33: # Subject and Object Are Concise
       fail # The subject contains `source_artifact` plus the unsupported words `module in the current repository`.
 
-long_verification_subject:
+sentence_quality_003_long_verification_subject:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -85,7 +85,7 @@ long_verification_subject:
     33: # Subject and Object Are Concise
       fail # The verification detail uses `The captured failure output` as a long subject.
 
-necessary_quantifier_preserves_precision:
+sentence_quality_004_necessary_quantifier_preserves:
   file_docstring: |
     """Tests in this file validate `repository_validation` located at `src/examples/repository_validation.py`.
     `repository_validation` is responsible for validating repository module coverage.
@@ -134,7 +134,7 @@ necessary_quantifier_preserves_precision:
     33: # Subject and Object Are Concise
       pass # Although `every test module` exceeds two words, dropping `every` would make the repository-wide requirement less precise.
 
-articles_do_not_count_toward_phrase_length:
+sentence_quality_005_articles_do_not:
   file_docstring: |
     """Tests in this file validate `yaml_validation` located at `src/examples/yaml_validation.py`.
     `yaml_validation` is responsible for reporting YAML schema errors.
@@ -163,7 +163,7 @@ articles_do_not_count_toward_phrase_length:
     33: # Subject and Object Are Concise
       pass # The grammatical article `an` does not count toward the two-word object limit.
 
-verification_double_negation:
+sentence_quality_006_verification_double_negation:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -190,7 +190,7 @@ verification_double_negation:
     31: # Sentence Avoids Double Negation
       fail # `no failure` combined with `false` expresses double negation.
 
-requirement_expresses_many_concepts:
+sentence_quality_007_requirement_expresses_many:
   file_docstring: |
     """Tests in this file validate `parser` located at `src/examples/parser.py`.
     `parser` is responsible for processing numeric input.
@@ -217,7 +217,7 @@ requirement_expresses_many_concepts:
     37: # Sentence Expresses One Concept
       fail # The requirement combines acceptance, addition, return, sign, and side-effect concepts.
 
-requirement_relative_clause_omits_referent:
+sentence_quality_008_requirement_relative_clause:
   file_docstring: |
     """Tests in this file validate `review_packet_generation` located at `src/examples/review_packet_generation.py`.
     `review_packet_generation` is responsible for refreshing review artifacts.
@@ -244,7 +244,7 @@ requirement_relative_clause_omits_referent:
     36: # Relative Clauses Are Complete
       fail # `whose SHA no longer matches` does not say what the SHA should match.
 
-backticked_agent_review_artifact_term:
+sentence_quality_009_backticked_agent_review:
   file_docstring: |
     """Tests in this file validate `review_status_lint` located at `src/examples/review_status_lint.py`.
     `review_status_lint` is responsible for deriving lint outcomes from review artifacts.
@@ -271,7 +271,7 @@ backticked_agent_review_artifact_term:
     42: # Domain Terms Are Defined
       fail # The backticked status and artifact terms have no matching Terms entries in the file docstring.
 
-verification_omits_subject:
+sentence_quality_010_verification_omits_subject:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -298,7 +298,7 @@ verification_omits_subject:
     32: # Sentence Uses Subject-Verb-Object Order
       fail # The verification detail begins with mechanics and has no grammatical subject.
 
-verification_mechanics_omit_subject:
+sentence_quality_011_verification_mechanics_omit:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -325,7 +325,7 @@ verification_mechanics_omit_subject:
     32: # Sentence Uses Subject-Verb-Object Order
       fail # The verification detail starts with mechanics and omits a subject.
 
-verification_uses_names_as_verb:
+sentence_quality_012_verification_uses_names:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -352,7 +352,7 @@ verification_uses_names_as_verb:
     34: # Main Verb Is Unambiguous
       fail # `names` has a common noun use in contemporary technical prose.
 
-verification_uses_reports_as_verb:
+sentence_quality_013_verification_uses_reports:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -379,7 +379,7 @@ verification_uses_reports_as_verb:
     34: # Main Verb Is Unambiguous
       fail # `reports` has a common noun use in contemporary technical prose.
 
-verification_expresses_many_concepts:
+sentence_quality_014_verification_expresses_many:
   file_docstring: |
     """Tests in this file validate `calculator` located at `src/examples/calculator.py`.
     `calculator` is responsible for arithmetic calculations.
@@ -406,7 +406,7 @@ verification_expresses_many_concepts:
     37: # Sentence Expresses One Concept
       fail # The verification detail combines several independent evidence claims.
 
-demonstrative_subject_omits_referent:
+sentence_quality_015_demonstrative_subject_omits:
   file_docstring: |
     """Tests in this file validate `review_manifest_policy` located at `src/examples/review_manifest_policy.py`.
     `review_manifest_policy` is responsible for preserving review manifests in source control.
@@ -442,7 +442,7 @@ demonstrative_subject_omits_referent:
     39: # Subject Is Not This, That, These, or Those
       fail # `This` stands alone as the subject and requires the reader to infer the source-control rule.
 
-demonstrative_modifies_explicit_noun:
+sentence_quality_016_demonstrative_modifies_explicit:
   file_docstring: |
     """Tests in this file validate `review_packet_comparison` located at `src/examples/review_packet_comparison.py`.
     `review_packet_comparison` is responsible for comparing review levels.
@@ -470,7 +470,7 @@ demonstrative_modifies_explicit_noun:
     39: # Subject Is Not This, That, These, or Those
       pass # `The other test` is the explicit subject; `this test` is the comparison object.
 
-standard_usage_avoids_cross_criterion_conflicts:
+sentence_quality_017_standard_usage_avoids:
   file_docstring: |
     """Tests in this file validate `parser` located at `src/examples/parser.py`.
     `parser` is responsible for converting text.
@@ -504,7 +504,7 @@ standard_usage_avoids_cross_criterion_conflicts:
     43: # Data-Flow Terms Name an Owner
       pass # The standard-usage classification contains no ambiguous data-flow terms, and `Parser` owns its output.
 
-specialized_usage_marks_condition_explicitly:
+sentence_quality_018_specialized_usage_marks:
   file_docstring: |
     """Tests in this file validate `client` located at `src/examples/client.py`.
     `client` is responsible for sending requests.
@@ -538,7 +538,7 @@ specialized_usage_marks_condition_explicitly:
     35: # Conditions Are Explicit
       pass # The exact `For immediate retries,` phrase explicitly identifies the use case that conditions the specialized input.
 
-implicit_condition_omits_marker:
+sentence_quality_019_implicit_condition_omits:
   file_docstring: |
     """Tests in this file validate `parser` located at `src/examples/parser.py`.
     `parser` is responsible for validating text.
