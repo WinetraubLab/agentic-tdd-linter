@@ -126,6 +126,43 @@ class AgenticMarkdownTests(unittest.TestCase):
         self.assertIn("### Revision 3", markdown)
         self.assertIn("### Final Assessment", markdown)
 
+    def test_iterative_review_compares_clarity(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_agent_md_file` directs `iterative review` to retain original wording and pass the corresponding formulation rows unless a revision removes a materially different interpretation.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The `render_agent_md_file` output defines significant clarity as removing a materially different interpretation.
+        The `render_agent_md_file` output excludes shorter wording and grammatical preference from significant clarity.
+        The `render_agent_md_file` output directs the reviewer to retain the original and pass the corresponding formulation rows when the revision is not significantly clearer.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = 'def test_adds_values() -> None:\n    """Test Path: happy path"""\n    assert 1 + 1 == 2\n'
+            test_file = Path(directory) / "test_sample.py"
+            test_file.write_text(source, encoding="utf-8")
+
+            markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
+
+        self.assertIn(
+            "`Significantly clearer` means that the original permits a "
+            "materially different interpretation",
+            markdown,
+        )
+        self.assertIn(
+            "Shorter wording, a grammatical preference",
+            markdown,
+        )
+        self.assertIn(
+            "keep the original and pass the corresponding formulation rows",
+            markdown,
+        )
+
+    def test_iterative_review_scores_original(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
