@@ -41,8 +41,8 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         `_lint_multi_python_source` output contains zero issues.
 
         Similar Coverage:
-        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — The current test isolates conventional validation for multiple Python tests in one file. The higher test loads Python tests through complete packet generation.
+        - Scenario Difference: `test_multiple_tests_in_one_file.py::test_typescript_multiple_tests_pass`
+          Explanation: The current test verifies `conventional_linter` validates every extracted test independently when one Python file contains multiple tests. The named test verifies `conventional_linter` allows multiple tests in one TypeScript file; both use happy path, but exercise materially different scenarios.
         """
 
         rules = _lint_multi_python_source(
@@ -96,8 +96,8 @@ class MultiTestsInOneFileTests(unittest.TestCase):
         Rules contain zero issues.
 
         Similar Coverage:
-        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
-          Justification: Deeper coverage — The current test isolates conventional validation for multiple TypeScript tests in one file. The higher test loads TypeScript tests through complete packet generation.
+        - Scenario Difference: `test_multiple_tests_in_one_file.py::test_python_multiple_tests_pass`
+          Explanation: The current test verifies `conventional_linter` allows multiple tests in one TypeScript file. The named test verifies `conventional_linter` validates every extracted test independently when one Python file contains multiple tests; both use happy path, but exercise materially different scenarios.
         """
 
         rules = _lint_multi_typescript_source(
