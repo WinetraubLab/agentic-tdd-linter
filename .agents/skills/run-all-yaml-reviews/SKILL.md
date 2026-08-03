@@ -83,6 +83,10 @@ Review every generated `.agent.md` file by following its instructions:
 
 - Follow the review procedure embedded in each generated `.agent.md`.
 - Continue until no generated packet contains a pending scorecard row.
+- For test-relationship review, classify every pair's overlap as `yes` or
+  `no`. For `yes`, set kind to exactly `Happy/Failure Path Difference`,
+  `Scenario Difference`, or `Module Difference`. For `no`, set kind to
+  `Not Applicable` and stop.
 
 ## Step 4: Rerun all YAML tests
 
@@ -106,7 +110,7 @@ For **test-relationship** review:
 ```bash
 AGENT_REVIEW_MODEL='<model> <reasoning_effort>' \
   .venv/bin/python -m \
-  tests.agentic_linter.test_harness.test_relationship_review_example_runner
+  tests.agentic_linter.test_harness.relationship_review_example_runner
 ```
 
 This invocation compares each test's completed relationship scorecard with its
