@@ -234,13 +234,14 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_inspection_instructions when visual tests omit `Inspection Instructions`.
-        Specialized usage: Docstring omits `Inspection Instructions` instead of providing them, so conventional linter emits missing_inspection_instructions.
+        `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`.
+        Specialized usage: The fixture docstring declares visual inspection by user in its `Verification Method` but omits `Inspection Instructions`, so `conventional_linter` emits missing_inspection_instructions.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When tests omit `Inspection Instructions`, _lint_docstring_source contains `missing_inspection_instructions`.
+        When the fixture docstring declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`, `_lint_docstring_source` output contains `missing_inspection_instructions`.
+
         """
 
         rules = _lint_docstring_source(
