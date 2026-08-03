@@ -19,6 +19,7 @@ from ..agentic_linter.map_test_function_to_agent_md_file import (
 )
 from ..agentic_linter.render_agent_md_file import render_agent_md_file
 from ..agentic_linter.render_cross_test_agent_md_file import (
+    cross_test_agent_md_file_is_stale,
     render_cross_test_agent_md_file,
 )
 from ..conventional_linter.check_file_docstring_term_count import (
@@ -173,7 +174,10 @@ def create_agent_md_files(
                 or _agent_md_file_is_stale(test.source, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    if force_fresh and review_files:
+    if review_files and (
+        force_fresh
+        or cross_test_agent_md_file_is_stale(review_files, root, artifact_root)
+    ):
         generated.append(
             render_cross_test_agent_md_file(review_files, root, artifact_root)
         )
