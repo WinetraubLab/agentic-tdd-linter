@@ -272,13 +272,14 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` requires visual tests to invoke write_visual_inspection_artifact.
-        Specialized usage: Test source lacks a write_visual_inspection_artifact call instead of containing one, so conventional linter emits missing_visual_inspection_helper.
+        `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact.
+        Specialized usage: When a test declares visual inspection by user but lacks a write_visual_inspection_artifact call, `conventional_linter` emits missing_visual_inspection_helper.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When tests omit `write_visual_inspection_artifact`, _lint_docstring_source contains `missing_visual_inspection_helper`.
+        When a test declares visual inspection by user but omits a `write_visual_inspection_artifact` call, `_lint_docstring_source` output contains `missing_visual_inspection_helper`.
+
         """
 
         rules = _lint_docstring_source(
