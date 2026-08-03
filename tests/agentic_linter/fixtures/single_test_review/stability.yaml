@@ -78,6 +78,8 @@ stability_001_readme_workflows_head:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -163,6 +165,8 @@ stability_002_accepts_defined_requirement:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -259,6 +263,8 @@ stability_004_reports_same_line:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -357,6 +363,8 @@ stability_005_typescript_fields_need:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -514,6 +522,8 @@ stability_006_loads_python_tests:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -632,6 +642,8 @@ stability_007_unsupported_fields_head:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -726,6 +738,8 @@ stability_009_github_actions_shows:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -815,6 +829,8 @@ stability_010_github_actions_omits:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -904,6 +920,8 @@ stability_011_github_actions_omits:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1029,6 +1047,8 @@ stability_012_cicd_accepts_current:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1156,6 +1176,8 @@ stability_013_cicd_accepts_current:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1260,6 +1282,8 @@ stability_014_accepts_public_output:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1364,6 +1388,8 @@ stability_015_accepts_public_output:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1486,6 +1512,8 @@ stability_016_lint_requires_reviewer:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1608,6 +1636,8 @@ stability_017_lint_requires_reviewer:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1701,6 +1731,8 @@ stability_018_requires_reciprocal_references:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1794,6 +1826,8 @@ stability_019_requires_reciprocal_references:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1887,6 +1921,8 @@ stability_020_mismatch_aggregates_total:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -1980,6 +2016,8 @@ stability_021_mismatch_aggregates_total:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -2101,6 +2139,8 @@ stability_022_anonymous_agent_review:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -2201,6 +2241,8 @@ stability_023_reports_empty_requirement:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -2293,6 +2335,8 @@ stability_024_enforces_public_function:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
@@ -2401,6 +2445,8 @@ stability_025_enforces_public_function:
       pass # This is a good eungh test and should pass all criteria.
     43: # Data-Flow Terms Name an Owner
       pass # This is a good eungh test and should pass all criteria.
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
       pass # This is a good eungh test and should pass all criteria.
     51: # Assertions Prove the Stated Requirement
