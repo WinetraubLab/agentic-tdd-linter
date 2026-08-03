@@ -40,6 +40,12 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         Test code invokes `Mock`.
         The test documentation contains no mock details.
         The `_lint_requirement_source` output contains `mocking_detail_missing`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_mock_keyword_identification.py::test_mock_detail_passes`
+          Explanation: The current test verifies `conventional_linter` emits `mocking_detail_missing` when test code invokes `Mock` and its documentation omits mock details. The named test verifies `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_mock_keyword_identification.py::test_patch_decorator_without_detail_fails`
+          Explanation: The current test verifies `conventional_linter` emits `mocking_detail_missing` when test code invokes `Mock` and its documentation omits mock details. The named test verifies `conventional_linter` emits `mocking_detail_missing` when `patch` decorates a test whose documentation omits mock details; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_requirement_source(
@@ -79,6 +85,12 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         `patch` decorates the test.
         The test documentation omits mock details.
         The `_lint_requirement_source` output contains `mocking_detail_missing`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_mock_keyword_identification.py::test_mock_call_without_detail_fails`
+          Explanation: The current test verifies `conventional_linter` emits `mocking_detail_missing` when `patch` decorates a test whose documentation omits mock details. The named test verifies `conventional_linter` emits `mocking_detail_missing` when test code invokes `Mock` and its documentation omits mock details; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_mock_keyword_identification.py::test_mock_detail_passes`
+          Explanation: The current test verifies `conventional_linter` emits `mocking_detail_missing` when `patch` decorates a test whose documentation omits mock details. The named test verifies `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_requirement_source(
@@ -118,6 +130,12 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         Verification Detail:
         The test documentation describes `Mock`.
         `_lint_requirement_source` output omits `mocking_detail_missing`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_mock_keyword_identification.py::test_mock_call_without_detail_fails`
+          Explanation: The current test verifies `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`. The named test verifies `conventional_linter` emits `mocking_detail_missing` when test code invokes `Mock` and its documentation omits mock details; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_mock_keyword_identification.py::test_patch_decorator_without_detail_fails`
+          Explanation: The current test verifies `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`. The named test verifies `conventional_linter` emits `mocking_detail_missing` when `patch` decorates a test whose documentation omits mock details; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_requirement_source(
