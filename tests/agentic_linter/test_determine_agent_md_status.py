@@ -57,12 +57,13 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` derives fail status when any scorecard row has fail status.
-        Specialized usage: One row has fail status instead of pass status, so agentic linter derives fail status.
+        `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status.
+        Specialized usage: When an `.agent.md` has one pass result and one fail result, `determine_agent_md_status` derives fail status.
 
         Verification Method: verify public function output
 
         Verification Detail:
+        The `.agent.md` has one `pass` result and one `fail` result.
         `determine_agent_md_status` produces `fail`.
 
         Similar Coverage:
@@ -96,9 +97,6 @@ class AgentMdStatusTests(unittest.TestCase):
         Verification Detail:
         `determine_agent_md_status` produces `pending`.
 
-        Similar Coverage:
-        - Higher Level Test: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
-          Justification: Deeper coverage — The current test isolates pending-status derivation. The higher test applies pending status to manifest-recording policy.
         """
 
         artifact = """# Agentic Test Review
