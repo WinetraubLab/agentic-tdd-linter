@@ -1251,11 +1251,10 @@ stability_012_github_actions_omits:
 stability_013_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
-    `CI/CD linter` is responsible for validating committed review proof without creating review packets.
+    `CI/CD linter` is responsible for validating `manifest proof`.
 
     Terms:
-    - `CI/CD linter`: CI/CD linter runs `agentic-tdd-linter lint` in an automated pipeline against committed manifest proof. For example, it validates current proof without generating `.agent.md` files.
-    - `.agent.md`: An .agent.md file contains a review scorecard that create-agent-md generates for a test. For example, CI validates committed manifest proof without recreating these files.
+    - `manifest proof`: Records an approved review for the current test source.
     """
   test: |
     def test_cicd_accepts_current_proof(self) -> None:
@@ -1270,9 +1269,9 @@ stability_013_cicd_accepts_current:
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
         2. Harness completes its review.
-        3. Harness persists current passing proof in the manifest.
+        3. Harness persists `manifest proof`.
         4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
+        5. `CI/CD linter` accepts `manifest proof`, demonstrated by exit code `0`.
 
         Similar Coverage:
         - Higher Level Test: `test_repository_self_lint.py::test_self_lint_validates_repository_tests`
@@ -1377,9 +1376,10 @@ stability_013_cicd_accepts_current:
 stability_014_cicd_accepts_current:
   file_docstring: |
     """Tests in this file validate `CI/CD linter` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
-    `CI/CD linter` is responsible for validating committed review proof without creating review packets.
+    `CI/CD linter` is responsible for validating `manifest proof`.
 
     Terms:
+    - `manifest proof`: Records a `source hash`, review status, and `reviewer identity`.
     - `reviewer identity`: Names the reviewer that approved a test.
     - `source hash`: Identifies exact test source content.
     """
@@ -1388,7 +1388,6 @@ stability_014_cicd_accepts_current:
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` accepts manifest proof when it is current.
         `CI/CD linter` accepts `manifest proof` when its `source hash` corresponds to the test source, its review status is pass, and it identifies the requested `reviewer identity`.
         Standard usage: The scenario demonstrates baseline behavior.
 
@@ -1396,12 +1395,10 @@ stability_014_cicd_accepts_current:
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
-        2. Harness classifies the generated review as pass.
-        3. Harness persists current passing proof in the manifest.
         2. Harness creates `manifest proof` with review status pass and `reviewer identity` equal to `integration:ci-reviewer`.
         3. `source hash` corresponds to the valid test source.
         4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
-        5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
+        5. `CI/CD linter` accepts `manifest proof`, demonstrated by exit code `0`.
 
         Similar Coverage:
         - Higher Level Test: `test_repository_self_lint.py::test_self_lint_validates_repository_tests`
@@ -1849,7 +1846,7 @@ stability_018_lint_requires_reviewer:
 
         Requirement Tested:
         `CLI` lint emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent.
-        Specialized usage: Caller provides a completed `.agent.md` file without `reviewer identity`, so CLI emits missing_reviewer.
+        Specialized usage: Caller provides a completed `.agent.md` file without `reviewer identity`, so `CLI` emits missing_reviewer.
 
         Verification Method: verify public function output
 
@@ -1977,7 +1974,7 @@ stability_019_requires_reciprocal_references:
         Verification Method: verify public function output
 
         Verification Detail:
-        Cross-test file contains `A passing pair provides reciprocal references and justifications in both tests.`
+        `cross-test packet` contains `A passing pair provides reciprocal references and justifications in both tests.`
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -2565,31 +2562,17 @@ stability_025_enforces_public_function:
 
         Requirement Tested:
         `test_source_module_structure` reports a `source module` that exposes fewer than one or more than two public functions.
-        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` reports it.
+        Specialized usage: A `source module` exposes zero public functions instead of one or two, so `test_source_module_structure` reports it.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_public_api_violations` identifies controlled modules with zero or three public functions.
-        `_public_api_violations` accepts a controlled module with two public functions.
+        `_public_api_violations` identifies a `source module` with zero public functions.
         """
 
         with tempfile.TemporaryDirectory() as directory:
             controlled_root = Path(directory)
             (controlled_root / "empty.py").write_text("", encoding="utf-8")
-            (controlled_root / "valid.py").write_text(
-                "def first(): pass\ndef second(): pass\n",
-                encoding="utf-8",
-            )
-            three_functions = (
-                "def first(): pass\n"
-                "def second(): pass\n"
-                "def third(): pass\n"
-            )
-            (controlled_root / "excess.py").write_text(
-                three_functions,
-                encoding="utf-8",
-            )
 
             controlled_violations = _public_api_violations(
                 controlled_root,
@@ -2599,8 +2582,6 @@ stability_025_enforces_public_function:
         self.assertEqual(
             [
                 "empty.py: expected 1-2 public functions, found []",
-                "excess.py: expected 1-2 public functions, "
-                "found ['first', 'second', 'third']",
             ],
             controlled_violations,
         )
