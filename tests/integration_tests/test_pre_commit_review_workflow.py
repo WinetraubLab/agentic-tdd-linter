@@ -238,8 +238,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review.
-        Specialized usage: One of two completed `.agent.md` reviews fails, so lint reports agent_review_failed and provides the full-scorecard correction steps.
+        `pre-commit review workflow` provides a `failed-review correction procedure` for failed `.agent.md` reviews.
+        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` provides the `failed-review correction procedure`.
 
         Verification Method: verify public function output
 
