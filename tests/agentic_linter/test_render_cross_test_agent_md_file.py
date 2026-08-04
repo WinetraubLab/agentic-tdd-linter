@@ -122,7 +122,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             pair_section,
         )
 
-    def test_completed_classification_remains_fresh(self) -> None:
+    def test_completed_classification_remains_valid(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
