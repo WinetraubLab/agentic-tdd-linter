@@ -122,13 +122,14 @@ class MockKeywordIdentificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` omits `mocking_detail_missing` when test documentation describes `Mock`.
+        `conventional_linter` accepts a `Mock` invocation when test documentation explains what the mock produces.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The test documentation describes `Mock`.
+        The test code invokes `Mock`.
+        The test documentation identifies `Mock` as the dependency producing normalized text.
         `_lint_requirement_source` output omits `mocking_detail_missing`.
 
         Similar Coverage:
