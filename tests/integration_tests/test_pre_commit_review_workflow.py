@@ -345,7 +345,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Requirement Tested:
         `pre-commit review workflow` regenerates an edited test's `.agent.md` and `cross_test_review.agent.md`. The workflow preserves other tests' `.agent.md` files from the same source file.
-        Specialized usage: When a caller edits one test in a file containing multiple reviewed tests, `pre-commit review workflow` regenerates the edited test's `.agent.md` and `cross_test_review.agent.md` while preserving the unchanged tests' `.agent.md` files.
+        Specialized usage: Review generation runs a second time after one test changes in a file containing multiple reviewed tests. When only one test changed between the first and second runs, `pre-commit review workflow` regenerates that test's `.agent.md` and `cross_test_review.agent.md` while preserving the other tests' `.agent.md` files.
 
         Verification Method: verify public function output
 
