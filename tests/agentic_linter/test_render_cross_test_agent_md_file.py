@@ -296,7 +296,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` generates a `cross-test packet` stating that an overlapping pair provides reciprocal entries with the same difference classification.
+        `render_cross_test_agent_md_file` generates a `cross-test packet` stating that an overlapping pair provides reciprocal `Similar Coverage` entries with the same `pair classification`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
