@@ -454,7 +454,7 @@ class AgentReviewManifestTests(unittest.TestCase):
                 reviewer="codex:gpt-5",
             )
 
-        self.assertFalse(manifest_path.exists())
+            self.assertFalse(manifest_path.exists())
 
 
 def _write_test_file(
