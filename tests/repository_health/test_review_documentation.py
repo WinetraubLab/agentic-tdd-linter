@@ -21,13 +21,13 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to include a level-three `pre-commit review workflow` heading.
+        `test_review_documentation` requires README.md to include a level-three `pre-commit review workflow` heading.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README contents contain `### Pre-commit review workflow`.
+        README.md contents contain `### Pre-commit review workflow`.
 
         Similar Coverage:
         - Module Difference: `test_review_documentation.py::test_readme_names_cicd_workflow`
@@ -45,13 +45,13 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to include a level-three `CI/CD validation workflow` heading.
+        `test_review_documentation` requires README.md to include a level-three `CI/CD validation workflow` heading.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README contents contain `### CI/CD validation workflow`.
+        README.md contents contain `### CI/CD validation workflow`.
 
         Similar Coverage:
         - Scenario Difference: `test_review_documentation.py::test_github_actions_omits_packet_creation`
@@ -71,14 +71,14 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to provide exact `lint arguments`.
+        `test_review_documentation` requires README.md to provide exact `lint arguments`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `_readme_review_command_args` output provides the README command arguments.
-        README command contains exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
+        `_readme_review_command_args` output provides the `lint arguments`.
+        `lint arguments` contain exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
 
         Similar Coverage:
         - Happy/Failure Path Difference: `test_main.py::test_lint_requires_reviewer`
@@ -94,14 +94,14 @@ class ReviewDocumentationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint.
+        `test_review_documentation` requires README.md to describe the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
-        README contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
+        README.md contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
+        README.md contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
 
         Similar Coverage:
         - Module Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
