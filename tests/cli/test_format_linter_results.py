@@ -14,7 +14,7 @@ import json
 import unittest
 from pathlib import Path
 
-from agentic_tdd_linter.cli.format_linter_results import format_json, format_text
+from agentic_tdd_linter.cli import format_linter_results
 from agentic_tdd_linter.conventional_linter.run_conventional_linter import LintIssue
 
 
@@ -47,7 +47,7 @@ class LinterResultFormattingTests(unittest.TestCase):
             message="sample message",
         )
 
-        output = format_text([issue], [issue.path])
+        output = format_linter_results.format_text([issue], [issue.path])
 
         self.assertIn("Rule: sample_rule", output)
         self.assertIn("sample message", output)
