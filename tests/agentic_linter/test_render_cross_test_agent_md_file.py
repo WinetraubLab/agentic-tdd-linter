@@ -331,16 +331,16 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` shows the exact `Similar Coverage` format for every supported difference kind.
+        `render_cross_test_agent_md_file` provides exact `Similar Coverage` formats for Happy/Failure Path Difference, Scenario Difference, and Module Difference with an Explanation placeholder.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Packet contains ``Happy/Failure Path Difference: `<file.py>::<test_name>```.
-        Packet contains ``Scenario Difference: `<file.py>::<test_name>```.
-        Packet contains ``Module Difference: `<file.py>::<test_name>```.
-        Packet contains `Explanation: <specific difference between the two tests>`.
+        The `cross-test packet` contains ``Happy/Failure Path Difference: `<file.py>::<test_name>```.
+        The `cross-test packet` contains ``Scenario Difference: `<file.py>::<test_name>```.
+        The `cross-test packet` contains ``Module Difference: `<file.py>::<test_name>```.
+        The `cross-test packet` contains `Explanation: <specific difference between the two tests>`.
 
         Similar Coverage:
         - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_requires_reciprocal_references`
