@@ -244,14 +244,11 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing two tests.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness marks one generated `.agent.md` review as pass and the other as fail.
-        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. `_run_cli` output contains `agent_review_failed`.
-        6. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
-        7. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
-        8. `_run_cli` output contains `Regenerate the selected packets once`.
+        1. A completed `.agent.md` review contains a failed criterion.
+        2. `_run_cli` output contains `agent_review_failed`.
+        3. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
+        4. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
+        5. `_run_cli` output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
         - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
