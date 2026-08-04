@@ -1,5 +1,5 @@
 """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
-`render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` and determining whether that packet remains fresh.
+`render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` and determining whether that packet remains valid.
 
 Terms:
 - `cross-test packet`: A docstring-only review of relationships among tests.
