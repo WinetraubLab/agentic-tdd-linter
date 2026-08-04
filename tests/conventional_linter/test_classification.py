@@ -76,13 +76,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts `failure path`.
+        `conventional_linter` accepts `failure path` for test-path classifications.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When paths correspond to `failure path`, validator rules contain zero issues.
+        When test-path classifications specify `failure path`, `conventional_linter` reports zero issues.
 
         Similar Coverage:
         - Scenario Difference: `test_classification.py::test_accepts_happy_path`
@@ -122,7 +122,7 @@ class ClassificationTests(unittest.TestCase):
 
         Verification Detail:
         The synthetic test declares `Verification Method: verify public function output`.
-        Rules equal an empty set.
+        `conventional_linter` detects no `invalid_verification_method`.
 
         Similar Coverage:
         - Scenario Difference: `test_classification.py::test_accepts_private_output`
@@ -170,7 +170,7 @@ class ClassificationTests(unittest.TestCase):
 
         Verification Detail:
         The synthetic test declares `Verification Method: verify private function output`.
-        Rules equal an empty set.
+        `conventional_linter` detects no `invalid_verification_method`.
 
         Similar Coverage:
         - Scenario Difference: `test_classification.py::test_accepts_public_output`
