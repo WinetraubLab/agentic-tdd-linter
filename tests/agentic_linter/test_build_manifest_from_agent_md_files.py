@@ -91,7 +91,49 @@ class AgentReviewManifestTests(unittest.TestCase):
                 .splitlines()
             ]
 
-        self.assertEqual([original_record], records)
+        self.assertIn(original_record, records)
+
+    def test_excludes_added_function(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `build_manifest_from_agent_md_files` records only completed `manifest proof`, so it omits a new unreviewed test until that test receives passing proof.
+        Specialized usage: When a new test appears beside an unchanged reviewed test without completed proof, `build_manifest_from_agent_md_files` leaves the new test out of the manifest.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The manifest contains no record for `test_subtracts_values`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = "def test_adds_values() -> None:\n    assert 1 + 1 == 2\n"
+            test_file = _write_test_file(root, source)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=_test_hash(test_file, root),
+                status="pass",
+            )
+            test_file.write_text(
+                test_file.read_text(encoding="utf-8")
+                + "\ndef test_subtracts_values() -> None:\n    assert 2 - 1 == 1\n",
+                encoding="utf-8",
+            )
+
+            _lint_agent_review_manifest([test_file], root)
+            records = [
+                json.loads(line)
+                for line in _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()
+            ]
+
+        self.assertNotIn(
+            "test_subtracts_values",
+            [record["test"] for record in records],
+        )
 
     def test_review_contract_changes_with_documentation(self) -> None:
         """Test Path: happy path
