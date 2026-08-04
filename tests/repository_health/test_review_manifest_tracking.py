@@ -22,19 +22,31 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.json`.
-        `_tracked_result` produces exit code `0`.
+        `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_self_lint_record_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_proof_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        result = _tracked_result(
-            Path("tests")
-            / "agentic_linter"
-            / "test_agent_review_example_runner.json",
-            repo_root=repo_root,
+        result = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--error-unmatch",
+                "tests/agentic_linter/test_agent_review_example_runner.json",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
@@ -46,19 +58,31 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         Git index contains `tests/agentic_linter/test_agent_review_example_runner.jsonl`.
-        `_tracked_result` produces exit code `0`.
+        `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_self_lint_record_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_report_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        result = _tracked_result(
-            Path("tests")
-            / "agentic_linter"
-            / "test_agent_review_example_runner.jsonl",
-            repo_root=repo_root,
+        result = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--error-unmatch",
+                "tests/agentic_linter/test_agent_review_example_runner.jsonl",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
@@ -70,35 +94,34 @@ class ReviewManifestTrackingTests(unittest.TestCase):
         `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         Git index contains `tests/agentic_review_manifest.jsonl`.
-        `_tracked_result` produces exit code `0`.
+        `git ls-files --error-unmatch` produces exit code `0`.
+
+        Similar Coverage:
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_proof_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint proof`; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_review_manifest_tracking.py::test_yaml_review_report_is_tracked`
+          Explanation: The current test verifies `test_review_manifest_tracking` requires Git's index to contain `self-lint review record`. The named test verifies `test_review_manifest_tracking` requires Git's index to contain `YAML-example lint report`; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
-        result = _tracked_result(
-            Path("tests") / "agentic_review_manifest.jsonl",
-            repo_root=repo_root,
+        result = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--error-unmatch",
+                "tests/agentic_review_manifest.jsonl",
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
         self.assertEqual(0, result.returncode, result.stderr or result.stdout)
-
-
-def _tracked_result(
-    path: Path,
-    *,
-    repo_root: Path,
-) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["git", "ls-files", "--error-unmatch", str(path)],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -23,21 +23,19 @@ class VersionTests(unittest.TestCase):
         `version` defines `__version__` equal to `project.version`.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         Package metadata declares `project.version` equal to `__version__`.
         """
 
         repo_root = Path(__file__).resolve().parents[1]
-        project_version = _project_version(repo_root / "pyproject.toml")
+        metadata = tomllib.loads(
+            (repo_root / "pyproject.toml").read_text(encoding="utf-8")
+        )
+        project_version = metadata["project"]["version"]
 
         self.assertEqual(project_version, __version__)
-
-
-def _project_version(metadata_path: Path) -> str:
-    metadata = tomllib.loads(metadata_path.read_text(encoding="utf-8"))
-    return metadata["project"]["version"]
 
 
 if __name__ == "__main__":

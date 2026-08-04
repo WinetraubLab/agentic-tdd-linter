@@ -1,5 +1,9 @@
 """Tests in this file validate `determine_agent_md_status` located at `src/agentic_tdd_linter/agentic_linter/determine_agent_md_status.py`.
-`determine_agent_md_status` is responsible for deriving one status from the review results in a `.agent.md` scorecard.
+`determine_agent_md_status` is responsible for deriving review status and reporting malformed `.agent.md` scorecards.
+
+Terms:
+- `.agent.md`: An .agent.md file contains one agent-review scorecard. For example, each criterion row has one review result.
+- `invalid_review_scorecard`: invalid_review_scorecard identifies a malformed agent-review scorecard. For example, one result cell containing both pass and fail is invalid.
 """
 
 from __future__ import annotations
@@ -31,8 +35,14 @@ class AgentMdStatusTests(unittest.TestCase):
         `determine_agent_md_status` produces `pass`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
-          Justification: Deeper coverage — The current test isolates pass-status derivation. The higher test combines passing and failing scorecards through the complete CLI workflow.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_rejects_ambiguous_row_result`
+          Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; the current test is happy path, while the named test is failure path.
         """
 
         artifact = """# Agentic Test Review
@@ -53,17 +63,24 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` derives fail status when any scorecard row has fail status.
-        Specialized usage: One row has fail status instead of pass status, so agentic linter derives fail status.
+        `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status.
+        Specialized usage: When an `.agent.md` has one pass result and one fail result, `determine_agent_md_status` derives fail status.
 
         Verification Method: verify public function output
 
         Verification Detail:
+        The `.agent.md` has one `pass` result and one `fail` result.
         `determine_agent_md_status` produces `fail`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
-          Justification: Deeper coverage — The current test isolates fail-status precedence. Higher test verifies failed-review guidance through the complete CLI workflow.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_rejects_ambiguous_row_result`
+          Explanation: The current test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status. The named test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; both use failure path, but exercise materially different scenarios.
         """
 
         artifact = """# Agentic Test Review
@@ -84,8 +101,8 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows.
-        Specialized usage: Scorecard contains a pending row alongside a passing row instead of only passing rows, so agentic linter derives pending status.
+        `determine_agent_md_status` derives pending status when an `.agent.md` scorecard contains at least one pending row and no failed rows.
+        Specialized usage: When an `.agent.md` scorecard contains one pending row alongside one passing row and no failed rows, `determine_agent_md_status` derives pending status.
 
         Verification Method: verify public function output
 
@@ -93,8 +110,14 @@ class AgentMdStatusTests(unittest.TestCase):
         `determine_agent_md_status` produces `pending`.
 
         Similar Coverage:
-        - Higher Level Test: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
-          Justification: Deeper coverage — The current test isolates pending-status derivation. The higher test applies pending status to manifest-recording policy.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Explanation: The current test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows. The named test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Explanation: The current test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_rejects_ambiguous_row_result`
+          Explanation: The current test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows. The named test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results; both use failure path, but exercise materially different scenarios.
         """
 
         artifact = """# Agentic Test Review
@@ -115,13 +138,22 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` emits invalid_review_scorecard when criteria contain multiple results.
-        Specialized usage: One criterion contains pass/fail ambiguity instead of one result, so agentic linter emits invalid_review_scorecard.
+        `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results.
+        Specialized usage: When one result cell contains both pass and fail instead of one result, `determine_agent_md_status` emits `invalid_review_scorecard`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rules contain `invalid_review_scorecard`.
+        One scorecard result cell contains `pass/fail`.
+        The module's `_lint_agent_md_file` output contains `invalid_review_scorecard`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Explanation: The current test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Explanation: The current test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Explanation: The current test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:

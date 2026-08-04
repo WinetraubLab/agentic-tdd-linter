@@ -11,6 +11,7 @@ Terms:
 from __future__ import annotations
 
 import ast
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -20,17 +21,17 @@ class SourceModuleStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `test_source_module_structure` requires every `test module` to have a same-basename `source module` or `test-harness module`.
+        `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Every `test module` has a permitted counterpart.
+        `_unmatched_test_paths` produces `[]` for agentic_linter, cli, conventional_linter, and indexing_test_functions.
 
         Similar Coverage:
-        - Lower Level Test: `test_load_all_formats.py::test_rejects_missing_module`
-          Justification: Deeper coverage — The lower test isolates CLI rejection of one missing declared module path. The current test enforces counterpart coverage across repository test modules.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`. The named test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist; the current test is happy path, while the named test is failure path.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -52,17 +53,67 @@ class SourceModuleStructureTests(unittest.TestCase):
             ),
         )
 
-    def test_limits_module_public_functions(self) -> None:
-        """Test Path: happy path
+    def test_enforces_public_function_limit(self) -> None:
+        """Test Path: failure path
 
         Requirement Tested:
-        `test_source_module_structure` restricts every `source module` to at most two public functions unless it is a `data-only module`.
-        Standard usage: The scenario demonstrates baseline behavior.
+        `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions.
+        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Every checked `source module` exposes at most two public functions unless it is a `data-only module`.
+        `_public_api_violations` output contains `empty.py: expected 1-2 public functions, found []`.
+        `_public_api_violations` output contains `excess.py: expected 1-2 public functions, found ['first', 'second', 'third']`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_source_module_structure.py::test_exempts_data_only_modules`
+          Explanation: The current test verifies `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions. The named test verifies `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit; the current test is failure path, while the named test is happy path.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            (controlled_root / "empty.py").write_text("", encoding="utf-8")
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "excess.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                set(),
+            )
+
+        self.assertEqual(
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
+        )
+
+    def test_exempts_data_only_modules(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit.
+        Specialized usage: A declared `data-only module` exposes three public functions instead of at most two, so `test_source_module_structure` accepts it.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` produces `[]` for the package root when the two `data-only module` paths are exempt.
+        `_public_api_violations` accepts a controlled three-function `data-only module`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_source_module_structure.py::test_enforces_public_function_limit`
+          Explanation: The current test verifies `test_source_module_structure` exempts every `data-only module` from the one-or-two-public-functions limit. The named test verifies `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions; the current test is happy path, while the named test is failure path.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
@@ -71,10 +122,30 @@ class SourceModuleStructureTests(unittest.TestCase):
             Path("indexing_test_functions/extracted_test_record.py"),
             Path("version.py"),
         }
-        self.assertEqual(
-            [],
-            _public_api_violations(package_root, data_only_modules),
+        repository_violations = _public_api_violations(
+            package_root,
+            data_only_modules,
         )
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "data.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                {Path("data.py")},
+            )
+
+        self.assertEqual([], repository_violations)
+        self.assertEqual([], controlled_violations)
 
 
 def _source_modules(package_root: Path) -> list[Path]:

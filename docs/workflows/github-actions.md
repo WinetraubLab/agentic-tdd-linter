@@ -20,7 +20,7 @@ Each JSONL record proves one reviewed test:
 The fields mean:
 - `path`: the reviewed test file.
 - `test`: the reviewed test name.
-- `source_sha256`: the exact contents of that test file at review time.
+- `source_sha256`: the exact extracted content of that test function at review time.
 - `status`: the review result. CI accepts only `pass`.
 - `linter_version`: the linter version that wrote the attestation.
 - `review_contract_sha256`: a hash of the linter source and repository documentation.
@@ -42,7 +42,7 @@ python -m unittest discover -s tests
 
 The workflow verifies the committed manifest against the committed repository state:
 1. The manifest must include a record for each checked test.
-2. Each `source_sha256` must match the committed test file contents.
+2. Each `source_sha256` must match the committed test function's extracted content.
 3. Each record must have `status: pass`.
 4. Each `linter_version` must exactly match the linter version installed by the workflow.
 5. Each `review_contract_sha256` must match the current linter source and documentation.

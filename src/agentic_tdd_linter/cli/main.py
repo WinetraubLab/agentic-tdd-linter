@@ -23,19 +23,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.print_help()
         return 2
 
-    if args.all:
-        print(
-            "agentic-tdd-linter: --all is deprecated; use --fresh",
-            file=sys.stderr,
-        )
-
     repo_root = args.repo_root.resolve() if args.repo_root else _find_repo_root(Path.cwd())
     try:
         common_arguments = {
             "repo_root": repo_root,
             "test_root": args.test_root,
             "paths": args.paths,
-            "force_fresh": args.fresh or args.all,
+            "force_fresh": args.fresh,
             "manifest_path": args.manifest,
         }
         if args.command == "create-agent-md":
@@ -89,11 +83,14 @@ def _next_action(
             (
                 "Next action:",
                 "1. Collect every failure from every selected packet before editing.",
-                "2. Make one consolidated source edit that addresses all collected failures.",
-                "3. Run the affected unit tests and finish all source edits before review.",
-                "4. Regenerate the selected packets once with "
+                "2. Before applying a fix, read the complete scorecard in each failed "
+                "`.agent.md` packet and evaluate the proposed test and docstring against "
+                "every criterion, including criteria that passed.",
+                "3. Make one consolidated source edit that addresses all collected failures.",
+                "4. Run the affected unit tests and finish all source edits before review.",
+                "5. Regenerate the selected packets once with "
                 "`agentic-tdd-linter create-agent-md --fresh`.",
-                "5. Do not retry an unchanged criterion to obtain a different result; "
+                "6. Do not retry an unchanged criterion to obtain a different result; "
                 "report a workflow conflict.",
             )
         )
@@ -102,7 +99,8 @@ def _next_action(
             (
                 "Next action:",
                 "1. Keep the reviewed source stable.",
-                "2. Complete every scorecard with one fresh isolated reviewer per criterion.",
+                "2. Complete every scorecard with one fresh isolated reviewer per "
+                "`.agent.md` packet.",
                 "3. Rerun `agentic-tdd-linter lint` after every selected packet is complete.",
             )
         )
@@ -129,7 +127,7 @@ def _next_action(
                 "2. If source changed after packet generation, regenerate once with "
                 "`agentic-tdd-linter create-agent-md --fresh`.",
                 "3. Keep the source stable while every generated scorecard is reviewed "
-                "with one fresh isolated reviewer per criterion.",
+                "with one fresh isolated reviewer per `.agent.md` packet.",
                 "4. If review fails, collect every packet failure before editing; make one "
                 "consolidated edit, rerun tests, and regenerate once.",
                 "5. Do not retry an unchanged criterion to obtain a different result; "
@@ -175,17 +173,11 @@ def _add_file_selection_arguments(parser: argparse.ArgumentParser) -> None:
         "--fresh",
         action="store_true",
         help=(
-            "ignore previous review proof and regenerate every packet in the selected "
-            "scope, including the cross-test packet; without paths, use the whole test root"
+            "ignore previous review proof and regenerate every single-test packet plus "
+            "the cross-test packet in the selected scope; without paths, use the whole "
+            "test root"
         ),
     )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="deprecated alias for --fresh",
-    )
-
-
 def _add_shared_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--format",

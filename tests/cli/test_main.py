@@ -28,10 +28,13 @@ from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import
     _review_contract_sha256,
 )
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
-    _source_sha256,
+    _test_content_sha256,
 )
 from agentic_tdd_linter.agentic_linter.map_test_function_to_agent_md_file import (
     map_test_function_to_agent_md_file,
+)
+from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
+    extract_tests_from_file,
 )
 from agentic_tdd_linter.version import __version__
 
@@ -41,17 +44,19 @@ class CliTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root.
+        `CLI` emits `CLI output` containing the generated `.agent.md` count when a caller runs create-agent-md with a nondefault test root.
         Specialized usage: For generated fixtures, CLI configures temporary_fixtures as the test root instead of the default root.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `CLI output` contains the text `generated 1 agent review packets`.
+        `CLI output` contains the text `generated 2 agent review packets` for one single-test packet and one cross-test packet.
 
         Similar Coverage:
-        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — The current test proves packet-count reporting for a nondefault test root. The higher test proves complete Python packet loading.
+        - Scenario Difference: `test_main.py::test_lint_reports_only_selected_file`
+          Explanation: The current test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root. The named test verifies `CLI` restricts `CLI output` to the caller-selected test-file path; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root. The named test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -102,7 +107,7 @@ class CliTests(unittest.TestCase):
                     ]
                 )
 
-        self.assertIn("generated 1 agent review packets", stdout.getvalue())
+        self.assertIn("generated 2 agent review packets", stdout.getvalue())
 
 
 class ReviewProofFlowTests(unittest.TestCase):
@@ -110,8 +115,8 @@ class ReviewProofFlowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CLI` confines `CLI output` to the caller-selected test-file path.
-        Specialized usage: Caller provides one test-file path instead of the full scope, so CLI confines `CLI output` to that file.
+        `CLI` restricts `CLI output` to the caller-selected test-file path.
+        Specialized usage: Caller selects one test-file path rather than the full test scope.
 
         Verification Method: verify public function output
 
@@ -119,6 +124,10 @@ class ReviewProofFlowTests(unittest.TestCase):
         Harness invokes lint with `test_first.py` as the selected path.
         `CLI output` contains the selected `test_first.py` file.
         `CLI output` omits the other `test_second.py` file.
+
+        Similar Coverage:
+        - Scenario Difference: `test_main.py::test_test_root_reports_generated_packet`
+          Explanation: The current test verifies `CLI` restricts `CLI output` to the caller-selected test-file path. The named test verifies `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -180,16 +189,15 @@ class ReviewProofFlowTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        Harness creates passing manifest proof.
-        Harness creates a completed `.agent.md` file.
-        Harness invokes lint without `--reviewer`.
+        Manifest proof has status `pass` and reviewer `codex:gpt-5.5`.
+        The `.agent.md` scorecard has status `pass` and no `reviewer identity`.
         `CLI output` contains `missing_reviewer`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves lint rejects completed reviews without reviewer identity. The higher test proves reviewer-authenticated lint records completed reviews through the full workflow.
-        - Higher Level Test: `test_review_documentation.py::test_readme_includes_reviewer`
-          Justification: Deeper coverage — The current test proves runtime enforcement when reviewer identity is absent. The higher test verifies that README supplies reviewer identity in the lint command.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_includes_reviewer`
+          Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `test_review_documentation` requires README to provide exact `lint arguments`; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -271,6 +279,15 @@ def _valid_test_function_source(name: str) -> str:
     )
 
 
+def _test_hash(test_file: Path, root: Path) -> str:
+    test = next(
+        test
+        for test in extract_tests_from_file(test_file, root)
+        if test.name == "test_adds_values"
+    )
+    return _test_content_sha256(test.source)
+
+
 def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
     artifact_path = map_test_function_to_agent_md_file(test_file, root, test_name="test_adds_values")
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
@@ -280,7 +297,7 @@ def _write_artifact(root: Path, test_file: Path, *, status: str) -> Path:
             # Agentic Test Docstring Review
 
             Test file: `tests/test_sample.py`
-            Source SHA256: `{_source_sha256(test_file)}`
+            Test Content SHA256: `{_test_hash(test_file, root)}`
 
             ### `test_adds_values`
 

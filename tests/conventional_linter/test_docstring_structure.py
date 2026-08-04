@@ -44,6 +44,20 @@ class DocstringStructureTests(unittest.TestCase):
 
         Verification Detail:
         `conventional_linter` output contains `missing_docstring`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         test = ExtractedTestRecord(
@@ -62,13 +76,31 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_test_path when docstrings omit `Test Path`.
-        Specialized usage: Docstring omits `Test Path` instead of providing it, so conventional linter emits missing_test_path.
+        `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`.
+        Specialized usage: When a test docstring omits `Test Path`, `conventional_linter` emits missing_test_path.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When docstrings omit `Test Path`, _lint_docstring_source contains `missing_test_path`.
+        The `_lint_docstring_source` rules contain `missing_test_path`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_failure_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` accepts `failure path`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_happy_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` accepts `happy path` when parser input succeeds; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_docstring_source(
@@ -95,16 +127,30 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing.
-        Specialized usage: Docstring contains empty `Requirement Tested` instead of populated content, so conventional linter emits missing_requirement.
+        Specialized usage: When a docstring contains empty `Requirement Tested`, `conventional_linter` emits missing_requirement.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When `Requirement Tested` contains nothing, _lint_docstring_source contains `missing_requirement`.
+        When `Requirement Tested` contains nothing, `_lint_docstring_source` output contains `missing_requirement`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
-          Justification: Diagnostic completeness — The current test proves the exact missing-requirement rule. The higher test proves that a conventionally invalid test prevents packet creation.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Module Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         rules = _lint_docstring_source(
@@ -131,12 +177,34 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`.
-        Specialized usage: Docstring omits `Verification Method` instead of providing it, so conventional linter emits missing_verification_method.
+        Specialized usage: Docstring omits `Verification Method` instead of providing it, so `conventional_linter` emits missing_verification_method.
 
         Verification Method: verify private function output
 
         Verification Detail:
         When docstrings omit `Verification Method`, _lint_docstring_source contains `missing_verification_method`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_private_output`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` includes private function output in `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` accepts public function output among `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_visual_inspection`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` accepts a `visual inspection contract`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_docstring_source(
@@ -162,12 +230,28 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing.
-        Specialized usage: Docstring contains empty `Verification Detail` instead of populated content, so conventional linter emits missing_verification_detail.
+        Specialized usage: When a docstring has an empty `Verification Detail`, `conventional_linter` emits missing_verification_detail.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When `Verification Detail` contains nothing, _lint_docstring_source contains `missing_verification_detail`.
+        When `Verification Detail` contains nothing, `_lint_docstring_source` output contains `missing_verification_detail`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_docstring_source(
@@ -193,13 +277,21 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` omits image paths.
-        Specialized usage: `Verification Detail` omits image path instead of providing it, so conventional linter emits missing_visual_inspection_artifact.
+        `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection.
+        Specialized usage: When `Verification Detail` lacks an image path for visual inspection, `conventional_linter` emits missing_visual_inspection_artifact.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When details omit image paths, _lint_docstring_source contains `missing_visual_inspection_artifact`.
+        `_lint_docstring_source` output contains `missing_visual_inspection_artifact`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_visual_inspection`
+          Explanation: The current test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection. The named test verifies `conventional_linter` accepts a `visual inspection contract`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection. The named test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_visual_helper`
+          Explanation: The current test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection. The named test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -233,13 +325,23 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_inspection_instructions when visual tests omit `Inspection Instructions`.
-        Specialized usage: Docstring omits `Inspection Instructions` instead of providing them, so conventional linter emits missing_inspection_instructions.
+        `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`.
+        Specialized usage: The fixture docstring declares visual inspection by user in its `Verification Method` but omits `Inspection Instructions`, so `conventional_linter` emits missing_inspection_instructions.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When tests omit `Inspection Instructions`, _lint_docstring_source contains `missing_inspection_instructions`.
+        When the fixture docstring declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`, `_lint_docstring_source` output contains `missing_inspection_instructions`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_visual_inspection`
+          Explanation: The current test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`. The named test verifies `conventional_linter` accepts a `visual inspection contract`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_inspection_artifact`
+          Explanation: The current test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`. The named test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_visual_helper`
+          Explanation: The current test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`. The named test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`. The named test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -270,13 +372,21 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` requires visual tests to invoke write_visual_inspection_artifact.
-        Specialized usage: Test source lacks a write_visual_inspection_artifact call instead of containing one, so conventional linter emits missing_visual_inspection_helper.
+        `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact.
+        Specialized usage: When a test declares visual inspection by user but lacks a write_visual_inspection_artifact call, `conventional_linter` emits missing_visual_inspection_helper.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When tests omit `write_visual_inspection_artifact`, _lint_docstring_source contains `missing_visual_inspection_helper`.
+        When a test declares visual inspection by user but omits a `write_visual_inspection_artifact` call, `_lint_docstring_source` output contains `missing_visual_inspection_helper`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_visual_inspection`
+          Explanation: The current test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact. The named test verifies `conventional_linter` accepts a `visual inspection contract`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_inspection_artifact`
+          Explanation: The current test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact. The named test verifies `conventional_linter` emits missing_visual_inspection_artifact when `Verification Detail` lacks an image path for visual inspection; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` requires tests whose `Verification Method` is visual inspection by user to invoke write_visual_inspection_artifact. The named test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -310,14 +420,18 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` prohibits Python names when they exceed five words.
-        Specialized usage: For Python naming, test name exceeds five words instead of staying within five, so conventional linter emits test_name_too_long.
+        `conventional_linter` prohibits test names longer than five words in every supported language.
+        Specialized usage: For Python naming, a test name exceeds five words instead of staying within five, so `conventional_linter` emits test_name_too_long.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Conventional linter enforces a five-word limit.
-        When names contain seven words, _lint_docstring_source contains `test_name_too_long`.
+        The synthetic Python test name contains seven words.
+        `_lint_docstring_source` output contains `test_name_too_long`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_docstring_structure.py::test_reports_long_typescript_test_name`
+          Explanation: The current test verifies `conventional_linter` prohibits test names longer than five words in every supported language. The named test verifies `conventional_linter` prohibits TypeScript labels when they exceed five words; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -345,13 +459,16 @@ class DocstringStructureTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` prohibits TypeScript labels when they exceed five words.
-        Specialized usage: For TypeScript naming, test label exceeds five words instead of staying within five, so conventional linter emits test_name_too_long.
+        Specialized usage: When a TypeScript label contains six or more words, `conventional_linter` emits test_name_too_long.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Conventional linter enforces a five-word limit.
-        When labels contain six words, _lint_typescript_docstring_source contains `test_name_too_long`.
+        `_lint_typescript_docstring_source` output contains `test_name_too_long` for a six-word TypeScript label.
+
+        Similar Coverage:
+        - Scenario Difference: `test_docstring_structure.py::test_reports_long_test_name`
+          Explanation: The current test verifies `conventional_linter` prohibits TypeScript labels when they exceed five words. The named test verifies `conventional_linter` prohibits test names longer than five words in every supported language; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_typescript_docstring_source(
@@ -387,6 +504,20 @@ class DocstringStructureTests(unittest.TestCase):
 
         Verification Detail:
         When requirement text remains inline, _lint_docstring_source contains `invalid_requirement_format`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_fields_need_blank_lines`
+          Explanation: The current test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline. The named test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -419,6 +550,20 @@ class DocstringStructureTests(unittest.TestCase):
 
         Verification Detail:
         When detail text remains inline, _lint_docstring_source contains `invalid_verification_detail_format`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_fields_need_blank_lines`
+          Explanation: The current test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline. The named test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -451,6 +596,16 @@ class DocstringStructureTests(unittest.TestCase):
 
         Verification Detail:
         When instructions stay inline, _lint_docstring_source contains `invalid_inspection_instructions_format`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_docstring_structure.py::test_reports_missing_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline. The named test verifies `conventional_linter` emits missing_inspection_instructions when a test declares visual inspection by user in its `Verification Method` and omits `Inspection Instructions`; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_fields_need_blank_lines`
+          Explanation: The current test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline. The named test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent; both use failure path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -483,13 +638,23 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent.
-        Specialized usage: TypeScript doc comment locates metadata fields adjacent instead of separating them with blank lines, so conventional linter emits invalid_field_spacing.
+        `conventional_linter` emits invalid_field_spacing when a TypeScript test doc comment omits blank-line separators between structured documentation fields.
+        Specialized usage: When a TypeScript test doc comment places structured documentation fields next to each other without blank-line separators, `conventional_linter` emits invalid_field_spacing.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rule set contains `invalid_field_spacing`.
+        The `conventional_linter` rule set contains `invalid_field_spacing`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_inspection_instructions`
+          Explanation: The current test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent. The named test verifies `conventional_linter` emits invalid_inspection_instructions_format when docstrings locate `Inspection Instructions` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_typescript_docstring_source(
@@ -528,15 +693,31 @@ class DocstringStructureTests(unittest.TestCase):
         The test contains `Requirement Tested`.
         The test contains `Verification Method`.
         The test contains `Verification Detail`.
-        Rules contain zero issues.
+        The `_lint_docstring_source` output rules contain zero issues.
 
         Similar Coverage:
-        - Lower Level Test: `test_classification.py::test_accepts_happy_path`
-          Justification: Diagnostic completeness — The lower test isolates whether `happy path` alone is accepted. The current test combines that classification with three other required Python docstring fields.
-        - Lower Level Test: `test_classification.py::test_accepts_public_output`
-          Justification: Diagnostic completeness — The lower test isolates whether public function output alone is accepted. The current test combines that method with three other required Python docstring fields.
-        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — The current test directly validates every required Python docstring field. The higher test loads that documentation into complete Python packets without isolating conventional docstring validation.
+        - Scenario Difference: `test_classification.py::test_accepts_happy_path`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts `happy path` when parser input succeeds; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts public function output among `supported methods`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_docstring_structure.py::test_typescript_doc_comment_passes`
+          Explanation: The current test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
         """
 
         rules = _lint_docstring_source(
@@ -563,26 +744,45 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`.
+        `conventional_linter` accepts TypeScript test docstrings when `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail` contain values and blank lines separate the fields.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `JSDoc` contains four fields.
-        The test contains `Test Path`.
-        The test contains `Requirement Tested`.
-        The test contains `Verification Method`.
-        The test contains `Verification Detail`.
-        Rules contain zero issues.
+        The TypeScript test docstring contains `Test Path`.
+        The TypeScript test docstring contains `Requirement Tested`.
+        The TypeScript test docstring contains `Verification Method`.
+        The TypeScript test docstring contains `Verification Detail`.
+        Every TypeScript test docstring field contains a value.
+        Blank lines separate the TypeScript test docstring fields.
+        `conventional_linter` issues are empty.
 
         Similar Coverage:
-        - Lower Level Test: `test_classification.py::test_accepts_happy_path`
-          Justification: Diagnostic completeness — The lower test isolates whether `happy path` alone is accepted. The current test combines that classification with three other required TypeScript docstring fields.
-        - Lower Level Test: `test_classification.py::test_accepts_public_output`
-          Justification: Diagnostic completeness — The lower test isolates whether public function output alone is accepted. The current test combines that method with three other required TypeScript docstring fields.
-        - Higher Level Test: `test_load_all_formats.py::test_loads_typescript_tests`
-          Justification: Deeper coverage — The current test directly validates every required TypeScript JSDoc field. The higher test loads that documentation into complete TypeScript packets without isolating conventional docstring validation.
+        - Scenario Difference: `test_classification.py::test_accepts_happy_path`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts `happy path` when parser input succeeds; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts public function output among `supported methods`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_classification.py::test_rejects_unsupported_verification_method`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts only `supported methods` as Verification Method values; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_docstring_structure.py::test_python_docstring_passes`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` accepts Python test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_empty_verification_detail`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_verification_detail when `Verification Detail` contains nothing; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_docstring`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_docstring when a test lacks a test docstring; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_method`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_verification_method when docstrings omit `Verification Method`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_missing_test_path`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits missing_test_path for each test docstring that omits `Test Path`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_same_line_requirement`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_reports_same_line_verification_detail`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits invalid_verification_detail_format when docstrings locate `Verification Detail` inline; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_docstring_structure.py::test_typescript_fields_need_blank_lines`
+          Explanation: The current test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`. The named test verifies `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent; the current test is happy path, while the named test is failure path.
         """
 
         rules = _lint_typescript_docstring_source(

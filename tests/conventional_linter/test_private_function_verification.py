@@ -25,14 +25,21 @@ class PrivateFunctionVerificationTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits private_verification_missing_private_call when private-function verification invokes public helpers.
-        Specialized usage: For private-function verification, test invokes helper instead of private function, so conventional linter emits private_verification_missing_private_call.
+        `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output without invoking a private function.
+        Specialized usage: For private-function output, the test invokes a helper instead of a private function, so `conventional_linter` emits private_verification_missing_private_call.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The fixture declares `verify private function output` but invokes `helper(" value ")`.
-        Because `helper` lacks a leading underscore, _lint_private_verification_source contains `private_verification_missing_private_call`.
+        The fixture declares `verify private function output`.
+        The fixture invokes `helper(" value ")`.
+        The lint result contains `private_verification_missing_private_call` because `helper` lacks a leading underscore.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_private_output`
+          Explanation: The current test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers. The named test verifies `conventional_linter` includes private function output in `supported methods`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_classification.py::test_accepts_public_output`
+          Explanation: The current test verifies `conventional_linter` emits private_verification_missing_private_call when a test declares private-function output but invokes only public helpers. The named test verifies `conventional_linter` accepts public function output among `supported methods`; the current test is failure path, while the named test is happy path.
         """
 
         rules = _lint_private_verification_source(

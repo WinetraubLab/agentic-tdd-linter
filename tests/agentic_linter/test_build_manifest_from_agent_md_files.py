@@ -1,12 +1,10 @@
 """Tests in this file validate `build_manifest_from_agent_md_files` located at `src/agentic_tdd_linter/agentic_linter/build_manifest_from_agent_md_files.py`.
-`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test files can skip another agent review.
-Changing a test file invalidates the proof for every test in that file.
+`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof and validating existing proof stored by default in `tests/agentic_review_manifest.jsonl`.
+Changing one test invalidates only that test's proof.
 
 Terms:
-- `manifest proof`: Manifest proof records a completed review for a test. For example, current passing proof allows lint to accept that test without another review.
+- `manifest proof`: Manifest proof records a completed review for a test. Proof becomes stale when it no longer matches test content or the review contract, and proof becomes orphaned when its test no longer exists.
 - `review contract`: The review contract includes the linter criteria and repository review documentation. For example, changing README.md changes the contract.
-- `stale record`: A stale record no longer matches its complete test file or review contract. For example, adding another test function makes the file's existing records stale.
-- `orphaned record`: An orphaned record identifies a test file or function that no longer exists. For example, deleting a reviewed function leaves an orphaned record for cleanup.
 """
 
 from __future__ import annotations
@@ -31,7 +29,10 @@ from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import
     build_manifest_from_agent_md_files,
 )
 from agentic_tdd_linter.agentic_linter.determine_agent_md_status import (
-    _source_sha256,
+    _test_content_sha256,
+)
+from agentic_tdd_linter.indexing_test_functions.extract_tests_from_file import (
+    extract_tests_from_file,
 )
 from agentic_tdd_linter.version import __version__
 
@@ -40,21 +41,25 @@ REVIEWER = "codex:gpt-5.5"
 
 
 class AgentReviewManifestTests(unittest.TestCase):
-    def test_added_function_invalidates_manifest_proof(self) -> None:
+    def test_added_function_preserves_existing_proof(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes all `manifest proof` for a reviewed test file when a new test function appears in that file.
-        Specialized usage: A new test function appears in an already reviewed file, so agentic linter removes all `manifest proof` for that file.
+        `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file.
+        Specialized usage: When a new test in the unchanged test's file lacks `manifest proof`, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof`.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
-        Manifest contains no records.
+        The manifest contains the original `test_adds_values` record unchanged.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test verifies file-wide invalidation after adding a function. Higher test verifies selective regeneration after caller modifies an existing function.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` removes proof for a missing test while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during missing-test cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -64,7 +69,51 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
+                status="pass",
+            )
+            original_record = json.loads(
+                _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()[0]
+            )
+            test_file.write_text(
+                test_file.read_text(encoding="utf-8")
+                + "\ndef test_subtracts_values() -> None:\n    assert 2 - 1 == 1\n",
+                encoding="utf-8",
+            )
+
+            _lint_agent_review_manifest([test_file], root)
+            records = [
+                json.loads(line)
+                for line in _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()
+            ]
+
+        self.assertIn(original_record, records)
+
+    def test_excludes_added_function(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `build_manifest_from_agent_md_files` records only completed `manifest proof`, so it omits a new unreviewed test until that test receives passing proof.
+        Specialized usage: When a new test appears beside an unchanged reviewed test without completed proof, `build_manifest_from_agent_md_files` leaves the new test out of the manifest.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        The manifest contains no record for `test_subtracts_values`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = "def test_adds_values() -> None:\n    assert 1 + 1 == 2\n"
+            test_file = _write_test_file(root, source)
+            _write_manifest(
+                root,
+                test_file,
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             test_file.write_text(
@@ -74,11 +123,17 @@ class AgentReviewManifestTests(unittest.TestCase):
             )
 
             _lint_agent_review_manifest([test_file], root)
-            manifest_text = _agent_review_manifest_path(root).read_text(
-                encoding="utf-8"
-            )
+            records = [
+                json.loads(line)
+                for line in _agent_review_manifest_path(root)
+                .read_text(encoding="utf-8")
+                .splitlines()
+            ]
 
-        self.assertEqual("", manifest_text)
+        self.assertNotIn(
+            "test_subtracts_values",
+            [record["test"] for record in records],
+        )
 
     def test_review_contract_changes_with_documentation(self) -> None:
         """Test Path: happy path
@@ -92,6 +147,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Verification Detail:
         README.md edit produces a new digest.
         docs/workflow.md edit produces a new digest.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md. The named test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`; the current test is happy path, while the named test is failure path.
         """
 
         for relative_path in (Path("README.md"), Path("docs/workflow.md")):
@@ -113,8 +172,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`.
-        Specialized usage: Manifest proof contains a mismatched `review contract` instead of the current `review contract`, so agentic linter emits stale_review_contract_attestation.
+        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation for `manifest proof` that uses an outdated `review contract`.
+        Specialized usage: When `manifest proof` uses an outdated `review contract`, `build_manifest_from_agent_md_files` emits stale_review_contract_attestation.
 
         Verification Method: verify private function output
 
@@ -122,8 +181,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Issue list contains `stale_review_contract_attestation`.
 
         Similar Coverage:
-        - Higher Level Test: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
-          Justification: Diagnostic completeness — The current test isolates the stale review-contract rule. The higher test exercises rejection of proof carrying outdated linter metadata through CI lint.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_review_contract_changes_with_documentation`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -133,7 +194,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
                 review_contract_hash="0" * 64,
             )
@@ -146,8 +207,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` eliminates `orphaned record` after caller erases reviewed file.
-        Specialized usage: Source deletion replaces an existing source file, so agentic linter empties the manifest.
+        `build_manifest_from_agent_md_files` eliminates `manifest proof` whose reviewed file no longer exists.
+        Specialized usage: When a deleted reviewed file leaves `manifest proof`, `build_manifest_from_agent_md_files` removes that proof.
 
         Verification Method: verify private function output
 
@@ -155,8 +216,12 @@ class AgentReviewManifestTests(unittest.TestCase):
         Manifest contains no records.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_refresh_removes_obsolete_packet`
-          Justification: Comparable coverage — The current test removes manifest proof for a deleted test file. The higher test removes an obsolete `.agent.md` file through the CLI refresh workflow.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -166,7 +231,7 @@ class AgentReviewManifestTests(unittest.TestCase):
             _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             test_file.unlink()
@@ -182,17 +247,24 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes all file-wide `manifest proof`, including `manifest proof` for the surviving function, after test-function deletion.
-        Specialized usage: Caller erases one reviewed function instead of retaining both functions, so agentic linter removes `manifest proof` for both functions.
+        `build_manifest_from_agent_md_files` removes `manifest proof` for a missing test while preserving proof for an unchanged test in the same file.
+        Specialized usage: When one reviewed test no longer exists while another test in its file remains unchanged, `build_manifest_from_agent_md_files` removes only the missing test's `manifest proof`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Manifest contains zero records, including `manifest proof` for the surviving function.
+        `manifest proof` contains only `test_adds_values`.
+        `manifest proof` excludes `test_subtracts_values`.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Justification: Deeper coverage — The current test proves file-wide `manifest proof` invalidation after function deletion. The higher test proves selective packet regeneration after an approved test is edited.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -207,13 +279,17 @@ class AgentReviewManifestTests(unittest.TestCase):
             manifest_path = _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
             )
             deleted_record = _manifest_record(
                 root,
                 path="tests/test_sample.py",
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(
+                    test_file,
+                    root,
+                    test_name="test_subtracts_values",
+                ),
                 status="pass",
             )
             deleted_record["test"] = "test_subtracts_values"
@@ -229,25 +305,38 @@ class AgentReviewManifestTests(unittest.TestCase):
             )
 
             _lint_agent_review_manifest([test_file], root)
-            manifest_text = manifest_path.read_text(encoding="utf-8")
+            records = [
+                json.loads(line)
+                for line in manifest_path.read_text(encoding="utf-8").splitlines()
+            ]
 
-        self.assertEqual("", manifest_text)
+        self.assertEqual(["test_adds_values"], [record["test"] for record in records])
 
     def test_recording_keeps_current_proof(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` retains `manifest proof` during `orphaned record` cleanup.
-        Specialized usage: When the manifest contains an orphaned record alongside a current record, cleanup removes only the orphaned record.
+        `build_manifest_from_agent_md_files` retains passing `manifest proof` whose source SHA256 matches current test content.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         `build_manifest_from_agent_md_files` output contains only `tests/test_sample.py`.
+        Retained `manifest proof` has status `pass`.
+        Retained source SHA256 equals the current `test_adds_values` content SHA256.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves orphan cleanup preserves current `manifest proof`. The higher test proves the complete CLI review lifecycle.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `CI/CD linter` accepts current manifest proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -279,20 +368,8 @@ class AgentReviewManifestTests(unittest.TestCase):
             manifest_path = _write_manifest(
                 root,
                 test_file,
-                source_hash=_source_sha256(test_file),
+                source_hash=_test_hash(test_file, root),
                 status="pass",
-            )
-            orphan_record = _manifest_record(
-                root,
-                path="tests/test_deleted.py",
-                source_hash="0" * 64,
-                status="pass",
-            )
-            manifest_path.write_text(
-                manifest_path.read_text(encoding="utf-8")
-                + json.dumps(orphan_record)
-                + "\n",
-                encoding="utf-8",
             )
             _write_artifact(root, test_file, status="pass")
 
@@ -305,10 +382,16 @@ class AgentReviewManifestTests(unittest.TestCase):
                 json.loads(line)
                 for line in result_path.read_text(encoding="utf-8").splitlines()
             ]
+            expected_source_hash = _test_hash(test_file, root)
 
         self.assertEqual(
             ["tests/test_sample.py"],
             [record["path"] for record in records],
+        )
+        self.assertEqual(["pass"], [record["status"] for record in records])
+        self.assertEqual(
+            [expected_source_hash],
+            [record["source_sha256"] for record in records],
         )
 
     def test_pending_review_is_not_recorded(self) -> None:
@@ -316,7 +399,7 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Requirement Tested:
         `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row.
-        Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file remains absent.
+        Specialized usage: The scorecard contains pending rows instead of completed results, so the manifest file stays absent.
 
         Verification Method: verify public function output
 
@@ -324,10 +407,10 @@ class AgentReviewManifestTests(unittest.TestCase):
         Filesystem contains no manifest file.
 
         Similar Coverage:
-        - Higher Level Test: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Justification: Deeper coverage — The current test proves pending scorecards leave manifest proof absent. The higher test proves completed scorecards create proof through the full workflow.
-        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pending_status`
-          Justification: Deeper coverage — The lower test isolates pending-status derivation. The current test applies pending status to manifest-recording policy.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -359,7 +442,7 @@ class AgentReviewManifestTests(unittest.TestCase):
                 reviewer="codex:gpt-5",
             )
 
-        self.assertFalse(manifest_path.exists())
+            self.assertFalse(manifest_path.exists())
 
 
 def _write_test_file(
@@ -386,6 +469,20 @@ def _with_file_docstring(source: str) -> str:
     ).strip() + "\n\n" + source
 
 
+def _test_hash(
+    test_file: Path,
+    root: Path,
+    *,
+    test_name: str = "test_adds_values",
+) -> str:
+    test = next(
+        test
+        for test in extract_tests_from_file(test_file, root)
+        if test.name == test_name
+    )
+    return _test_content_sha256(test.source)
+
+
 def _write_artifact(
     root: Path,
     test_file: Path,
@@ -401,7 +498,7 @@ def _write_artifact(
             # Agentic Test Docstring Review
 
             Test file: `tests/test_sample.py`
-            Source SHA256: `{_source_sha256(test_file)}`
+            Test Content SHA256: `{_test_hash(test_file, root, test_name=test_name)}`
 
             ### `{test_name}`
 

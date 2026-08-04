@@ -206,6 +206,18 @@ def _criterion_changed(
     return len(wordings) > 1
 
 
+def _criterion_differs_from_head(
+    criterion: int,
+    current_criteria: dict[int, tuple[str, str]],
+    snapshots: list[Snapshot],
+) -> bool:
+    if not snapshots:
+        return False
+    return _criterion_text(
+        current_criteria, criterion
+    ) != _criterion_text(snapshots[0].criteria, criterion)
+
+
 def _escape(value: str) -> str:
     return value.replace("|", "\\|").replace("\n", " ")
 
@@ -230,6 +242,11 @@ def _render_table(
     rows = sidecar.get("criteria", {})
     for criterion_text, row in rows.items():
         criterion = int(criterion_text)
+        criterion_label = (
+            f"{criterion} (edited)"
+            if _criterion_differs_from_head(criterion, current_criteria, snapshots)
+            else str(criterion)
+        )
         title, body = current_criteria.get(criterion, ("Unknown criterion", ""))
         explanation = f"{title}: {_first_sentence(body)}" if body else title
         failures = set(row.get("failing_yaml_cases", []))
@@ -238,12 +255,19 @@ def _render_table(
         )
         grouped: dict[str, list[str]] = {}
         for case in checked_cases:
+            current_outcome = "fail" if case in failures else "pass"
             category = _classification(
                 criterion=criterion,
                 case=case,
-                current_outcome="fail" if case in failures else "pass",
+                current_outcome=current_outcome,
                 snapshots=snapshots,
             )
+            if category == "Flaky":
+                category = (
+                    "Flaky failing right now"
+                    if current_outcome == "fail"
+                    else "Flaky passing right now"
+                )
             grouped.setdefault(category, []).append(case)
         classified_count = sum(len(cases) for cases in grouped.values())
         enforced_checks = row.get("enforced_checks")
@@ -260,7 +284,8 @@ def _render_table(
         order = (
             "New test pass",
             "New test fail",
-            "Flaky",
+            "Flaky passing right now",
+            "Flaky failing right now",
             "Fails in HEAD",
             "Regression",
             "Stable pass",
@@ -271,8 +296,8 @@ def _render_table(
             cases = grouped.get(category, [])
             if not cases:
                 continue
-            if category == "Stable pass":
-                parts.append(f"Stable pass ({len(cases)})")
+            if category in {"Flaky passing right now", "Stable pass"}:
+                parts.append(f"{category} ({len(cases)})")
                 continue
             parts.append(
                 f"{category} ({len(cases)}): "
@@ -283,7 +308,8 @@ def _render_table(
             parts.append(f"Criterion changed: {changed}")
         result_text = "<br>".join(parts) if parts else "—"
         lines.append(
-            f"| {criterion} | {_escape(explanation)} | {row['success']} | {result_text} |"
+            f"| {criterion_label} | {_escape(explanation)} | "
+            f"{row['success']} | {result_text} |"
         )
     return "\n".join(lines)
 

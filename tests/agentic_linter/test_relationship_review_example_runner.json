@@ -1,0 +1,9 @@
+{
+  "reviewer": {"model": "gpt-5.6-sol high"},
+  "total": {"success": "7/7 (100% pass)", "enforced_checks": 7},
+  "runtime": {"yaml_cases": 4, "total": "33.5s", "average_per_yaml_case": "8.4s"},
+  "criteria": {
+    "10": {"success": "4/4 (100% pass)", "enforced_checks": 4, "failing_yaml_cases": []},
+    "11": {"success": "3/3 (100% pass)", "enforced_checks": 3, "failing_yaml_cases": []}
+  }
+}

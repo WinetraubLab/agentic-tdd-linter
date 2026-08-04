@@ -4,37 +4,7 @@
 # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
 # Each outcome must be `pass` or `fail` followed by an explanation comment.
 
-defined_distinctive_file_terms:
-  file_docstring: |
-    """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
-    `module_mapping` is responsible for relating test modules to implementation modules.
-
-    Terms:
-    - `unit module`: A unit module is a test file that validates one implementation. For example, `test_parser.py` validates `parser.py`.
-    - `implementation module`: An implementation module is code exercised by one unit module. For example, `parser.py` is exercised by `test_parser.py`.
-    """
-  test: |
-    def test_maps_module_name() -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `module_mapping` relates a `unit module` to an `implementation module`.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify public function output
-
-        Verification Detail:
-        Removing `test_` from `test_parser.py` produces `parser.py`.
-        """
-
-        assert "test_parser.py".removeprefix("test_") == "parser.py"
-  expected_scorecard:
-    16: # Requirement Fits Declared Module Responsibility
-      pass # Test-to-implementation module identification belongs to module mapping.
-    46: # Terms Reuse Shared Vocabulary
-      pass # Unit module and implementation module name different roles, so neither term duplicates the other.
-
-interchangeable_file_terms:
+file_docstring_001_interchangeable_file_terms:
   file_docstring: |
     """Tests in this file validate `module_mapping` located at `src/examples/module_mapping.py`.
     `module_mapping` is responsible for relating source modules to their implementations.
@@ -63,5 +33,449 @@ interchangeable_file_terms:
   expected_scorecard:
     16: # Requirement Fits Declared Module Responsibility
       pass # Source-to-implementation identification belongs to module mapping.
+    44: # File Docstring Uses One Label per Referent
+      fail # `implementation module` duplicates `source module` as a label for the same Python file.
+
+file_docstring_002_unused_duplicate_file:
+  file_docstring: |
+    """Tests in this file validate `discover_test_files` located at `src/agentic_tdd_linter/indexing_test_functions/discover_test_files.py`.
+    `discover_test_files` is responsible for finding supported test files under a selected path.
+
+    Terms:
+    - `discovered file`: A discovered file is a test file selected for extraction and linting. For example, an all-mode search discovers `tests/test_example.py`.
+    - `candidate file`: A candidate file is a test path considered for discovery before selection. For example, `tests/temporary_fixtures/test_generated.py` is a candidate that default discovery excludes.
+    - `discover_test_files`: This public function selects test files for extraction. For example, `discover_test_files` returns Python and TypeScript test paths.
+    - `temporary_fixtures`: This directory contains tests that the test harness generates. For example, repository discovery ignores `tests/temporary_fixtures/test_generated.py`.
+    """
+  test: |
+    def test_ignores_temporary_fixtures(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `discover_test_files` excludes each `candidate file` under `temporary_fixtures` during all-mode discovery of the default test root.
+        Specialized usage: `discover_test_files` considers a `candidate file` under `temporary_fixtures` instead of directly under the selected test root.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `discover_test_files` evaluates mode `all` under selected root `tests`.
+        `discover_test_files` produces `[]` for `tests/temporary_fixtures/test_generated.py`.
+
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            tests_root = repo_root / "tests"
+            fixture = tests_root / "temporary_fixtures" / "test_generated.py"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text("def test_generated(): pass\n", encoding="utf-8")
+
+            discovered = discover_test_files(
+                repo_root,
+                mode="all",
+                test_root=tests_root,
+            )
+
+        self.assertEqual([], discovered)
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      fail # `candidate file` and `discovered file` name lifecycle stages of the same test file.
+
+file_docstring_003_alternate_spelling_of:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/check_file_docstring_term_count.py`.
+    `conventional_linter` is responsible for enforcing the test-file glossary limit.
+
+    Terms:
+    - `glossary limit`: The glossary limit permits no more than five defined terms. For example, six terms produce a lint issue.
+    """
+  test: |
+    def test_reports_excess_term_rule(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits too_many_file_docstring_terms when term count exceeds `glossary limit`.
+        Specialized usage: For glossary limits, term count exceeds `glossary limit` instead of staying within it, so conventional linter emits too_many_file_docstring_terms.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        File docstring defines six terms: alpha, beta, gamma, delta, epsilon, and zeta.
+        Issue list contains `too_many_file_docstring_terms`.
+        """
+
+        term_names = ("alpha", "beta", "gamma", "delta", "epsilon", "zeta")
+        definitions = "\n".join(
+            f"- `{term}`: The {term} term has a definition." for term in term_names
+        )
+        test = ExtractedTestRecord(
+            path=Path("tests/test_example.py"),
+            name="test_example",
+            line=1,
+            node=None,
+            docstring="",
+            file_docstring=f"Verify examples.\n\nTerms:\n{definitions}",
+        )
+
+        issues = check_file_docstring_term_count(test)
+
+        self.assertIn("too_many_file_docstring_terms", [issue.rule for issue in issues])
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
     46: # Terms Reuse Shared Vocabulary
-      fail # Implementation module duplicates source module, so the requirement should reuse source module.
+      fail # `glossary limits` duplicates the established `glossary limit` term instead of reusing the same term.
+
+file_docstring_004_alternate_spelling_of:
+  file_docstring: |
+    """Tests in this file validate `conventional_linter` located at `src/agentic_tdd_linter/conventional_linter/run_conventional_linter.py`.
+    `conventional_linter` is responsible for enforcing test documentation, naming, and visual-inspection conventions.
+
+    Terms:
+    - `Test Path`: Test Path is the structured field naming a test's scenario category. For example, Test Path can contain happy path.
+    - `Requirement Tested`: Requirement Tested is the structured field stating behavior and scenario. For example, it says that a parser accepts valid text.
+    - `Verification Method`: Verification Method is the structured field naming the observation approach. For example, it can say verify public function output.
+    - `Verification Detail`: Verification Detail is the structured field stating exact evidence. For example, it says that `_add_values` output equals three.
+    - `Inspection Instructions`: Inspection Instructions is the structured field that authorizes source inspection when linter issues cannot describe visual evidence. For example, it can name a specific module to inspect.
+    """
+  test: |
+    def test_reports_same_line_requirement(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `conventional_linter` emits invalid_requirement_format when docstrings locate `Requirement Tested` inline.
+        Specialized usage: Docstring locates `Requirement Tested` inline instead of on a separate line, so conventional linter emits invalid_requirement_format.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        When requirement text remains inline, _lint_docstring_source contains `invalid_requirement_format`.
+        """
+
+        rules = _lint_docstring_source(
+            """
+            def test_adds_values() -> None:
+                \"\"\"Test Path: happy path
+
+                Requirement Tested: addition returns the expected sum.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                Addition output equals expected numeric total.
+                \"\"\"
+
+                assert 1 + 1 == 2
+            """
+        )
+
+        self.assertIn("invalid_requirement_format", rules)
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
+    46: # Terms Reuse Shared Vocabulary
+      fail # `conventional linter` duplicates the established `conventional_linter` term with different spelling.
+
+file_docstring_005_alternate_artifact_name:
+  file_docstring: |
+    """Tests in this file validate `render_cross_test_agent_md_file` located at `src/agentic_tdd_linter/agentic_linter/render_cross_test_agent_md_file.py`.
+    `render_cross_test_agent_md_file` is responsible for creating an isolated cross-test `.agent.md` that documents test-coverage relationships.
+
+    Terms:
+    - `renderer`: The renderer creates a cross-test review packet from selected paths. For example, it writes one packet for two test files.
+    - `cross-test packet`: A cross-test packet contains review context for relationships among tests. For example, it lists test files and Similar Coverage instructions.
+    - `relationship fields`: Relationship fields encode higher references, lower references, and classified justifications. For example, one pair names both test levels and its coverage difference.
+    - `coverage reference formats`: Coverage reference formats are ``Higher Level Test: `<file.py>::<test_name>```, ``Lower Level Test: `<file.py>::<test_name>```, and `Justification: <classification> — <specific coverage difference>`. For example, cross-test instructions display all three formats.
+    """
+  test: |
+    def test_requires_reciprocal_references(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `render_cross_test_agent_md_file` requires each test in a higher-level/lower-level pair to reference the other.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Cross-test file contains `A passing pair provides reciprocal references`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_file = root / "tests" / "test_alpha.py"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text(
+                "def test_example():\n    assert True\n",
+                encoding="utf-8",
+            )
+
+            artifact = render_cross_test_agent_md_file([test_file], root)
+            artifact_text = artifact.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "A passing pair provides reciprocal references",
+            artifact_text,
+        )
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
+    46: # Terms Reuse Shared Vocabulary
+      fail # `Cross-test file` renames the established `cross-test packet` according to its physical representation.
+
+file_docstring_006_alternate_context_name:
+  file_docstring: |
+    """Tests in this file validate `test_source_module_structure` located at `tests/repository_health/test_source_module_structure.py`.
+    `test_source_module_structure` is responsible for enforcing repository source-module and test-module structure.
+
+    Terms:
+    - `source module`: A source module is a non-`__init__.py` Python file under src/agentic_tdd_linter. For example, tests/cli/test_main.py matches src/agentic_tdd_linter/cli/main.py.
+    - `test module`: A test module is a test_*.py file under tests. For example, tests/cli/test_main.py is a test module.
+    - `test-harness module`: A test-harness module is a same-basename non-test Python file beside a test module or inside its folder's test_harness package. For example, test_harness/mock_keyword_identification.py supports test_mock_keyword_identification.py.
+    - `data-only module`: A data-only module is indexing_test_functions/extracted_test_record.py or version.py. For example, version.py exposes version data instead of public functions.
+    """
+  test: |
+    def test_enforces_public_function_limit(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_source_module_structure` emits a violation when a `source module` exposes fewer than one or more than two public functions.
+        Specialized usage: A source module exposes zero or three public functions instead of one or two, so `test_source_module_structure` emits a violation.
+
+        Verification Method: verify private function output
+
+        Verification Detail:
+        `_public_api_violations` identifies controlled modules with zero or three public functions.
+        `_public_api_violations` accepts a controlled module with two public functions.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            controlled_root = Path(directory)
+            (controlled_root / "empty.py").write_text("", encoding="utf-8")
+            (controlled_root / "valid.py").write_text(
+                "def first(): pass\ndef second(): pass\n",
+                encoding="utf-8",
+            )
+            three_functions = (
+                "def first(): pass\n"
+                "def second(): pass\n"
+                "def third(): pass\n"
+            )
+            (controlled_root / "excess.py").write_text(
+                three_functions,
+                encoding="utf-8",
+            )
+
+            controlled_violations = _public_api_violations(
+                controlled_root,
+                set(),
+            )
+
+        self.assertEqual(
+            [
+                "empty.py: expected 1-2 public functions, found []",
+                "excess.py: expected 1-2 public functions, "
+                "found ['first', 'second', 'third']",
+            ],
+            controlled_violations,
+        )
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      fail # `source module` and `data-only module` are too close to distinguish their referents clearly.
+    46: # Terms Reuse Shared Vocabulary
+      fail # `controlled module` renames the established `source module` according to its test context.
+
+file_docstring_007_similar_artifact_names:
+  file_docstring: |
+    """Tests in this file validate `agent_review_example_runner` located at `tests/agentic_linter/test_harness/agent_review_example_runner.py`.
+    `agent_review_example_runner` is responsible for orchestrating YAML-example evaluations.
+
+    Terms:
+    - `runner JSON`: Runner JSON is the readable `agent_review_example_runner` report at tests/agentic_linter/test_agent_review_example_runner.json. For example, every completed YAML-example evaluation overwrites this file.
+    - `runner JSONL`: Runner JSONL is the committed proof for criteria enforced by each YAML case at tests/agentic_linter/test_agent_review_example_runner.jsonl. Current proof corresponds to every source and expected scorecard in the `YAML fixture catalog`.
+    - `YAML fixture catalog`: The YAML fixture catalog is repository data evaluated by `agent_review_example_runner`. For example, each entry supplies an example and its expected scorecard as the subject of evaluation.
+    - `timer start`: Timer start marks when measurement begins for the total time needed to run the agentic linter on the YAML examples. For example, the timer starts before YAML validation.
+    - `timer end`: Timer end marks when runtime measurement stops after YAML scorecards have been compared. For example, elapsed review time uses timer end as its completion timestamp.
+    """
+  test: |
+    def test_stale_attestation_requires_review(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `agent_review_example_runner` creates '.agent.md' files when `runner JSONL` attestations are stale.
+        Specialized usage: When one attestation contains an outdated source hash, `agent_review_example_runner` creates one '.agent.md' file.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Harness applies mock.patch to provide an isolated artifact directory and stale proof path.
+        1. Harness initializes an isolated proof file from committed `runner JSONL`.
+        2. Harness substitutes one source hash with a stale value.
+        3. Runner evaluates the complete `YAML fixture catalog`.
+        4. Artifact directory contains one '.agent.md' file.
+        """
+
+        examples_path = (
+            REPO_ROOT / "tests/agentic_linter/fixtures/single_test_review"
+        )
+        committed_attestations = (
+            REPO_ROOT
+            / "tests"
+            / "agentic_linter"
+            / "test_agent_review_example_runner.jsonl"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            anonymous_root = temporary_root / "agent_review_examples"
+            artifact_root = anonymous_root / "agentic_review_artifacts"
+            attestation_path = temporary_root / "stale.jsonl"
+            records = [
+                json.loads(line)
+                for line in committed_attestations.read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            ]
+            stale_record = next(
+                record
+                for record in records
+                if record["yaml_case"] == "requirement_formulation_004_ambiguous_input_case"
+            )
+            stale_record["source_sha256"] = "0" * 64
+            attestation_path.write_text(
+                "".join(json.dumps(record) + "\n" for record in records),
+                encoding="utf-8",
+            )
+
+            with mock.patch.multiple(
+                runner_harness,
+                ANONYMOUS_ROOT=anonymous_root,
+                ARTIFACT_ROOT=artifact_root,
+                SCORECARD_ATTESTATION_PATH=attestation_path,
+                REVIEW_START_PATH=anonymous_root / ".review_started_at",
+            ):
+                with self.assertRaises(RuntimeError) as raised:
+                    run_agent_review_examples(
+                        examples_path=examples_path,
+                        reviewer_model="5.6 Sol Medium",
+                    )
+
+            error_text = str(raised.exception)
+            reported_packets = [
+                line
+                for line in error_text.splitlines()
+                if line.startswith("- ") and line.endswith(".agent.md")
+            ]
+
+        self.assertEqual(1, len(reported_packets))
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      fail # `runner JSON` and `runner JSONL` differ by only one subtle suffix character and are not readily distinguishable.
+
+file_docstring_008_changed_canonical_phrase:
+  file_docstring: |
+    """Tests in this file validate `test_agent_review_yaml_fixture_contract` located at `tests/repository_health/test_agent_review_yaml_fixture_contract.py`.
+    `test_agent_review_yaml_fixture_contract` is responsible for enforcing repository policy for maintainable agent-review YAML examples.
+
+    Terms:
+    - `supported fields`: Supported fields are file_docstring, test, and expected_scorecard. For example, an owner field is outside the supported fields.
+    """
+  test: |
+    def test_rejects_unsupported_fields(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `test_agent_review_yaml_fixture_contract` emits an unsupported-field error for an owner field outside `supported fields`.
+        Specialized usage: One YAML example contains an owner field instead of only `supported fields`, so validation emits the unsupported-field error.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Validation errors contain "unsupported field `owner`".
+
+        Similar Coverage:
+        - Higher Level Test: `test_agent_review_example_runner.py::test_anonymous_agent_review_examples`
+          Justification: Diagnostic completeness — The current test isolates unsupported-field validation. The higher test runs the complete YAML fixture catalog.
+        """
+
+        invalid_source = textwrap.dedent(
+            '''
+            # Test-source examples for agent review.
+            # Each example contains only `file_docstring`, `test`, and `expected_scorecard`.
+            # Criteria omitted from `expected_scorecard` are ignored during comparison.
+            # Criterion comments must match their titles in `single_test_review.agent.md.j2`.
+            # Each outcome must be `pass` or `fail` followed by an explanation comment.
+
+            unsupported_owner:
+              owner: parser
+              test: |
+                def test_example() -> None:
+                    """Test Path: happy path
+
+                    Requirement Tested:
+                    Addition calculates sums.
+                    When operands contain integers, addition calculates sums.
+
+                    Verification Method: verify public function output
+
+                    Verification Detail:
+                    The expression produces `2`.
+                    """
+
+                    assert 1 + 1 == 2
+              expected_scorecard:
+                11: # First Line States a General Behavioral Rule
+                  pass # The requirement states the calculation behavior.
+            '''
+        ).lstrip()
+        with tempfile.TemporaryDirectory() as directory:
+            example_file = Path(directory) / "invalid.yaml"
+            example_file.write_text(invalid_source, encoding="utf-8")
+            errors = lint_agent_review_examples(examples_path=example_file)
+
+        matching_errors = [
+            error for error in errors if "unsupported field `owner`" in error
+        ]
+        self.assertTrue(matching_errors)
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
+    46: # Terms Reuse Shared Vocabulary
+      fail # `One YAML example` omits the `agent-review` modifier and changes the established plural phrase `agent-review YAML examples` to singular.
+
+file_docstring_009_readme_name_shorthand:
+  file_docstring: |
+    """Tests in this file validate `test_review_documentation` located at `tests/repository_health/test_review_documentation.py`.
+    `test_review_documentation` is responsible for requiring README.md and docs/workflows/github-actions.md to document the supported pre-commit review and CI/CD validation workflows.
+
+    Terms:
+    - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
+    - `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+    - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
+    - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
+    """
+  test: |
+    def test_readme_names_both_workflows(self) -> None:
+            """Test Path: happy path
+
+            Requirement Tested:
+            `test_review_documentation` requires README level-three headings: `pre-commit review workflow` and `CI/CD validation workflow`.
+            Standard usage: The scenario demonstrates baseline behavior.
+
+            Verification Method: verify public function output
+
+            Verification Detail:
+            README contents contain `### Pre-commit review workflow`.
+            README contents contain `### CI/CD validation workflow`.
+            """
+
+            repo_root = Path(__file__).resolve().parents[2]
+            readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+            self.assertIn("### Pre-commit review workflow", readme)
+            self.assertIn("### CI/CD validation workflow", readme)
+  expected_scorecard:
+    44: # File Docstring Uses One Label per Referent
+      pass # File Docstring establishes only one label for each referent.
+    46: # Terms Reuse Shared Vocabulary
+      fail # `README` and `README contents` rename the canonical file name README.md instead of reproducing it verbatim.

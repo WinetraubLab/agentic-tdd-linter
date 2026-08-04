@@ -4,6 +4,9 @@
 Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
 - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
+- `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among the complete selected test set. For example, create-agent-md --fresh regenerates the cross-test review.
+- `agent_review_failed`: The agent_review_failed issue identifies a completed review containing failed criteria. For example, lint emits this issue with correction instructions.
+- `failed-review correction procedure`: A failed-review correction procedure tells editors to read the complete scorecard in every failed .agent.md, evaluate the test and docstring against every criterion including passing criteria, and regenerate the selected packets once. For example, agent_review_failed output provides this procedure.
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ from pathlib import Path
 from tests.integration_tests.test_harness.usage_scenarios import (
     complete_packets as _complete_packets,
     manifest_records as _manifest_records,
+    packet_contents as _packet_contents,
     packet_paths as _packet_paths,
     run_cli as _run_cli,
     write_source as _write_source,
@@ -27,30 +31,39 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` persists an approved test in the manifest with its file path, test name, pass status, and reviewer identity.
+        `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
-        1. Harness creates repository. Harness creates one test.
-        2. Harness invokes create-agent-md.
-        3. Harness classifies reviews as successful.
-        4. Harness invokes lint.
-        5. Manifest contains path `tests/test_arithmetic.py`.
-        6. Manifest contains test `test_adds_two_numbers`.
-        7. Manifest contains status `pass`.
-        8. Manifest contains reviewer `integration:nominal-reviewer`.
+        1. Harness creates a temporary repository containing one test.
+        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
+        3. Harness classifies every generated `.agent.md` scorecard as pass.
+        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
+        5. `_manifest_records` output provides the asserted manifest fields.
+        6. Manifest contains path `tests/test_arithmetic.py`.
+        7. Manifest contains test `test_adds_two_numbers`.
+        8. Manifest contains status `pass`.
+        9. Manifest contains reviewer `integration:nominal-reviewer`.
 
         Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Justification: Deeper coverage — The lower test proves orphan cleanup preserves current `manifest proof`. The current test proves the complete `pre-commit review workflow`.
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
-          Justification: Deeper coverage — The lower test proves pending scorecards leave manifest proof absent. The current test proves completed scorecards create proof through the full workflow.
-        - Lower Level Test: `test_main.py::test_lint_requires_reviewer`
-          Justification: Deeper coverage — The lower test proves completed reviews require reviewer identity. The current test proves reviewer-authenticated lint records completed reviews through the full workflow.
-        - Higher Level Test: `test_review_documentation.py::test_readme_shows_review_workflow`
-          Justification: Deeper coverage — The current test executes the review lifecycle. The higher test verifies that README documents the same ordered lifecycle.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_main.py::test_lint_requires_reviewer`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; the current test is happy path, while the named test is failure path.
+        - Module Difference: `test_review_documentation.py::test_readme_shows_review_workflow`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         test_source = textwrap.dedent(
@@ -91,7 +104,6 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _write_source(repo_root / expected_test_path, test_source)
 
             _run_cli(repo_root, "create-agent-md")
-            packets = _packet_paths(repo_root)
             _complete_packets(repo_root, status="pass", evidence="nominal review passed")
             _run_cli(repo_root, "lint", "--reviewer", expected_reviewer)
             records = _manifest_records(repo_root)
@@ -113,15 +125,24 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits missing_required_agent_md when caller invokes lint before '.agent.md' creation.
-        Specialized usage: Caller invokes lint before create-agent-md instead of after it, so `pre-commit review workflow` emits missing_required_agent_md.
+        `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test.
+        Specialized usage: Caller invokes lint before create-agent-md, so `pre-commit review workflow` emits missing_required_agent_md guidance naming create-agent-md.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
         3. `pre-commit review workflow` output contains missing_required_agent_md.
+        4. `pre-commit review workflow` output contains `agentic-tdd-linter create-agent-md`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         test_source = textwrap.dedent(
@@ -155,25 +176,32 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint")
 
         self.assertIn("missing_required_agent_md", lint.stdout)
+        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
 
     def test_classic_linter_errors_scenario(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` prevents '.agent.md' creation when conventional linter emits missing_requirement.
+        `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement.
         Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero `.agent.md` files.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing a test whose docstring lacks Requirement Tested.
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Command output contains `missing_requirement`.
-        Packet list contains zero paths.
+        4. Packet list contains zero `.agent.md` paths.
 
         Similar Coverage:
-        - Lower Level Test: `test_docstring_structure.py::test_reports_empty_requirement`
-          Justification: Diagnostic completeness — The lower test proves the exact missing-requirement rule. The current test proves that the rule prevents packet creation through the `pre-commit review workflow`.
+        - Module Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; the current test is failure path, while the named test is happy path.
         """
 
         invalid_test_source = textwrap.dedent(
@@ -210,25 +238,27 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits failed reviews: 'agent_review_failed' plus `.agent.md` regeneration instructions.
-        Specialized usage: When one '.agent.md' scorecard fails and another passes, `pre-commit review workflow` emits both messages.
+        `pre-commit review workflow` emits `agent_review_failed` with a `failed-review correction procedure` for each failed `.agent.md` review.
+        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` emits `agent_review_failed` with the `failed-review correction procedure`.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing two tests.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness classifies one review as successful and another as unsuccessful.
-        4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:failure-reviewer`.
-        5. `pre-commit review workflow` output contains `agent_review_failed`.
-        Lint output emits `agent_review_failed`.
-        Lint output contains `Regenerate the selected packets once`.
+        1. A completed `.agent.md` review contains a failed criterion.
+        2. `_run_cli` output contains `agent_review_failed`.
+        3. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
+        4. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
+        5. `_run_cli` output contains `Regenerate the selected packets once`.
 
         Similar Coverage:
-        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_pass_status`
-          Justification: Deeper coverage — The lower test proves pass-status derivation. The current test combines a passing review with a failed review through the `pre-commit review workflow`.
-        - Lower Level Test: `test_determine_agent_md_status.py::test_derives_fail_status`
-          Justification: Deeper coverage — The lower test proves fail-status precedence. The current test proves that a failed review produces the `pre-commit review workflow` diagnostic.
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
 
         passing_source = textwrap.dedent(
@@ -299,16 +329,25 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
+        self.assertIn(
+            "read the complete scorecard in each failed `.agent.md` packet",
+            lint.stdout,
+        )
+        self.assertIn(
+            "evaluate the proposed test and docstring against every criterion",
+            lint.stdout,
+        )
+        self.assertIn("including criteria that passed", lint.stdout)
         self.assertIn("Regenerate the selected packets once", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` regenerates `.agent.md` files only for an edited test file and the cross-test review.
-        Specialized usage: Caller modifies one approved test after `pre-commit review workflow` persists proof instead of leaving both tests current, so `pre-commit review workflow` regenerates only stale `.agent.md` files.
+        `pre-commit review workflow` regenerates an edited test's `.agent.md` and `cross_test_review.agent.md`. The workflow preserves other tests' `.agent.md` files from the same source file.
+        Specialized usage: Review generation runs a second time after one test changes in a file containing multiple reviewed tests. When only one test changed between the first and second runs, `pre-commit review workflow` regenerates that test's `.agent.md` and `cross_test_review.agent.md` while preserving the other tests' `.agent.md` files.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing two tests.
@@ -318,30 +357,40 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         5. Harness modifies only the first test source outside the `pre-commit review workflow`.
         6. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` again.
         7. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        8. Edited-test and cross-test '.agent.md' files contain `| pending | Replace with review evidence. |`.
-        9. Unchanged-test '.agent.md' content retains `approved before source edit`.
-        10. Edited-test and cross-test '.agent.md' files contain no `approved before source edit`.
+        8. Edited-test `.agent.md` contains `| pending | Replace with review evidence. |`.
+        9. `cross_test_review.agent.md` contains `| pending | pending | Replace with classification evidence. |`.
+        10. Edited-test `.agent.md` and `cross_test_review.agent.md` exclude `approved before source edit`.
+        11. Unchanged-test `.agent.md` retains `approved before source edit` and excludes a pending review row.
+        12. `cross_test_review.agent.md` contains both `tests/test_truth.py::test_first_truth` and `tests/test_truth.py::test_second_truth`.
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves which packets regenerate after a source edit and which packet remains unchanged.
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_added_function_invalidates_manifest_proof`
-          Justification: Deeper coverage — The lower test proves file-wide invalidation after a function is added. The current test proves selective regeneration after an existing function is edited.
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
-          Justification: Deeper coverage — The lower test proves file-wide `manifest proof` invalidation after function deletion. The current test proves selective packet regeneration after an approved test is edited.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; the current test is failure path, while the named test is happy path.
         """
 
-        first_source = textwrap.dedent(
+        original_source = textwrap.dedent(
             '''\
-            """Tests in this file validate `first truth example` located at `src/first_truth.py`.
-            `first truth example` is responsible for evaluating the first boolean expression.
+            """Tests in this file validate `truth example` located at `src/truth.py`.
+            `truth example` is responsible for evaluating documented boolean expressions.
             """
 
             def test_first_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                `first truth example` evaluates to true.
+                `truth example` evaluates the first expression as true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -351,23 +400,12 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 """
 
                 assert True
-            '''
-        )
-        edited_first_source = first_source.replace(
-            "`first truth example` evaluates to true.",
-            "`first truth example` evaluates the documented boolean expression.",
-        )
-        second_source = textwrap.dedent(
-            '''\
-            """Tests in this file validate `second truth example` located at `src/second_truth.py`.
-            `second truth example` is responsible for evaluating the second boolean expression.
-            """
 
             def test_second_truth() -> None:
                 """Test Path: happy path
 
                 Requirement Tested:
-                `second truth example` evaluates to true.
+                `truth example` evaluates the second expression as true.
                 Standard usage: The expression is the boolean value true.
 
                 Verification Method: verify public function output
@@ -379,86 +417,170 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 assert True
             '''
         )
+        edited_source = original_source.replace(
+            "`truth example` evaluates the first expression as true.",
+            "`truth example` evaluates the documented first expression.",
+        )
 
         with tempfile.TemporaryDirectory() as directory:
             repo_root = Path(directory)
-            first_file = repo_root / "tests" / "test_first.py"
-            second_file = repo_root / "tests" / "test_second.py"
-            _write_source(repo_root / "src" / "first_truth.py", "VALUE = True\n")
-            _write_source(repo_root / "src" / "second_truth.py", "VALUE = True\n")
-            _write_source(first_file, first_source)
-            _write_source(second_file, second_source)
+            test_file = repo_root / "tests" / "test_truth.py"
+            _write_source(repo_root / "src" / "truth.py", "VALUE = True\n")
+            _write_source(test_file, original_source)
             _run_cli(repo_root, "create-agent-md")
             _complete_packets(repo_root, status="pass", evidence="approved before source edit")
 
-            approved_lint = _run_cli(
+            _run_cli(
                 repo_root,
                 "lint",
                 "--reviewer",
                 "integration:approved-reviewer",
             )
-            approved_manifest_paths = {
-                record["path"] for record in _manifest_records(repo_root)
-            }
             single_packets = [
                 path
                 for path in _packet_paths(repo_root)
                 if path.name != "cross_test_review.agent.md"
             ]
-            first_packet = next(path for path in single_packets if "test_first" in path.name)
-            second_packet = next(path for path in single_packets if "test_second" in path.name)
+            first_packet = next(
+                path for path in single_packets if "test_first_truth" in path.name
+            )
+            second_packet = next(
+                path for path in single_packets if "test_second_truth" in path.name
+            )
             cross_packet = next(
                 path
                 for path in _packet_paths(repo_root)
                 if path.name == "cross_test_review.agent.md"
             )
-            unchanged_packet_before = second_packet.read_text(encoding="utf-8")
 
-            _write_source(first_file, edited_first_source)
-            stale_lint = _run_cli(repo_root, "lint")
-            stale_manifest_paths = {
-                record["path"] for record in _manifest_records(repo_root)
-            }
+            _write_source(test_file, edited_source)
+            _run_cli(repo_root, "lint")
             _run_cli(repo_root, "create-agent-md")
-            edited_packet_after = first_packet.read_text(encoding="utf-8")
-            unchanged_packet_after = second_packet.read_text(encoding="utf-8")
-            cross_packet_after = cross_packet.read_text(encoding="utf-8")
+            contents_after = _packet_contents(repo_root)
+            edited_packet_after = contents_after[first_packet]
+            unchanged_packet_after = contents_after[second_packet]
+            cross_packet_after = contents_after[cross_packet]
 
         self.assertIn(
             "| pending | Replace with review evidence. |",
             edited_packet_after,
         )
         self.assertNotIn("approved before source edit", edited_packet_after)
-        self.assertEqual(unchanged_packet_before, unchanged_packet_after)
-        self.assertIn(
+        self.assertIn("approved before source edit", unchanged_packet_after)
+        self.assertNotIn(
             "| pending | Replace with review evidence. |",
+            unchanged_packet_after,
+        )
+        self.assertIn(
+            "| pending | pending | Replace with classification evidence. |",
             cross_packet_after,
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
+        self.assertIn(
+            "tests/test_truth.py::test_first_truth",
+            cross_packet_after,
+        )
+        self.assertIn(
+            "tests/test_truth.py::test_second_truth",
+            cross_packet_after,
+        )
+
+    def test_removes_obsolete_single_test_packet(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation.
+        Specialized usage: A caller invokes packet generation a second time after renaming test_current to test_renamed. On the second invocation, `pre-commit review workflow` removes test_current's `.agent.md` because it is now obsolete.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `_packet_paths` output initially contains the original function's packet.
+        `_packet_paths` output excludes the obsolete packet after the test function is renamed.
+
+        Similar Coverage:
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; both use happy path, but exercise materially different scenarios.
+        """
+
+        initial_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `truth example` located at `src/truth.py`.
+            `truth example` is responsible for evaluating documented boolean expressions.
+            """
+
+            def test_current() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `truth example` evaluates the current expression as true.
+                Standard usage: The scenario demonstrates baseline behavior.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The current expression equals true.
+                """
+
+                assert True
+
+            '''
+        )
+        renamed_source = initial_source.replace("test_current", "test_renamed")
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            test_file = repo_root / "tests" / "test_truth.py"
+            _write_source(repo_root / "src" / "truth.py", "VALUE = True\n")
+            _write_source(test_file, initial_source)
+            _run_cli(repo_root, "create-agent-md", "--fresh")
+            initial_packets = _packet_paths(repo_root)
+            obsolete_packets = [
+                path
+                for path in initial_packets
+                if path.name != "cross_test_review.agent.md"
+            ]
+            _write_source(test_file, renamed_source)
+            _run_cli(repo_root, "create-agent-md")
+            current_packets = _packet_paths(repo_root)
+            current_names = {path.name for path in current_packets}
+
+        self.assertEqual(
+            ["test_truth__test_current.agent.md"],
+            [path.name for path in obsolete_packets],
+        )
+        self.assertNotIn(
+            "test_truth__test_current.agent.md",
+            current_names,
+        )
 
     def test_refresh_scenario(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` generates every single-test and cross-test '.agent.md' scorecard anew with only pending evidence when create-agent-md receives --fresh.
-        Specialized usage: Both artifact types contain completed evidence instead of pending evidence before refresh, so `pre-commit review workflow` replaces every completed scorecard.
+        `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and pending `cross_test_review.agent.md` when create-agent-md runs with unscoped --fresh.
+        Specialized usage: When a populated folder contains completed and obsolete files instead of the pending current-test set, `pre-commit review workflow` produces the pending current-test set.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
-        1. Harness creates a temporary repository containing two tests.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness classifies every review as successful.
-        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Refresh creates exactly `3` packets: two single-test packets and one cross-test packet.
-        6. Every regenerated single-test and cross-test scorecard contains only pending evidence.
-        `pre-commit review workflow` output comprises `single` and `cross` types.
-        Every file from `pre-commit review workflow` contains `| pending | Replace with review evidence. |`.
-        No file from `pre-commit review workflow` contains prior completed evidence.
+        1. `_packet_paths` output contains one named single-test `.agent.md` file for each current test and `cross_test_review.agent.md`.
+        2. `_packet_contents` output gives every scorecard row status `pending`.
+        3. `_packet_contents` output contains no prior completed evidence.
+        4. `_packet_paths` output excludes the extra deleted-test file.
+        5. Refreshed `cross_test_review.agent.md` content differs from its completed predecessor.
 
         Similar Coverage:
-        - Lower Level Test: `test_render_agent_md_file.py::test_creates_pending_packet`
-          Justification: Deeper coverage — The lower test proves that one renderer output has exactly 25 pending rows. The current test proves fresh regeneration for every single-test and cross-test packet.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `build_manifest_from_agent_md_files` eliminates every `orphaned record` whose reviewed file no longer exists; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_render_agent_md_file.py::test_creates_pending_packet`
+          Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `render_agent_md_file` creates `single-test packet` containing its supplied test source exactly once and exactly 26 pending scorecard rows; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_removes_obsolete_single_test_packet`
+          Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; the current test is happy path, while the named test is failure path.
         """
 
         first_source = textwrap.dedent(
@@ -515,86 +637,64 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             _write_source(repo_root / "tests" / "test_second.py", second_source)
             _run_cli(repo_root, "create-agent-md")
             _complete_packets(repo_root, status="pass", evidence=reviewed_evidence)
-            _run_cli(repo_root, "create-agent-md", "--fresh")
-            refreshed_packets = _packet_paths(repo_root)
-            refreshed_contents = [path.read_text(encoding="utf-8") for path in refreshed_packets]
-
-        refreshed_types = {
-            "cross" if path.name == "cross_test_review.agent.md" else "single"
-            for path in refreshed_packets
-        }
-        self.assertEqual(3, len(refreshed_packets))
-        self.assertEqual({"single", "cross"}, refreshed_types)
-        self.assertTrue(
-            all(
-                "| pending | Replace with review evidence. |" in text
-                for text in refreshed_contents
+            _run_cli(
+                repo_root,
+                "lint",
+                "--reviewer",
+                "integration:refresh-reviewer",
             )
-        )
-        self.assertTrue(all("| pass |" not in text for text in refreshed_contents))
-        self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
-
-    def test_refresh_removes_obsolete_packet(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `pre-commit review workflow` removes an '.agent.md' file when that file lacks a corresponding test during create-agent-md --fresh.
-        Specialized usage: An extra '.agent.md' file lacks a corresponding test instead of matching a current test, so `pre-commit review workflow` removes it.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        1. Harness creates a temporary repository containing one valid test.
-        2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
-        3. Harness introduces `test_deleted__test_deleted.agent.md` without a corresponding test.
-        4. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository> --fresh`.
-        5. Rebuilt packet paths exclude `test_deleted__test_deleted.agent.md`.
-
-        Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
-          Justification: Comparable coverage — The lower test removes manifest proof for a deleted test file. The current test removes an obsolete `.agent.md` file through the CLI refresh workflow.
-        """
-
-        test_source = textwrap.dedent(
-            '''\
-            """Tests in this file validate `current packet behavior` located at `src/current.py`.
-            `current packet behavior` is responsible for evaluating the current packet expression.
-            """
-
-            def test_current_packet() -> None:
-                """Test Path: happy path
-
-                Requirement Tested:
-                `current packet behavior` evaluates to true.
-                Standard usage: The scenario demonstrates baseline behavior.
-
-                Verification Method: verify public function output
-
-                Verification Detail:
-                The expression equals true.
-                """
-
-                assert True
-            '''
-        )
-
-        with tempfile.TemporaryDirectory() as directory:
-            repo_root = Path(directory)
-            _write_source(repo_root / "src" / "current.py", "VALUE = True\n")
-            _write_source(repo_root / "tests" / "test_current.py", test_source)
-            _run_cli(repo_root, "create-agent-md")
-            extra_agent_md = (
+            cross_packet_path = next(
+                path
+                for path in _packet_paths(repo_root)
+                if path.name == "cross_test_review.agent.md"
+            )
+            cross_packet_before = _packet_contents(repo_root)[cross_packet_path]
+            obsolete_packet_path = (
                 repo_root
                 / "tests"
                 / "agentic_review_artifacts"
                 / "test_deleted__test_deleted.agent.md"
             )
-            extra_agent_md.write_text("extra .agent.md file\n", encoding="utf-8")
+            obsolete_packet_path.write_text("obsolete packet\n", encoding="utf-8")
 
             _run_cli(repo_root, "create-agent-md", "--fresh")
-            rebuilt_files = _packet_paths(repo_root)
+            refreshed_packets = _packet_paths(repo_root)
+            expected_single_packet_names = {
+                "test_first__test_first_refresh.agent.md",
+                "test_second__test_second_refresh.agent.md",
+            }
+            actual_single_packet_names = {
+                path.name
+                for path in refreshed_packets
+                if path.name != "cross_test_review.agent.md"
+            }
+            refreshed_contents_by_path = _packet_contents(repo_root)
+            refreshed_contents = list(refreshed_contents_by_path.values())
+            refreshed_statuses = [
+                [
+                    cells[3]
+                    for line in text.splitlines()
+                    if len(cells := [cell.strip() for cell in line.split("|")]) >= 6
+                    and (
+                        cells[1].isdigit()
+                        or cells[1].startswith("`tests/")
+                    )
+                ]
+                for text in refreshed_contents
+            ]
+            cross_packet_after = refreshed_contents_by_path[cross_packet_path]
 
-        self.assertNotIn(extra_agent_md, rebuilt_files)
+        self.assertEqual(3, len(refreshed_packets))
+        self.assertEqual(
+            expected_single_packet_names,
+            actual_single_packet_names,
+        )
+        self.assertTrue(
+            all(statuses and set(statuses) == {"pending"} for statuses in refreshed_statuses)
+        )
+        self.assertNotEqual(cross_packet_before, cross_packet_after)
+        self.assertTrue(all(reviewed_evidence not in text for text in refreshed_contents))
+        self.assertNotIn(obsolete_packet_path, refreshed_packets)
 
 if __name__ == "__main__":
     unittest.main()

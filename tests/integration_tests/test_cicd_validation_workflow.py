@@ -31,7 +31,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version.
         Specialized usage: The manifest contains a modified linter version instead of the installed linter version, so `CI/CD linter` emits missing_required_agent_md.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
@@ -43,8 +43,12 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         7. `CI/CD linter` output contains missing_required_agent_md.
 
         Similar Coverage:
-        - Lower Level Test: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
-          Justification: Diagnostic completeness — The lower test isolates the stale review-contract rule. The current test exercises rejection of proof carrying outdated linter metadata through CI lint.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
+          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `CI/CD linter` accepts current manifest proof; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists; the current test is failure path, while the named test is happy path.
         """
 
         test_source = textwrap.dedent(
@@ -102,7 +106,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` accepts current manifest proof.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
@@ -112,10 +116,14 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
 
         Similar Coverage:
-        - Higher Level Test: `test_repository_self_lint.py::test_self_lint_validates_repository_tests`
-          Justification: Deeper coverage — The current test isolates current-proof acceptance in a temporary repository. The higher test validates current proof for this complete repository.
-        - Higher Level Test: `test_review_documentation.py::test_github_actions_shows_ci`
-          Justification: Deeper coverage — The current test executes CI lint against current proof. The higher test verifies that GitHub Actions guidance documents that validation.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
+          Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version; the current test is happy path, while the named test is failure path.
+        - Module Difference: `test_review_documentation.py::test_github_actions_shows_ci`
+          Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `test_review_documentation` requires GitHub Actions guidance to describe the `CI/CD validation workflow` as linting committed tests and manifest proof; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         test_source = textwrap.dedent(
@@ -167,7 +175,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         `CI/CD linter` creates no `.agent.md` files when current manifest proof exists.
         Standard usage: The scenario demonstrates baseline behavior.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
@@ -178,8 +186,12 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         6. Packet list contains zero paths after lint.
 
         Similar Coverage:
-        - Higher Level Test: `test_review_documentation.py::test_github_actions_omits_packet_creation`
-          Justification: Deeper coverage — The current test proves that CI lint creates no '.agent.md' files at runtime. The higher test proves that the GitHub Actions guide describes the same constraint.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists. The named test verifies `CI/CD linter` accepts current manifest proof; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
+          Explanation: The current test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists. The named test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version; the current test is happy path, while the named test is failure path.
+        - Module Difference: `test_review_documentation.py::test_github_actions_omits_packet_creation`
+          Explanation: The current test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists. The named test verifies `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the create-agent-md command; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         test_source = textwrap.dedent(

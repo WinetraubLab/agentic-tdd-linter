@@ -142,6 +142,13 @@ def create_agent_md_files(
     issues.extend(_run_conventional_checks(tests_by_file, root))
     if issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(issues))
+    _remove_obsolete_single_test_agent_md_files(
+        artifact_root,
+        root,
+        files,
+        tests_by_file,
+        remove_all=not paths,
+    )
     pending_by_file = _find_tests_requiring_agent_review(
         review_files,
         root,
@@ -150,11 +157,7 @@ def create_agent_md_files(
         force_all=force_fresh,
     )
     if force_fresh and not paths:
-        _remove_orphaned_agent_md_files(
-            tests_by_file,
-            root,
-            artifact_root,
-        )
+        _clear_agent_md_files(artifact_root)
 
     generated: list[Path] = []
     for test_file, tests in pending_by_file.items():
@@ -168,24 +171,15 @@ def create_agent_md_files(
             if (
                 force_fresh
                 or not artifact_path.exists()
-                or _agent_md_file_is_stale(test_file, artifact_path)
+                or _agent_md_file_is_stale(test.source, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    cross_review_files = _all_review_files(
-        root,
-        resolved_test_root,
-        tests_by_file,
-    )
-    if cross_review_files and (
+    if review_files and (
         force_fresh
-        or cross_test_agent_md_file_is_stale(
-            cross_review_files,
-            root,
-            artifact_root,
-        )
+        or cross_test_agent_md_file_is_stale(review_files, root, artifact_root)
     ):
         generated.append(
-            render_cross_test_agent_md_file(cross_review_files, root, artifact_root)
+            render_cross_test_agent_md_file(review_files, root, artifact_root)
         )
     return LintPipelineResult(
         files=tuple(files),
@@ -194,37 +188,24 @@ def create_agent_md_files(
     )
 
 
-def _all_review_files(
-    repo_root: Path,
-    test_root: Path,
-    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
-) -> list[Path]:
-    """Return every discovered test file that contains an extracted test."""
-
-    files = _selected_test_files(repo_root, test_root, ())
-    review_files: list[Path] = []
-    for test_file in files:
-        resolved_file = test_file.resolve()
-        if resolved_file in tests_by_file:
-            tests = tests_by_file[resolved_file]
-        else:
-            try:
-                tests = extract_tests_from_file(test_file, repo_root)
-            except (OSError, SyntaxError):
-                continue
-        if tests:
-            review_files.append(test_file)
-    return review_files
+def _clear_agent_md_files(artifact_root: Path) -> None:
+    if not artifact_root.exists():
+        return
+    for artifact_path in artifact_root.glob("*.agent.md"):
+        artifact_path.unlink()
 
 
-def _remove_orphaned_agent_md_files(
-    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
-    repo_root: Path,
+def _remove_obsolete_single_test_agent_md_files(
     artifact_root: Path,
+    repo_root: Path,
+    selected_files: Sequence[Path],
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+    *,
+    remove_all: bool,
 ) -> None:
     if not artifact_root.exists():
         return
-    expected_paths = {
+    current_artifacts = {
         map_test_function_to_agent_md_file(
             test_file,
             repo_root,
@@ -234,9 +215,15 @@ def _remove_orphaned_agent_md_files(
         for test_file, tests in tests_by_file.items()
         for test in tests
     }
-    expected_paths.add((artifact_root / "cross_test_review.agent.md").resolve())
+    selected_prefixes = tuple(
+        f"{Path(test_file).stem}__" for test_file in selected_files
+    )
     for artifact_path in artifact_root.glob("*.agent.md"):
-        if artifact_path.resolve() not in expected_paths:
+        if artifact_path.name == "cross_test_review.agent.md":
+            continue
+        if artifact_path.resolve() in current_artifacts:
+            continue
+        if remove_all or artifact_path.name.startswith(selected_prefixes):
             artifact_path.unlink()
 
 
@@ -315,7 +302,10 @@ def _missing_required_artifact_issues(
                 artifact_root,
                 test.name,
             )
-            if not artifact_path.exists() or _agent_md_file_is_stale(test_file, artifact_path):
+            if not artifact_path.exists() or _agent_md_file_is_stale(
+                test.source,
+                artifact_path,
+            ):
                 command = "agentic-tdd-linter create-agent-md"
                 if force_fresh:
                     command += " --fresh"
@@ -350,6 +340,7 @@ def _lint_agent_review_artifacts(
                     repo_root=repo_root,
                     artifact_root=artifact_root,
                     test_name=test.name,
+                    test_source=test.source,
                 )
             )
     return issues

@@ -1,5 +1,5 @@
 """Tests in this file validate `format_linter_results` located at `src/agentic_tdd_linter/cli/format_linter_results.py`.
-`format_linter_results` is responsible for rendering conventional-linter findings as terminal text or JSON.
+`format_linter_results` is responsible for rendering lint findings as terminal text or JSON.
 
 Terms:
 - `formatted result`: A formatted result is output owned by a CLI formatter for one lint finding. For example, CLI formatter output names the finding's rule and file path.
@@ -14,7 +14,7 @@ import json
 import unittest
 from pathlib import Path
 
-from agentic_tdd_linter.cli.format_linter_results import format_json, format_text
+from agentic_tdd_linter.cli import format_linter_results
 from agentic_tdd_linter.conventional_linter.run_conventional_linter import LintIssue
 
 
@@ -23,7 +23,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_linter_results` creates a `formatted result` containing each lint issue's rule and message.
+        `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -31,6 +31,12 @@ class LinterResultFormattingTests(unittest.TestCase):
         Verification Detail:
         `formatted result` contains `Rule: sample_rule`.
         `formatted result` contains `sample message`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_format_linter_results.py::test_formats_json_file_count`
+          Explanation: The current test verifies `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message. The named test verifies `format_linter_results` emits `format_json` field files_checked equal to the checked-path count; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_format_linter_results.py::test_formats_json_status`
+          Explanation: The current test verifies `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message. The named test verifies `format_linter_results` emits JSON status `PASS` when lint has zero issues; both use happy path, but exercise materially different scenarios.
         """
 
         issue = LintIssue(
@@ -41,7 +47,7 @@ class LinterResultFormattingTests(unittest.TestCase):
             message="sample message",
         )
 
-        output = format_text([issue], [issue.path])
+        output = format_linter_results.format_text([issue], [issue.path])
 
         self.assertIn("Rule: sample_rule", output)
         self.assertIn("sample message", output)
@@ -50,16 +56,25 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_linter_results` emits JSON status `PASS` when lint has zero issues.
+        `format_linter_results` emits JSON status `PASS` when it formats zero lint findings.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         JSON `status` field contains exactly `PASS`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_format_linter_results.py::test_formats_json_file_count`
+          Explanation: The current test verifies `format_linter_results` emits JSON status `PASS` when lint has zero issues. The named test verifies `format_linter_results` emits `format_json` field files_checked equal to the checked-path count; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_format_linter_results.py::test_formats_text_report`
+          Explanation: The current test verifies `format_linter_results` emits JSON status `PASS` when lint has zero issues. The named test verifies `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message; both use happy path, but exercise materially different scenarios.
         """
 
-        output = format_json([], [Path("tests/test_sample.py")])
+        output = format_linter_results.format_json(
+            [],
+            [Path("tests/test_sample.py")],
+        )
 
         payload = json.loads(output)
         self.assertEqual("PASS", payload["status"])
@@ -75,9 +90,18 @@ class LinterResultFormattingTests(unittest.TestCase):
 
         Verification Detail:
         JSON `files_checked` field contains exactly `1`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_format_linter_results.py::test_formats_json_status`
+          Explanation: The current test verifies `format_linter_results` emits `format_json` field files_checked equal to the checked-path count. The named test verifies `format_linter_results` emits JSON status `PASS` when lint has zero issues; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_format_linter_results.py::test_formats_text_report`
+          Explanation: The current test verifies `format_linter_results` emits `format_json` field files_checked equal to the checked-path count. The named test verifies `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message; both use happy path, but exercise materially different scenarios.
         """
 
-        output = format_json([], [Path("tests/test_sample.py")])
+        output = format_linter_results.format_json(
+            [],
+            [Path("tests/test_sample.py")],
+        )
 
         payload = json.loads(output)
         self.assertEqual(1, payload["files_checked"])

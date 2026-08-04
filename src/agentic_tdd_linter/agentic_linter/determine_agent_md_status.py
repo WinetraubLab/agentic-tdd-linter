@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 from ..conventional_linter.run_conventional_linter import LintIssue
+from ..indexing_test_functions.extract_tests_from_file import extract_tests_from_file
 from .map_test_function_to_agent_md_file import map_test_function_to_agent_md_file
 
 
@@ -18,21 +19,21 @@ SCORECARD_ROW_PATTERN = re.compile(
 )
 
 
-def _source_sha256(path: Path) -> str:
-    """Return the SHA256 digest for a file."""
+def _test_content_sha256(test_source: str) -> str:
+    """Return the SHA256 digest for one extracted test's content."""
 
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    return hashlib.sha256(test_source.encode("utf-8")).hexdigest()
 
 
-def _agent_md_file_is_stale(test_file_path: Path, artifact_path: Path) -> bool:
-    """Return whether an artifact was generated for an old test file."""
+def _agent_md_file_is_stale(test_source: str, artifact_path: Path) -> bool:
+    """Return whether an artifact was generated for old test content."""
 
     try:
         artifact_text = Path(artifact_path).read_text(encoding="utf-8")
     except OSError:
         return False
-    review_hash = _backtick_value(artifact_text, "Source SHA256")
-    return not review_hash or review_hash != _source_sha256(test_file_path)
+    review_hash = _backtick_value(artifact_text, "Test Content SHA256")
+    return not review_hash or review_hash != _test_content_sha256(test_source)
 
 
 def determine_agent_md_status(artifact_text: str) -> str:
@@ -55,6 +56,7 @@ def _lint_agent_md_file(
     repo_root: Path | None = None,
     artifact_root: Path | None = None,
     test_name: str | None = None,
+    test_source: str | None = None,
 ) -> list[LintIssue]:
     """Return issues when one test's review artifact is missing or stale."""
 
@@ -62,6 +64,15 @@ def _lint_agent_md_file(
         raise ValueError("repo_root is required")
 
     test_file = Path(test_file_path).resolve()
+    if test_source is None:
+        test_source = next(
+            (
+                test.source
+                for test in extract_tests_from_file(test_file, repo_root)
+                if test.name == test_name
+            ),
+            "",
+        )
     artifact = (
         Path(artifact_path)
         if artifact_path is not None
@@ -81,8 +92,8 @@ def _lint_agent_md_file(
         ]
 
     issues: list[LintIssue] = []
-    expected_hash = _source_sha256(test_file)
-    review_hash = _backtick_value(artifact_text, "Source SHA256")
+    expected_hash = _test_content_sha256(test_source)
+    review_hash = _backtick_value(artifact_text, "Test Content SHA256")
     scorecard_rows = _scorecard_rows(artifact_text)
     status = determine_agent_md_status(artifact_text)
 
@@ -91,7 +102,7 @@ def _lint_agent_md_file(
             _issue(
                 relative_artifact,
                 "stale_agent_review_artifact",
-                "agent review artifact must include the current source SHA256 value",
+                "agent review artifact must include the current test-content SHA256 value",
             )
         )
 

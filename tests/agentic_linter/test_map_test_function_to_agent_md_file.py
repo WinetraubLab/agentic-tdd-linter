@@ -32,10 +32,6 @@ class AgentMarkdownFileMappingTests(unittest.TestCase):
         Verification Detail:
         `path mapper` restores `test identity` with path `tests/test_math.py`.
         `path mapper` restores `test identity` with name `test_adds_numbers`.
-
-        Similar Coverage:
-        - Higher Level Test: `test_load_all_formats.py::test_loads_python_tests`
-          Justification: Deeper coverage — The current test directly verifies round-trip recovery of the test path and function name. The higher test uses the mapping during complete Python packet loading without isolating its reverse mapping.
         """
 
         with tempfile.TemporaryDirectory() as directory:
