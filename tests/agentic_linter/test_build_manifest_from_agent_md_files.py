@@ -316,8 +316,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content.
-        Specialized usage: The manifest contains one `orphaned record` alongside current `manifest proof` instead of containing only current `manifest proof`.
+        `build_manifest_from_agent_md_files` retains passing `manifest proof` whose source SHA256 matches current test content.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
