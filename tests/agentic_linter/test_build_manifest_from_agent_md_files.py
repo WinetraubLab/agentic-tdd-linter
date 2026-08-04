@@ -48,7 +48,7 @@ class AgentReviewManifestTests(unittest.TestCase):
         `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file.
         Specialized usage: When a new test in the unchanged test's file lacks `manifest proof`, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof`.
 
-        Verification Method: verify private function output
+        Verification Method: verify public function output
 
         Verification Detail:
         The manifest contains the original `test_adds_values` record unchanged.
