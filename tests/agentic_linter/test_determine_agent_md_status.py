@@ -101,8 +101,8 @@ class AgentMdStatusTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows.
-        Specialized usage: Scorecard contains a pending row alongside a passing row instead of only passing rows, so agentic linter derives pending status.
+        `determine_agent_md_status` derives pending status when an `.agent.md` scorecard contains at least one pending row and no failed rows.
+        Specialized usage: When an `.agent.md` scorecard contains one pending row alongside one passing row and no failed rows, `determine_agent_md_status` derives pending status.
 
         Verification Method: verify public function output
 
