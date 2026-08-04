@@ -63,5 +63,30 @@ class ExtractedTestRecordTests(unittest.TestCase):
 
         self.assertEqual(expected_fields, actual_fields)
 
+    def test_defaults_file_docstring(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `extracted_test_record` defaults `ExtractedTestRecord` file_docstring to None when callers omit the field.
+        Specialized usage: Callers omit file_docstring rather than supplying documentation.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `ExtractedTestRecord.file_docstring` equals `None`.
+        """
+
+        record = ExtractedTestRecord(
+            path=Path("tests/test_sample.py"),
+            name="test_sample",
+            line=1,
+            node=None,
+            docstring="Sample documentation.",
+            source="def test_sample(): pass",
+        )
+
+        self.assertIsNone(record.file_docstring)
+
+
 if __name__ == "__main__":
     unittest.main()
