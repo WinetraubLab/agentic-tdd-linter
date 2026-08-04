@@ -126,8 +126,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` preserves a completed `pair classification` when deciding whether packet inputs are stale.
-        Standard usage: The scenario demonstrates baseline behavior.
+        `render_cross_test_agent_md_file` doesn't regenerate a completed `cross-test packet` when reviewed test files are unchanged.
+        Specialized usage: When the `cross-test packet` contains a completed `pair classification` and none of the reviewed test files changed, `render_cross_test_agent_md_file` keeps the existing packet instead of replacing it with a pending review.
 
         Verification Method: verify public function output
 
