@@ -211,7 +211,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         The packet contains `tests/test_alpha.py::test_example`.
-        The packet contains `Requirement Tested:` from the test docstring.
+        The packet contains the complete selected test docstring.
         The packet excludes the implementation marker `implementation is absent`.
 
         Similar Coverage:
@@ -225,15 +225,20 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             root = Path(directory)
             test_file = root / "tests" / "test_alpha.py"
             test_file.parent.mkdir(parents=True)
+            expected_docstring = (
+                "Test Path: happy path\n\n"
+                "Requirement Tested:\n"
+                "The example returns a value.\n"
+                "Standard usage: The scenario demonstrates baseline behavior.\n\n"
+                "Verification Method: verify public function output\n\n"
+                "Verification Detail:\n"
+                "The returned value is present."
+            )
             test_file.write_text(
                 'def test_example() -> None:\n'
-                '    """Test Path: happy path\n\n'
-                '    Requirement Tested:\n'
-                '    The example returns a value.\n'
-                '    Standard usage: The scenario demonstrates baseline behavior.\n\n'
-                '    Verification Method: verify public function output\n\n'
-                '    Verification Detail:\n'
-                '    The returned value is present.\n'
+                '    """'
+                + expected_docstring.replace("\n", "\n    ")
+                + '\n'
                 '    """\n\n'
                 '    assert "implementation is absent"\n',
                 encoding="utf-8",
@@ -243,7 +248,7 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
             artifact_text = artifact.read_text(encoding="utf-8")
 
         self.assertIn("tests/test_alpha.py::test_example", artifact_text)
-        self.assertIn("Requirement Tested:", artifact_text)
+        self.assertIn(expected_docstring, artifact_text)
         self.assertNotIn("implementation is absent", artifact_text)
 
     def test_uses_one_reviewer_per_packet(self) -> None:
