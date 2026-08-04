@@ -566,3 +566,125 @@ sentence_quality_019_implicit_condition_omits:
       pass # Rejecting empty text belongs to the parser's validation responsibility.
     35: # Conditions Are Explicit
       fail # `Empty text triggers rejection.` expresses a condition without an explicit condition marker.
+
+sentence_quality_020_redundant_defined_term:
+  file_docstring: |
+    """Tests in this file validate `pre-commit review workflow` located at `src/agentic_tdd_linter/cli/run_lint_pipeline.py`.
+    `pre-commit review workflow` is responsible for maintaining test-review evidence before commit.
+
+    Terms:
+    - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
+    - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
+    - `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among the complete selected test set. For example, create-agent-md --fresh regenerates the cross-test review.
+    - `agent_review_failed`: The agent_review_failed issue identifies a completed review containing failed criteria. For example, lint emits this issue with correction instructions.
+    - `failed-review correction procedure`: A failed-review correction procedure tells editors to read the complete scorecard in every failed .agent.md, evaluate the test and docstring against every criterion including passing criteria, and regenerate the selected packets once. For example, agent_review_failed output provides this procedure.
+    """
+  test: |
+    def test_agentic_linter_errors_scenario(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `pre-commit review workflow` provides a `failed-review correction procedure` that directs editors to read the complete scorecard, evaluate corrections against every criterion, and regenerate selected packets once.
+        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` provides the `failed-review correction procedure`.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        1. A completed `.agent.md` review contains a failed criterion.
+        2. `_run_cli` output contains `agent_review_failed`.
+        3. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
+        4. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
+        5. `_run_cli` output contains `Regenerate the selected packets once`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
+        """
+
+        passing_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `passing review behavior` located at `src/passing.py`.
+            `passing review behavior` is responsible for evaluating approved boolean expressions.
+            """
+
+            def test_passing_review() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `passing review behavior` evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+        failing_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `failing review behavior` located at `src/failing.py`.
+            `failing review behavior` is responsible for evaluating rejected boolean expressions.
+            """
+
+            def test_failing_review() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `failing review behavior` evaluates to true.
+                Standard usage: The expression is the boolean value true.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "passing.py", "VALUE = True\n")
+            _write_source(repo_root / "src" / "failing.py", "VALUE = True\n")
+            _write_source(repo_root / "tests" / "test_passing.py", passing_source)
+            _write_source(repo_root / "tests" / "test_failing.py", failing_source)
+            _run_cli(repo_root, "create-agent-md")
+
+            _complete_packets(repo_root, status="pass", evidence="mixed review passed")
+            failing_packet = next(
+                path
+                for path in _packet_paths(repo_root)
+                if "test_failing" in path.name
+            )
+            failing_text = failing_packet.read_text(encoding="utf-8").replace(
+                "| pass | mixed review passed. |",
+                "| fail | requirement is too vague. |",
+                1,
+            )
+            failing_packet.write_text(failing_text, encoding="utf-8")
+            lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
+
+        self.assertIn("agent_review_failed", lint.stdout)
+        self.assertIn(
+            "read the complete scorecard in each failed `.agent.md` packet",
+            lint.stdout,
+        )
+        self.assertIn(
+            "evaluate the proposed test and docstring against every criterion",
+            lint.stdout,
+        )
+        self.assertIn("including criteria that passed", lint.stdout)
+        self.assertIn("Regenerate the selected packets once", lint.stdout)
+  expected_scorecard:
+    33: # Subject and Object Are Concise
+      fail # The requirement unnecessarily restates the defined `failed-review correction procedure` as a long relative-clause object.
