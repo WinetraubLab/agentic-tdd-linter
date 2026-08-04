@@ -638,13 +638,13 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits invalid_field_spacing when TypeScript fields are adjacent.
-        Specialized usage: TypeScript doc comment locates metadata fields adjacent instead of separating them with blank lines, so conventional linter emits invalid_field_spacing.
+        `conventional_linter` emits invalid_field_spacing when a TypeScript test doc comment omits blank-line separators between structured documentation fields.
+        Specialized usage: When a TypeScript test doc comment places structured documentation fields next to each other without blank-line separators, `conventional_linter` emits invalid_field_spacing.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Rule set contains `invalid_field_spacing`.
+        The `conventional_linter` rule set contains `invalid_field_spacing`.
 
         Similar Coverage:
         - Scenario Difference: `test_docstring_structure.py::test_reports_same_line_inspection_instructions`
