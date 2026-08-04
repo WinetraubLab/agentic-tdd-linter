@@ -71,7 +71,10 @@ class LinterResultFormattingTests(unittest.TestCase):
           Explanation: The current test verifies `format_linter_results` emits JSON status `PASS` when lint has zero issues. The named test verifies `format_linter_results` creates a human-readable `formatted result` containing each lint finding's rule and message; both use happy path, but exercise materially different scenarios.
         """
 
-        output = format_json([], [Path("tests/test_sample.py")])
+        output = format_linter_results.format_json(
+            [],
+            [Path("tests/test_sample.py")],
+        )
 
         payload = json.loads(output)
         self.assertEqual("PASS", payload["status"])
