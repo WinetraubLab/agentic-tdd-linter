@@ -17,21 +17,23 @@ from agentic_tdd_linter.indexing_test_functions.extracted_test_record import (
 
 
 class ExtractedTestRecordTests(unittest.TestCase):
-    def test_stores_required_fields(self) -> None:
+    def test_stores_supplied_fields(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `extracted_test_record` preserves `record fields` through `ExtractedTestRecord`.
+        `extracted_test_record` retains caller-supplied `record fields` in `ExtractedTestRecord`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Record exposes path `tests/test_sample.py`. Record exposes name `test_sample`.
-        Record exposes line `1`. Record exposes node `None`.
-        Record exposes docstring `Sample documentation.`.
-        Record exposes source `def test_sample(): pass`.
-        Record exposes file-docstring `None`.
+        `ExtractedTestRecord` exposes path `tests/test_sample.py`.
+        `ExtractedTestRecord` exposes name `test_sample`.
+        `ExtractedTestRecord` exposes line `1`.
+        `ExtractedTestRecord` exposes `None` as its syntax node.
+        `ExtractedTestRecord` exposes docstring `Sample documentation.`.
+        `ExtractedTestRecord` exposes source `def test_sample(): pass`.
+        `ExtractedTestRecord` exposes `Sample file documentation.` as its file docstring.
         """
 
         expected_fields = (
@@ -41,7 +43,7 @@ class ExtractedTestRecordTests(unittest.TestCase):
             None,
             "Sample documentation.",
             "def test_sample(): pass",
-            None,
+            "Sample file documentation.",
         )
         record = ExtractedTestRecord(
             path=expected_fields[0],
@@ -50,6 +52,7 @@ class ExtractedTestRecordTests(unittest.TestCase):
             node=expected_fields[3],
             docstring=expected_fields[4],
             source=expected_fields[5],
+            file_docstring=expected_fields[6],
         )
         actual_fields = (
             record.path,
