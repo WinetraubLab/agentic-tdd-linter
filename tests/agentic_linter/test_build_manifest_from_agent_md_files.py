@@ -172,8 +172,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`.
-        Specialized usage: Manifest proof contains a mismatched `review contract` instead of the current `review contract`, so agentic linter emits stale_review_contract_attestation.
+        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation for `manifest proof` that uses an outdated `review contract`.
+        Specialized usage: When `manifest proof` uses an outdated `review contract`, `build_manifest_from_agent_md_files` emits stale_review_contract_attestation.
 
         Verification Method: verify private function output
 
