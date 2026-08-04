@@ -550,16 +550,17 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh.
-        Specialized usage: For refresh of a populated folder instead of an empty folder, `pre-commit review workflow` removes completed and obsolete files before creating the pending current-test set.
+        `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and pending `cross_test_review.agent.md` when create-agent-md runs with unscoped --fresh.
+        Specialized usage: When a populated folder contains completed and obsolete files instead of the pending current-test set, `pre-commit review workflow` produces the pending current-test set.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        1. `_packet_paths` output contains two single-test `.agent.md` files and one cross-test `.agent.md` file.
+        1. `_packet_paths` output contains one named single-test `.agent.md` file for each current test and `cross_test_review.agent.md`.
         2. `_packet_contents` output gives every scorecard row status `pending`.
         3. `_packet_contents` output contains no prior completed evidence.
         4. `_packet_paths` output excludes the extra deleted-test file.
+        5. Refreshed `cross_test_review.agent.md` content differs from its completed predecessor.
 
         Similar Coverage:
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
@@ -650,6 +651,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
             _run_cli(repo_root, "create-agent-md", "--fresh")
             refreshed_packets = _packet_paths(repo_root)
+            expected_single_packet_names = {
+                "test_first__test_first_refresh.agent.md",
+                "test_second__test_second_refresh.agent.md",
+            }
+            actual_single_packet_names = {
+                path.name
+                for path in refreshed_packets
+                if path.name != "cross_test_review.agent.md"
+            }
             refreshed_contents_by_path = _packet_contents(repo_root)
             refreshed_contents = list(refreshed_contents_by_path.values())
             refreshed_statuses = [
@@ -667,6 +677,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             cross_packet_after = refreshed_contents_by_path[cross_packet_path]
 
         self.assertEqual(3, len(refreshed_packets))
+        self.assertEqual(
+            expected_single_packet_names,
+            actual_single_packet_names,
+        )
         self.assertTrue(
             all(statuses and set(statuses) == {"pending"} for statuses in refreshed_statuses)
         )
