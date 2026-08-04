@@ -490,7 +490,7 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Requirement Tested:
         `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation.
-        Specialized usage: When a test function is renamed from test_current to test_renamed, `pre-commit review workflow` removes the original function's packet.
+        Specialized usage: A caller invokes packet generation a second time after renaming test_current to test_renamed. On the second invocation, `pre-commit review workflow` removes test_current's `.agent.md` because it is now obsolete.
 
         Verification Method: verify public function output
 
