@@ -128,8 +128,8 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `test_agent_review_yaml_fixture_contract` requires every YAML case name to combine its filename stem with a three-digit number and permits an optional three-word note.
-        Specialized usage: The case in invalid.yaml uses a descriptive name instead of the filename-number format, so YAML validation emits the case-name diagnostic.
+        `test_agent_review_yaml_fixture_contract` rejects agent-review YAML case names unless each name consists of its filename stem, an underscore, and a three-digit number.
+        Specialized usage: When invalid.yaml defines descriptive_name, `test_agent_review_yaml_fixture_contract` emits the case-name diagnostic.
 
         Verification Method: verify public function output
 
@@ -178,6 +178,7 @@ class AgentReviewYamlFixtureContractTests(unittest.TestCase):
 
             errors = lint_agent_review_examples(examples_path=example_file)
 
+        # Input check
         self.assertTrue(
             any(
                 "must be named `invalid_<three_digit_number>`" in error
