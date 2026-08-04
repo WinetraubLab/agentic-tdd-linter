@@ -1028,3 +1028,62 @@ requirement_formulation_024_changed_review_contract:
       fail # README is an incidental artifact because changing any repository review documentation after manifest approval defines the same stale-review-contract scenario.
     51: # Assertions Prove the Stated Requirement
       pass # The assertion proves that stale review-contract proof causes the CI/CD linter to require new review evidence.
+
+requirement_formulation_025_overloaded_record_default:
+  file_docstring: |
+    """Tests in this file validate `extracted_test_record` located at `src/agentic_tdd_linter/indexing_test_functions/extracted_test_record.py`.
+    `extracted_test_record` is responsible for representing language-neutral indexed test data.
+
+    Terms:
+    - `ExtractedTestRecord`: ExtractedTestRecord is the shared data structure for one indexed test. For example, it stores a test's path, name, line, syntax node, documentation, and source without a language discriminator.
+    - `record fields`: Record fields are path, name, line, syntax node, docstring, source, and a file docstring that defaults to None. For example, a caller supplies all seven fields to an extracted record.
+    """
+  test: |
+    def test_stores_required_fields(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `extracted_test_record` represents `record fields` in `ExtractedTestRecord`, with a None file docstring when callers omit that field.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Record exposes path `tests/test_sample.py`. Record exposes name `test_sample`.
+        Record exposes line `1`. Record exposes node `None`.
+        Record exposes docstring `Sample documentation.`.
+        Record exposes source `def test_sample(): pass`.
+        Record exposes file-docstring `None`.
+        """
+
+        expected_fields = (
+            Path("tests/test_sample.py"),
+            "test_sample",
+            1,
+            None,
+            "Sample documentation.",
+            "def test_sample(): pass",
+            None,
+        )
+        record = ExtractedTestRecord(
+            path=expected_fields[0],
+            name=expected_fields[1],
+            line=expected_fields[2],
+            node=expected_fields[3],
+            docstring=expected_fields[4],
+            source=expected_fields[5],
+        )
+        actual_fields = (
+            record.path,
+            record.name,
+            record.line,
+            record.node,
+            record.docstring,
+            record.source,
+            record.file_docstring,
+        )
+
+        self.assertEqual(expected_fields, actual_fields)
+  expected_scorecard:
+    14: # Requirement Is Atomic
+      fail # The requirement combines storage of supplied record fields with defaulting an omitted file docstring, and either behavior can fail independently.
