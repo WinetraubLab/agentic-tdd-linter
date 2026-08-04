@@ -344,8 +344,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships.
-        Specialized usage: Two tests in the same file have approved `.agent.md` files, but caller edits one test, so its `.agent.md` and `cross_test_review.agent.md` become pending while the unchanged test's `.agent.md` stays approved.
+        `pre-commit review workflow` regenerates an edited test's `.agent.md` and `cross_test_review.agent.md`. The workflow preserves other tests' `.agent.md` files from the same source file.
+        Specialized usage: When a caller edits one test in a file containing multiple reviewed tests, `pre-commit review workflow` regenerates the edited test's `.agent.md` and `cross_test_review.agent.md` while preserving the unchanged tests' `.agent.md` files.
 
         Verification Method: verify public function output
 
