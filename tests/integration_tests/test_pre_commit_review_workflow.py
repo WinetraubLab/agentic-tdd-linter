@@ -238,8 +238,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` provides a `failed-review correction procedure` for failed `.agent.md` reviews.
-        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` provides the `failed-review correction procedure`.
+        `pre-commit review workflow` emits `agent_review_failed` with a `failed-review correction procedure` for each failed `.agent.md` review.
+        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` emits `agent_review_failed` with the `failed-review correction procedure`.
 
         Verification Method: verify public function output
 
