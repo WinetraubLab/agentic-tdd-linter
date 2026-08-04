@@ -13,11 +13,7 @@ import unittest
 from pathlib import Path
 
 from tests.agentic_linter.test_harness.relationship_review_example_runner import (
-    EXAMPLES,
     _relationship_review_cases,
-)
-from tests.agentic_linter.test_harness.relationship_review_yaml_fixture_contract import (
-    DIFFERENCE_KINDS,
 )
 
 
@@ -26,7 +22,7 @@ class TestRelationshipReviewExampleRunnerTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `relationship_review_example_runner` converts the `relationship YAML catalog` into `relationship review case` records for the shared runner.
+        `relationship_review_example_runner` creates one `relationship review case` and shared-runner input per example. Each case uses its artifact-root path. A case contains an allowed difference kind exactly when it expects overlap.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
@@ -44,8 +40,18 @@ class TestRelationshipReviewExampleRunnerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             artifact_root = Path(directory) / "artifacts"
+            examples_path = (
+                Path(__file__).parent
+                / "fixtures"
+                / "test_relationship_review"
+            )
+            difference_kinds = (
+                "Happy/Failure Path Difference",
+                "Scenario Difference",
+                "Module Difference",
+            )
             examples, cases, review_inputs = _relationship_review_cases(
-                EXAMPLES,
+                examples_path,
                 artifact_root,
             )
 
@@ -59,7 +65,7 @@ class TestRelationshipReviewExampleRunnerTests(unittest.TestCase):
         )
         self.assertTrue(
             all(
-                case.expected_scorecard.get(11) in DIFFERENCE_KINDS
+                case.expected_scorecard.get(11) in difference_kinds
                 if case.expected_scorecard[10] == "yes"
                 else 11 not in case.expected_scorecard
                 for case in cases
