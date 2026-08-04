@@ -4,6 +4,7 @@
 Terms:
 - `single-test packet`: A single-test packet is the `.agent.md` file for one test. For example, it contains one test and its pending review scorecard.
 - `iterative review`: Iterative review records original scoring, bounded revision attempts, and final clarity comparison for one packet.
+- `Test Content`: Test Content is the packet section containing the original extracted test source. For example, the final scorecard evaluates this source after considering hypothetical revisions.
 """
 
 from __future__ import annotations
@@ -175,6 +176,10 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown,
         )
         self.assertIn(
+            "If the revision is about as clear as or less clear than the original",
+            markdown,
+        )
+        self.assertIn(
             "keep the original and pass the corresponding formulation rows",
             markdown,
         )
@@ -183,13 +188,14 @@ class AgenticMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_agent_md_file` prohibits exact replacement wording in `single-test packet` failure notes to prevent contradictions with other review criteria.
+        `render_agent_md_file` directs the final scorecard to evaluate the original `Test Content`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `render_agent_md_file` output contains `Do not propose exact replacement wording`.
+        The rendered instruction assigns final scorecard evaluation to the original `Test Content`.
+        The rendered instruction prevents a hypothetical revision from making the original pass.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -200,7 +206,11 @@ class AgenticMarkdownTests(unittest.TestCase):
             markdown = _render_agent_md_files_for_test_file(test_file)[0][1]
 
         self.assertIn(
-            "Do not propose exact replacement wording",
+            "The final scorecard always evaluates the original `Test Content`",
+            markdown,
+        )
+        self.assertIn(
+            "A hypothetical revision cannot make the original pass",
             markdown,
         )
 
