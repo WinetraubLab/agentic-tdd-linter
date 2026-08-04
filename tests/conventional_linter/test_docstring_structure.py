@@ -744,18 +744,19 @@ class DocstringStructureTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`.
+        `conventional_linter` accepts TypeScript test docstrings when `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail` contain values and blank lines separate the fields.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        `JSDoc` contains four fields.
-        The test contains `Test Path`.
-        The test contains `Requirement Tested`.
-        The test contains `Verification Method`.
-        The test contains `Verification Detail`.
-        Rules contain zero issues.
+        The TypeScript test docstring contains `Test Path`.
+        The TypeScript test docstring contains `Requirement Tested`.
+        The TypeScript test docstring contains `Verification Method`.
+        The TypeScript test docstring contains `Verification Detail`.
+        Every TypeScript test docstring field contains a value.
+        Blank lines separate the TypeScript test docstring fields.
+        `conventional_linter` issues are empty.
 
         Similar Coverage:
         - Scenario Difference: `test_classification.py::test_accepts_happy_path`
