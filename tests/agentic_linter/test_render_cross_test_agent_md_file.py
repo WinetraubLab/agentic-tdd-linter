@@ -133,11 +133,11 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         The `cross-test packet` contains a completed `pair classification`.
-        `cross_test_agent_md_file_is_stale` returns false for unchanged selected test files.
+        `cross_test_agent_md_file_is_stale` identifies the `cross-test packet` as still valid when reviewed test files remain unchanged.
 
         Similar Coverage:
         - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_lists_each_pair_once`
-          Explanation: The current test verifies `render_cross_test_agent_md_file` accepts a completed `pair classification` as fresh when selected test files remain unchanged. The named test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair; both use happy path, but exercise materially different scenarios.
+          Explanation: The current test verifies `render_cross_test_agent_md_file` treats a completed `pair classification` as still valid when selected test files remain unchanged. The named test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
