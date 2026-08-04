@@ -1,5 +1,5 @@
 """Tests in this file validate `format_linter_results` located at `src/agentic_tdd_linter/cli/format_linter_results.py`.
-`format_linter_results` is responsible for rendering conventional-linter findings as terminal text or JSON.
+`format_linter_results` is responsible for rendering lint findings as terminal text or JSON.
 
 Terms:
 - `formatted result`: A formatted result is output owned by a CLI formatter for one lint finding. For example, CLI formatter output names the finding's rule and file path.
@@ -56,7 +56,7 @@ class LinterResultFormattingTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `format_linter_results` emits JSON status `PASS` when lint has zero issues.
+        `format_linter_results` emits JSON status `PASS` when it formats zero lint findings.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
