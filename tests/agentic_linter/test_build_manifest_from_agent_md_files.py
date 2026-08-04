@@ -253,8 +253,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Manifest records contain only `test_adds_values`.
-        Manifest records exclude `test_subtracts_values`.
+        `manifest proof` contains only `test_adds_values`.
+        `manifest proof` excludes `test_subtracts_values`.
 
         Similar Coverage:
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
