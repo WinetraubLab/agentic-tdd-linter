@@ -136,10 +136,12 @@ Fail sentence fragments that describe only a method, including fragments beginni
 #### 33. Subject and Object Are Concise
 Evaluate only `Requirement Tested`, its `Standard usage:` or `Specialized usage:` sentence, and `Verification Detail`.
 Do not apply this criterion to `File Docstring`, test code, `Similar Coverage`, or other packet sections.
-Prefer sentence subjects and objects of no more than two words.
-Count each backticked term defined in `File Docstring` as one word, regardless of spaces inside it.
-Do not count grammatical articles `a`, `an`, or `the` toward the two-word limit.
-A longer phrase passes only when every word beyond the limit states a constraint independently established by the test evidence.
+Prefer sentence subjects and objects containing no more than two semantic units.
+Count each backticked term defined in `File Docstring`, exact filename or path, exact quoted or backticked literal, and code expression as one semantic unit.
+A carrier noun remains part of that unit only when it repeats the established representation type or supplies grammatical number. A noun that renames the referent remains a separate unit.
+Do not count grammatical articles `a`, `an`, or `the`.
+Apply the semantic-unit count independently of whether the assertions fully prove an exact literal; evidence sufficiency belongs to assertion criteria.
+A longer phrase passes only when every unit beyond the limit states a constraint independently established by the test evidence.
 A modifier is not necessary merely because removing it broadens the noun's ordinary meaning.
 Fail when the evidence does not distinguish the longer phrase from a concise alternative.
 
