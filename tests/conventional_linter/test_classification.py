@@ -33,13 +33,13 @@ class ClassificationTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `conventional_linter` accepts `happy path` when parser input succeeds.
+        `conventional_linter` accepts `happy path` for test-path classifications.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        When paths correspond to `happy path`, rules contain zero issues.
+        When test-path classifications use `happy path`, `conventional_linter` emits zero issues.
 
         Similar Coverage:
         - Scenario Difference: `test_classification.py::test_accepts_failure_path`
