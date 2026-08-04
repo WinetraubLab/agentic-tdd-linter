@@ -464,8 +464,7 @@ class DocstringStructureTests(unittest.TestCase):
         Verification Method: verify private function output
 
         Verification Detail:
-        Conventional linter enforces a five-word limit.
-        When labels contain six words, _lint_typescript_docstring_source contains `test_name_too_long`.
+        `_lint_typescript_docstring_source` output contains `test_name_too_long` for a six-word TypeScript label.
 
         Similar Coverage:
         - Scenario Difference: `test_docstring_structure.py::test_reports_long_test_name`
