@@ -54,7 +54,16 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            case = _review_case(root)
+            case = _review_case(
+                root,
+                yaml_case="example",
+                test_name="test_example",
+                mismatch_name="example",
+                source_sha256="digest",
+                expected_scorecard={11: "pass"},
+                completed_results=("pass", "fail"),
+                artifact_name="example.agent.md",
+            )
             attestation_path = root / "attestation.jsonl"
             attestation_path.write_text(
                 json.dumps(_attestation(case)) + "\n",
@@ -109,7 +118,16 @@ class AgentReviewExampleTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            case = _review_case(root)
+            case = _review_case(
+                root,
+                yaml_case="example",
+                test_name="test_example",
+                mismatch_name="example",
+                source_sha256="digest",
+                expected_scorecard={11: "pass"},
+                completed_results=("pass", "fail"),
+                artifact_name="example.agent.md",
+            )
             attestation_path = root / "attestation.jsonl"
             attestation_path.write_text(
                 json.dumps(_attestation(case, source_sha256="stale")) + "\n",
@@ -170,14 +188,16 @@ class AgentReviewExampleTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `agent_review_examples` ends YAML-review timing after scorecard comparison and uses that time to calculate duration.
+        `agent_review_examples` exposes YAML-review duration calculated from a completion time captured after scorecard comparison.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Mocking records scorecard comparison, timer completion, and duration calculation.
-        Recorded event order is comparison, timer, then duration; returned duration is `3.0`.
+        Mocking records the scorecard comparison, timer completion, and duration calculation.
+        The event log proves this sequence: scorecard comparison, timer completion, then duration calculation.
+        The duration calculation receives completion time `4.0`.
+        `_finish_yaml_evaluation` provides duration `3.0`.
 
         Similar Coverage:
         - Scenario Difference: `test_agent_review_examples.py::test_validation_timer_starts_before_linting`
@@ -245,7 +265,16 @@ class AgentReviewExampleTests(unittest.TestCase):
             report_path = root / "report.json"
             attestation_path = root / "attestation.jsonl"
             start_path = root / ".review_started_at"
-            case = _review_case(root)
+            case = _review_case(
+                root,
+                yaml_case="example",
+                test_name="test_example",
+                mismatch_name="example",
+                source_sha256="digest",
+                expected_scorecard={11: "pass"},
+                completed_results=("pass", "fail"),
+                artifact_name="example.agent.md",
+            )
 
             outputs: list[tuple[str, str]] = []
             with (
@@ -495,15 +524,25 @@ class AgentReviewExampleTests(unittest.TestCase):
                 _reviewer_model_from_environment()
 
 
-def _review_case(root: Path) -> _AgentReviewCase:
+def _review_case(
+    root: Path,
+    *,
+    yaml_case: str,
+    test_name: str,
+    mismatch_name: str,
+    source_sha256: str,
+    expected_scorecard: dict[int, str],
+    completed_results: tuple[str, ...],
+    artifact_name: str,
+) -> _AgentReviewCase:
     return _AgentReviewCase(
-        yaml_case="example",
-        test_name="test_example",
-        mismatch_name="example",
-        source_sha256="digest",
-        expected_scorecard={11: "pass"},
-        completed_results=("pass", "fail"),
-        artifact_path=root / "artifacts" / "example.agent.md",
+        yaml_case=yaml_case,
+        test_name=test_name,
+        mismatch_name=mismatch_name,
+        source_sha256=source_sha256,
+        expected_scorecard=expected_scorecard,
+        completed_results=completed_results,
+        artifact_path=root / "artifacts" / artifact_name,
     )
 
 
