@@ -1,12 +1,10 @@
 """Tests in this file validate `build_manifest_from_agent_md_files` located at `src/agentic_tdd_linter/agentic_linter/build_manifest_from_agent_md_files.py`.
-`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof stored by default in `tests/agentic_review_manifest.jsonl`, so unchanged test content can skip another agent review.
+`build_manifest_from_agent_md_files` is responsible for converting completed `.agent.md` reviews into manifest proof and validating existing proof stored by default in `tests/agentic_review_manifest.jsonl`.
 Changing one test invalidates only that test's proof.
 
 Terms:
-- `manifest proof`: Manifest proof records a completed review for a test. For example, current passing proof allows lint to accept that test without another review.
+- `manifest proof`: Manifest proof records a completed review for a test. Proof becomes stale when it no longer matches test content or the review contract, and proof becomes orphaned when its test no longer exists.
 - `review contract`: The review contract includes the linter criteria and repository review documentation. For example, changing README.md changes the contract.
-- `stale record`: A stale record no longer matches its test content or review contract. For example, editing a reviewed test function makes its record stale.
-- `orphaned record`: An orphaned record identifies a test file or function that no longer exists. For example, deleting a reviewed function leaves an orphaned record for cleanup.
 """
 
 from __future__ import annotations
@@ -47,21 +45,19 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file.
-        Specialized usage: When a new test lacks `manifest proof`, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof`.
-        The new test remains excluded from the manifest.
+        `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file.
+        Specialized usage: When a new test in the unchanged test's file lacks `manifest proof`, `build_manifest_from_agent_md_files` retains the unchanged test's `manifest proof`.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The manifest contains only the original `test_adds_values` record.
-        The surviving record equals the original record.
+        The manifest contains the original `test_adds_values` record unchanged.
 
         Similar Coverage:
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` removes proof for a missing test while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during missing-test cleanup when its source SHA256 matches the current test content; the current test is failure path, while the named test is happy path.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
         """
