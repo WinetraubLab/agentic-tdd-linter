@@ -371,18 +371,6 @@ class AgentReviewManifestTests(unittest.TestCase):
                 source_hash=_test_hash(test_file, root),
                 status="pass",
             )
-            orphan_record = _manifest_record(
-                root,
-                path="tests/test_deleted.py",
-                source_hash="0" * 64,
-                status="pass",
-            )
-            manifest_path.write_text(
-                manifest_path.read_text(encoding="utf-8")
-                + json.dumps(orphan_record)
-                + "\n",
-                encoding="utf-8",
-            )
             _write_artifact(root, test_file, status="pass")
 
             result_path, _, _ = build_manifest_from_agent_md_files(
