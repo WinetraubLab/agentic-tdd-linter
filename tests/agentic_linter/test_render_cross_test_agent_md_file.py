@@ -80,8 +80,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         The packet contains the alpha-beta, alpha-gamma, and beta-gamma pairs.
 
         Similar Coverage:
-        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_overlap_result_preserves_freshness`
-          Explanation: The current test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair. The named test verifies `render_cross_test_agent_md_file` preserves a completed `pair classification` when deciding whether packet inputs are stale; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_render_cross_test_agent_md_file.py::test_completed_classification_remains_fresh`
+          Explanation: The current test verifies `render_cross_test_agent_md_file` creates one `pair classification` row for every unordered test pair. The named test verifies `render_cross_test_agent_md_file` accepts a completed `pair classification` as fresh when selected test files remain unchanged; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
