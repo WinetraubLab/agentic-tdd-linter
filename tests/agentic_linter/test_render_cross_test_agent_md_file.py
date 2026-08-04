@@ -250,15 +250,15 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` uses the same fresh isolated reviewer for every pair classification in one `cross-test packet`.
+        `render_cross_test_agent_md_file` requires one fresh isolated reviewer to complete every `pair classification` in a `cross-test packet`.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
         The `cross-test packet` contains `Use one fresh isolated reviewer for this Markdown packet.`
-        The packet prohibits delegating listed tests or criteria to another reviewer.
-        The packet assigns every criterion and listed test to that reviewer.
+        The `cross-test packet` prohibits delegating any listed pair or classification.
+        The `cross-test packet` assigns every pair's overlap and kind to that reviewer.
 
         Similar Coverage:
         - Scenario Difference: `test_render_agent_md_file.py::test_requires_complete_review`
