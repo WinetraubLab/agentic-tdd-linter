@@ -478,7 +478,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             cross_packet_after,
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
-        self.assertIn("tests/test_truth.py", cross_packet_after)
+        self.assertIn(
+            "tests/test_truth.py::test_first_truth",
+            cross_packet_after,
+        )
+        self.assertIn(
+            "tests/test_truth.py::test_second_truth",
+            cross_packet_after,
+        )
+
     def test_removes_obsolete_single_test_packet(self) -> None:
         """Test Path: happy path
 
