@@ -44,7 +44,7 @@ class CliTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CLI` emits `CLI output` with the generated `.agent.md` count when caller selects a nondefault test root.
+        `CLI` emits `CLI output` containing the generated `.agent.md` count when a caller runs create-agent-md with a nondefault test root.
         Specialized usage: For generated fixtures, CLI configures temporary_fixtures as the test root instead of the default root.
 
         Verification Method: verify public function output
@@ -189,10 +189,8 @@ class ReviewProofFlowTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        `main(["lint", "--repo-root", str(root)])` processes the lint request.
         Manifest proof has status `pass` and reviewer `codex:gpt-5.5`.
-        The `.agent.md` scorecard has status `pass`.
-        The lint request contains no `reviewer identity`.
+        The `.agent.md` scorecard has status `pass` and no `reviewer identity`.
         `CLI output` contains `missing_reviewer`.
 
         Similar Coverage:
