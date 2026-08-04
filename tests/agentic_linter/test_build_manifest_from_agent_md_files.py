@@ -247,8 +247,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` removes an `orphaned record` while preserving `manifest proof` for an unchanged test in the same file.
-        Specialized usage: When caller erases one reviewed function, `build_manifest_from_agent_md_files` removes only that function's `manifest proof`.
+        `build_manifest_from_agent_md_files` removes `manifest proof` for a missing test while preserving proof for an unchanged test in the same file.
+        Specialized usage: When one reviewed test no longer exists while another test in its file remains unchanged, `build_manifest_from_agent_md_files` removes only the missing test's `manifest proof`.
 
         Verification Method: verify private function output
 
