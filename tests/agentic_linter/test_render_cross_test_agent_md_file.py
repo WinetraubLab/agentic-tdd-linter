@@ -126,8 +126,8 @@ class CrossTestAgentMarkdownTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `render_cross_test_agent_md_file` doesn't regenerate a completed `cross-test packet` when reviewed test files are unchanged.
-        Specialized usage: When the `cross-test packet` contains a completed `pair classification` and none of the reviewed test files changed, `render_cross_test_agent_md_file` keeps the existing packet instead of replacing it with a pending review.
+        `render_cross_test_agent_md_file` treats a completed `cross-test packet` as still valid when its reviewed test files are unchanged.
+        Specialized usage: Cross-test validation runs a second time after completing the `pair classification`. When reviewed test files did not change between the first and second runs, `render_cross_test_agent_md_file` treats the existing `cross-test packet` as still valid.
 
         Verification Method: verify public function output
 
