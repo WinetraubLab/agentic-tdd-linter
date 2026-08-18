@@ -79,7 +79,7 @@ def check_test_module_contract(
         declared_path.is_absolute()
         or ".." in declared_path.parts
         or not absolute_path.is_relative_to(Path(repo_root).resolve())
-        or not absolute_path.is_file()
+        or not absolute_path.exists()
     ):
         issues.append(
             _file_issue(
@@ -87,7 +87,7 @@ def check_test_module_contract(
                 "missing_test_module",
                 (
                     f"declared module `{module_name}` must identify an existing "
-                    "repository-relative file"
+                    "repository-relative file or directory"
                 ),
             )
         )
