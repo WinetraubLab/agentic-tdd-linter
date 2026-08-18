@@ -849,3 +849,82 @@ sentence_quality_021_double_negative_invalidation:
   expected_scorecard:
     31: # Sentence Avoids Double Negation
       fail # `limits review invalidation` expresses preservation by restricting the negative concept of invalidation.
+
+sentence_quality_022_double_negative_availability:
+  file_docstring: |
+    """Tests in this file validate `calendar_availability` located at `src/examples/calendar_availability.py`.
+    `calendar_availability` is responsible for selecting meeting availability from calendar events.
+
+    For example, this file contains one test function.
+    """
+  test: |
+    def test_non_flexible_matches_preference(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `calendar_availability` limits non-flexible availability to work-preference events matching the requested organization.
+        Specialized usage: A requested-organization query disables flexibility rather than enabling it.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Calendar mock exposes `requested organization:09:00–12:00`. Calendar mock exposes `other organization:13:00–16:00`. Result slots contain 09:00–12:00. Result slots exclude 13:00–16:00.
+        """
+
+        responses = {
+            "availability": [],
+            "work preference": [
+                {
+                    "id": "requested-organization",
+                    "summary": "Requested organization meetings",
+                    "start": {"dateTime": "2000-01-01T09:00:00+00:00"},
+                    "end": {"dateTime": "2000-01-01T12:00:00+00:00"},
+                    "status": "confirmed",
+                },
+                {
+                    "id": "other-organization",
+                    "summary": "Other organization meetings",
+                    "start": {"dateTime": "2000-01-01T13:00:00+00:00"},
+                    "end": {"dateTime": "2000-01-01T16:00:00+00:00"},
+                    "status": "confirmed",
+                },
+            ],
+        }
+        service = MagicMock()
+
+        def list_events(**kwargs):
+            request = MagicMock()
+            request.execute.return_value = {
+                "items": responses.get(kwargs["calendarId"], [])
+            }
+            return request
+
+        service.events.return_value.list.side_effect = list_events
+        with (
+            patch.object(
+                calendar_availability,
+                "get_calendar_service",
+                return_value=service,
+            ),
+            patch.object(calendar_availability, "close_calendar_service"),
+        ):
+            result = calendar_availability.get_meeting_availability(
+                start="2000-01-01",
+                end="2000-01-01",
+                time_zone="UTC",
+                organization="Requested Organization",
+                should_i_be_flexible=False,
+            )
+
+        self.assertEqual(
+            [
+                (
+                    "2000-01-01T09:00:00+00:00",
+                    "2000-01-01T12:00:00+00:00",
+                )
+            ],
+            [(slot["start"], slot["end"]) for slot in result["slots"]],
+        )
+  expected_scorecard:
+    31: # Sentence Avoids Double Negation
+      fail # `limits non-flexible availability` restricts an already negated availability concept.
