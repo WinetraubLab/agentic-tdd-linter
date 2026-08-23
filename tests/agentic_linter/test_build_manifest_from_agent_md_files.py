@@ -99,17 +99,17 @@ class AgentReviewManifestTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` records only completed `manifest proof`, so it omits a new unreviewed test until that test receives passing proof.
-        Specialized usage: When a new test appears beside an unchanged reviewed test without completed proof, `build_manifest_from_agent_md_files` leaves the new test out of the manifest.
+        `build_manifest_from_agent_md_files` excludes every new test from the manifest when that test lacks `manifest proof`.
+        Specialized usage: When a new test without `manifest proof` appears beside an unchanged reviewed test, `build_manifest_from_agent_md_files` excludes the new test from the manifest.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        The manifest contains no record for `test_subtracts_values`.
+        The manifest has no record for `test_subtracts_values`.
 
         Similar Coverage:
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` omits a new unreviewed test until it receives passing proof. The named test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for the unchanged test beside it; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` excludes a new test that lacks `manifest proof`. The named test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for the unchanged test beside it; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` omits a new test whose review is incomplete. The named test verifies `build_manifest_from_agent_md_files` retains current passing `manifest proof`; the current test is failure path, while the named test is happy path.
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`

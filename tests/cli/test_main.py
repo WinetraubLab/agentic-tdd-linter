@@ -196,6 +196,8 @@ class ReviewProofFlowTests(unittest.TestCase):
         Similar Coverage:
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_retains_supplied_reviewer`
+          Explanation: The current test verifies `CLI` rejects a completed scorecard when `reviewer identity` is absent. The named test verifies `pre-commit review workflow` retains the reviewer supplied to lint; the current test is failure path, while the named test is happy path.
         - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_includes_reviewer`
           Explanation: The current test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent. The named test verifies `test_review_documentation` requires README to provide exact `lint arguments`; the current test is failure path, while the named test is happy path.
         """

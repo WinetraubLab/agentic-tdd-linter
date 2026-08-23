@@ -41,11 +41,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         2. Harness invokes `agentic-tdd-linter create-agent-md --repo-root <temporary-repository>`.
         3. Harness classifies every generated `.agent.md` scorecard as pass.
         4. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:nominal-reviewer`.
-        5. `_manifest_records` output provides the asserted manifest fields.
-        6. Manifest contains path `tests/test_arithmetic.py`.
-        7. Manifest contains test `test_adds_two_numbers`.
-        8. Manifest contains status `pass`.
-        9. Manifest contains reviewer `integration:nominal-reviewer`.
+        5. `_manifest_records` output provides the asserted manifest record.
+        6. The manifest record contains path `tests/test_arithmetic.py`, test `test_adds_two_numbers`, and status `pass`.
 
         Similar Coverage:
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_excludes_added_function`
@@ -56,6 +53,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content; both use happy path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_main.py::test_lint_requires_reviewer`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_retains_supplied_reviewer`
+          Explanation: The current test verifies `pre-commit review workflow` persists the approved test's path, name, and status. The named test verifies the workflow retains the reviewer supplied to lint in that test's manifest record; both use happy path, but exercise materially different record fields.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
@@ -115,13 +114,73 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 "path": expected_test_path,
                 "test": expected_test_name,
                 "status": "pass",
-                "reviewer": expected_reviewer,
             },
             {
                 key: records[0][key]
-                for key in ("path", "test", "status", "reviewer")
+                for key in ("path", "test", "status")
             },
         )
+
+    def test_retains_supplied_reviewer(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` retains the reviewer supplied to lint in the approved test's manifest record.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The manifest record's reviewer equals `integration:nominal-reviewer` supplied to lint.
+
+        Similar Coverage:
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` retains the reviewer supplied to lint in the approved test's manifest record. The named test verifies the workflow persists the approved test's path, name, and status; both use happy path, but exercise materially different record fields.
+        - Happy/Failure Path Difference: `test_main.py::test_lint_requires_reviewer`
+          Explanation: The current test verifies `pre-commit review workflow` retains the reviewer supplied to lint. The named test verifies `CLI` rejects a completed scorecard when reviewer identity is absent; the current test is happy path, while the named test is failure path.
+        """
+
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `addition` located at `src/arithmetic.py`.
+            `addition` is responsible for combining numbers into their sum.
+
+            Terms:
+            - `addition`: Addition combines two numbers into their sum. For example, one plus one produces two.
+            """
+
+            def test_adds_two_numbers() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `addition` produces the sum of two numbers.
+                Standard usage: The operands are positive integers.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                One plus one equals `2`.
+                """
+
+                assert 1 + 1 == 2
+            '''
+        )
+        expected_reviewer = "integration:nominal-reviewer"
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(
+                repo_root / "src" / "arithmetic.py",
+                "def add(a, b): return a + b\n",
+            )
+            _write_source(repo_root / "tests" / "test_arithmetic.py", test_source)
+
+            _run_cli(repo_root, "create-agent-md")
+            _complete_packets(repo_root, status="pass", evidence="nominal review passed")
+            _run_cli(repo_root, "lint", "--reviewer", expected_reviewer)
+            records = _manifest_records(repo_root)
+
+        self.assertEqual(expected_reviewer, records[0]["reviewer"])
 
     def test_lint_before_packet_creation_scenario(self) -> None:
         """Test Path: failure path

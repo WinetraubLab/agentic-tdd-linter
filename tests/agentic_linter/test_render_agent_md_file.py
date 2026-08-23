@@ -153,7 +153,7 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         Verification Detail:
         The `render_agent_md_file` output defines significant clarity as removing a materially different interpretation.
-        The `render_agent_md_file` output excludes shorter wording and grammatical preference from significant clarity.
+        The `render_agent_md_file` output excludes shorter wording, grammatical preference, and moving details already unambiguous elsewhere from significant clarity.
         The `render_agent_md_file` output directs the reviewer to retain the original and pass the corresponding formulation rows when the revision is not significantly clearer.
 
         Similar Coverage:
@@ -172,18 +172,18 @@ class AgenticMarkdownTests(unittest.TestCase):
 
         self.assertIn(
             "`Significantly clearer` means that the original permits a "
-            "materially different interpretation",
+            "materially different interpretation of the behavior, condition, "
+            "scope, or evidence.",
             markdown,
         )
         self.assertIn(
-            "Shorter wording, a grammatical preference",
+            "Shorter wording, a grammatical preference, or moving details that "
+            "are already unambiguous elsewhere in the test docstring is not a "
+            "significant clarity improvement.",
             markdown,
         )
         self.assertIn(
-            "If the revision is about as clear as or less clear than the original",
-            markdown,
-        )
-        self.assertIn(
+            "If the revision is about as clear as or less clear than the original, "
             "keep the original and pass the corresponding formulation rows",
             markdown,
         )
