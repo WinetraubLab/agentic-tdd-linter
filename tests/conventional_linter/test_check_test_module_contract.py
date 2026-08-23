@@ -94,8 +94,8 @@ class TestModuleContractTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `conventional_linter` emits missing_test_module when a declared repository-relative path does not exist.
-        Specialized usage: Neither a file nor a directory exists at the declared path.
+        `conventional_linter` emits a missing_test_module issue that describes the accepted file-or-directory contract when a declared repository-relative path does not exist.
+        Specialized usage: When neither a file nor a directory exists at the declared path, `conventional_linter` emits a missing_test_module issue that describes the accepted file-or-directory contract.
 
         Verification Method: verify public function output
 
@@ -133,7 +133,7 @@ class TestModuleContractTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` emits missing_test_module when a module declaration uses an absolute path.
-        Specialized usage: The absolute path identifies an existing file within the repository.
+        Specialized usage: When an absolute path identifies an existing file within the repository, `conventional_linter` emits missing_test_module.
 
         Verification Method: verify public function output
 
