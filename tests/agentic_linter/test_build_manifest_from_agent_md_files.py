@@ -54,6 +54,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         The manifest contains the original `test_adds_values` record unchanged.
 
         Similar Coverage:
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_excludes_added_function`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` omits that new unreviewed test until it receives passing proof; both use failure path, but exercise materially different scenarios.
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for an unchanged test when a new test function appears in its file. The named test verifies `build_manifest_from_agent_md_files` removes proof for a missing test while preserving `manifest proof` for an unchanged test in the same file; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
@@ -104,6 +106,16 @@ class AgentReviewManifestTests(unittest.TestCase):
 
         Verification Detail:
         The manifest contains no record for `test_subtracts_values`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` omits a new unreviewed test until it receives passing proof. The named test verifies `build_manifest_from_agent_md_files` retains `manifest proof` for the unchanged test beside it; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` omits a new test whose review is incomplete. The named test verifies `build_manifest_from_agent_md_files` retains current passing `manifest proof`; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Explanation: The current test verifies a newly added unreviewed test is absent from an otherwise retained manifest. The named test verifies no manifest file is created when a scorecard contains pending rows; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies incomplete proof for a new test is omitted from the manifest. The named test verifies the pre-commit review workflow persists an approved test after its scorecard passes; the current test is failure path, while the named test is happy path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -327,6 +339,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Retained source SHA256 equals the current `test_adds_values` content SHA256.
 
         Similar Coverage:
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_excludes_added_function`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` retains current passing `manifest proof`. The named test verifies `build_manifest_from_agent_md_files` omits a new test whose review is incomplete; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` retains passing `manifest proof` during `orphaned record` cleanup when its source SHA256 matches the current test content. The named test verifies `build_manifest_from_agent_md_files` preserves `manifest proof` for an unchanged test when a new test function appears in its file; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
@@ -407,6 +421,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         Filesystem contains no manifest file.
 
         Similar Coverage:
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_excludes_added_function`
+          Explanation: The current test verifies no manifest file is created when a scorecard contains pending rows. The named test verifies a newly added unreviewed test is absent from an otherwise retained manifest; both use failure path, but exercise materially different scenarios.
         - Scenario Difference: `test_determine_agent_md_status.py::test_derives_pending_status`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`

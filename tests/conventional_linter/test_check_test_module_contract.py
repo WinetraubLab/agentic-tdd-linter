@@ -27,6 +27,18 @@ class TestModuleContractTests(unittest.TestCase):
 
         Verification Detail:
         The issue list is empty when the declared source file exists.
+
+        Similar Coverage:
+        - Scenario Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_directory`
+          Explanation: The current test verifies `conventional_linter` accepts a module declaration identifying an existing repository-relative file. The named test verifies the same contract for an existing repository-relative directory; both use happy path, but exercise materially different path scenarios.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_missing_repository_relative_path`
+          Explanation: The current test verifies acceptance of an existing repository-relative file. The named test verifies rejection when the declared repository-relative path does not exist; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_existing_absolute_path`
+          Explanation: The current test verifies acceptance of an existing repository-relative file. The named test verifies rejection when a module declaration uses an absolute path; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_traversal_outside_repository`
+          Explanation: The current test verifies acceptance of an existing repository-relative file. The named test verifies rejection when a module declaration traverses outside the repository; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `conventional_linter` accepts an existing repository-relative file declaration. The named test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path; the current test is happy path, while the named test is failure path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -52,7 +64,19 @@ class TestModuleContractTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        The issue list is empty when the declared directory exists.
+        The issue list contains no issues when the module declaration identifies an existing repository-relative directory.
+
+        Similar Coverage:
+        - Scenario Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_file`
+          Explanation: The current test verifies `conventional_linter` accepts a module declaration identifying an existing repository-relative directory. The named test verifies the same contract for an existing repository-relative file; both use happy path, but exercise materially different path scenarios.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_missing_repository_relative_path`
+          Explanation: The current test verifies acceptance of an existing repository-relative directory. The named test verifies rejection when the declared repository-relative path does not exist; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_existing_absolute_path`
+          Explanation: The current test verifies acceptance of an existing repository-relative directory. The named test verifies rejection when a module declaration uses an absolute path; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_rejects_traversal_outside_repository`
+          Explanation: The current test verifies acceptance of an existing repository-relative directory. The named test verifies rejection when a module declaration traverses outside the repository; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `conventional_linter` accepts an existing repository-relative directory declaration. The named test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path; the current test is happy path, while the named test is failure path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -76,7 +100,20 @@ class TestModuleContractTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        The issue uses missing_test_module and describes the accepted file-or-directory contract.
+        The issue identifies missing_test_module.
+        The issue describes the accepted file-or-directory contract.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_file`
+          Explanation: The current test verifies rejection when a declared repository-relative path does not exist. The named test verifies acceptance of an existing repository-relative file; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_directory`
+          Explanation: The current test verifies rejection when a declared repository-relative path does not exist. The named test verifies acceptance of an existing repository-relative directory; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_existing_absolute_path`
+          Explanation: The current test verifies missing_test_module for a nonexistent repository-relative path. The named test verifies missing_test_module for an existing absolute path; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_traversal_outside_repository`
+          Explanation: The current test verifies missing_test_module for a nonexistent repository-relative path. The named test verifies missing_test_module for an existing file reached through parent traversal; both use failure path, but exercise materially different path scenarios.
+        - Module Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_module for a nonexistent declared module path. The named test verifies the same scenario through `create-agent-md`; both use failure path and materially the same scenario through different contract subjects.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -101,7 +138,19 @@ class TestModuleContractTests(unittest.TestCase):
         Verification Method: verify public function output
 
         Verification Detail:
-        The issue list contains missing_test_module even though the absolute file exists.
+        The issue list contains missing_test_module for an absolute path to an existing file within the repository.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_file`
+          Explanation: The current test verifies rejection when a module declaration uses an absolute path. The named test verifies acceptance of an existing repository-relative file; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_directory`
+          Explanation: The current test verifies rejection when a module declaration uses an absolute path. The named test verifies acceptance of an existing repository-relative directory; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_missing_repository_relative_path`
+          Explanation: The current test verifies missing_test_module for an existing absolute path. The named test verifies missing_test_module for a nonexistent repository-relative path; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_traversal_outside_repository`
+          Explanation: The current test verifies missing_test_module for an existing absolute path. The named test verifies missing_test_module for an existing file reached through parent traversal; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_module for an existing absolute path. The named test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path; both use failure path, but exercise materially different path scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -127,6 +176,18 @@ class TestModuleContractTests(unittest.TestCase):
 
         Verification Detail:
         The issue list contains missing_test_module for an existing file reached through parent traversal.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_file`
+          Explanation: The current test verifies rejection when a module declaration traverses outside the repository. The named test verifies acceptance of an existing repository-relative file; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_directory`
+          Explanation: The current test verifies rejection when a module declaration traverses outside the repository. The named test verifies acceptance of an existing repository-relative directory; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_missing_repository_relative_path`
+          Explanation: The current test verifies missing_test_module for an existing file reached through parent traversal. The named test verifies missing_test_module for a nonexistent repository-relative path; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_existing_absolute_path`
+          Explanation: The current test verifies missing_test_module for an existing file reached through parent traversal. The named test verifies missing_test_module for an existing absolute path; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_rejects_missing_module`
+          Explanation: The current test verifies `conventional_linter` emits missing_test_module for an existing file reached through parent traversal. The named test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path; both use failure path, but exercise materially different path scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:

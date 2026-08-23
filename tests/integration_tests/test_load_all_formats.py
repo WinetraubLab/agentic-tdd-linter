@@ -489,6 +489,16 @@ class LoadAllFormatsTests(unittest.TestCase):
           Explanation: The current test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist. The named test verifies `create-agent-md` requires every test requirement to identify the module declared by its test file; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_source_module_structure.py::test_tests_have_source_or_harness`
           Explanation: The current test verifies `create-agent-md` emits missing_test_module when a test file declares a module path that does not exist. The named test verifies `test_source_module_structure` requires every `test module` in agentic_linter, cli, conventional_linter, and indexing_test_functions to have a same-basename `source module` or `test-harness module`; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_file`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path. The named test verifies `conventional_linter` accepts an existing repository-relative file declaration; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_check_test_module_contract.py::test_accepts_existing_repository_relative_directory`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path. The named test verifies `conventional_linter` accepts an existing repository-relative directory declaration; the current test is failure path, while the named test is happy path.
+        - Module Difference: `test_check_test_module_contract.py::test_rejects_missing_repository_relative_path`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path. The named test verifies the same scenario through `conventional_linter`; both use failure path and materially the same scenario through different contract subjects.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_existing_absolute_path`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path. The named test verifies `conventional_linter` emits missing_test_module for an existing absolute path; both use failure path, but exercise materially different path scenarios.
+        - Scenario Difference: `test_check_test_module_contract.py::test_rejects_traversal_outside_repository`
+          Explanation: The current test verifies `create-agent-md` emits missing_test_module for a nonexistent declared module path. The named test verifies `conventional_linter` emits missing_test_module for an existing file reached through parent traversal; both use failure path, but exercise materially different path scenarios.
         """
 
         test_source = textwrap.dedent(

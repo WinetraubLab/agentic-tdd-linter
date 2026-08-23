@@ -48,6 +48,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         9. Manifest contains reviewer `integration:nominal-reviewer`.
 
         Similar Coverage:
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_excludes_added_function`
+          Explanation: The current test verifies the pre-commit review workflow persists an approved test after its scorecard passes. The named test verifies `build_manifest_from_agent_md_files` omits a new test whose review is incomplete; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row; the current test is happy path, while the named test is failure path.
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`

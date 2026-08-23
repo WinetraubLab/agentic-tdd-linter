@@ -122,6 +122,8 @@ class AgenticMarkdownTests(unittest.TestCase):
         The `render_agent_md_file` output contains initial, first-revision, second-revision, third-revision, and final-assessment records.
 
         Similar Coverage:
+        - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_scores_original`
+          Explanation: The current test verifies `render_agent_md_file` creates an `iterative review` record with an initial score, revision slots, and a final assessment. The named test verifies the final scorecard evaluates the original `Test Content`; both use happy path, but exercise materially different scenarios.
         - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_compares_clarity`
           Explanation: The current test verifies `render_agent_md_file` creates an `iterative review` record with an initial score, three revision slots, and a final assessment. The named test verifies `render_agent_md_file` directs `iterative review` to retain original wording and pass the corresponding formulation rows unless a revision removes a materially different interpretation; both use happy path, but exercise materially different scenarios.
         """
@@ -155,6 +157,8 @@ class AgenticMarkdownTests(unittest.TestCase):
         The `render_agent_md_file` output directs the reviewer to retain the original and pass the corresponding formulation rows when the revision is not significantly clearer.
 
         Similar Coverage:
+        - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_scores_original`
+          Explanation: The current test verifies `render_agent_md_file` directs `iterative review` to retain original wording unless a revision removes a materially different interpretation. The named test verifies the final scorecard evaluates the original `Test Content`; both use happy path, but exercise materially different scenarios.
         - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_records_revision_attempts`
           Explanation: The current test verifies `render_agent_md_file` directs `iterative review` to retain original wording and pass the corresponding formulation rows unless a revision removes a materially different interpretation. The named test verifies `render_agent_md_file` creates an `iterative review` record with an initial score, three revision slots, and a final assessment; both use happy path, but exercise materially different scenarios.
         """
@@ -196,6 +200,12 @@ class AgenticMarkdownTests(unittest.TestCase):
         Verification Detail:
         The rendered instruction assigns final scorecard evaluation to the original `Test Content`.
         The rendered instruction prevents a hypothetical revision from making the original pass.
+
+        Similar Coverage:
+        - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_records_revision_attempts`
+          Explanation: The current test verifies the final scorecard evaluates the original `Test Content`. The named test verifies `render_agent_md_file` creates an `iterative review` record with an initial score, revision slots, and a final assessment; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_render_agent_md_file.py::test_iterative_review_compares_clarity`
+          Explanation: The current test verifies the final scorecard evaluates the original `Test Content`. The named test verifies `render_agent_md_file` retains original wording unless a revision removes a materially different interpretation; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:

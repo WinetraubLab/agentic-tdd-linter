@@ -34,6 +34,10 @@ class ExtractedTestRecordTests(unittest.TestCase):
         `ExtractedTestRecord` exposes docstring `Sample documentation.`.
         `ExtractedTestRecord` exposes source `def test_sample(): pass`.
         `ExtractedTestRecord` exposes `Sample file documentation.` as its file docstring.
+
+        Similar Coverage:
+        - Scenario Difference: `test_extracted_test_record.py::test_defaults_file_docstring`
+          Explanation: The current test verifies `extracted_test_record` retains caller-supplied `record fields`, including file_docstring, in `ExtractedTestRecord`. The named test verifies file_docstring defaults to None when callers omit it; both use happy path, but exercise materially different scenarios.
         """
 
         expected_fields = (
@@ -77,6 +81,10 @@ class ExtractedTestRecordTests(unittest.TestCase):
 
         Verification Detail:
         `ExtractedTestRecord.file_docstring` equals `None`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_extracted_test_record.py::test_stores_supplied_fields`
+          Explanation: The current test verifies file_docstring defaults to None when callers omit it. The named test verifies `extracted_test_record` retains caller-supplied `record fields`, including file_docstring, in `ExtractedTestRecord`; both use happy path, but exercise materially different scenarios.
         """
 
         record = ExtractedTestRecord(
