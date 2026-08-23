@@ -59,7 +59,7 @@ class TestModuleContractTests(unittest.TestCase):
 
         Requirement Tested:
         `conventional_linter` accepts a module declaration identifying an existing repository-relative directory.
-        Specialized usage: The declared module is owned by a directory rather than one source file.
+        Specialized usage: The module declaration identifies a directory rather than one source file.
 
         Verification Method: verify public function output
 
