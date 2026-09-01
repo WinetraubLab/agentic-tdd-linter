@@ -29,10 +29,10 @@ Follow this flow:
    - The coding agent implements the feature until the approved tests pass.
    - The generated implementation is accepted based on the approved test suite, rather than line-by-line human review.
 4. Refactor: implementation cleanup, **without human review**.
-   - The coding agent uses the repository's refactor skill to simplify the complete implementation while keeping the approved tests passing.
+   - After the local project's full test suite passes, the coding agent invokes the installed `$simplify-implementation` skill to simplify its production and test-harness implementation while keeping the approved tests passing.
    - The refactored implementation is accepted based on the approved test suite.
 
-For the complete refactor-phase instructions, see [Refactor Implementation Skill](.agents/skills/refactor-implementation/SKILL.md).
+Use the installed `$simplify-implementation` skill for the complete refactor-phase workflow in the local project.
 
 The key assumption is that generated implementation code may be too large or complex for humans to review line by line. Instead, human review should focus on the tests, because the tests define the intended behavior. If the tests are clear, complete, and correct, then the generated implementation can be judged by whether it satisfies those tests.
 
