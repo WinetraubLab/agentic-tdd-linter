@@ -11,6 +11,7 @@ from typing import Sequence
 from ..conventional_linter.run_conventional_linter import LintIssue
 from .format_linter_results import format_json, format_text
 from .run_lint_pipeline import create_agent_md_files, run_lint_pipeline
+from .sync_skill import SkillSyncError, sync_skill
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -19,11 +20,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
 
-    if args.command not in {"lint", "create-agent-md"}:
+    if args.command not in {"lint", "create-agent-md", "sync-skill"}:
         parser.print_help()
         return 2
 
     repo_root = args.repo_root.resolve() if args.repo_root else _find_repo_root(Path.cwd())
+    if args.command == "sync-skill":
+        try:
+            result = sync_skill(repo_root, args.target, check=args.check)
+        except SkillSyncError as error:
+            print(f"agentic-tdd-linter: {error}", file=sys.stderr)
+            return 2
+        relative_target = _relative_path(result.target, repo_root)
+        if result.status == "stale":
+            print(f"agentic-tdd-linter: run-tdd-linter skill is out of date: {relative_target}")
+            return 1
+        print(
+            "agentic-tdd-linter: "
+            f"run-tdd-linter skill is {result.status}: {relative_target}"
+        )
+        return 0
+
     try:
         common_arguments = {
             "repo_root": repo_root,
@@ -152,6 +169,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "create-agent-md",
         help="create required agent review packets",
     )
+    sync_parser = subparsers.add_parser(
+        "sync-skill",
+        help="install or check the canonical run-tdd-linter skill",
+    )
     for command_parser in (lint_parser, create_parser):
         _add_file_selection_arguments(command_parser)
         _add_shared_arguments(command_parser)
@@ -162,6 +183,21 @@ def _build_parser() -> argparse.ArgumentParser:
             "reviewer identity to store in the manifest after artifact proof passes, "
             "such as codex:gpt-5.5"
         ),
+    )
+    sync_parser.add_argument(
+        "--repo-root",
+        type=Path,
+        help="repository root; defaults to the current git repository root",
+    )
+    sync_parser.add_argument(
+        "--target",
+        type=Path,
+        help="skill path; defaults to a discovered run-tdd-linter skill",
+    )
+    sync_parser.add_argument(
+        "--check",
+        action="store_true",
+        help="report whether the installed skill is current without changing it",
     )
 
     return parser
