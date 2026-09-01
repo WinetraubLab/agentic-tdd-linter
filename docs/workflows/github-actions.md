@@ -47,4 +47,4 @@ The workflow verifies the committed manifest against the committed repository st
 4. Each `linter_version` must exactly match the linter version installed by the workflow.
 5. Each `review_contract_sha256` must match the current linter source and documentation.
 
-When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the developer to complete the pre-commit review workflow. It never creates `.agent.md` files in CI.
+When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the coding agent to run the `$run-tdd-linter` skill. It never creates `.agent.md` files in CI.

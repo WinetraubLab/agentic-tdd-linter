@@ -5,8 +5,8 @@ Terms:
 - `pre-commit review workflow`: The pre-commit review workflow completes the review lifecycle before changes are committed. For example, it refreshes stale scorecards before commit.
 - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, create-agent-md regenerates the edited test's .agent.md file.
 - `cross_test_review.agent.md`: The cross_test_review.agent.md file reviews relationships among the complete selected test set. For example, create-agent-md --fresh regenerates the cross-test review.
-- `agent_review_failed`: The agent_review_failed issue identifies a completed review containing failed criteria. For example, lint emits this issue with correction instructions.
-- `failed-review correction procedure`: A failed-review correction procedure tells editors to read the complete scorecard in every failed .agent.md, evaluate the test and docstring against every criterion including passing criteria, and regenerate the selected packets once. For example, agent_review_failed output provides this procedure.
+- `agent_review_failed`: The agent_review_failed issue identifies a completed review containing failed criteria. For example, lint emits this issue with skill-based correction guidance.
+- `$run-tdd-linter`: The $run-tdd-linter skill coordinates correction of TDD lint failures. For example, failure output directs a coding agent to run this skill.
 """
 
 from __future__ import annotations
@@ -56,11 +56,13 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_retains_supplied_reviewer`
           Explanation: The current test verifies `pre-commit review workflow` persists the approved test's path, name, and status. The named test verifies the workflow retains the reviewer supplied to lint in that test's manifest record; both use happy path, but exercise materially different record fields.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; the current test is happy path, while the named test is failure path.
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies a failed `.agent.md` scorecard directs callers to `$run-tdd-linter`; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies conventional lint failure directs callers to `$run-tdd-linter`; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; the current test is happy path, while the named test is failure path.
+          Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies missing review proof replaces create-agent-md command guidance with `$run-tdd-linter` guidance; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; the current test is happy path, while the named test is failure path.
         - Module Difference: `test_review_documentation.py::test_readme_shows_review_workflow`
@@ -186,8 +188,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test.
-        Specialized usage: Caller invokes lint before create-agent-md, so `pre-commit review workflow` emits missing_required_agent_md guidance naming create-agent-md.
+        `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance when lint detects an unreviewed valid test.
+        Specialized usage: Caller invokes lint before review proof exists, so `pre-commit review workflow` emits missing_required_agent_md with skill-based guidance and no create-agent-md command.
 
         Verification Method: verify public function output
 
@@ -195,15 +197,21 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         1. Harness creates a temporary repository containing one conventionally valid unreviewed test.
         2. Harness invokes `agentic-tdd-linter lint --repo-root <temporary-repository>` before create-agent-md.
         3. `pre-commit review workflow` output contains missing_required_agent_md.
-        4. `pre-commit review workflow` output contains `agentic-tdd-linter create-agent-md`.
+        4. `pre-commit review workflow` output contains `Run the `$run-tdd-linter` skill.` and omits a create-agent-md command.
 
         Similar Coverage:
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test. The named test verifies conventional lint failure output directs callers to `$run-tdd-linter`; both use failure path, but exercise materially different failure scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test. The named test verifies a failed `.agent.md` scorecard directs callers to `$run-tdd-linter`; both use failure path, but exercise materially different failure scenarios.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+          Explanation: The current test verifies `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Explanation: The current test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_directs_tdd_linter_skill`
+          Explanation: The current test verifies failure output replaces create-agent-md command guidance with `$run-tdd-linter` guidance. The named test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`; the current test is failure path, while the named test is happy path.
         """
 
         test_source = textwrap.dedent(
@@ -237,14 +245,15 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint")
 
         self.assertIn("missing_required_agent_md", lint.stdout)
-        self.assertIn("agentic-tdd-linter create-agent-md", lint.stdout)
+        self.assertIn("Run the `$run-tdd-linter` skill.", lint.stdout)
+        self.assertNotIn("agentic-tdd-linter create-agent-md", lint.stdout)
 
     def test_classic_linter_errors_scenario(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement.
-        Specialized usage: The test lacks Requirement Tested, so `pre-commit review workflow` creates zero `.agent.md` files.
+        `pre-commit review workflow` prevents `.agent.md` creation when conventional lint fails.
+        Specialized usage: The test lacks Requirement Tested, so the workflow emits missing_requirement and creates zero `.agent.md` files.
 
         Verification Method: verify public function output
 
@@ -258,7 +267,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         - Module Difference: `test_docstring_structure.py::test_reports_empty_requirement`
           Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing; both exercise materially the same scenario through different named modules or contract subjects.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies failure output replaces create-agent-md command guidance with `$run-tdd-linter` guidance for an unreviewed valid test; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies the same failure directs callers to `$run-tdd-linter`; both use failure path, but prove materially different outcomes.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Explanation: The current test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
@@ -295,31 +306,94 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         self.assertIn("missing_requirement", creation.stdout)
         self.assertEqual([], packets)
 
+    def test_classic_linter_guidance_scenario(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `pre-commit review workflow` directs callers to `$run-tdd-linter` when conventional lint fails.
+        Specialized usage: A test without Requirement Tested produces missing_requirement with skill-based guidance.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Command output contains missing_requirement and `Run the `$run-tdd-linter` skill.`.
+
+        Similar Coverage:
+        - Module Difference: `test_docstring_structure.py::test_reports_empty_requirement`
+          Explanation: The current test verifies conventional failure output directs callers to `$run-tdd-linter` when Requirement Tested is empty. The named test verifies `conventional_linter` emits missing_requirement for the empty field; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
+          Explanation: The current test verifies conventional lint failure directs callers to `$run-tdd-linter`. The named test verifies the same failure prevents `.agent.md` creation; both use failure path, but prove materially different outcomes.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies conventional lint failure directs callers to `$run-tdd-linter`. The named test verifies missing review proof replaces create-agent-md command guidance with `$run-tdd-linter` guidance; both use failure path, but exercise materially different failure scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies conventional lint failure directs callers to `$run-tdd-linter`. The named test verifies a failed `.agent.md` scorecard directs callers to `$run-tdd-linter`; both use failure path, but exercise materially different failure scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies conventional lint failure directs callers to `$run-tdd-linter`. The named test verifies `pre-commit review workflow` persists an approved test after review succeeds; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies conventional lint failure directs callers to `$run-tdd-linter`. The named test verifies `pre-commit review workflow` regenerates review packets after a test changes; both use failure path, but exercise materially different failure scenarios.
+        - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_directs_tdd_linter_skill`
+          Explanation: The current test verifies conventional failure output directs callers to `$run-tdd-linter`. The named test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`; the current test is failure path, while the named test is happy path.
+        """
+
+        invalid_test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `invalid fixture` located at `src/invalid.py`.
+            `invalid fixture` is responsible for representing invalid documentation.
+            """
+
+            def test_invalid_documentation() -> None:
+                """Test Path: failure path
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The expression equals true.
+                """
+
+                assert True
+            '''
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            _write_source(repo_root / "src" / "invalid.py", "VALUE = True\n")
+            _write_source(repo_root / "tests" / "test_invalid.py", invalid_test_source)
+
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertIn("missing_requirement", creation.stdout)
+        self.assertIn("Run the `$run-tdd-linter` skill.", creation.stdout)
+
     def test_agentic_linter_errors_scenario(self) -> None:
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` emits `agent_review_failed` with a `failed-review correction procedure` for each failed `.agent.md` review.
-        Specialized usage: When a completed `.agent.md` review contains a failed criterion, `pre-commit review workflow` emits `agent_review_failed` with the `failed-review correction procedure`.
+        `pre-commit review workflow` replaces create-agent-md command guidance with `$run-tdd-linter` guidance when a completed `.agent.md` review contains a failed criterion.
+        Specialized usage: When a completed `.agent.md` review contains a failed criterion, the workflow emits agent_review_failed with skill-based guidance and no create-agent-md command.
 
         Verification Method: verify public function output
 
         Verification Detail:
         1. A completed `.agent.md` review contains a failed criterion.
         2. `_run_cli` output contains `agent_review_failed`.
-        3. `_run_cli` output directs editors to the complete scorecard in each failed `.agent.md` packet.
-        4. `_run_cli` output instructs editors to evaluate the proposed test and docstring against every criterion, including criteria that passed.
-        5. `_run_cli` output contains `Regenerate the selected packets once`.
+        3. `_run_cli` output contains `Run the `$run-tdd-linter` skill.`.
+        4. `_run_cli` output omits the create-agent-md command.
 
         Similar Coverage:
         - Scenario Difference: `test_determine_agent_md_status.py::test_derives_fail_status`
-          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` directs callers to `$run-tdd-linter` after a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives fail status when any `.agent.md` row has fail status; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_determine_agent_md_status.py::test_derives_pass_status`
-          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
+          Explanation: The current test verifies `pre-commit review workflow` directs callers to `$run-tdd-linter` after a failed `.agent.md` review. The named test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds; the current test is failure path, while the named test is happy path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+          Explanation: The current test verifies `pre-commit review workflow` directs callers to `$run-tdd-linter` after a failed `.agent.md` review. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies a failed `.agent.md` scorecard directs callers to `$run-tdd-linter`. The named test verifies missing review proof replaces create-agent-md command guidance with `$run-tdd-linter` guidance; both use failure path, but exercise materially different failure scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies a failed `.agent.md` scorecard directs callers to `$run-tdd-linter`. The named test verifies conventional lint failure directs callers to `$run-tdd-linter`; both use failure path, but exercise materially different failure scenarios.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
-          Explanation: The current test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` directs callers to `$run-tdd-linter` after a failed `.agent.md` review. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_review_documentation.py::test_readme_directs_tdd_linter_skill`
+          Explanation: The current test verifies failed-scorecard output directs callers to `$run-tdd-linter`. The named test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`; the current test is failure path, while the named test is happy path.
         """
 
         passing_source = textwrap.dedent(
@@ -390,16 +464,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             lint = _run_cli(repo_root, "lint", "--reviewer", "integration:failure-reviewer")
 
         self.assertIn("agent_review_failed", lint.stdout)
-        self.assertIn(
-            "read the complete scorecard in each failed `.agent.md` packet",
-            lint.stdout,
-        )
-        self.assertIn(
-            "evaluate the proposed test and docstring against every criterion",
-            lint.stdout,
-        )
-        self.assertIn("including criteria that passed", lint.stdout)
-        self.assertIn("Regenerate the selected packets once", lint.stdout)
+        self.assertIn("Run the `$run-tdd-linter` skill.", lint.stdout)
+        self.assertNotIn("agentic-tdd-linter create-agent-md", lint.stdout)
 
     def test_stale_test_requires_review(self) -> None:
         """Test Path: failure path
@@ -434,7 +500,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
           Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; both use failure path, but exercise materially different scenarios.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
-          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` instructs callers to create an `.agent.md` when lint detects an unreviewed valid test; both use failure path, but exercise materially different scenarios.
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies missing review proof replaces create-agent-md command guidance with `$run-tdd-linter` guidance; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies conventional lint failure directs callers to `$run-tdd-linter`; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`

@@ -151,6 +151,8 @@ class DocstringStructureTests(unittest.TestCase):
           Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `conventional_linter` accepts TypeScript test docstrings when they contain `Test Path`, `Requirement Tested`, `Verification Method`, and `Verification Detail`; the current test is failure path, while the named test is happy path.
         - Module Difference: `test_pre_commit_review_workflow.py::test_classic_linter_errors_scenario`
           Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `pre-commit review workflow` prevents `.agent.md` creation when conventional linter emits missing_requirement; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies `conventional_linter` emits missing_requirement when `Requirement Tested` contains nothing. The named test verifies `pre-commit review workflow` adds skill guidance to that conventional failure; both exercise materially the same scenario through different named modules or contract subjects.
         """
 
         rules = _lint_docstring_source(

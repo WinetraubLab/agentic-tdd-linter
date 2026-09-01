@@ -83,7 +83,6 @@ def run_lint_pipeline(
         root,
         artifact_root,
         pending_by_file,
-        force_fresh=force_fresh,
     )
     if missing_artifact_issues:
         return LintPipelineResult(files=tuple(files), issues=tuple(missing_artifact_issues))
@@ -290,8 +289,6 @@ def _missing_required_artifact_issues(
     repo_root: Path,
     artifact_root: Path,
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
-    *,
-    force_fresh: bool,
 ) -> list[LintIssue]:
     issues: list[LintIssue] = []
     for test_file in files:
@@ -306,10 +303,6 @@ def _missing_required_artifact_issues(
                 test.source,
                 artifact_path,
             ):
-                command = "agentic-tdd-linter create-agent-md"
-                if force_fresh:
-                    command += " --fresh"
-                command += f" {_relative_path(test_file, repo_root)}"
                 issues.append(
                     LintIssue(
                         path=_relative_path(artifact_path, repo_root),
@@ -317,8 +310,9 @@ def _missing_required_artifact_issues(
                         line=1,
                         rule="missing_required_agent_md",
                         message=(
-                            "required agent review packet is missing or stale; "
-                            f"run `{command}` before `agentic-tdd-linter lint`"
+                            "required agent review packet is missing or stale for "
+                            f"`{_relative_path(test_file, repo_root)}`; "
+                            "run the `$run-tdd-linter` skill"
                         ),
                     )
                 )

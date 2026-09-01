@@ -77,48 +77,8 @@ def _next_action(
 ) -> str:
     """Return coordinator guidance for the current review-workflow state."""
 
-    rules = {issue.rule for issue in issues}
-    if "agent_review_failed" in rules:
-        return "\n".join(
-            (
-                "Next action:",
-                "1. Collect every failure from every selected packet before editing.",
-                "2. Before applying a fix, read the complete scorecard in each failed "
-                "`.agent.md` packet and evaluate the proposed test and docstring against "
-                "every criterion, including criteria that passed.",
-                "3. Make one consolidated source edit that addresses all collected failures.",
-                "4. Run the affected unit tests and finish all source edits before review.",
-                "5. Regenerate the selected packets once with "
-                "`agentic-tdd-linter create-agent-md --fresh`.",
-                "6. Do not retry an unchanged criterion to obtain a different result; "
-                "report a workflow conflict.",
-            )
-        )
-    if "agent_review_not_run" in rules:
-        return "\n".join(
-            (
-                "Next action:",
-                "1. Keep the reviewed source stable.",
-                "2. Complete every scorecard with one fresh isolated reviewer per "
-                "`.agent.md` packet.",
-                "3. Rerun `agentic-tdd-linter lint` after every selected packet is complete.",
-            )
-        )
-    if rules.intersection(
-        {
-            "missing_required_agent_md",
-            "missing_agent_review_artifact",
-            "stale_agent_review_artifact",
-        }
-    ):
-        return "\n".join(
-            (
-                "Next action:",
-                "1. Finish all source edits and run the affected unit tests.",
-                "2. Generate the selected packets once with `agentic-tdd-linter create-agent-md`.",
-                "3. Keep the source stable while every generated scorecard is reviewed.",
-            )
-        )
+    if issues:
+        return "Next action:\nRun the `$run-tdd-linter` skill."
     if command == "create-agent-md" and not issues and generated_count:
         return "\n".join(
             (

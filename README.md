@@ -169,7 +169,7 @@ CI/CD runs `agentic-tdd-linter lint` after the changes are committed. It validat
 the committed tests and `tests/agentic_review_manifest.jsonl`. CI/CD does not create
 `.agent.md` files, perform reviews, or record new manifest proof. Missing, stale,
 failed, or version-incompatible proof causes CI/CD to fail and directs the contributor
-back to the pre-commit review workflow.
+to run the `$run-tdd-linter` skill.
 
 ## Test Docstring Contract
 

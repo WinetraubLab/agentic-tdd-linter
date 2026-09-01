@@ -79,6 +79,12 @@ class ReviewDocumentationTests(unittest.TestCase):
         README.md installation commands instruct users to ask the coding agent to run `$run-tdd-linter`.
 
         Similar Coverage:
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_lint_before_packet_creation_scenario`
+          Explanation: The current test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`. The named test verifies missing review proof replaces create-agent-md command guidance with `$run-tdd-linter` guidance; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_classic_linter_guidance_scenario`
+          Explanation: The current test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`. The named test verifies conventional lint failure directs callers to `$run-tdd-linter`; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
+          Explanation: The current test verifies README installation guidance asks the coding agent to run `$run-tdd-linter`. The named test verifies failed-scorecard output directs callers to `$run-tdd-linter`; the current test is happy path, while the named test is failure path.
         - Scenario Difference: `test_review_documentation.py::test_readme_shows_review_workflow`
           Explanation: The current test verifies the installation guidance delegates review to the installed skill. The named test verifies the reference documentation retains the ordered manual pre-commit workflow; both exercise README review guidance through materially different entry points.
         """
