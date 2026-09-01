@@ -4,14 +4,13 @@
 Terms:
 - `.agent.md`: An .agent.md file contains one generated agent-review scorecard. For example, the pre-commit workflow creates and reviews .agent.md files before lint records proof.
 - `reviewer identity`: A reviewer identity records the agent and model that completed a review. For example, `codex:gpt-5.5` is a reviewer identity.
-- `lint arguments`: Lint arguments are exactly `lint`, `--reviewer`, and one reviewer identity in that order. For example, `lint --reviewer codex:gpt-5.5` supplies the lint arguments.
+- `$run-tdd-linter`: The $run-tdd-linter skill runs the repository's agentic TDD review workflow. For example, a coding agent invokes it after installation.
 - `pre-commit review workflow`: The pre-commit review workflow orders three stages: run `agentic-tdd-linter create-agent-md` to create `.agent.md` files, complete their scorecards, and run reviewer-authenticated lint to persist proof.
 - `CI/CD validation workflow`: The CI/CD validation workflow validates committed tests and manifest proof without creating scorecards. For example, GitHub Actions runs lint after changes are committed.
 """
 
 from __future__ import annotations
 
-import shlex
 import unittest
 from pathlib import Path
 
@@ -67,57 +66,68 @@ class ReviewDocumentationTests(unittest.TestCase):
 
         self.assertIn("### CI/CD validation workflow", readme)
 
-    def test_readme_includes_reviewer(self) -> None:
+    def test_readme_directs_tdd_linter_skill(self) -> None:
         """Test Path: happy path
 
         Requirement Tested:
-        `test_review_documentation` requires README.md to provide exact `lint arguments`.
-        Standard usage: The scenario demonstrates baseline behavior.
-
-        Verification Method: verify private function output
-
-        Verification Detail:
-        `_readme_review_command_args` output provides the `lint arguments`.
-        `lint arguments` contain exactly `lint`, `--reviewer`, and `codex:gpt-5.5` in that order.
-
-        Similar Coverage:
-        - Happy/Failure Path Difference: `test_main.py::test_lint_requires_reviewer`
-          Explanation: The current test verifies `test_review_documentation` requires README to provide exact `lint arguments`. The named test verifies `CLI` emits missing_reviewer for completed `.agent.md` files when `reviewer identity` is absent; the current test is happy path, while the named test is failure path.
-        """
-
-        repo_root = Path(__file__).resolve().parents[2]
-        reviewer = "codex:gpt-5.5"
-        expected_args = ["lint", "--reviewer", reviewer]
-        self.assertEqual(_readme_review_command_args(repo_root), expected_args)
-
-    def test_readme_shows_review_workflow(self) -> None:
-        """Test Path: happy path
-
-        Requirement Tested:
-        `test_review_documentation` requires README.md to describe the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint.
+        `test_review_documentation` requires README.md installation guidance to instruct users to ask the coding agent to run the installed `$run-tdd-linter` skill.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        README.md contents contain `agentic-tdd-linter create-agent-md` before `Review the generated files`.
-        README.md contents contain `Review the generated files` before `agentic-tdd-linter lint --reviewer codex:gpt-5.5`.
+        README.md installation commands instruct users to ask the coding agent to run `$run-tdd-linter`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_review_documentation.py::test_readme_shows_review_workflow`
+          Explanation: The current test verifies the installation guidance delegates review to the installed skill. The named test verifies the reference documentation retains the ordered manual pre-commit workflow; both exercise README review guidance through materially different entry points.
+        """
+
+        repo_root = Path(__file__).resolve().parents[2]
+        readme = (repo_root / "README.md").read_text(encoding="utf-8")
+        installation_guide = readme.split("## Add It To Your Project", 1)[1].split(
+            "## Install It On GitHub Actions On Your Project", 1
+        )[0]
+
+        expected_instruction = (
+            "Then ask your coding agent:\\n\\n"
+            "Run the \\`\\$run-tdd-linter\\` skill."
+        )
+        self.assertIn(expected_instruction, installation_guide)
+
+    def test_readme_shows_review_workflow(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `test_review_documentation` requires README.md reference guidance to describe the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint.
+        Standard usage: The scenario demonstrates baseline behavior.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The Pre-commit review workflow section contains `agentic-tdd-linter create-agent-md` before `Complete every generated scorecard`.
+        The section contains `Complete every generated scorecard` before `lint --reviewer <identity>`.
 
         Similar Coverage:
         - Module Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Explanation: The current test verifies `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; both exercise materially the same scenario through different named modules or contract subjects.
         - Scenario Difference: `test_review_documentation.py::test_readme_names_pre_commit_workflow`
           Explanation: The current test verifies `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint. The named test verifies `test_review_documentation` requires README to include a level-three `pre-commit review workflow` heading; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_review_documentation.py::test_readme_directs_tdd_linter_skill`
+          Explanation: The current test verifies the reference guidance retains the ordered manual pre-commit workflow. The named test verifies the installation guidance delegates review to the installed skill; both use happy path, but exercise README review guidance through materially different entry points.
         """
 
         repo_root = Path(__file__).resolve().parents[2]
         guide = (repo_root / "README.md").read_text(encoding="utf-8")
+        pre_commit_guide = guide.split("### Pre-commit review workflow", 1)[1].split(
+            "### CI/CD validation workflow", 1
+        )[0]
         step_markers = (
             "agentic-tdd-linter create-agent-md",
-            "Review the generated files",
-            "agentic-tdd-linter lint --reviewer codex:gpt-5.5",
+            "Complete every generated scorecard",
+            "lint --reviewer <identity>",
         )
-        step_positions = tuple(guide.index(marker) for marker in step_markers)
+        step_positions = tuple(pre_commit_guide.index(marker) for marker in step_markers)
 
         self.assertEqual(tuple(sorted(step_positions)), step_positions)
 
@@ -184,21 +194,6 @@ class ReviewDocumentationTests(unittest.TestCase):
         )
 
         self.assertNotIn("agentic-tdd-linter create-agent-md", guide)
-
-
-def _readme_review_command_args(repo_root: Path) -> list[str]:
-    for line in (repo_root / "README.md").read_text(encoding="utf-8").splitlines():
-        if "agentic-tdd-linter lint" not in line or "--reviewer" not in line:
-            continue
-        command_parts = shlex.split(line)
-        command_index = next(
-            index
-            for index, part in enumerate(command_parts)
-            if Path(part).name == "agentic-tdd-linter"
-        )
-        return command_parts[command_index + 1 :]
-    raise AssertionError("README does not include the reviewer-explicit lint command")
-
 
 if __name__ == "__main__":
     unittest.main()
