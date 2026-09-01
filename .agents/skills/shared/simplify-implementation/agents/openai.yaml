@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simplify Implementation"
+  short_description: "Simplify all implementation and harness code"
+  default_prompt: "Use $simplify-implementation to simplify all production and test-harness implementation files after the full test suite passes."

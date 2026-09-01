@@ -11,7 +11,7 @@ Run bounded self-lint cycles while preserving unrelated and concurrent working-t
 
 Before taking any action, tell the user:
 
-> Using `$self-lint`: starting agentic self-lint (`fresh: <yes|no>`, `cycles: <number>`).
+> Using `$run-tdd-linter`: starting agentic TDD lint (`fresh: <yes|no>`, `cycles: <number>`).
 
 Do not invoke this skill silently. Prefix every progress update with:
 
@@ -22,25 +22,31 @@ Do not invoke this skill silently. Prefix every progress update with:
 Parse optional inputs from the user's request:
 
 - `fresh`: Boolean. Default to `no`.
-- `cycles`: Positive integer. Default to `3`.
+- `cycles`: Positive integer. Default to `2`.
 
 Treat `fresh`, `--fresh`, or an explicit request to start from scratch as `fresh: yes`.
 Apply `--fresh` only to the first `create-agent-md` call of the first cycle.
 Do not apply it to retries after conventional-linter corrections or to later cycles.
+
+Treat every linter-selected test and required review as in scope. Do not stop
+or ask for confirmation merely because the failure set is large or repository-wide.
 
 ## Before cycle 1
 
 Work from the repository root.
 Record `git status --short` and preserve every pre-existing change.
 Do not revert or overwrite user edits. Re-read a file immediately before editing it, and ask before replacing concurrent changes whose intent is unclear.
-Use `node_repl` to read `nodeRepl.requestMeta["x-codex-turn-metadata"]`.
-Record its exact `model` and `reasoning_effort` values. Use the same
-configuration for every isolated reviewer, and form the manifest reviewer
-identity as `codex:<model>:<reasoning_effort>`. If runtime metadata is
-unavailable, stop and request the actual values instead of guessing.
+Read the current agent's exact name, `model`, and `reasoning_effort` from
+available runtime metadata. Use the same configuration for every isolated
+reviewer, and form the manifest reviewer identity as
+`<agent>:<model>:<reasoning_effort>`. If runtime metadata is unavailable, stop
+and request the actual values instead of guessing.
+Identify the repository's configured agentic TDD command. Use it throughout the
+run; direct CLI examples below use `agentic-tdd-linter` as a placeholder for that
+configured executable.
 Initialize a wall-clock timer immediately before Step 1.
 
-## Run each cycle
+## 1. Run each cycle
 
 Repeat Steps 1–4 for the requested number of cycles.
 
@@ -49,13 +55,20 @@ Repeat Steps 1–4 for the requested number of cycles.
 Run:
 
 ```bash
-.venv/bin/agentic-tdd-linter create-agent-md --repo-root .
+agentic-tdd-linter create-agent-md --repo-root .
 ```
 
 On the first call of cycle 1 only, append `--fresh` when `fresh: yes`.
 
 Capture the CLI output and generated-packet count.
 If the conventional linter succeeds, immediately count `.agent.md` files containing at least one `| pending |` scorecard row. Record this as the cycle's pending-packet count before starting Step 3.
+
+Immediately after the first TDD command in cycle 1, identify the review manifest
+that command requires, normally `tests/agentic_review_manifest.jsonl` unless the
+repository configures `--manifest`. Verify that this required manifest is tracked
+by source control. Check only this manifest, not every `.jsonl` file. If it is not
+tracked, stop and report an error before beginning reviews because the TDD run
+cannot retain the proof it needs to pass.
 
 ### Step 2: Correct conventional-linter failures
 
@@ -88,14 +101,21 @@ After all reviews finish:
    - Reject any proposed correction that would contradict another criterion or reduce clarity.
    - Do not retry an unchanged review merely to obtain a different result.
 
+If more than 10 scorecard rows fail, add this instruction to every agent prompt
+used to assess or propose corrections for the failure set:
+
+> Make sure the proposed edits are material and significantly improve code
+> readability. Reject moderate rewording that does not significantly make the
+> tests more readable and minor style changes in this scenario.
+
 Record failed scorecard rows and unique impacted tests as separate values.
 When a cross-test failure cannot be mapped reliably, report the unmapped cross-test packet count beside the impacted-test value rather than guessing.
 
 When no scorecard row is pending or failed, record the completed reviews with:
 
 ```bash
-.venv/bin/agentic-tdd-linter lint --repo-root . \
-  --reviewer 'codex:<model>:<reasoning_effort>'
+agentic-tdd-linter lint --repo-root . \
+  --reviewer '<agent>:<model>:<reasoning_effort>'
 ```
 
 Verify that any manifest records written in this cycle use that exact reviewer
@@ -121,7 +141,7 @@ date '+%Y-%m-%d %H:%M:%S %Z'
 Record the command output as the cycle's local completion time. Use the
 machine's local time from this command rather than inferring the time.
 
-## Report after every cycle
+### Report after every cycle
 
 After each cycle, show one cumulative table. Add the completed cycle as a new column; do not discard earlier columns.
 
@@ -136,10 +156,38 @@ After each cycle, show one cumulative table. Add the completed cycle as a new co
 Use elapsed wall-clock time from the start of Step 1 through the end of Step 4.
 Report the generated-packet count and affected-unit-test result immediately above or below the table.
 
-After the final requested cycle, state whether:
+## 2. Run final verification
+
+After the last requested correction cycle and its report are complete,
+regenerate the `.agent.md` packets with the configured
+`agentic-tdd-linter create-agent-md` command and review every pending packet once
+as a separate final review. Do not pass `--fresh`, and do not edit source or test
+files during this review. Add this instruction to every isolated reviewer
+prompt:
+
+> Evaluate each criterion against the test and implementation. Fail only
+> material problems with behavior, scope, or evidence. Pass minor stylistic
+> issues or rewording when the existing test remains clear and correct. Do not
+> treat an inaccurate proposed rewrite as proof of failure. Explain each
+> decision.
+
+After completing every pending scorecard row, run the configured TDD lint
+command (`agentic-tdd-linter lint`) once, even if failures remain. Use its exit
+status as the current bottom line.
+
+## 3. Report results to user
+
+Begin the final report with exactly one of these lines:
+
+- `Bottom line: TDD lint passes now.`
+- `Bottom line: TDD lint does not pass yet.`
+
+Use the passing line only when the final verification command exits successfully.
+
+After the final review, state whether:
 
 - conventional lint passed;
 - any `.agent.md` rows remain pending;
 - the last review still contains failures; and
-- any passing reviews recorded in this run use the current model and reasoning effort;
-- another cycle is required to review corrections made during the final cycle.
+- any passing reviews recorded in this run use the current agent, model, and reasoning effort;
+- any material failures remain for a future run.
