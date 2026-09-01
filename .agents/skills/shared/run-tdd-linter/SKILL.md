@@ -191,3 +191,7 @@ After the final review, state whether:
 - the last review still contains failures; and
 - any passing reviews recorded in this run use the current agent, model, and reasoning effort;
 - any material failures remain for a future run.
+
+End the final report with exactly:
+
+> After all tests pass, improve your code and remove unnecessary code with the TDD refactor phase. Ask your coding agent: `Run the $simplify-implementation skill.`
