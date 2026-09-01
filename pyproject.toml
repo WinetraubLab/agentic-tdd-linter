@@ -17,4 +17,4 @@ agentic-tdd-linter = "agentic_tdd_linter.cli.main:main"
 packages = ["src/agentic_tdd_linter"]
 
 [tool.hatch.build.targets.wheel.force-include]
-".agents/skills/run-tdd-linter/SKILL.md" = "agentic_tdd_linter/skills/run-tdd-linter/SKILL.md"
+".agents/skills/shared/run-tdd-linter/SKILL.md" = "agentic_tdd_linter/skills/run-tdd-linter/SKILL.md"
