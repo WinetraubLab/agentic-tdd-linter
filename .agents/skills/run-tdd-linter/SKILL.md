@@ -1,9 +1,9 @@
 ---
-name: self-lint
-description: Run iterative agentic self-lint cycles for this repository, including conventional-linter corrections, `.agent.md` generation and review, review self-critique, and consolidated test corrections. Use when the user says "self lint", "run self lint", "agentic lint", or asks to iteratively improve tests until agentic lint passes.
+name: run-tdd-linter
+description: Run a repository's TDD linter through iterative conventional corrections, `.agent.md` review, self-critique, and consolidated test corrections. Use when the user says "run TDD linter," "run self linter," "TDD lint," "self lint," or asks to improve tests until agentic lint passes.
 ---
 
-# Self Lint
+# Run TDD Linter
 
 Run bounded self-lint cycles while preserving unrelated and concurrent working-tree changes.
 

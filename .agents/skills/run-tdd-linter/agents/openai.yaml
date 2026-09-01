@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run TDD Linter"
+  short_description: "Run iterative repository TDD lint cycles"
+  default_prompt: "Use $run-tdd-linter to run one agentic TDD lint cycle."

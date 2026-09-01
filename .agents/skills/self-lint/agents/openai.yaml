@@ -1,4 +1,0 @@
-interface:
-  display_name: "Self Lint"
-  short_description: "Run iterative repository agentic self-lint"
-  default_prompt: "Use $self-lint to run three agentic self-lint cycles."
