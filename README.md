@@ -85,6 +85,9 @@ set -e
 
 python3 -m venv .venv
 ./.venv/bin/pip install git+https://github.com/WinetraubLab/agentic-tdd-linter
+./.venv/bin/agentic-tdd-linter sync-skill \
+  --repo-root . \
+  --target .agents/skills/shared/run-tdd-linter/SKILL.md
 ./.venv/bin/agentic-tdd-linter create-agent-md
 
 printf "\nReview the generated files and change every scorecard result from pending to pass or fail.\nPress Enter when the reviews are complete.\n"
@@ -94,7 +97,12 @@ read -r
 '
 ```
 
-The block pauses after generating `.agent.md` files because an agent must complete every scorecard before lint can record review proof. Replace `codex:gpt-5.5` when a different agent or model performs the review.
+The block installs the reusable `$run-tdd-linter` Codex skill at
+`.agents/skills/shared/run-tdd-linter/SKILL.md`, then pauses after generating
+`.agent.md` files because an agent must complete every scorecard before lint can
+record review proof. Commit the installed skill so everyone working in the
+repository can use the same workflow. Replace `codex:gpt-5.5` when a different
+agent or model performs the review.
 
 After the first successful run, add `./.venv/bin/agentic-tdd-linter lint` after the project's normal test suite. This preserves existing tests and linters while checking agent-authored tests alongside test and coverage results.
 
