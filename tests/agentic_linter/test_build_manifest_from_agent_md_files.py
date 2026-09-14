@@ -3,7 +3,7 @@
 Changing one test invalidates only that test's proof.
 
 Terms:
-- `manifest proof`: Manifest proof records a completed review for a test. Proof becomes stale when it no longer matches test content or the review contract, and proof becomes orphaned when its test no longer exists.
+- `manifest proof`: Manifest proof records a completed review for a test. Proof becomes stale when it no longer matches test content, and proof becomes orphaned when its test no longer exists.
 - `review contract`: The review contract includes the linter criteria and repository review documentation. For example, changing README.md changes the contract.
 """
 
@@ -24,6 +24,7 @@ from agentic_tdd_linter.agentic_linter.map_test_function_to_agent_md_file import
 )
 from agentic_tdd_linter.agentic_linter.build_manifest_from_agent_md_files import (
     _agent_review_manifest_path,
+    _find_tests_requiring_agent_review,
     _lint_agent_review_manifest,
     _review_contract_sha256,
     build_manifest_from_agent_md_files,
@@ -161,8 +162,8 @@ class AgentReviewManifestTests(unittest.TestCase):
         docs/workflow.md edit produces a new digest.
 
         Similar Coverage:
-        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md. The named test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies `build_manifest_from_agent_md_files` derives metadata for the current `review contract`. The named test verifies that historical contract metadata does not invalidate unchanged `manifest proof`; both use happy path, but exercise materially different scenarios.
         """
 
         for relative_path in (Path("README.md"), Path("docs/workflow.md")):
