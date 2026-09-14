@@ -181,23 +181,25 @@ class AgentReviewManifestTests(unittest.TestCase):
 
                 self.assertNotEqual(first_hash, second_hash)
 
-    def test_manifest_reports_old_review_contract(self) -> None:
-        """Test Path: failure path
+    def test_manifest_accepts_old_review_contract(self) -> None:
+        """Test Path: happy path
 
         Requirement Tested:
-        `build_manifest_from_agent_md_files` emits stale_review_contract_attestation for `manifest proof` that uses an outdated `review contract`.
-        Specialized usage: When `manifest proof` uses an outdated `review contract`, `build_manifest_from_agent_md_files` emits stale_review_contract_attestation.
+        `build_manifest_from_agent_md_files` preserves `manifest proof` created under an earlier `review contract` when the reviewed test is unchanged.
+        Specialized usage: The manifest's historical review-contract hash differs from the current hash while its test-content hash remains current.
 
         Verification Method: verify private function output
 
         Verification Detail:
-        Issue list contains `stale_review_contract_attestation`.
+        The issue list is empty.
+        No replacement review packet is required.
+        The historical manifest record remains unchanged.
 
         Similar Coverage:
-        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_review_contract_changes_with_documentation`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `build_manifest_from_agent_md_files` derives the `review contract` from README.md and docs/workflow.md; the current test is failure path, while the named test is happy path.
-        - Scenario Difference: `test_cicd_validation_workflow.py::test_outdated_version_requires_review`
-          Explanation: The current test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`. The named test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_review_contract_changes_with_documentation`
+          Explanation: The current test verifies historical contract metadata does not invalidate unchanged proof. The named test verifies current contract metadata changes with its inputs; both use happy path, but exercise materially different scenarios.
+        - Module Difference: `test_cicd_validation_workflow.py::test_outdated_version_remains_valid`
+          Explanation: The current test verifies a historical review-contract hash remains valid. The named test verifies a historical linter version remains valid; both exercise grandfathered proof through different named modules or contract subjects.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -212,9 +214,15 @@ class AgentReviewManifestTests(unittest.TestCase):
                 review_contract_hash="0" * 64,
             )
 
-            rules = _issue_rules(_lint_agent_review_manifest([test_file], root))
+            manifest_path = _agent_review_manifest_path(root)
+            manifest_before = manifest_path.read_text(encoding="utf-8")
+            issues = _lint_agent_review_manifest([test_file], root)
+            pending_by_file = _find_tests_requiring_agent_review([test_file], root)
+            manifest_after = manifest_path.read_text(encoding="utf-8")
 
-        self.assertIn("stale_review_contract_attestation", rules)
+        self.assertEqual([], issues)
+        self.assertEqual({test_file.resolve(): []}, pending_by_file)
+        self.assertEqual(manifest_before, manifest_after)
 
     def test_deleted_file_proof_removed(self) -> None:
         """Test Path: failure path
@@ -428,6 +436,8 @@ class AgentReviewManifestTests(unittest.TestCase):
           Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `determine_agent_md_status` derives pending status when a scorecard contains a pending row and no failed rows; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
           Explanation: The current test verifies `build_manifest_from_agent_md_files` creates `manifest proof` only after the reviewer completes every scorecard row. The named test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies an incomplete first review creates no manifest proof. The named test verifies an incomplete replacement review preserves existing manifest bytes; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
