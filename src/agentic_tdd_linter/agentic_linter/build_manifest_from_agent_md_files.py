@@ -244,42 +244,6 @@ def _find_tests_requiring_agent_review(
     }
 
 
-def _find_files_with_changed_test_content(
-    files: Iterable[Path],
-    repo_root: Path,
-    manifest_path: Path | None = None,
-    *,
-    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
-) -> list[Path]:
-    """Return files whose current test contents differ from the manifest."""
-
-    root = Path(repo_root).resolve()
-    selected_files = sorted({Path(file).resolve() for file in files})
-    manifest = _agent_review_manifest_path(root, manifest_path)
-    records, parse_issues = _read_manifest_records(manifest, root, missing_is_issue=False)
-    if parse_issues:
-        return selected_files
-
-    recorded_hashes_by_path: dict[str, dict[str, str]] = {}
-    for record in records:
-        path = record.values.get("path", "")
-        test_name = record.values.get("test", "")
-        source_sha256 = record.values.get("source_sha256", "")
-        if path and test_name and source_sha256:
-            recorded_hashes_by_path.setdefault(path, {})[test_name] = source_sha256
-
-    changed_files: list[Path] = []
-    for test_file in selected_files:
-        relative_path = _relative_path(test_file, root).as_posix()
-        current_hashes = {
-            test.name: _test_content_sha256(test.source)
-            for test in _tests_for_file(test_file, root, tests_by_file)
-        }
-        if current_hashes != recorded_hashes_by_path.get(relative_path, {}):
-            changed_files.append(test_file)
-    return changed_files
-
-
 def _lint_agent_review_manifest(
     files: Iterable[Path],
     repo_root: Path,

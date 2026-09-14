@@ -26,7 +26,7 @@ class LoadAllFormatsTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `create-agent-md` creates a `packet set` from a discovered `.py` test file.
+        `create-agent-md` creates a `packet set` when it discovers a `.py` test file.
         Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
@@ -58,6 +58,8 @@ class LoadAllFormatsTests(unittest.TestCase):
           Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_typescript_without_file_docstring`
           Explanation: The current test verifies `create-agent-md` creates a `packet set` from a discovered `.py` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies repository discovery loads Python tests. The named test verifies fresh generation recreates every individual and relationship packet; both use happy path, but exercise materially different scenarios.
         """
 
         python_source = textwrap.dedent(
@@ -156,6 +158,8 @@ class LoadAllFormatsTests(unittest.TestCase):
           Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.py` test file omits file-level documentation; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_load_all_formats.py::test_rejects_typescript_without_file_docstring`
           Explanation: The current test verifies `create-agent-md` creates a `packet set` when it discovers a `.test.ts` test file. The named test verifies `create-agent-md` emits missing_file_docstring when a `.test.ts` file omits file-level documentation; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies repository discovery loads TypeScript tests. The named test verifies fresh generation recreates every individual and relationship packet; both use happy path, but exercise materially different scenarios.
         """
 
         typescript_source = textwrap.dedent(

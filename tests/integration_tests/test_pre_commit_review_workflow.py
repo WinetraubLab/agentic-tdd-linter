@@ -97,16 +97,27 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
         Requirement Tested:
         `pre-commit review workflow` generates zero review packets when every test has current passing manifest proof.
-        Standard usage: The source and its passing proof remain unchanged after review.
+        Standard usage: The scenario demonstrates baseline behavior.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Create-agent-md succeeds and outputs `generated 0 agent review packets`.
+        The create-agent-md exit status indicates success.
+        The create-agent-md output contains `generated 0 agent review packets`.
 
         Similar Coverage:
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
           Explanation: The current test verifies generation creates no packets for unchanged passing proof. The named test verifies generation creates pending packets for one edited test; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies ordinary generation creates no packets for current proof. The named test verifies CI accepts current passing proof; both use happy path, but exercise materially different scenarios.
+        - Module Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies ordinary generation creates no packets for current proof. The named test verifies CI lint creates no review packets; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies ordinary generation creates no packets for current proof. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies ordinary generation creates no packets for current proof. The named test verifies fresh generation recreates every individual and relationship packet; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies ordinary generation creates no packets for current proof. The named test verifies repeated ordinary generation preserves manifest bytes; both use happy path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -125,18 +136,40 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` preserves manifest bytes across repeated `create-agent-md` invocations when every test has current passing proof.
-        Specialized usage: A pre-commit automation retries `create-agent-md` after losing the first command result, without changing tests or the manifest, so the retry must leave committed review proof byte-identical.
+        `pre-commit review workflow` preserves manifest bytes across repeated create-agent-md invocations when every test has current passing proof.
+        Specialized usage: A pre-commit automation invokes create-agent-md again when it loses the first invocation result rather than retaining it, while tests and manifest bytes remain unchanged.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        Both create-agent-md invocations succeed.
-        Manifest bytes after each invocation equal the bytes recorded before either invocation.
+        Each create-agent-md invocation succeeds.
+        The manifest remains byte-identical to its pre-generation state after each invocation.
 
         Similar Coverage:
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
           Explanation: The current test verifies repeated generation preserves current manifest bytes. The named test verifies incomplete replacement review preserves prior manifest bytes; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies existing proof remains when a new test function is added; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies proof for a deleted test file is removed; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies proof for a deleted test function is removed; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies unchanged proof remains valid with historical review-contract metadata; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies a manifest update retains current proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies CI accepts current passing proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies CI lint creates no review packets; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_outdated_version_remains_valid`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies unchanged proof remains valid with historical linter metadata; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies ordinary generation creates no packets for current proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies repeated ordinary generation preserves manifest bytes. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -161,14 +194,38 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `pre-commit review workflow` accepts current passing manifest proof without evaluating pending rows in obsolete `.agent.md` and `cross_test_review.agent.md` files.
-        Specialized usage: An abandoned review run leaves pending packet files on disk after the tests and manifest return to an already approved state, so ordinary lint must ignore those leftover files.
+        `pre-commit review workflow` accepts current passing manifest proof when obsolete `.agent.md` and `cross_test_review.agent.md` files contain pending rows.
+        Specialized usage: An abandoned review run keeps `.agent.md` and `cross_test_review.agent.md` files pending instead of synchronizing them with the approved tests and manifest.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        `_packet_contents` identifies pending rows in `.agent.md` and `cross_test_review.agent.md`.
+        The obsolete `.agent.md` and `cross_test_review.agent.md` files contain pending rows.
         The lint command produces exit code `0`.
+
+        Similar Coverage:
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies unchanged proof remains valid with historical review-contract metadata; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies a manifest update retains current proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies CI accepts current passing proof; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies CI lint creates no review packets; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_outdated_version_remains_valid`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies unchanged proof remains valid with historical linter metadata; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies ordinary generation creates no packets for current proof; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies an incomplete replacement review preserves existing manifest records; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies fresh generation recreates every individual and relationship packet; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_removes_obsolete_single_test_packet`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies ordinary generation removes an obsolete individual packet; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies repeated ordinary generation preserves manifest bytes; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies lint ignores obsolete pending packets when manifest proof is current. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -199,7 +256,9 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
 
             lint = _run_cli(repo_root, "lint")
 
+        # Input check
         self.assertTrue(any(pending_marker in text for text in individual_packets))
+        # Input check
         self.assertIn(pending_marker, cross_packet)
         self.assertEqual(0, lint.returncode)
 
@@ -243,6 +302,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; the current test is happy path, while the named test is failure path.
         - Module Difference: `test_review_documentation.py::test_readme_shows_review_workflow`
           Explanation: The current test verifies `pre-commit review workflow` persists an approved test in the manifest when its `.agent.md` scorecard passes. The named test verifies `test_review_documentation` requires README to list the `pre-commit review workflow` in this order: create `.agent.md` files, review them, then persist manifest proof through reviewer-authenticated lint; both exercise materially the same scenario through different named modules or contract subjects.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies a completed passing review is persisted. The named test verifies an incomplete replacement review preserves existing manifest records; the current test is happy path, while the named test is failure path.
         """
 
         test_source = textwrap.dedent(
@@ -647,8 +708,8 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` creates only an edited test's pending `.agent.md` and every pending relationship involving that test in `cross_test_review.agent.md` when unchanged tests have passing manifest proof.
-        Standard usage: After every test passes review, a developer edits one test and reruns `create-agent-md`, which requests a new review only for the edited test and its relationships.
+        `pre-commit review workflow` generates only a changed test's pending `.agent.md` and its relationship rows when that change makes passing manifest proof stale.
+        Standard usage: When a source edit invalidates one test's passing manifest proof while all other tests retain passing manifest proof, create-agent-md regenerates only that test's `.agent.md` and the rows involving that test in `cross_test_review.agent.md`.
 
         Verification Method: verify public function output
 
@@ -682,6 +743,20 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; the current test is failure path, while the named test is happy path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
           Explanation: The current test verifies generation creates only review work involving one edited test. The named test verifies repeated generation creates no review work when every test and proof remains unchanged; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies CI accepts current passing proof; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies CI lint creates no review packets; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_outdated_version_remains_valid`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies unchanged proof remains valid with historical linter metadata; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies an incomplete replacement review preserves existing manifest records; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies lint ignores obsolete pending packets when manifest proof is current; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_removes_obsolete_single_test_packet`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies ordinary generation removes an obsolete individual packet; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies an edited test creates only its packet and related relationship rows. The named test verifies repeated ordinary generation preserves manifest bytes; the current test is failure path, while the named test is happy path.
         """
 
         original_source = textwrap.dedent(
@@ -793,15 +868,13 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("approved before source edit", cross_packet_after)
         self.assertIn(
-            "tests/test_truth.py::test_first_truth",
+            "| `tests/test_truth.py::test_first_truth` | "
+            "`tests/test_truth.py::test_second_truth` | pending | pending |",
             cross_packet_after,
         )
         self.assertIn(
-            "tests/test_truth.py::test_second_truth",
-            cross_packet_after,
-        )
-        self.assertIn(
-            "tests/test_truth.py::test_third_truth",
+            "| `tests/test_truth.py::test_first_truth` | "
+            "`tests/test_truth.py::test_third_truth` | pending | pending |",
             cross_packet_after,
         )
         self.assertNotIn(
@@ -814,21 +887,38 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         """Test Path: failure path
 
         Requirement Tested:
-        `pre-commit review workflow` does not change the manifest until an edited test's new review is complete.
-        Standard usage: A developer edits one approved test but stops before finishing its new review, so lint rejects that test without deleting or rewriting the existing review records.
+        `pre-commit review workflow` retains existing manifest records until an edited test's replacement review is complete.
+        Standard usage: When an edited approved test has a pending replacement review, the workflow retains the existing manifest records.
 
         Verification Method: verify public function output
 
         Verification Detail:
-        The generated replacement packet contains a pending review row.
-        Lint rejects the edited test.
-        Manifest contents remain unchanged after lint and create-agent-md.
+        The generated `.agent.md` for the edited test contains a pending review row.
+        The manifest preserves its contents after lint and create-agent-md.
 
         Similar Coverage:
         - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
           Explanation: The current test verifies an incomplete replacement review preserves the existing manifest. The named test verifies an incomplete first review creates no manifest proof; both use failure path, but exercise materially different scenarios.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
           Explanation: The current test verifies incomplete replacement review preserves the existing manifest. The named test verifies repeated generation preserves the current manifest; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_added_function_preserves_existing_proof`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies existing proof remains when a new test function is added; both use failure path, but exercise materially different scenarios.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies proof for a deleted test function is removed; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies unchanged proof remains valid with historical review-contract metadata; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies a manifest update retains current proof; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies CI accepts current passing proof; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_outdated_version_remains_valid`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies unchanged proof remains valid with historical linter metadata; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies lint ignores obsolete pending packets when manifest proof is current; the current test is failure path, while the named test is happy path.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_nominal_review_scenario`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies a completed passing review is persisted; the current test is failure path, while the named test is happy path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies an incomplete replacement review preserves existing manifest records. The named test verifies an edited test creates only its packet and related relationship rows; both use failure path, but exercise materially different scenarios.
         """
 
         with tempfile.TemporaryDirectory() as directory:
@@ -848,17 +938,16 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 ),
             )
 
-            lint = _run_cli(repo_root, "lint")
+            _run_cli(repo_root, "lint")
             _run_cli(repo_root, "create-agent-md")
             manifest_after = manifest_path.read_bytes()
-            pending_packets = [
+            pending_packet = next(
                 text
-                for text in _packet_contents(repo_root).values()
-                if "| pending |" in text
-            ]
+                for path, text in _packet_contents(repo_root).items()
+                if "test_current_truth" in path.name
+            )
 
-        self.assertNotEqual(0, lint.returncode)
-        self.assertTrue(pending_packets)
+        self.assertIn("| pending |", pending_packet)
         self.assertEqual(manifest_before, manifest_after)
 
     def test_removes_obsolete_single_test_packet(self) -> None:
@@ -877,6 +966,10 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         Similar Coverage:
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
           Explanation: The current test verifies `pre-commit review workflow` removes an obsolete single-test `.agent.md` during ordinary generation. The named test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies ordinary generation removes an obsolete individual packet. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies ordinary generation removes an obsolete individual packet. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         initial_source = textwrap.dedent(
@@ -959,6 +1052,14 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `pre-commit review workflow` replaces the complete `.agent.md` set with one pending single-test file per current test and one pending cross-test file when create-agent-md runs with unscoped --fresh. The named test verifies `pre-commit review workflow` requires a new review only for an edited test and its cross-test relationships; the current test is happy path, while the named test is failure path.
         - Scenario Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
           Explanation: The current test verifies explicit fresh generation recreates every packet despite current proof. The named test verifies repeated ordinary generation preserves current proof without creating packets; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies fresh generation recreates every individual and relationship packet. The named test verifies CI lint creates no review packets; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_python_tests`
+          Explanation: The current test verifies fresh generation recreates every individual and relationship packet. The named test verifies repository discovery loads Python tests; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_load_all_formats.py::test_loads_typescript_tests`
+          Explanation: The current test verifies fresh generation recreates every individual and relationship packet. The named test verifies repository discovery loads TypeScript tests; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies fresh generation recreates every individual and relationship packet. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
         """
 
         first_source = textwrap.dedent(

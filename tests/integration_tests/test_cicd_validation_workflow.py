@@ -49,6 +49,20 @@ class CicdValidationWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `CI/CD linter` accepts proof from an earlier linter release. The named test verifies `CI/CD linter` accepts proof from the current release; both use happy path, but exercise materially different scenarios.
         - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
           Explanation: The current test verifies `CI/CD linter` accepts proof from an earlier linter release. The named test verifies `CI/CD linter` creates no `.agent.md` files when valid proof exists; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_file_proof_removed`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies proof for a deleted test file is removed; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_deleted_function_proof_removed`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies proof for a deleted test function is removed; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_recording_keeps_current_proof`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies a manifest update retains current proof; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies an incomplete replacement review preserves existing manifest records; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies repeated ordinary generation preserves manifest bytes; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies unchanged proof remains valid with historical linter metadata. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         test_source = textwrap.dedent(
@@ -104,8 +118,8 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` accepts a test when the manifest contains a passing review for its current content.
-        Standard usage: CI checks the committed tests and manifest, recognizes that the unchanged test already passed review, and succeeds without running another review.
+        `CI/CD linter` exits successfully when the manifest contains a passing review for the test's current content.
+        Standard usage: CI reuses committed proof for an unchanged reviewed test.
 
         Verification Method: verify public function output
 
@@ -125,6 +139,18 @@ class CicdValidationWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `CI/CD linter` accepts proof created under an earlier version; both use happy path, but exercise materially different scenarios.
         - Module Difference: `test_review_documentation.py::test_github_actions_shows_ci`
           Explanation: The current test verifies `CI/CD linter` accepts current manifest proof. The named test verifies `test_review_documentation` requires GitHub Actions guidance to describe the `CI/CD validation workflow` as linting committed tests and manifest proof; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies unchanged proof remains valid with historical review-contract metadata; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies ordinary generation creates no packets for current proof; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies an incomplete replacement review preserves existing manifest records; the current test is happy path, while the named test is failure path.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies repeated ordinary generation preserves manifest bytes; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies CI accepts current passing proof. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         test_source = textwrap.dedent(
@@ -188,6 +214,16 @@ class CicdValidationWorkflowTests(unittest.TestCase):
           Explanation: The current test verifies `CI/CD linter` creates no `.agent.md` files when current proof exists. The named test verifies `CI/CD linter` accepts proof created under an earlier version; both use happy path, but exercise materially different scenarios.
         - Module Difference: `test_review_documentation.py::test_github_actions_omits_packet_creation`
           Explanation: The current test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists. The named test verifies `test_review_documentation` requires `CI/CD validation workflow` guidance to exclude the create-agent-md command; both exercise materially the same scenario through different named modules or contract subjects.
+        - Module Difference: `test_pre_commit_review_workflow.py::test_current_manifest_generates_zero_packets`
+          Explanation: The current test verifies CI lint creates no review packets. The named test verifies ordinary generation creates no packets for current proof; both exercise materially the same scenario through different named modules or contract subjects.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_lint_ignores_obsolete_pending_packets`
+          Explanation: The current test verifies CI lint creates no review packets. The named test verifies lint ignores obsolete pending packets when manifest proof is current; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_refresh_scenario`
+          Explanation: The current test verifies CI lint creates no review packets. The named test verifies fresh generation recreates every individual and relationship packet; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies CI lint creates no review packets. The named test verifies repeated ordinary generation preserves manifest bytes; both use happy path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies CI lint creates no review packets. The named test verifies an edited test creates only its packet and related relationship rows; the current test is happy path, while the named test is failure path.
         """
 
         test_source = textwrap.dedent(

@@ -43,6 +43,8 @@ class AgentMdStatusTests(unittest.TestCase):
           Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `determine_agent_md_status` emits `invalid_review_scorecard` when one `.agent.md` scorecard row contains both pass and fail results; the current test is happy path, while the named test is failure path.
         - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_agentic_linter_errors_scenario`
           Explanation: The current test verifies `determine_agent_md_status` derives pass status when every scorecard row succeeds. The named test verifies `pre-commit review workflow` requires editors to consider every scorecard criterion, including passed criteria, before fixing a test with a failed `.agent.md` review; the current test is happy path, while the named test is failure path.
+        - Happy/Failure Path Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Explanation: The current test verifies a completed scorecard produces pass status. The named test verifies a pending review is omitted from the manifest; the current test is happy path, while the named test is failure path.
         """
 
         artifact = """# Agentic Test Review
