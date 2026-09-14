@@ -92,6 +92,35 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
+    def test_current_manifest_generates_zero_packets(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` generates zero review packets when every test has current passing manifest proof.
+        Standard usage: The source and its passing proof remain unchanged after review.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Create-agent-md succeeds and outputs `generated 0 agent review packets`.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_stale_test_requires_review`
+          Explanation: The current test verifies generation creates no packets for unchanged passing proof. The named test verifies generation creates pending packets for one edited test; the current test is happy path, while the named test is failure path.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            self._record_current_review(
+                repo_root,
+                reviewer="integration:current-reviewer",
+                evidence="current review passed",
+            )
+            creation = _run_cli(repo_root, "create-agent-md")
+
+        self.assertEqual(0, creation.returncode)
+        self.assertIn("generated 0 agent review packets", creation.stdout)
+
     def test_nominal_review_scenario(self) -> None:
         """Test Path: happy path
 
