@@ -27,6 +27,71 @@ from tests.integration_tests.test_harness.usage_scenarios import (
 
 
 class PreCommitReviewWorkflowTests(unittest.TestCase):
+    def _record_current_review(
+        self,
+        repo_root: Path,
+        *,
+        reviewer: str,
+        evidence: str,
+    ) -> Path:
+        test_source = textwrap.dedent(
+            '''\
+            """Tests in this file validate `current review example` located at `src/current.py`.
+            `current review example` is responsible for exposing a stable truth value.
+            """
+
+            def test_current_truth() -> None:
+                """Test Path: happy path
+
+                Requirement Tested:
+                `current review example` exposes a true value.
+                Standard usage: The source and its passing review remain unchanged.
+
+                Verification Method: verify public function output
+
+                Verification Detail:
+                The exposed value equals true.
+                """
+
+                assert True
+            '''
+        )
+        manifest_path = repo_root / "tests" / "agentic_review_manifest.jsonl"
+        _write_source(repo_root / "src" / "current.py", "VALUE = True\n")
+        _write_source(repo_root / "tests" / "test_current.py", test_source)
+        _run_cli(repo_root, "create-agent-md")
+        _complete_packets(repo_root, status="pass", evidence=evidence)
+        recorded_lint = _run_cli(
+            repo_root,
+            "lint",
+            "--reviewer",
+            reviewer,
+        )
+        self.assertEqual(0, recorded_lint.returncode)
+        return manifest_path
+
+    def _make_review_packets_obsolete(
+        self,
+        repo_root: Path,
+        *,
+        completed_evidence: str,
+        pending_marker: str,
+    ) -> None:
+        for packet_path in _packet_paths(repo_root):
+            if packet_path.name == "cross_test_review.agent.md":
+                packet_path.write_text(
+                    f"obsolete relationship review\n{pending_marker}\n",
+                    encoding="utf-8",
+                )
+                continue
+            packet_path.write_text(
+                packet_path.read_text(encoding="utf-8").replace(
+                    f"| pass | {completed_evidence}. |",
+                    f"{pending_marker} Replace with review evidence. |",
+                ),
+                encoding="utf-8",
+            )
+
     def test_nominal_review_scenario(self) -> None:
         """Test Path: happy path
 
