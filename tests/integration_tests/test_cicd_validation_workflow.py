@@ -104,16 +104,16 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` accepts current manifest proof.
-        Standard usage: The scenario demonstrates baseline behavior.
+        `CI/CD linter` accepts a test when the manifest contains a passing review for its current content.
+        Standard usage: CI checks the committed tests and manifest, recognizes that the unchanged test already passed review, and succeeds without running another review.
 
         Verification Method: verify public function output
 
         Verification Detail:
         1. Harness creates a temporary repository containing one valid test.
         2. Harness completes its review.
-        3. Harness persists passing proof whose source hash identifies the current test content and whose reviewer identifies integration:ci-reviewer.
-        4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:ci-reviewer`.
+        3. Harness persists passing proof whose source hash identifies the current test content.
+        4. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository>`.
         5. `CI/CD linter` accepts current manifest proof, demonstrated by exit code `0`.
 
         Similar Coverage:
@@ -160,12 +160,7 @@ class CicdValidationWorkflowTests(unittest.TestCase):
                 review_status="pass",
                 review_evidence="approved packetless CI fixture",
             )
-            lint = _run_cli(
-                repo_root,
-                "lint",
-                "--reviewer",
-                "integration:ci-reviewer",
-            )
+            lint = _run_cli(repo_root, "lint")
 
         self.assertEqual(0, lint.returncode, lint.stdout + lint.stderr)
 
