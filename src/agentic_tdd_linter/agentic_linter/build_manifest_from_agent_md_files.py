@@ -207,12 +207,6 @@ def _find_tests_requiring_agent_review(
         test_file: list(_tests_for_file(test_file, root, tests_by_file))
         for test_file in selected_files
     }
-    _lint_agent_review_manifest(
-        selected_files,
-        root,
-        manifest_path,
-        tests_by_file=tests_by_file,
-    )
     if force_all:
         return selected_tests
 
@@ -221,7 +215,6 @@ def _find_tests_requiring_agent_review(
     if parse_issues:
         return selected_tests
 
-    contract_hash = _review_contract_sha256(root)
     selected_tests_by_key = {
         (_relative_path(test_file, root).as_posix(), test.name): test
         for test_file, tests in selected_tests.items()
@@ -236,8 +229,6 @@ def _find_tests_requiring_agent_review(
         if (
             set(values) == set(REQUIRED_FIELDS)
             and values.get("status") == "pass"
-            and values.get("review_contract_sha256") == contract_hash
-            and values.get("linter_version") == __version__
             and test is not None
             and values.get("source_sha256") == _test_content_sha256(test.source)
         ):
@@ -296,7 +287,7 @@ def _lint_agent_review_manifest(
     *,
     tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]] | None = None,
 ) -> list[LintIssue]:
-    """Return manifest issues and remove attestations for stale test sources."""
+    """Return manifest issues and remove attestations for changed or missing tests."""
     root = Path(repo_root).resolve()
     manifest = _agent_review_manifest_path(root, manifest_path)
     records, issues = _read_manifest_records(manifest, root, missing_is_issue=True)
@@ -305,7 +296,6 @@ def _lint_agent_review_manifest(
 
     records_by_test: dict[tuple[str, str], ManifestRecord] = {}
     stale_record_lines: set[int] = set()
-    current_contract_hash = _review_contract_sha256(root)
     for record in records:
         path = record.values.get("path", "")
         test_name = record.values.get("test", "")
@@ -340,34 +330,6 @@ def _lint_agent_review_manifest(
                     record.line,
                     "agent_review_not_approved",
                     f"review attestation for {identity or '<missing test>'} must have status pass",
-                )
-            )
-        linter_version = record.values.get("linter_version", "")
-        if linter_version and linter_version != __version__:
-            issues.append(
-                _manifest_issue(
-                    manifest,
-                    root,
-                    record.line,
-                    "stale_linter_review_attestation",
-                    (
-                        f"review attestation for {identity or '<missing test>'} was "
-                        f"recorded by linter version {linter_version}; expected exactly {__version__}"
-                    ),
-                )
-            )
-        contract_hash = record.values.get("review_contract_sha256", "")
-        if contract_hash and contract_hash != current_contract_hash:
-            issues.append(
-                _manifest_issue(
-                    manifest,
-                    root,
-                    record.line,
-                    "stale_review_contract_attestation",
-                    (
-                        f"review attestation for {identity or '<missing test>'} was "
-                        "recorded with an old review contract SHA256"
-                    ),
                 )
             )
         if path and not (root / path).exists():

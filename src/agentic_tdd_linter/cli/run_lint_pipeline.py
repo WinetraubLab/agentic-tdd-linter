@@ -157,6 +157,13 @@ def create_agent_md_files(
     )
     if force_fresh and not paths:
         _clear_agent_md_files(artifact_root)
+    elif not force_fresh:
+        _remove_current_single_test_agent_md_files(
+            artifact_root,
+            root,
+            tests_by_file,
+            pending_by_file,
+        )
 
     generated: list[Path] = []
     for test_file, tests in pending_by_file.items():
@@ -173,13 +180,30 @@ def create_agent_md_files(
                 or _agent_md_file_is_stale(test.source, artifact_path)
             ):
                 generated.append(render_agent_md_file(test_file, test, root, artifact_root))
-    if review_files and (
+    pending_identifiers = {
+        f"{_relative_path(test_file, root).as_posix()}::{test.name}"
+        for test_file, tests in pending_by_file.items()
+        for test in tests
+    }
+    if pending_identifiers and (
         force_fresh
-        or cross_test_agent_md_file_is_stale(review_files, root, artifact_root)
+        or cross_test_agent_md_file_is_stale(
+            review_files,
+            root,
+            artifact_root,
+            pending_test_identifiers=(None if force_fresh else pending_identifiers),
+        )
     ):
         generated.append(
-            render_cross_test_agent_md_file(review_files, root, artifact_root)
+            render_cross_test_agent_md_file(
+                review_files,
+                root,
+                artifact_root,
+                pending_test_identifiers=(None if force_fresh else pending_identifiers),
+            )
         )
+    elif not pending_identifiers and not paths:
+        _remove_cross_test_agent_md_file(artifact_root)
     return LintPipelineResult(
         files=tuple(files),
         issues=(),
@@ -192,6 +216,39 @@ def _clear_agent_md_files(artifact_root: Path) -> None:
         return
     for artifact_path in artifact_root.glob("*.agent.md"):
         artifact_path.unlink()
+
+
+def _remove_cross_test_agent_md_file(artifact_root: Path) -> None:
+    artifact_path = artifact_root / "cross_test_review.agent.md"
+    if artifact_path.exists():
+        artifact_path.unlink()
+
+
+def _remove_current_single_test_agent_md_files(
+    artifact_root: Path,
+    repo_root: Path,
+    tests_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+    pending_by_file: Mapping[Path, Sequence[ExtractedTestRecord]],
+) -> None:
+    """Remove selected packets whose current manifest proof makes them unnecessary."""
+
+    pending_keys = {
+        (test_file.resolve(), test.name)
+        for test_file, tests in pending_by_file.items()
+        for test in tests
+    }
+    for test_file, tests in tests_by_file.items():
+        for test in tests:
+            if (test_file.resolve(), test.name) in pending_keys:
+                continue
+            artifact_path = map_test_function_to_agent_md_file(
+                test_file,
+                repo_root,
+                artifact_root,
+                test.name,
+            )
+            if artifact_path.exists():
+                artifact_path.unlink()
 
 
 def _remove_obsolete_single_test_agent_md_files(

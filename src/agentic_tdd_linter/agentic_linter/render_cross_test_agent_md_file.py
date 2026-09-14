@@ -6,7 +6,7 @@ from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
 import re
-from typing import Sequence
+from typing import Collection, Sequence
 
 from jinja2 import Environment, StrictUndefined, Template
 
@@ -27,8 +27,10 @@ def render_cross_test_agent_md_file(
     test_file_paths: Sequence[Path],
     repo_root: Path,
     artifact_root: Path | None = None,
+    *,
+    pending_test_identifiers: Collection[str] | None = None,
 ) -> Path:
-    """Write one review packet for relationships among listed test files."""
+    """Write one review packet for relationships involving pending tests."""
 
     root = Path(repo_root).resolve()
     review_root = (
@@ -41,7 +43,11 @@ def render_cross_test_agent_md_file(
     artifact_path = review_root / _ARTIFACT_NAME
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     artifact_path.write_text(
-        _render_cross_test_agent_md(test_file_paths, root),
+        _render_cross_test_agent_md(
+            test_file_paths,
+            root,
+            pending_test_identifiers=pending_test_identifiers,
+        ),
         encoding="utf-8",
     )
     return artifact_path
@@ -51,6 +57,8 @@ def cross_test_agent_md_file_is_stale(
     test_file_paths: Sequence[Path],
     repo_root: Path,
     artifact_root: Path | None = None,
+    *,
+    pending_test_identifiers: Collection[str] | None = None,
 ) -> bool:
     """Return whether embedded criteria or test docstrings differ from current input."""
 
@@ -65,7 +73,11 @@ def cross_test_agent_md_file_is_stale(
         artifact_path.read_text(encoding="utf-8")
     )
     expected_scope = _relationship_review_input_scope(
-        _render_cross_test_agent_md(test_file_paths, root)
+        _render_cross_test_agent_md(
+            test_file_paths,
+            root,
+            pending_test_identifiers=pending_test_identifiers,
+        )
     )
     return current_scope != expected_scope
 
@@ -73,6 +85,8 @@ def cross_test_agent_md_file_is_stale(
 def _render_cross_test_agent_md(
     test_file_paths: Sequence[Path],
     repo_root: Path,
+    *,
+    pending_test_identifiers: Collection[str] | None = None,
 ) -> str:
     scope = _build_cross_test_review_scope(test_file_paths, repo_root)
     test_docstrings = [
@@ -83,11 +97,16 @@ def _render_cross_test_agent_md(
         for relative_path in scope
         for test in extract_tests_from_file(repo_root / relative_path, repo_root)
     ]
-    return _render_test_relationship_docstrings_agent_md(test_docstrings)
+    return _render_test_relationship_docstrings_agent_md(
+        test_docstrings,
+        pending_test_identifiers=pending_test_identifiers,
+    )
 
 
 def _render_test_relationship_docstrings_agent_md(
     test_docstrings: Sequence[tuple[str, str]],
+    *,
+    pending_test_identifiers: Collection[str] | None = None,
 ) -> str:
     """Render one test-relationship packet containing identifiers and docstrings."""
 
@@ -98,6 +117,11 @@ def _render_test_relationship_docstrings_agent_md(
         }
         for identifier, docstring in test_docstrings
     ]
+    pending = (
+        None
+        if pending_test_identifiers is None
+        else set(pending_test_identifiers)
+    )
     test_pairs = [
         {
             "first_identifier": first["identifier"],
@@ -105,6 +129,9 @@ def _render_test_relationship_docstrings_agent_md(
         }
         for index, first in enumerate(tests)
         for second in tests[index + 1 :]
+        if pending is None
+        or first["identifier"] in pending
+        or second["identifier"] in pending
     ]
     return (
         _test_relationship_review_template()
