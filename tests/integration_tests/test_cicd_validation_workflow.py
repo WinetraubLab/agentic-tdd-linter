@@ -24,12 +24,12 @@ from tests.integration_tests.test_harness.usage_scenarios import (
 
 
 class CicdValidationWorkflowTests(unittest.TestCase):
-    def test_outdated_version_requires_review(self) -> None:
-        """Test Path: failure path
+    def test_outdated_version_remains_valid(self) -> None:
+        """Test Path: happy path
 
         Requirement Tested:
-        `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version.
-        Specialized usage: The manifest contains a modified linter version instead of the installed linter version, so `CI/CD linter` emits missing_required_agent_md.
+        `CI/CD linter` accepts unchanged manifest proof created by an earlier linter version.
+        Specialized usage: The manifest records a historical linter version instead of the installed baseline version while its test-content hash remains current.
 
         Verification Method: verify public function output
 
@@ -39,16 +39,16 @@ class CicdValidationWorkflowTests(unittest.TestCase):
         3. Harness persists passing manifest proof before invoking `CI/CD linter`.
         4. Harness appends `-outdated` to the manifest's installed linter version.
         5. Harness removes the existing '.agent.md' files to reproduce `CI/CD linter` input.
-        6. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository> --reviewer integration:version-reviewer`.
-        7. `CI/CD linter` output contains missing_required_agent_md.
+        6. Harness invokes `CI/CD linter` using `agentic-tdd-linter lint --repo-root <temporary-repository>`.
+        7. `CI/CD linter` succeeds without requiring a new review.
 
         Similar Coverage:
-        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_reports_old_review_contract`
-          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `build_manifest_from_agent_md_files` emits stale_review_contract_attestation when `manifest proof` contains an outdated `review contract`; both use failure path, but exercise materially different scenarios.
-        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
-          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `CI/CD linter` accepts current manifest proof; the current test is failure path, while the named test is happy path.
-        - Happy/Failure Path Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
-          Explanation: The current test verifies `CI/CD linter` emits missing_required_agent_md when manifest proof contains a linter version different from the installed linter version. The named test verifies `CI/CD linter` creates no `.agent.md` files when current manifest proof exists; the current test is failure path, while the named test is happy path.
+        - Module Difference: `test_build_manifest_from_agent_md_files.py::test_manifest_accepts_old_review_contract`
+          Explanation: The current test verifies historical linter-version metadata remains valid. The named test verifies historical review-contract metadata remains valid; both exercise grandfathered proof through different named modules or contract subjects.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_accepts_current_proof`
+          Explanation: The current test verifies `CI/CD linter` accepts proof from an earlier linter release. The named test verifies `CI/CD linter` accepts proof from the current release; both use happy path, but exercise materially different scenarios.
+        - Scenario Difference: `test_cicd_validation_workflow.py::test_cicd_creates_no_packets`
+          Explanation: The current test verifies `CI/CD linter` accepts proof from an earlier linter release. The named test verifies `CI/CD linter` creates no `.agent.md` files when valid proof exists; both use happy path, but exercise materially different scenarios.
         """
 
         test_source = textwrap.dedent(
@@ -95,9 +95,10 @@ class CicdValidationWorkflowTests(unittest.TestCase):
             manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
             _remove_packet_directory(repo_root)
 
-            lint = _run_cli(repo_root, "lint", "--reviewer", reviewer)
+            lint = _run_cli(repo_root, "lint")
 
-        self.assertIn("missing_required_agent_md", lint.stdout)
+        self.assertEqual(0, lint.returncode)
+        self.assertNotIn("missing_required_agent_md", lint.stdout)
 
     def test_cicd_accepts_current_proof(self) -> None:
         """Test Path: happy path
