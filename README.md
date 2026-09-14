@@ -110,13 +110,16 @@ agentic-tdd-linter lint --fresh tests/test_example.py --reviewer codex:gpt-5.5
 Without a path, `--fresh` applies to the complete test root. With a path, it refreshes
 every test in that file or directory and rebuilds the cross-test packet from that
 selected scope while leaving unrelated single-test packets alone. Without `--fresh`,
-packet creation preserves current proof, writes only missing or stale single-test
-packets, and does not create or update the cross-test packet.
+packet creation writes only the single-test packets that lack current passing proof.
+It creates a cross-test packet only when at least one test is pending, and that packet
+contains only relationships with a pending test on at least one side. Generated files
+for selected tests that now have current proof are removed as obsolete.
 
 Each single-test packet records the SHA256 of its extracted test content. Editing one
-test therefore regenerates only that test's packet while preserving reviews for other
-tests in the same file. Manifest proof records the linter version and review contract
-so lint rejects reviews produced under an older policy.
+test therefore regenerates only that test's packet while preserving manifest proof for
+other tests in the same file. Manifest proof records the linter version and review
+contract as historical metadata. Reviews remain valid across linter-policy changes
+and require renewal only when their reviewed test content changes.
 
 ## Install It On GitHub Actions On Your Project
 
