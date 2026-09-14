@@ -121,6 +121,42 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         self.assertEqual(0, creation.returncode)
         self.assertIn("generated 0 agent review packets", creation.stdout)
 
+    def test_repeated_generation_preserves_manifest(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` preserves manifest bytes across repeated `create-agent-md` invocations when every test has current passing proof.
+        Specialized usage: A pre-commit automation retries `create-agent-md` after losing the first command result, without changing tests or the manifest, so the retry must leave committed review proof byte-identical.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        Both create-agent-md invocations succeed.
+        Manifest bytes after each invocation equal the bytes recorded before either invocation.
+
+        Similar Coverage:
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_incomplete_review_preserves_manifest`
+          Explanation: The current test verifies repeated generation preserves current manifest bytes. The named test verifies incomplete replacement review preserves prior manifest bytes; the current test is happy path, while the named test is failure path.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            manifest_path = self._record_current_review(
+                repo_root,
+                reviewer="integration:idempotence-reviewer",
+                evidence="idempotence review passed",
+            )
+            manifest_before = manifest_path.read_bytes()
+            first_creation = _run_cli(repo_root, "create-agent-md")
+            manifest_after_first = manifest_path.read_bytes()
+            second_creation = _run_cli(repo_root, "create-agent-md")
+            manifest_after_second = manifest_path.read_bytes()
+
+        self.assertEqual(0, first_creation.returncode)
+        self.assertEqual(0, second_creation.returncode)
+        self.assertEqual(manifest_before, manifest_after_first)
+        self.assertEqual(manifest_before, manifest_after_second)
+
     def test_nominal_review_scenario(self) -> None:
         """Test Path: happy path
 
