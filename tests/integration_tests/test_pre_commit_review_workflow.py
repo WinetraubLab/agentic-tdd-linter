@@ -157,6 +157,52 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
         self.assertEqual(manifest_before, manifest_after_first)
         self.assertEqual(manifest_before, manifest_after_second)
 
+    def test_lint_ignores_obsolete_pending_packets(self) -> None:
+        """Test Path: happy path
+
+        Requirement Tested:
+        `pre-commit review workflow` accepts current passing manifest proof without evaluating pending rows in obsolete `.agent.md` and `cross_test_review.agent.md` files.
+        Specialized usage: An abandoned review run leaves pending packet files on disk after the tests and manifest return to an already approved state, so ordinary lint must ignore those leftover files.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        `_packet_contents` identifies pending rows in `.agent.md` and `cross_test_review.agent.md`.
+        The lint command produces exit code `0`.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            completed_evidence = "obsolete packet review passed"
+            pending_marker = "| pending |"
+            self._record_current_review(
+                repo_root,
+                reviewer="integration:obsolete-packet-reviewer",
+                evidence=completed_evidence,
+            )
+            self._make_review_packets_obsolete(
+                repo_root,
+                completed_evidence=completed_evidence,
+                pending_marker=pending_marker,
+            )
+            contents = _packet_contents(repo_root)
+            individual_packets = [
+                text
+                for path, text in contents.items()
+                if path.name != "cross_test_review.agent.md"
+            ]
+            cross_packet = next(
+                text
+                for path, text in contents.items()
+                if path.name == "cross_test_review.agent.md"
+            )
+
+            lint = _run_cli(repo_root, "lint")
+
+        self.assertTrue(any(pending_marker in text for text in individual_packets))
+        self.assertIn(pending_marker, cross_packet)
+        self.assertEqual(0, lint.returncode)
+
     def test_nominal_review_scenario(self) -> None:
         """Test Path: happy path
 
