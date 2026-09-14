@@ -810,6 +810,56 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             cross_packet_after,
         )
 
+    def test_incomplete_review_preserves_manifest(self) -> None:
+        """Test Path: failure path
+
+        Requirement Tested:
+        `pre-commit review workflow` does not change the manifest until an edited test's new review is complete.
+        Standard usage: A developer edits one approved test but stops before finishing its new review, so lint rejects that test without deleting or rewriting the existing review records.
+
+        Verification Method: verify public function output
+
+        Verification Detail:
+        The generated replacement packet contains a pending review row.
+        Lint rejects the edited test.
+        Manifest contents remain unchanged after lint and create-agent-md.
+
+        Similar Coverage:
+        - Scenario Difference: `test_build_manifest_from_agent_md_files.py::test_pending_review_is_not_recorded`
+          Explanation: The current test verifies an incomplete replacement review preserves the existing manifest. The named test verifies an incomplete first review creates no manifest proof; both use failure path, but exercise materially different scenarios.
+        - Happy/Failure Path Difference: `test_pre_commit_review_workflow.py::test_repeated_generation_preserves_manifest`
+          Explanation: The current test verifies incomplete replacement review preserves the existing manifest. The named test verifies repeated generation preserves the current manifest; the current test is failure path, while the named test is happy path.
+        """
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            manifest_path = self._record_current_review(
+                repo_root,
+                reviewer="integration:incomplete-reviewer",
+                evidence="review passed before edit",
+            )
+            manifest_before = manifest_path.read_bytes()
+            test_file = repo_root / "tests" / "test_current.py"
+            _write_source(
+                test_file,
+                test_file.read_text(encoding="utf-8").replace(
+                    "The exposed value equals true.",
+                    "The stable exposed value equals true.",
+                ),
+            )
+
+            lint = _run_cli(repo_root, "lint")
+            _run_cli(repo_root, "create-agent-md")
+            manifest_after = manifest_path.read_bytes()
+            pending_packets = [
+                text
+                for text in _packet_contents(repo_root).values()
+                if "| pending |" in text
+            ]
+
+        self.assertNotEqual(0, lint.returncode)
+        self.assertTrue(pending_packets)
+        self.assertEqual(manifest_before, manifest_after)
 
     def test_removes_obsolete_single_test_packet(self) -> None:
         """Test Path: happy path
