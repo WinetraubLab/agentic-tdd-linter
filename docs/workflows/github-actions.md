@@ -22,8 +22,10 @@ The fields mean:
 - `test`: the reviewed test name.
 - `source_sha256`: the exact extracted content of that test function at review time.
 - `status`: the review result. CI accepts only `pass`.
-- `linter_version`: the linter version that wrote the attestation.
-- `review_contract_sha256`: a hash of the linter source and repository documentation.
+- `linter_version`: historical metadata identifying the linter version that wrote the attestation.
+- `review_contract_sha256`: a hash of the linter's Python and Jinja source files,
+  `README.md`, `pyproject.toml`, and Markdown files under `docs/` at review time. It
+  does not hash the reviewed test or the completed review response.
 - `reviewer`: the model or agent identity used for review.
 
 ## Workflow Verification
@@ -44,7 +46,10 @@ The workflow verifies the committed manifest against the committed repository st
 1. The manifest must include a record for each checked test.
 2. Each `source_sha256` must match the committed test function's extracted content.
 3. Each record must have `status: pass`.
-4. Each `linter_version` must exactly match the linter version installed by the workflow.
-5. Each `review_contract_sha256` must match the current linter source and documentation.
+
+The recorded `linter_version` and `review_contract_sha256` identify the linter and
+review policy used for the original review. Changes to the linter or review policy do
+not require a new review. A new review is required only when `source_sha256` no longer
+matches the current test content.
 
 When those checks pass, CI succeeds without the local `.agent.md` files. When proof is missing or stale, `lint` exits with failure and tells the coding agent to run the `$run-tdd-linter` skill. It never creates `.agent.md` files in CI.
