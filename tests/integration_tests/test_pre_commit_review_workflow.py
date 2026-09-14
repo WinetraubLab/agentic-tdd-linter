@@ -800,6 +800,16 @@ class PreCommitReviewWorkflowTests(unittest.TestCase):
             "tests/test_truth.py::test_second_truth",
             cross_packet_after,
         )
+        self.assertIn(
+            "tests/test_truth.py::test_third_truth",
+            cross_packet_after,
+        )
+        self.assertNotIn(
+            "| `tests/test_truth.py::test_second_truth` | "
+            "`tests/test_truth.py::test_third_truth` |",
+            cross_packet_after,
+        )
+
 
     def test_removes_obsolete_single_test_packet(self) -> None:
         """Test Path: happy path
