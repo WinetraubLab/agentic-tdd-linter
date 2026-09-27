@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Agentic TDD Linter"
+  short_description: "Refresh shared linter pins and installations"
+  default_prompt: "Use $update-agentic-tdd-linter to update this repository to the latest shared agentic TDD linter commit."
