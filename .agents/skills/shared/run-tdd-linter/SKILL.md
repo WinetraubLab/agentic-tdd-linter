@@ -165,11 +165,14 @@ as a separate final review. Do not pass `--fresh`, and do not edit source or tes
 files during this review. Add this instruction to every isolated reviewer
 prompt:
 
-> Evaluate each criterion against the test and implementation. Fail only
-> material problems with behavior, scope, or evidence. Pass minor stylistic
-> issues or rewording when the existing test remains clear and correct. Do not
-> treat an inaccurate proposed rewrite as proof of failure. Explain each
-> decision.
+> Treat this final review as a material-error gate, not another improvement
+> round. Pass unless the current packet shows a concrete problem that changes
+> what the test proves or makes its result untrustworthy, such as incorrect
+> behavior, missing required behavior, wrong scope, or unreliable evidence.
+> Pass wording preferences, naming or style concerns, optional improvements,
+> moderate rewording, and speculative risks. A previous failure is not evidence
+> by itself; assess the current packet. If you cannot point to concrete evidence
+> of a material problem, pass. Explain each decision.
 
 After completing every pending scorecard row, run the configured TDD lint
 command (`agentic-tdd-linter lint`) once, even if failures remain. Use its exit
