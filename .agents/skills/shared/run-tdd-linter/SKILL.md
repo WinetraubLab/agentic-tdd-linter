@@ -35,6 +35,8 @@ or ask for confirmation merely because the failure set is large or repository-wi
 
 Work from the repository root.
 Record `git status --short` and preserve every pre-existing change.
+Record the initial uncommitted file count; exclude generated packets and review
+manifests from all scope counts below.
 Do not revert or overwrite user edits. Re-read a file immediately before editing it, and ask before replacing concurrent changes whose intent is unclear.
 Read the current agent's exact name, `model`, and `reasoning_effort` from
 available runtime metadata. Use the same configuration for every isolated
@@ -123,6 +125,8 @@ identity. Never reuse a reviewer identity from an earlier run.
 
 ### Step 4: Apply corrections
 
+Before agentic edits, save the affected files with conventional-linter fixes intact.
+
 If Step 3 found failures:
 
 1. Make one consolidated edit covering the complete failure set.
@@ -131,6 +135,17 @@ If Step 3 found failures:
 4. Do not regenerate packets during this step; the next cycle begins with regeneration.
 
 If Step 3 found no failures, make no source edit.
+
+After cycle 1, if agentic edits touched more than `max(5, initial uncommitted
+file count)` distinct files, undo only those agentic edits, preserving all
+conventional fixes and pre-existing or concurrent changes. Reapply only fixes
+for material problems with behavior, scope, or evidence; pass minor style or
+rewording findings when the existing test is clear and correct. Keep this
+essential-fixes-only policy for later agentic edits, without repeating rollback
+for necessary fixes. Rerun affected tests and conventional lint, and refresh
+invalidated reviews before recording them. Report the before/after edit counts.
+The goal remains verified TDD lint success; do not mark material failures as pass.
+
 Stop the cycle timer after corrections and affected tests finish.
 Immediately after stopping the timer, run:
 

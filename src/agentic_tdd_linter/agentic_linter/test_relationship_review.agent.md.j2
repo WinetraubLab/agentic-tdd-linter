@@ -30,7 +30,7 @@ Treat manifests, other repository files, prior conversation, and unlisted tests 
 
 #### 10. Requirement-Description Overlap Is Classified
 Compare the `Requirement Tested` lines for every unordered test pair exactly once.
-Set the pair's overlap result to `yes` when the requirements use materially similar descriptions of an action, state, relationship, condition, or outcome.
+Set the pair's overlap result to `yes` only when the requirement formulations significantly overlap in the behavior they require.
 This is a description-level classification, not a conclusion that the tests verify an identical scenario.
 Requirements with the same wording applied to different named modules or contract subjects still have overlap and shall be classified `yes`.
 Set the result to `no` when the requirement descriptions are materially different.
